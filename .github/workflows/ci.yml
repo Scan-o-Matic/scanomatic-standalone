@@ -20,6 +20,7 @@ jobs:
         runs-on: ubuntu-18.04
         steps:
         - uses: actions/checkout@v2
+        - uses: browser-actions/setup-chrome@latest
         - uses: nanasess/setup-chromedriver@master
 
         - name: Setup Chromedriver
@@ -72,11 +73,6 @@ jobs:
         runs-on: ubuntu-18.04
         steps:
         - uses: actions/checkout@v2
-
-        - name: System Requirements
-          run:   |
-            sudo apt update
-            sudo apt install build-essential
 
         - name: Setup Python
           uses: actions/setup-python@v2
