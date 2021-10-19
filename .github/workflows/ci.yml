@@ -61,7 +61,7 @@ jobs:
           run: |
             tox -e lint,mypy
 
-    backend-lint:
+    backend-test:
         runs-on: ubuntu-18.04
         steps:
         - uses: actions/checkout@v2
