@@ -49,7 +49,6 @@ module.exports = function(config) {
         ],
     },
 
-
     // web server port
     port: 9876,
 
@@ -65,7 +64,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
 
     browserNoActivityTimeout: 30000,
 
