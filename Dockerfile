@@ -8,8 +8,6 @@ FROM ubuntu:18.04
 RUN apt update && apt -y install usbutils software-properties-common python-pip
 # net-tools & iputils-ping are used in the xml-writer which should be removed soon
 RUN apt -y install net-tools iputils-ping
-# RUN echo -e "\n" | add-apt-repository ppa:rolfbensch/sane-release
-# RUN apt-get update
 RUN apt -y install libsane sane-utils libsane-common
 # Add scanner id to sane config in case scanimage -L cannot find the scanner automatically
 # Epson V800
