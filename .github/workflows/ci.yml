@@ -1,0 +1,81 @@
+name: Slipstream CI
+
+on: [push]
+
+jobs:
+    frontend-lint:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Install
+          run: |
+            npm install
+
+        - name: Lint
+          run: |
+            npm run lint
+
+    frontend-test:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Install
+          run: |
+            npm install
+
+        - name: Test
+          run: |
+            npm test
+
+    frontend-build:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Install
+          run: |
+            npm install
+
+        - name: Builds
+          run: |
+            npm runt build
+
+    backend-lint:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 2.7
+
+        - name: Install General Dependencies
+          run: |
+            python2.7 -m pip install --upgrade pip
+            pip install tox
+
+        - name: Lint and Types
+          run: |
+            tox -e lint,mypy
+
+    backend-lint:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 2.7
+
+        - name: Install General Dependencies
+          run: |
+            python2.7 -m pip install --upgrade pip
+            pip install tox
+
+        - name: Test non-system-tests
+          run: |
+            tox -e py27
