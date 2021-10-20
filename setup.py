@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.9
 
 
 #
@@ -18,7 +18,9 @@ import json
 package_dependencies = [
     'argparse', 'matplotlib', 'multiprocessing', 'odfpy',
     'numpy', 'sh', 'nmap', 'configparse', 'skimage',
-    'uuid', 'PIL', 'scipy', 'setproctitle', 'psutil', 'flask', 'requests', 'pandas']
+    'uuid', 'PIL', 'scipy', 'setproctitle', 'psutil', 'flask',
+    'requests', 'pandas',
+]
 
 scripts = [
     os.path.join("scripts", p) for p in [
@@ -55,11 +57,18 @@ if silent_install:
 #
 
 branch = None
-branch_info = tuple(i for i, arg in enumerate(sys.argv) if arg.lower() == '--branch')
+branch_info = tuple(
+    i for i,
+    arg in enumerate(sys.argv) if arg.lower() == '--branch'
+)
 
 if branch_info:
     branch_info = branch_info[0]
-    branch = sys.argv[branch_info + 1] if len(sys.argv) > branch_info + 1 else None
+    branch = (
+        sys.argv[branch_info + 1]
+        if len(sys.argv) > branch_info + 1
+        else None
+    )
     sys.argv = sys.argv[:branch_info] + sys.argv[branch_info + 2:]
 
 
@@ -67,25 +76,39 @@ if branch_info:
 # Parsing and removing version upgrade in argument
 #
 
-version_update = {i: v for i, v in enumerate(sys.argv) if v.lower().startswith("--version")}
+version_update = {
+    i: v for i, v in enumerate(sys.argv)
+    if v.lower().startswith("--version")
+}
 if version_update:
-    id_argument = version_update.keys()[0]
+    id_argument = list(version_update.keys())[0]
     sys.argv = sys.argv[:id_argument] + sys.argv[id_argument + 1:]
     version_update = version_update[id_argument].lower().split("-")[-2:]
     version_update[0] = True
-    version_update[1] = version_update[1] if version_update[1] in ('minor', 'major') else False
+    version_update[1] = (
+        version_update[1]
+        if version_update[1] in ('minor', 'major')
+        else False
+    )
 
 
 #
 # Python-setup
 #
 
-from setup_tools import MiniLogger, patch_bashrc_if_not_reachable, test_executable_is_reachable
+from setup_tools import (
+    MiniLogger,
+    patch_bashrc_if_not_reachable,
+    test_executable_is_reachable
+)
 
 if len(sys.argv) > 1:
 
     if sys.argv[1] == 'uninstall':
-        call('python -c"from setup_tools import uninstall;uninstall()"', shell=True)
+        call(
+            'python -c"from setup_tools import uninstall;uninstall()"',
+            shell=True,
+        )
         sys.exit()
 
     _logger = MiniLogger()
@@ -109,20 +132,20 @@ if len(sys.argv) > 1:
     if len(install_dependencies) > 0:
 
         if os.name == 'posix':
-
             if os.system("gksu apt-get install {0}".format(
-                    " ".join(install_dependencies))) != 0:
-
+                " ".join(install_dependencies)
+            )) != 0:
                 _logger.warning("Could not install: {0}".format(
-                    install_dependencies))
-
+                    install_dependencies,
+                ))
         else:
-
             _logger.warning(
                 "Scan-o-Matic is only designed to be run on Linux. "
-                "Setup will try to continue but you are on your own from now on. "
-                "The following programs were not found: {0}".format(
-                    install_dependencies))
+                "\nSetup will try to continue but you are on your own from now on. "  # noqa: E501
+                "\nThe following programs were not found: {0}".format(
+                    install_dependencies,
+                ),
+            )
 
 
     _logger.info("Non python dependencies done")
@@ -135,7 +158,11 @@ if len(sys.argv) > 1:
         # PRE-INSTALL VERSIONING
         #
 
-        from setup_tools import get_hash_all_files, get_package_hash, get_hash
+        from setup_tools import (
+            get_hash_all_files,
+            get_package_hash,
+            get_hash
+        )
 
         _logger.info("Checking for local changes")
 
@@ -186,9 +213,9 @@ if len(sys.argv) > 1:
         name="Scan-o-Matic",
         version=get_version(),
         description="High Throughput Solid Media Image Phenotyping Platform",
-        long_description="""Scan-o-Matic is a high precision phenotyping platform
-        that uses scanners to obtain images of yeast colonies growing on solid
-        substrate.
+        long_description="""Scan-o-Matic is a high precision phenotyping
+        platform that uses scanners to obtain images of yeast colonies
+        growing on solid substrate.
 
         The package contains a user interface as well as an extensive package
         for yeast colony analysis from scanned images.
@@ -227,7 +254,7 @@ if len(sys.argv) > 1:
 
     if set(v.lower() for v in sys.argv).intersection(('--help', '--help-commands')):
 
-        print """
+        print("""
         SCAN-O-MATIC Specific Setup
         ---------------------------
 
@@ -249,7 +276,7 @@ if len(sys.argv) > 1:
 
             Uninstalls Scan-o-Matic
 
-        """
+        """)
         sys.exit()
 
     if os.name == "nt":
@@ -272,7 +299,7 @@ if len(sys.argv) > 1:
     _logger.info("Post Setup Complete")
 
     if not test_executable_is_reachable():
-        print """
+        print("""
 
         INFORMATION ABOUT LOCAL / USER INSTALL
         --------------------------------------
@@ -303,22 +330,27 @@ if len(sys.argv) > 1:
         If you use a USB-connected PowerManager, make sure
         sispmctl is installed.
 
-    """
+    """)
 
     from scanomatic.io.paths import Paths
 
     try:
         with open(Paths().source_location_file, mode='w') as fh:
-            directory = os.path.dirname(os.path.join(os.path.abspath(os.path.expanduser(os.path.curdir)), sys.argv[0]))
+            directory = os.path.dirname(
+                os.path.join(
+                    os.path.abspath(os.path.expanduser(os.path.curdir)),
+                    sys.argv[0],
+                ),
+            )
             json.dump({'location': directory, 'branch': branch}, fh)
 
     except IOError:
-        _logger.warning("Could not write info for future upgrades. You should stick to manual upgrades")
+        _logger.warning(
+            "Could not write info for future upgrades."
+            " You should stick to manual upgrades."
+        )
 
     # postSetup.CheckDependencies(package_dependencies)
-
     _logger.info("Install Complete")
-
     from subprocess import call
-
     call(["python", "get_installed_version.py"])
