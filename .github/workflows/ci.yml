@@ -1,4 +1,4 @@
-name: Slipstream CI
+name: Scan-o-Matic CI
 
 on: [push]
 
