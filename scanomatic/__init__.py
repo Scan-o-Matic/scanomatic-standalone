@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.9
 """Part of analysis work-flow that holds a grid arrays"""
 import os
 

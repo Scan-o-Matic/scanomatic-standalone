@@ -4,7 +4,7 @@ import numpy as np
 import chardet
 import unicodedata
 import codecs
-from itertools import izip
+
 from scanomatic.data_processing.phenotyper import Phenotyper
 from enum import Enum
 
@@ -56,12 +56,18 @@ def _get_count_mode(counts):
 
 def _parse_non_data(data, mode, include_until=-1):
 
-    return tuple(data[i] for i in data if _get_row_length(data[i]) < mode or i < include_until)
+    return tuple(
+        data[i] for i in data
+        if _get_row_length(data[i]) < mode or i < include_until
+    )
 
 
 def _parse_data(data, mode, time_scale, start_row=0):
 
-    all_data = tuple(data[i][:mode] for i in data if _get_row_is_possible_at_length(data[i], mode) and i >= start_row)
+    all_data = tuple(
+        data[i][:mode] for i in data
+        if _get_row_is_possible_at_length(data[i], mode) and i >= start_row
+    )
     data = np.array(all_data[1:], dtype=np.object)
 
     if data.size == 0:
@@ -72,13 +78,17 @@ def _parse_data(data, mode, time_scale, start_row=0):
         time = data[:, 0].astype(np.float) / time_scale
     except ValueError:
         def f(v):
-            return sum(float(a) * b for a, b in izip(v.split(":"), (1, 1/60., 1/3600.)))
+            return sum(
+                float(a) * b for a, b in zip(v.split(":"), (1, 1/60., 1/3600.))
+            )
 
-        print("Failed direct parsing for time in decimal format, attempting clock format")
+        print(
+            "Failed direct parsing for time in decimal format, attempting clock format"  # noqa: E501
+        )
         time = np.frompyfunc(f, 1, 1)(data[:, 0])
 
     except IndexError:
-        print("Failed parsing data {0}".format(data))
+        print(("Failed parsing data {0}".format(data)))
         raise
 
     column_start = max(1, data.shape[1] - 200)
@@ -89,9 +99,17 @@ def _parse_data(data, mode, time_scale, start_row=0):
         data = data[:, column_start:].astype(np.float)
     except ValueError:
         try:
-            data = np.array([[val if val else None for val in row[column_start:]] for row in data], dtype=np.float)
+            data = np.array(
+                [
+                    [val if val else None for val in row[column_start:]]
+                    for row in data
+                ],
+                dtype=np.float,
+            )
         except ValueError:
-            print("Failed to interpret data ({0} rows, type ({1})) as floats".format(len(data), data.dtype))
+            print(
+                f"Failed to interpret data ({len(data)} rows, type ({data.dtype})) as floats",  # noqa: E501
+            )
             raise
 
     return headers, time.astype(np.float), data
@@ -114,14 +132,14 @@ def csv_loader(path):
             if len(data) > 1:
                 break
 
-    # Sniffing has to be repeated to not become confused by non-commented comment lines
+    # Sniffing has to be repeated to not become confused by non-commented
+    # comment lines
     dialect = csv.Sniffer().sniff(data[10])
     data = {i: v for i, v in enumerate(csv.reader(data, dialect=dialect))}
     return data
 
 
 def parse(path, time_scale=36000):
-
     data = csv_loader(path)
     mode_length = _get_count_mode(_count_row_lengths(data))
     rows = max(data.keys()) + 1
@@ -137,8 +155,14 @@ def parse(path, time_scale=36000):
     return ret, _parse_non_data(data, mode_length, include_until=i)
 
 
-def load(path=None, data=None, times=None, time_scale=36000, reshape=True,
-         preprocess=Preprocessing.Precog2016_S_cerevisiae):
+def load(
+    path=None,
+    data=None,
+    times=None,
+    time_scale=36000,
+    reshape=True,
+    preprocess=Preprocessing.Precog2016_S_cerevisiae,
+):
     """Loads a phenotyper object for a bioscreen experiment
 
     :param path: Path to the bioscreen data file
@@ -149,7 +173,8 @@ def load(path=None, data=None, times=None, time_scale=36000, reshape=True,
     :param preprocess: If imported data should have their values transformed.
         Typically by some polynomial. For standard options use one of the
         `Preprocessing` values. You can also supply your own function that
-        takes the element-wise value and returns a corresponding pre-processed value:
+        takes the element-wise value and returns a corresponding
+        pre-processed value:
         ```yprim = f(y)```
     :return:
     """
@@ -164,8 +189,10 @@ def load(path=None, data=None, times=None, time_scale=36000, reshape=True,
     data = data.T
     if data.shape[0] == 200:
         if reshape:
-            data = np.array([data[:100].reshape(10, 10, *data.shape[1:]),
-                             data[100:].reshape(10, 10, *data.shape[1:])])
+            data = np.array([
+                data[:100].reshape(10, 10, *data.shape[1:]),
+                data[100:].reshape(10, 10, *data.shape[1:]),
+            ])
         else:
             data = np.array([[data[:100]], [data[100:]]])
     elif data.shape[0] == 100:

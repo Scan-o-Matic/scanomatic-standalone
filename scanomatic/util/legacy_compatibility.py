@@ -26,7 +26,9 @@ def patch_image_file_names_by_interval(path, interval=20.0):
     source_pattern = "{0}_{1}.tiff"
     target_pattern = paths.Paths().experiment_scan_image_pattern
 
-    images = tuple(os.path.basename(i) for i in glob.glob(os.path.join(path, '*.tiff')))
+    images = tuple(
+        os.path.basename(i) for i in glob.glob(os.path.join(path, '*.tiff'))
+    )
 
     if not images:
         _logger.error("Directory does not contain any images")
@@ -42,11 +44,17 @@ def patch_image_file_names_by_interval(path, interval=20.0):
             if not base_name:
                 base_name = match.groups()[0]
             elif match.groups()[0] != base_name:
-                _logger.error("Conflicting image names, unsure if '{0}' or '{1}' is project name".format(
-                    base_name, match.groups()[0]))
+                _logger.error(
+                    "Conflicting image names, unsure if '{0}' or '{1}' is project name".format(  # noqa: E501
+                        base_name,
+                        match.groups()[0],
+                    )
+                )
                 return
         else:
-            _logger.info("Skipping file '{0}' since it doesn't seem to belong in project".format(i))
+            _logger.info(
+                f"Skipping file '{i}' since it doesn't seem to belong in project",
+            )
 
     _logger.info("Will process {0} images".format(included_images))
 
@@ -56,21 +64,45 @@ def patch_image_file_names_by_interval(path, interval=20.0):
 
     while processed_images < included_images:
 
-        source = os.path.join(path, source_pattern.format(base_name, str(image_index).zfill(index_length)))
+        source = os.path.join(
+            path,
+            source_pattern.format(
+                base_name,
+                str(image_index).zfill(index_length),
+            ),
+        )
         if os.path.isfile(source):
-            os.rename(source, os.path.join(path, target_pattern.format(
-                base_name, str(image_index).zfill(index_length), image_index * 60.0 * interval)))
+            os.rename(
+                source,
+                os.path.join(
+                    path,
+                    target_pattern.format(
+                        base_name,
+                        str(image_index).zfill(index_length),
+                        image_index * 60.0 * interval,
+                    ),
+                ),
+            )
             processed_images += 1
         else:
-            _logger.warning("Missing file with index {0} ({1})".format(image_index, source))
+            _logger.warning(
+                f"Missing file with index {image_index} ({source})",
+            )
 
         image_index += 1
         if image_index > included_images * sanity_threshold:
-            _logger.error("Aborting becuase something seems to be amiss." +
-                          " Currently attempting to process image {0}".format(image_index) +
-                          " for a project which should only contain {0} images.".format(included_images) +
-                          " So far only found {0} images...".format(processed_images))
+            _logger.error(
+                "Aborting becuase something seems to be amiss."
+                f" Currently attempting to process image {image_index}"
+                f" for a project which should only contain {included_images} images."  # noqa: E501
+                f" So far only found {processed_images} images..."
+            )
             return
 
-    _logger.info("Successfully renamed {0} images in project {1} using {2} minutes interval".format(
-        processed_images, base_name, interval))
+    _logger.info(
+        "Successfully renamed {0} images in project {1} using {2} minutes interval".format(  # noqa: E501
+            processed_images,
+            base_name,
+            interval,
+        ),
+    )

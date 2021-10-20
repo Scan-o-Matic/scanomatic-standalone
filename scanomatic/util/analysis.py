@@ -5,13 +5,21 @@ from scanomatic.io.paths import Paths
 from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.logger import Logger
 from scanomatic.io.pickler import unpickle_with_unpickler
-from scanomatic.models.factories.compile_project_factory import CompileImageAnalysisFactory
+from scanomatic.models.factories.compile_project_factory import (
+    CompileImageAnalysisFactory,
+)
 from scanomatic.generics.purge_importing import ExpiringModule
 
 _logger = Logger("Analysis Utils")
 
 
-def produce_grid_images(path=".", plates=None, image=None, mark_position=None, compilation=None):
+def produce_grid_images(
+    path=".",
+    plates=None,
+    image=None,
+    mark_position=None,
+    compilation=None,
+):
 
     project_path = os.path.join(os.path.dirname(os.path.abspath(path)))
 
@@ -20,24 +28,36 @@ def produce_grid_images(path=".", plates=None, image=None, mark_position=None, c
 
     if compilation:
         if not os.path.isfile(compilation):
-            raise ValueError("There's no compilation at {0}".format(compilation))
+            raise ValueError(
+                "There's no compilation at {0}".format(compilation),
+            )
     else:
-        for compilation_pattern in (Paths().project_compilation_pattern,
-                                    Paths().project_compilation_from_scanning_pattern,
-                                    Paths().project_compilation_from_scanning_pattern_old):
-
+        for compilation_pattern in (
+            Paths().project_compilation_pattern,
+            Paths().project_compilation_from_scanning_pattern,
+            Paths().project_compilation_from_scanning_pattern_old,
+        ):
             compilations = glob.glob(
-                os.path.join(os.path.dirname(os.path.abspath(path)), compilation_pattern.format("*")))
+                os.path.join(
+                    os.path.dirname(os.path.abspath(path)),
+                    compilation_pattern.format("*")),
+                )
 
             if compilations:
                 break
 
         if not compilations:
-            raise ValueError("There are no compilations in the parent directory")
+            raise ValueError(
+                "There are no compilations in the parent directory",
+                )
 
         compilation = compilations[0]
 
-    _logger.info("Using '{0}' to produce grid images".format(os.path.basename(compilation)))
+    _logger.info(
+        "Using '{0}' to produce grid images".format(
+            os.path.basename(compilation),
+        )
+    )
 
     compilation = CompileImageAnalysisFactory.serializer.load(compilation)
 
@@ -55,7 +75,10 @@ def produce_grid_images(path=".", plates=None, image=None, mark_position=None, c
     except IOError:
 
         try:
-            image = load_image_to_numpy(os.path.join(project_path, os.path.basename(image_path)), dtype=np.uint8)
+            image = load_image_to_numpy(
+                os.path.join(project_path, os.path.basename(image_path)),
+                dtype=np.uint8,
+            )
         except IOError:
             raise ValueError("Image doesn't exist, can't show gridding")
 
@@ -77,8 +100,12 @@ def produce_grid_images(path=".", plates=None, image=None, mark_position=None, c
             grid = None
 
         image_path = Paths().experiment_grid_image_pattern.format(plate.index)
-        make_grid_im(plate_image, grid, os.path.join(path, image_path),
-                     marked_position=mark_position)
+        make_grid_im(
+            plate_image,
+            grid,
+            os.path.join(path, image_path),
+            marked_position=mark_position,
+        )
 
 
 def make_grid(im, grid_plot, grid, marked_position):
@@ -102,7 +129,8 @@ def make_grid(im, grid_plot, grid, marked_position):
             grid[x, marked_position[0], marked_position[1]],
             grid[y, marked_position[0], marked_position[1]] +
             im.shape[y],
-            'o', alpha=0.75, ms=10, mfc='none', mec='blue', mew=1)
+            'o', alpha=0.75, ms=10, mfc='none', mec='blue', mew=1,
+        )
 
 
 def make_grid_im(im, grid, save_grid_name, marked_position=None):
