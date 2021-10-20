@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.9
 """Scan-o-Matic Server"""
 __author__ = "Martin Zackrisson"
 __copyright__ = "Swedish copyright laws apply"
@@ -30,12 +30,14 @@ if __name__ == "__main__":
     setproctitle.setproctitle("SoM {0}".format("Server"))
     basename = os.path.basename(sys.argv[0])[:15]
 
-    procs = psutil.get_process_list if hasattr(psutil, "get_process_list") else psutil.process_iter
+    procs = (
+        psutil.get_process_list
+        if hasattr(psutil, "get_process_list")
+        else psutil.process_iter
+    )
 
     for p in procs():
-
         try:
-
             if isinstance(p.name, str):
                 name = p.name
             else:
@@ -51,11 +53,11 @@ if __name__ == "__main__":
 
                 logger.Logger("Scan-o-Matic server launcher").critical(
                     "There is already a Scan-o-Matic server running, " +
-                    "request refused!")
+                    "request refused!",
+                )
                 sys.exit(9)
 
         except psutil.NoSuchProcess:
-
             pass
 
     interface_builder.InterfaceBuilder()
