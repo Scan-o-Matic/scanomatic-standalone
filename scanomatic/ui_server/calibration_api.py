@@ -1,25 +1,27 @@
-from __future__ import absolute_import, division
-
 from itertools import product
 from types import StringTypes
 
-from flask import jsonify, request, send_file, Blueprint, current_app
 import numpy as np
+from flask import Blueprint, current_app, jsonify, request, send_file
 
-from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
-from scanomatic.models.analysis_model import COMPARTMENTS
-from scanomatic.image_analysis.grid_cell import GridCell
-from scanomatic.image_analysis.grid_array import GridArray
-from scanomatic.image_analysis.grayscale import getGrayscale
-from scanomatic.image_analysis.image_grayscale import (
-    get_grayscale_image_analysis)
-from scanomatic.io.paths import Paths
-from scanomatic.io.fixtures import Fixtures
 from scanomatic.data_processing import calibration
 from scanomatic.data_processing.calibration import delete_ccc
+from scanomatic.image_analysis.grayscale import getGrayscale
+from scanomatic.image_analysis.grid_array import GridArray
+from scanomatic.image_analysis.grid_cell import GridCell
+from scanomatic.image_analysis.image_grayscale import (
+    get_grayscale_image_analysis
+)
+from scanomatic.io.fixtures import Fixtures
+from scanomatic.io.paths import Paths
+from scanomatic.models.analysis_model import COMPARTMENTS
+from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
+
 from .general import (
-    serve_numpy_as_image, get_grayscale_is_valid, valid_array_dimensions,
-    json_abort
+    get_grayscale_is_valid,
+    json_abort,
+    serve_numpy_as_image,
+    valid_array_dimensions
 )
 
 
@@ -54,7 +56,8 @@ def get_under_construction_calibrations():
 
     try:
         identifiers, cccs = zip(
-            *calibration.get_under_construction_cccs().iteritems())
+            *calibration.get_under_construction_cccs().items()
+        )
         return jsonify(
             identifiers=identifiers,
             species=[
@@ -198,7 +201,7 @@ def set_ccc_image_data(ccc_identifier, image_identifier):
 
             if data_type is calibration.CCCImage.fixture and \
                     calibration.CCCImage.grayscale_name.name not in \
-                    data_object.keys():
+                    list(data_object.keys()):
 
                 fixture_settings = Fixtures()[val]
                 if fixture_settings is not None:
@@ -236,7 +239,7 @@ def get_ccc_image_data(ccc_identifier, image_identifier):
         )
 
     return jsonify(**{
-            k.name: val for k, val in data.iteritems()
+            k.name: val for k, val in data.items()
             if k is not calibration.CCCImage.plates
     })
 
@@ -390,7 +393,7 @@ def grid_ccc_image_plate(ccc_identifier, image_identifier, plate):
         xy1 = [[[None] for col in range(inner)] for row in range(outer)]
         xy2 = [[[None] for col in range(inner)] for row in range(outer)]
         warn_once = False
-        for row, col in product(range(outer), range(inner)):
+        for row, col in product(list(range(outer)), list(range(inner))):
             grid_cell = grid_array[(row, col)]
 
             try:

@@ -1,43 +1,55 @@
+import base64
 import glob
+import io
 import os
 import re
-from StringIO import StringIO
-import io
-from scipy.misc import imread
-from itertools import chain
-from flask import (
-    send_file, jsonify, render_template)
-from werkzeug.datastructures import FileStorage
-import numpy as np
+from typing import List, Sequence, Tuple
 import zipfile
-from urllib import unquote, quote
+from io import IOBase, StringIO
+from itertools import chain
 from types import StringTypes
-import base64
+from urllib.parse import quote, unquote
 
-from scanomatic.io.app_config import Config
-from scanomatic.io.paths import Paths
-from scanomatic.io.logger import Logger, parse_log_file
-from scanomatic.models.factories.scanning_factory import ScanningModelFactory
-from scipy.misc import toimage
+import numpy as np
+from flask import jsonify, render_template, send_file
+from scipy.misc import imread, toimage
+from werkzeug.datastructures import FileStorage
+
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.models.fixture_models import (
-    GrayScaleAreaModel, FixturePlateModel)
 from scanomatic.image_analysis.image_grayscale import is_valid_grayscale
+from scanomatic.io.app_config import Config
+from scanomatic.io.logger import Logger, parse_log_file
+from scanomatic.io.paths import Paths
+from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.fixture_models import (
+    FixturePlateModel,
+    GrayScaleAreaModel
+)
 
 _safe_dir = re.compile(
-    r"^[A-Za-z_0-9.%/ \\]*$" if os.sep == "\\" else r"^[A-Za-z_0-9.%/ ]*$")
+    r"^[A-Za-z_0-9.%/ \\]*$" if os.sep == "\\" else r"^[A-Za-z_0-9.%/ ]*$",
+)
 _no_super = re.compile(r"/?\.{2}/")
 _logger = Logger("UI API helpers")
 _ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.tiff'}
 _TOO_LARGE_GRAYSCALE_AREA = 300000
 
 
-def json_abort(status_code, success=False, is_endpoint=True, reason="",
-               *args, **kwargs):
-
+def json_abort(
+    status_code,
+    success=False,
+    is_endpoint=True,
+    reason="",
+    *args,
+    **kwargs,
+):
     response = jsonify(
-        success=success, is_endpoint=is_endpoint, reason=reason,
-        *args, **kwargs)
+        success=success,
+        is_endpoint=is_endpoint,
+        reason=reason,
+        *args,
+        **kwargs,
+    )
     response.status_code = status_code
     return response
 
@@ -69,7 +81,13 @@ def string_parse_2d_list(data_string, dtype=float):
             return []
 
 
-def get_2d_list(data, key, getlist_kwargs=None, use_fallback=True, dtype=float):
+def get_2d_list(
+    data,
+    key,
+    getlist_kwargs=None,
+    use_fallback=True,
+    dtype=float,
+):
     """
 
     :param data: Example a request.values
@@ -92,7 +110,9 @@ def get_2d_list(data, key, getlist_kwargs=None, use_fallback=True, dtype=float):
             else:
                 break
 
-    value = tuple(data.getlist(k, **getlist_kwargs) for k in _list_enumerator())
+    value = tuple(
+        data.getlist(k, **getlist_kwargs) for k in _list_enumerator()
+    )
 
     if not value and use_fallback:
         value = string_parse_2d_list(data.get(key, type=dtype))
@@ -101,46 +121,39 @@ def get_2d_list(data, key, getlist_kwargs=None, use_fallback=True, dtype=float):
 
 
 def valid_array_dimensions(dims, *arrs):
-
     for arr in arrs:
-
         try:
             if arr.ndim != dims:
                 return False
         except (AttributeError, TypeError):
             return False
-
     return True
 
 
 def get_area_too_large_for_grayscale(grayscale_area_model):
     global _TOO_LARGE_GRAYSCALE_AREA
-    area_size = (grayscale_area_model.x2 - grayscale_area_model.x1) * \
-                (grayscale_area_model.y2 - grayscale_area_model.y1)
-
+    area_size = (
+        (grayscale_area_model.x2 - grayscale_area_model.x1)
+        * (grayscale_area_model.y2 - grayscale_area_model.y1)
+    )
     return area_size > _TOO_LARGE_GRAYSCALE_AREA
 
 
 def get_grayscale_is_valid(values, grayscale):
-
     if values is None:
         return False
-
     return is_valid_grayscale(grayscale['targets'], values)
 
 
 def usable_plates(plates):
 
-    def usable_plate(plate):
-        """
-
-        :type plate: scanomatic.models.fixture_models.FixturePlateModel
-        """
+    def usable_plate(plate: FixturePlateModel):
         return plate.x2 > plate.x1 and plate.y2 > plate.y1
 
     def unique_valid_indices():
-
-        return tuple(sorted(plate.index - 1 for plate in plates)) == tuple(range(len(plates)))
+        return tuple(
+            sorted(plate.index - 1 for plate in plates)
+        ) == tuple(range(len(plates)))
 
     if not all(usable_plate(plate) for plate in plates):
         _logger.warning("Some plate coordinates are wrong")
@@ -169,37 +182,40 @@ def convert_url_to_path(url):
 
 def convert_path_to_url(prefix, path):
     if prefix:
-        path = "/".join(chain([prefix], os.path.relpath(path, Config().paths.projects_root).split(os.sep)))
+        path = "/".join(chain(
+            [prefix],
+            os.path.relpath(path, Config().paths.projects_root).split(os.sep),
+        ))
     else:
-        path = "/".join(os.path.relpath(path, Config().paths.projects_root).split(os.sep))
+        path = "/".join(
+            os.path.relpath(path, Config().paths.projects_root).split(os.sep),
+        )
 
     path = quote(path.encode('utf8'))
-
     if safe_directory_name(path):
         return path
     return None
 
 
 def path_is_in_jail(path):
-
     return Config().paths.projects_root in path
 
 
 def get_search_results(path, url_prefix):
-
     projects = _get_possible_paths(path)
     names = list(get_project_name(p) for p in projects)
     urls = list(convert_path_to_url(url_prefix, p) for p in projects)
     if None in urls:
         try:
-            names, urls = zip(*tuple((n, u) for n, u in zip(names, urls) if u is not None))
+            names, urls = zip(
+                *tuple((n, u) for n, u in zip(names, urls) if u is not None),
+            )
         except ValueError:
             pass
     return {'names': names, 'urls': urls}
 
 
 def _get_possible_paths(path):
-
     dirs = tuple()
     root = None
     for root, dirs, _ in os.walk(path, followlinks=True):
@@ -212,11 +228,15 @@ def _get_possible_paths(path):
 
 def get_project_name(project_path):
     no_name = None
-
     if not path_is_in_jail(project_path):
         return no_name
 
-    candidates = glob.glob(os.path.join(project_path, Paths().scan_project_file_pattern.format("*")))
+    candidates = glob.glob(
+        os.path.join(
+            project_path,
+            Paths().scan_project_file_pattern.format("*"),
+        ),
+    )
     if candidates:
         for candidate in candidates:
             model = ScanningModelFactory.serializer.load_first(candidate)
@@ -241,17 +261,18 @@ def strip_empty_exits(exits, data):
 
     for e in all_exits:
         if e in data and (data[e] is None or len(data[e]) == 0):
-            _logger.info("Removing {0} from exits because {1} is empty".format(e, data[e]))
+            _logger.info(f"Removing {e} from exits because {data[e]} is empty")
             del data[e]
             exits.remove(e)
-            _logger.info("Exits now {0}".format(exits))
+            _logger.info(f"Exits now {exits}")
         elif e not in data:
             exits.remove(e)
-            _logger.info("Removing {0} from exits because not in data {1}, exits now {2}".format(e, data, exits))
+            _logger.info(
+                f"Removing {e} from exits because not in data {data}, exits now {exits}",  # noqa: E501
+            )
 
 
 def json_response(exits, data, success=True):
-
     strip_empty_exits(exits, data)
     is_endpoint = len(exits) == 0
     data["is_endpoint"] = is_endpoint
@@ -315,10 +336,12 @@ def serve_zip_file(zip_name, *file_list):
     data_buffer.flush()
     data_buffer.seek(0)
 
-    return send_file(data_buffer,
-                     mimetype='application/zip, application/octet-stream',
-                     as_attachment=True,
-                     attachment_filename=str(zip_name))
+    return send_file(
+        data_buffer,
+        mimetype='application/zip, application/octet-stream',
+        as_attachment=True,
+        attachment_filename=str(zip_name),
+    )
 
 
 def serve_pil_image(pil_img):
@@ -340,7 +363,6 @@ def get_fixture_image_by_name(name, ext="tiff"):
 
 
 def get_fixture_image(name, image_path):
-
     fixture = FixtureImage(reference_overwrite_mode=True)
     fixture.name = name
     fixture.set_image(image_path=image_path)
@@ -354,19 +376,17 @@ def pad_decode_base64(data):
     :returns: The decoded byte string.
 
     """
-    if isinstance(data, unicode):
+    if isinstance(data, str):
         data = data.encode("utf-8")
 
     missing_padding = len(data) % 4
     if missing_padding != 0:
         data += b'=' * (4 - missing_padding)
-
     return base64.decodestring(data)
 
 
 def remove_pad_decode_base64(data):
-
-    if isinstance(data, unicode):
+    if isinstance(data, str):
         data = data.encode("utf-8")
 
     remainder = len(data) % 4
@@ -374,7 +394,6 @@ def remove_pad_decode_base64(data):
 
 
 def get_image_data_as_array(image_data, reshape=None):
-
     if isinstance(image_data, StringTypes):
         stream = io.StringIO()
         stream.write(image_data)
@@ -397,7 +416,10 @@ def get_image_data_as_array(image_data, reshape=None):
             return np.array(image_data)
         else:
             return np.array(image_data).reshape(reshape)
-    elif isinstance(image_data, file) or isinstance(image_data, FileStorage):
+    elif (
+        isinstance(image_data, IOBase)
+        or isinstance(image_data, FileStorage)
+    ):
         return imread(image_data)
 
     else:
@@ -405,7 +427,6 @@ def get_image_data_as_array(image_data, reshape=None):
 
 
 def get_fixture_image_from_data(name, image_data):
-
     fixture = FixtureImage(reference_overwrite_mode=True)
     fixture.name = name
     fixture.set_image(image=get_image_data_as_array(image_data))
@@ -417,14 +438,19 @@ def usable_markers(markers, image):
     def marker_inside_image(marker):
         """Compares marker to image shape
 
-        Note that image shape comes in y, x order while markers come in x, y order
+        Note that image shape comes in y, x order while markers come in x, y
+        order
 
         Args:
             marker: (x, y) coordinates
         """
-        val = (marker > 0).all() and marker[0] < image.shape[1] and marker[1] < image.shape[0]
+        val = (
+            (marker > 0).all()
+            and marker[0] < image.shape[1]
+            and marker[1] < image.shape[0]
+        )
         if not val:
-            _logger.error("Marker {marker} is outside image {shape}".format(marker=marker, shape=image.shape))
+            _logger.error(f"Marker {marker} is outside image {image.shape}")
         return val
 
     try:
@@ -432,40 +458,55 @@ def usable_markers(markers, image):
     except ValueError:
         return False
 
-    if markers_array.ndim != 2 or markers_array.shape[0] < 3 or markers_array.shape[1] != 2:
-        _logger.error("Markers have bad shape {markers}".format(markers=markers))
+    if (
+        markers_array.ndim != 2
+        or markers_array.shape[0] < 3
+        or markers_array.shape[1] != 2
+    ):
+        _logger.error(f"Markers have bad shape {markers}")
         return False
 
     if len(set(map(tuple, markers_array))) != len(markers):
-        _logger.error("Some marker is duplicated {markers}".format(markers=markers))
+        _logger.error(f"Some marker is duplicated {markers}")
         return False
 
     return all(marker_inside_image(marker) for marker in markers_array)
 
 
-def split_areas_into_grayscale_and_plates(areas):
-
+def split_areas_into_grayscale_and_plates(
+    areas: Sequence,
+) -> Tuple[GrayScaleAreaModel, List[FixturePlateModel]]:
     gs = None
     plates = []
-
     for area in areas:
-
         try:
             if area['grayscale']:
-                gs = GrayScaleAreaModel(x1=area['x1'], x2=area['x2'], y1=area['y1'], y2=area['y2'])
+                gs = GrayScaleAreaModel(
+                    x1=area['x1'],
+                    x2=area['x2'],
+                    y1=area['y1'],
+                    y2=area['y2'],
+                )
             else:
-                plates.append(FixturePlateModel(x1=area['x1'], x2=area['x2'], y1=area['y1'], y2=area['y2'],
-                                                index=area['plate']))
+                plates.append(
+                    FixturePlateModel(
+                        x1=area['x1'],
+                        x2=area['x2'],
+                        y1=area['y1'],
+                        y2=area['y2'],
+                        index=area['plate']
+                    ),
+                )
 
         except (AttributeError, KeyError, TypeError):
-
-            _logger.warning("Bad data: '{0}' does not have the expected area attributes".format(area))
+            _logger.warning(
+                f"Bad data: '{area}' does not have the expected area attributes",  # noqa: E501
+            )
 
     return gs, plates
 
 
 def serve_log_as_html(log_path, title):
-
     data = parse_log_file(log_path)
     data['garbage'] = [l.replace("\n", "<br>") for l in data['garbage']]
     for e in data['records']:
@@ -475,7 +516,10 @@ def serve_log_as_html(log_path, title):
         return render_template(
             Paths().ui_log_template,
             title=title,
-            **data)
+            **data,
+        )
     else:
-        return render_template(Paths().ui_log_not_found_template,
-                               title=title)
+        return render_template(
+            Paths().ui_log_not_found_template,
+            title=title,
+        )

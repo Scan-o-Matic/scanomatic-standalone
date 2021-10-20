@@ -1,25 +1,26 @@
-from flask import request, Flask, jsonify
-from itertools import product, chain
-import os
 import glob
-from urllib import unquote
+import os
+from itertools import chain, product
+from urllib.parse import unquote
 
-from scanomatic.ui_server.general import safe_directory_name
+from flask import jsonify, request
+
+from scanomatic.data_processing.phenotyper import path_has_saved_project_state
 from scanomatic.io.app_config import Config
 from scanomatic.io.logger import Logger, parse_log_file
 from scanomatic.io.paths import Paths
-from scanomatic.data_processing.phenotyper import path_has_saved_project_state
+from scanomatic.ui_server.general import safe_directory_name
+
 from .general import convert_url_to_path, json_response, serve_zip_file
 
 _logger = Logger("Tools API")
 
 
-def valid_range(settings):
+def valid_range(settings) -> bool:
     return 'min' in settings and 'max' in settings
 
 
 def add_routes(app):
-
     """
 
     Args:
@@ -42,8 +43,8 @@ def add_routes(app):
                 ['urls'],
                 dict(
                     urls=[
-                        "{0}/{1}".format(base_url, w) for w in
-                        ('server', 'ui_server')
+                        "{0}/{1}".format(base_url, w)
+                        for w in ('server', 'ui_server')
                     ],
                 )
             ))
@@ -51,29 +52,55 @@ def add_routes(app):
         try:
             data = parse_log_file(what)
         except IOError:
-            return jsonify(success=False, is_endpoint=True, reason="No log-file found with that name")
+            return jsonify(
+                success=False,
+                is_endpoint=True,
+                reason="No log-file found with that name",
+            )
 
-        return jsonify(success=True, is_endpoint=True, **{k: v for k, v in data.iteritems() if k not in ('file',)})
+        return jsonify(
+            success=True,
+            is_endpoint=True,
+            **{k: v for k, v in data.items() if k != 'file'},
+        )
 
     @app.route("/api/tools/logs")
     @app.route("/api/tools/logs/<filter_status>/<path:project>")
     @app.route("/api/tools/logs/<int:n_records>/<path:project>")
-    @app.route("/api/tools/logs/<filter_status>/<int:n_records>/<path:project>")
-    @app.route("/api/tools/logs/<int:start_at>/<int:n_records>/<path:project>")
-    @app.route("/api/tools/logs/<filter_status>/<int:start_at>/<int:n_records>/<path:project>")
+    @app.route(
+        "/api/tools/logs/<filter_status>/<int:n_records>/<path:project>",
+    )
+    @app.route(
+        "/api/tools/logs/<int:start_at>/<int:n_records>/<path:project>",
+    )
+    @app.route(
+        "/api/tools/logs/<filter_status>/<int:start_at>/<int:n_records>/<path:project>",  # noqa: E501
+    )
     def log_view(project='', filter_status=None, n_records=-1, start_at=0):
-
         # base_url = "/api/tools/logs"
         path = convert_url_to_path(project)
         if n_records == 0:
             n_records = -1
 
         try:
-            data = parse_log_file(path, seek=start_at, max_records=n_records, filter_status=filter_status)
+            data = parse_log_file(
+                path,
+                seek=start_at,
+                max_records=n_records,
+                filter_status=filter_status,
+            )
         except IOError:
-            return jsonify(success=False, is_endpoint=True, reason="No log-file found with that name")
+            return jsonify(
+                success=False,
+                is_endpoint=True,
+                reason="No log-file found with that name",
+            )
 
-        return jsonify(success=True, is_endpoint=True, **{k: v for k, v in data.iteritems() if k not in ('file',)})
+        return jsonify(
+            success=True,
+            is_endpoint=True,
+            **{k: v for k, v in data.items() if k != 'file'},
+        )
 
     @app.route("/api/tools/selection", methods=['POST'])
     @app.route("/api/tools/selection/<operation>", methods=['POST'])
@@ -105,26 +132,35 @@ def add_routes(app):
             data_object = request.values
 
         if data_object is None or len(data_object) == 0:
-            return jsonify(success=False, reason="No valid json or post is empty")
+            return jsonify(
+                success=False,
+                reason="No valid json or post is empty",
+            )
 
         if operation == 'separate':
             response = {}
             for key in data_object:
-
                 settings = data_object.get(key)
-
                 if valid_range(settings):
-                    response[key] = range(settings['min'], settings['max'])
-
+                    response[key] = list(range(
+                        settings['min'],
+                        settings['max'],
+                    ))
             return jsonify(**response)
 
         elif operation == 'rect':
             return jsonify(
-                **{k: v for k, v in
-                   zip(data_object,
-                       zip(*product(*(range(v['min'], v['max'])
-                                      for k, v in data_object.iteritems()
-                                      if valid_range(v)))))})
+                **{
+                    k: v for k, v in zip(
+                        data_object,
+                        zip(*product(*(
+                            range(dv['min'], dv['max'])
+                            for _, dv in data_object.items()
+                            if valid_range(dv)
+                        )))
+                    )
+                },
+            )
 
         else:
             return jsonify()
@@ -153,15 +189,22 @@ def add_routes(app):
             data_object = request.values
 
         if operation == 'create':
-            keys = data_object.get('keys', data_object.keys())
-            return jsonify(coordinates=zip(*(data_object[k] for k in keys)))
+            keys = data_object.get('keys', list(data_object.keys()))
+            return jsonify(
+                coordinates=list(zip(*(data_object[k] for k in keys))),
+            )
 
         elif operation == 'parse':
-            _logger.info("Parsing {0}".format(data_object))
+            _logger.info(f"Parsing {data_object}")
             if 'coordinates' in data_object:
-                return jsonify(selection=zip(*data_object['coordinates']))
+                return jsonify(
+                    selection=list(zip(*data_object['coordinates'])),
+                )
             else:
-                return jsonify(success=False, reason="No coordinates in {0}".format(data_object))
+                return jsonify(
+                    success=False,
+                    reason=f"No coordinates in {data_object}",
+                )
 
     @app.route("/api/tools/debug/data/<path:project>")
     def _debug_data(project=""):
@@ -195,82 +238,166 @@ def add_routes(app):
 
         if path_has_saved_project_state(path):
 
-            include_state = bool(data_object.get("include_state", default=False))
+            include_state = bool(
+                data_object.get("include_state", default=False),
+            )
             proj_path = os.path.abspath(os.path.join(path, os.path.pardir))
 
             files += glob.glob(os.path.join(path, Paths().analysis_run_log))
-            files += glob.glob(os.path.join(path, Paths().analysis_model_file))
-            files += glob.glob(os.path.join(path, Paths().phenotypes_extraction_instructions))
-            files += glob.glob(os.path.join(path, Paths().phenotypes_extraction_log))
+            files += glob.glob(
+                os.path.join(path, Paths().analysis_model_file),
+            )
+            files += glob.glob(
+                os.path.join(
+                    path,
+                    Paths().phenotypes_extraction_instructions,
+                ),
+            )
+            files += glob.glob(
+                os.path.join(path, Paths().phenotypes_extraction_log),
+            )
 
             if include_state:
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotype_times),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_extraction_params),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_filter),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_filter_undo),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_input_data),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_input_smooth),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_meta_data),
+                )
+                files += glob.glob(
+                    os.path.join(
+                        path,
+                        Paths().phenotypes_meta_data_original_file_patern,
+                    ),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().vector_meta_phenotypes_raw),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().vector_phenotypes_raw),
+                )
+                files += glob.glob(
+                    os.path.join(path, Paths().phenotypes_reference_offsets),
+                )
+                files += glob.glob(
+                    os.path.join(
+                        path,
+                        Paths().experiment_grid_image_pattern.format("*"),
+                    ),
+                )
 
-                files += glob.glob(os.path.join(path, Paths().phenotype_times))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_extraction_params))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_filter))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_filter_undo))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_input_data))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_input_smooth))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_meta_data))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_meta_data_original_file_patern))
-                files += glob.glob(os.path.join(path, Paths().vector_meta_phenotypes_raw))
-                files += glob.glob(os.path.join(path, Paths().vector_phenotypes_raw))
-                files += glob.glob(os.path.join(path, Paths().phenotypes_reference_offsets))
-                files += glob.glob(os.path.join(path, Paths().experiment_grid_image_pattern.format("*")))
-
-        elif glob.glob(os.path.join(path,
-                                    Paths().experiment_scan_image_pattern.format("*", "*", 0).replace("0", "*"))):
+        elif glob.glob(os.path.join(
+            path,
+            Paths().experiment_scan_image_pattern.format(
+                "*",
+                "*",
+                0,
+            ).replace("0", "*")),
+        ):
 
             proj_path = path
 
         else:
+            return jsonify(
+                success=False,
+                is_endpoint=True,
+                reason="Not a project",
+            )
 
-            return jsonify(success=False, is_endpoint=True, reason="Not a project")
-
-        files += glob.glob(os.path.join(proj_path, Paths().experiment_local_fixturename))
-        files += glob.glob(os.path.join(proj_path, Paths().scan_log_file_pattern.format("*")))
-        files += glob.glob(os.path.join(proj_path, Paths().project_compilation_log_pattern.format("*")))
-        files += glob.glob(os.path.join(proj_path, Paths().project_compilation_pattern.format("*")))
-        files += glob.glob(os.path.join(proj_path, Paths().project_compilation_from_scanning_pattern.format("*")))
-        files += glob.glob(os.path.join(proj_path, Paths().project_compilation_from_scanning_pattern_old.format("*")))
-        files += glob.glob(os.path.join(proj_path, Paths().project_compilation_instructions_pattern.format("*")))
+        files += glob.glob(
+            os.path.join(proj_path, Paths().experiment_local_fixturename),
+        )
+        files += glob.glob(os.path.join(
+                proj_path,
+                Paths().scan_log_file_pattern.format("*"),
+        ))
+        files += glob.glob(os.path.join(
+            proj_path,
+            Paths().project_compilation_log_pattern.format("*"),
+        ))
+        files += glob.glob(os.path.join(
+            proj_path,
+            Paths().project_compilation_pattern.format("*"),
+        ))
+        files += glob.glob(os.path.join(
+            proj_path,
+            Paths().project_compilation_from_scanning_pattern.format("*"),
+        ))
+        files += glob.glob(os.path.join(
+            proj_path,
+            Paths().project_compilation_from_scanning_pattern_old.format("*"),
+        ))
+        files += glob.glob(os.path.join(
+            proj_path,
+            Paths().project_compilation_instructions_pattern.format("*"),
+        ))
 
         if bool(data_object.get("include_global_logs", default=False)):
 
             files += glob.glob(Paths().log_server)
             files += glob.glob(Paths().log_ui_server)
 
-        return serve_zip_file("DebugFiles_{0}.zip".format(os.path.basename(proj_path)), *files)
+        return serve_zip_file(
+            f"DebugFiles_{os.path.basename(proj_path)}.zip",
+            *files,
+        )
 
     @app.route("/api/tools/path")
     @app.route("/api/tools/path/<command>", methods=['get', 'post'])
     @app.route("/api/tools/path/<command>/", methods=['get', 'post'])
-    @app.route("/api/tools/path/<command>/<path:sub_path>", methods=['get', 'post'])
+    @app.route(
+        "/api/tools/path/<command>/<path:sub_path>",
+        methods=['get', 'post'],
+    )
     def _experiment_commands(command=None, sub_path=""):
-
         if command is None:
             command = 'root'
 
         sub_path = unquote(sub_path).split("/")
-
         try:
-            is_directory = bool(request.values.get('isDirectory', type=int, default=True))
+            is_directory = bool(request.values.get(
+                'isDirectory',
+                type=int,
+                default=True,
+            ))
         except ValueError:
             is_directory = True
         try:
-            check_has_analysis = bool(request.values.get('checkHasAnalysis', type=int, default=False))
+            check_has_analysis = bool(request.values.get(
+                'checkHasAnalysis',
+                type=int,
+                default=False,
+            ))
         except ValueError:
             check_has_analysis = False
 
-        if not all(safe_directory_name(name) for name in sub_path[:None if is_directory else -1]):
-
-            return jsonify(path=Config().paths.projects_root, valid_parent=False,
-                           reason="Only letter, numbers and underscore allowed")
+        if not all(
+            safe_directory_name(name)
+            for name in sub_path[:None if is_directory else -1]
+        ):
+            return jsonify(
+                path=Config().paths.projects_root,
+                valid_parent=False,
+                reason="Only letter, numbers and underscore allowed",
+            )
 
         if command == 'root':
-
             suffix = request.values.get('suffix', default="")
-
             root = Config().paths.projects_root
             path = os.path.abspath(os.path.join(*chain([root], sub_path)))
             prefix = sub_path[-1] if sub_path else ""
@@ -281,11 +408,16 @@ def add_routes(app):
                 valid_parent_directory = os.path.isdir(os.path.dirname(path))
                 if suffix and not path.endswith(suffix):
                     suffixed_path = path + suffix
-                    exists = (os.path.isdir(suffixed_path) and is_directory or
-                              os.path.isfile(suffixed_path) and not is_directory)
+                    exists = (
+                        os.path.isdir(suffixed_path) and is_directory
+                        or os.path.isfile(suffixed_path) and not is_directory
+                    )
 
                 else:
-                    exists = os.path.isdir(path) and is_directory or os.path.isfile(path) and not is_directory
+                    exists = (
+                        os.path.isdir(path) and is_directory
+                        or os.path.isfile(path) and not is_directory
+                    )
 
                 if not valid_parent_directory:
                     reason = "Root directory does not exist"
@@ -297,22 +429,35 @@ def add_routes(app):
                 reason = "Path not allowed"
 
             if valid_parent_directory:
-                suggestions = tuple("/".join(chain([command], os.path.relpath(p, root).split(os.sep)))
-                                    for p in glob.glob(path + "*" + (suffix if is_directory else ""))
-                                    if os.path.isdir(p) and safe_directory_name(os.path.basename(p)))
+                suggestions = tuple(
+                    "/".join(chain(
+                        [command],
+                        os.path.relpath(p, root).split(os.sep)
+                    )) for p in glob.glob(
+                        path + "*" + (suffix if is_directory else ""),
+                    )
+                    if os.path.isdir(p) and safe_directory_name(
+                        os.path.basename(p),
+                    )
+                )
 
                 suggestion_is_directories = tuple(1 for _ in suggestions)
-
                 if not is_directory:
 
-                    candidates = glob.glob(os.path.join(os.path.dirname(path), prefix + "*" + suffix))
-
-                    suggestion_files = tuple("/".join(chain([command], os.path.relpath(p, root).split(os.sep)))
-                                        for p in candidates if os.path.isfile(p))
-
+                    candidates = glob.glob(os.path.join(
+                        os.path.dirname(path),
+                        prefix + "*" + suffix,
+                    ))
+                    suggestion_files = tuple(
+                        "/".join(chain(
+                            [command],
+                            os.path.relpath(p, root).split(os.sep)
+                        )) for p in candidates if os.path.isfile(p)
+                    )
                     suggestions = suggestion_files + suggestions
-
-                    suggestion_is_directories = tuple(0 for _ in suggestion_files) + suggestion_is_directories
+                    suggestion_is_directories = tuple(
+                        0 for _ in suggestion_files
+                    ) + suggestion_is_directories
 
             else:
                 suggestions = tuple()
@@ -323,13 +468,16 @@ def add_routes(app):
             else:
                 has_analysis = None
 
-            return jsonify(path="/".join(chain([command], sub_path)), valid_parent=valid_parent_directory,
-                           reason=reason,
-                           suggestions=suggestions,
-                           suggestion_is_directories=suggestion_is_directories,
-                           prefix=prefix,
-                           exists=exists,
-                           has_analysis=has_analysis)
+            return jsonify(
+                path="/".join(chain([command], sub_path)),
+                valid_parent=valid_parent_directory,
+                reason=reason,
+                suggestions=suggestions,
+                suggestion_is_directories=suggestion_is_directories,
+                prefix=prefix,
+                exists=exists,
+                has_analysis=has_analysis,
+            )
 
         return jsonify(path='/', valid_parent=False, reason="Path not allowed")
 

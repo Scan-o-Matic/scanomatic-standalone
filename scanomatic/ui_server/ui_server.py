@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 import time
 import webbrowser
@@ -11,24 +9,26 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 from scanomatic.io.app_config import Config
-from scanomatic.io.logger import Logger, LOG_RECYCLE_TIME
+from scanomatic.io.backup import backup_file
+from scanomatic.io.logger import LOG_RECYCLE_TIME, Logger
 from scanomatic.io.paths import Paths
 from scanomatic.io.rpc_client import get_client
-from scanomatic.io.backup import backup_file
 from scanomatic.io.scanstore import ScanStore
 
-from . import qc_api
-from . import analysis_api
-from . import compilation_api
-from . import calibration_api
-from . import scan_api
-from . import management_api
-from . import tools_api
-from . import data_api
-from . import settings_api
-from . import experiment_api
-from . import status_api
-from . import ui_pages
+from . import (
+    analysis_api,
+    calibration_api,
+    compilation_api,
+    data_api,
+    experiment_api,
+    management_api,
+    qc_api,
+    scan_api,
+    settings_api,
+    status_api,
+    tools_api,
+    ui_pages
+)
 
 _URL = None
 _LOGGER = Logger("UI-server")
@@ -41,7 +41,9 @@ def init_logging():
     backup_file(Paths().log_ui_server)
     _LOGGER.set_output_target(
         Paths().log_ui_server,
-        catch_stdout=_DEBUG_MODE is False, catch_stderr=_DEBUG_MODE is False)
+        catch_stdout=_DEBUG_MODE is False,
+        catch_stderr=_DEBUG_MODE is False,
+    )
     _LOGGER.surpress_prints = _DEBUG_MODE is False
     _LOGGER.resume()
 
@@ -63,10 +65,11 @@ def launch_server(host, port, debug):
     if host is None:
         host = Config().ui_server.host
 
-    _URL = "http://{host}:{port}".format(host=host, port=port)
+    _URL = f"http://{host}:{port}"
     init_logging()
-    _LOGGER.info("Requested to launch UI-server at {0} being debug={1}".format(
-        _URL, debug))
+    _LOGGER.info(
+        "Requested to launch UI-server at {_URL} being debug={debug}",
+    )
 
     app.log_recycler = Timer(LOG_RECYCLE_TIME, init_logging)
     app.log_recycler.start()
@@ -84,30 +87,31 @@ def launch_server(host, port, debug):
     status_api.add_routes(app, rpc_client)
     data_api.add_routes(app, rpc_client, debug)
     app.register_blueprint(
-        calibration_api.blueprint, url_prefix="/api/calibration")
+        calibration_api.blueprint, url_prefix="/api/calibration",
+    )
     settings_api.add_routes(app)
     experiment_api.add_routes(app, rpc_client)
 
     if debug:
         CORS(app)
         _LOGGER.warning(
-            "\nRunning in debug mode, causes sequrity vunerabilities:\n" +
-            " * Remote code execution\n" +
-            " * Cross-site request forgery\n" +
-            "   (https://en.wikipedia.org/wiki/Cross-site_request_forgery)\n" +
+            "\nRunning in debug mode, causes sequrity vunerabilities:\n"
+            " * Remote code execution\n"
+            " * Cross-site request forgery\n"
+            "   (https://en.wikipedia.org/wiki/Cross-site_request_forgery)\n"
             "\nAnd possibly more issues"
-
         )
     try:
         app.run(port=port, host=host, debug=debug)
     except error:
         _LOGGER.warning(
-            "Could not bind socket, probably server is already running and" +
-            " this is nothing to worry about." +
-            "\n\tIf old server is not responding, try killing its process." +
-            "\n\tIf something else is blocking the port," +
-            " try setting another port" +
-            " (see `scan-o-matic --help` for instructions).")
+            "Could not bind socket, probably server is already running and"
+            " this is nothing to worry about."
+            "\n\tIf old server is not responding, try killing its process."
+            "\n\tIf something else is blocking the port,"
+            " try setting another port"
+            " (see `scan-o-matic --help` for instructions)."
+        )
         return False
     return True
 
@@ -145,10 +149,9 @@ def add_resource_routes(app, rpc_client):
             return send_from_directory(Paths().ui_font, font)
 
 
-def launch_webbrowser(delay=0.0):
-
+def launch_webbrowser(delay=0.0) -> None:
     if delay:
-        _LOGGER.info("Will open webbrowser in {0} s".format(delay))
+        _LOGGER.info(f"Will open webbrowser in {delay} s")
         time.sleep(delay)
 
     if _URL:
@@ -157,7 +160,7 @@ def launch_webbrowser(delay=0.0):
         _LOGGER.error("No server launched")
 
 
-def launch(host, port, debug, open_browser_url=True):
+def launch(host, port, debug, open_browser_url=True) -> None:
     if open_browser_url:
         _LOGGER.info("Getting ready to open browser")
         Thread(target=launch_webbrowser, kwargs={"delay": 2}).start()
@@ -167,7 +170,7 @@ def launch(host, port, debug, open_browser_url=True):
     launch_server(host, port, debug)
 
 
-def ui_server_responsive():
+def ui_server_responsive() -> bool:
 
     port = Config().ui_server.port
     if not port:
@@ -176,6 +179,6 @@ def ui_server_responsive():
     if not host:
         host = 'localhost'
     try:
-        return requests.get("http://{0}:{1}".format(host, port)).ok
+        return requests.get(f"http://{host}:{port}").ok
     except requests.ConnectionError:
         return False

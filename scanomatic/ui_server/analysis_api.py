@@ -1,17 +1,20 @@
-from __future__ import absolute_import
-
 import os
-from itertools import chain, product
 from glob import glob
-from flask import Flask, jsonify, request
-from scanomatic.ui_server.general import (
-    convert_url_to_path, convert_path_to_url, get_search_results,
-    json_response,
-)
-from scanomatic.io.paths import Paths
-from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
-from scanomatic.models.analysis_model import DefaultPinningFormats
+from itertools import chain, product
+
+from flask import jsonify, request
+
 from scanomatic.image_analysis.grid_array import GridArray
+from scanomatic.io.paths import Paths
+from scanomatic.models.analysis_model import AnalysisModel, DefaultPinningFormats
+from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
+from scanomatic.ui_server.general import (
+    convert_path_to_url,
+    convert_url_to_path,
+    get_search_results,
+    json_response
+)
+
 from .general import get_image_data_as_array
 
 
@@ -89,14 +92,18 @@ def add_routes(app):
         path = convert_url_to_path(project)
 
         analysis_file = os.path.join(path, Paths().analysis_model_file)
-        model = AnalysisModelFactory.serializer.load_first(analysis_file)
-        """:type model: scanomatic.models.analysis_model.AnalysisModel"""
+        model: AnalysisModel = AnalysisModelFactory.serializer.load_first(
+            analysis_file,
+        )
 
-        analysis_logs = tuple(chain(((
-            convert_path_to_url("/api/tools/logs/0/0", c),
-            convert_path_to_url(
-                "/api/tools/logs/WARNING_ERROR_CRITICAL/0/0", c)) for c in
-                glob(os.path.join(path, Paths().analysis_run_log)))))
+        analysis_logs = tuple(
+            chain(((
+                convert_path_to_url("/api/tools/logs/0/0", c),
+                convert_path_to_url(
+                    "/api/tools/logs/WARNING_ERROR_CRITICAL/0/0", c
+                )
+            ) for c in glob(os.path.join(path, Paths().analysis_run_log))))
+        )
 
         if model is None:
 
@@ -104,7 +111,9 @@ def add_routes(app):
                 ["urls", "analysis_logs"],
                 dict(
                     analysis_logs=analysis_logs,
-                    **get_search_results(path, base_url))))
+                    **get_search_results(path, base_url)
+                ),
+            ))
 
         def onetime_or_dynamic(value):
             return 'one-time' if value else 'dynamic'
@@ -132,4 +141,6 @@ def add_routes(app):
                     convert_path_to_url(
                         "/api/compile/instructions",
                         model.compile_instructions)],
-                **get_search_results(path, base_url))))
+                **get_search_results(path, base_url),
+            ),
+        ))

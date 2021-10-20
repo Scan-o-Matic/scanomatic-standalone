@@ -1,9 +1,9 @@
+import http.client as HTTPStatus
 from datetime import timedelta
 from hashlib import sha256
-import httplib as HTTPStatus
 
 from flask import current_app
-from flask_restful import reqparse, abort, Resource, inputs
+from flask_restful import Resource, abort, inputs, reqparse
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.io.scanstore import UnknownProjectError
@@ -13,12 +13,17 @@ from scanomatic.models.scan import Scan
 class ScanCollection(Resource):
     reqparser = reqparse.RequestParser()
     reqparser.add_argument(
-        'project', type=inputs.regex('^\w+(/\w+)*$'), required=True,
+        'project',
+        type=inputs.regex('^\w+(/\w+)*$'),
+        required=True,
     )
     reqparser.add_argument('scan_index', type=inputs.natural, required=True)
     reqparser.add_argument('timedelta', type=inputs.natural, required=True)
     reqparser.add_argument(
-        'image', type=FileStorage, location='files', required=True,
+        'image',
+        type=FileStorage,
+        location='files',
+        required=True,
     )
     reqparser.add_argument('digest', type=str, required=True)
 
@@ -41,13 +46,12 @@ class ScanCollection(Resource):
         message = {}
         if image.content_type != 'image/tiff':
             message['image'] = (
-                'Unexpected image format {}'.format(image.content_type)
+                f'Unexpected image format {image.content_type}'
             )
         image_digest = sha256(image.read()).hexdigest()
         if digest != image_digest:
             message['digest'] = (
-                'invalid image digest: expected {}, got {}'
-                .format(image_digest, digest)
+                f'invalid image digest: expected {image_digest}, got {digest}'
             )
         if message:
             abort(HTTPStatus.BAD_REQUEST, message=message)

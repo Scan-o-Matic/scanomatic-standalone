@@ -1,6 +1,7 @@
-from flask import send_from_directory, jsonify
+from flask import jsonify
 
 from scanomatic.io.paths import Paths
+
 from .general import convert_path_to_url, json_abort
 
 
@@ -21,22 +22,24 @@ def add_routes(app, rpc_client):
             elif status_query.lower() == 'free':
                 return jsonify(
                     scanners={
-                        s['socket']: s['scanner_name'] for s in
-                        rpc_client.get_scanner_status()
-                        if 'owner' not in s or not s['owner']},
+                        s['socket']: s['scanner_name']
+                        for s in rpc_client.get_scanner_status()
+                        if 'owner' not in s or not s['owner']
+                    },
                 )
             else:
                 try:
                     return jsonify(
-                        scanner=(
+                        scanner=next((
                             s for s in rpc_client.get_scanner_status()
-                            if status_query in s['scanner_name']).next(),
+                            if status_query in s['scanner_name']
+                        )),
                     )
                 except StopIteration:
                     return json_abort(
                         400,
-                        reason="Unknown scanner or query '{0}'".format(
-                            status_query))
+                        reason=f"Unknown scanner or query '{status_query}'",
+                    )
         elif 'jobs' == status_type:
             data = rpc_client.get_job_status()
             for item in data:
@@ -44,7 +47,9 @@ def add_routes(app, rpc_client):
                     item['label'] = convert_path_to_url("", item['label'])
                 if 'log_file' in item and item['log_file']:
                     item['log_file'] = convert_path_to_url(
-                        "/logs/project", item['log_file'])
+                        "/logs/project",
+                        item['log_file'],
+                    )
             return jsonify(jobs=data)
         elif status_type == 'server':
             return jsonify(**rpc_client.get_status())

@@ -1,15 +1,19 @@
-from flask import (
-    send_from_directory, render_template, redirect, jsonify, abort
-)
 import os
-import glob
 
-from scanomatic.io.paths import Paths
-from scanomatic.io.app_config import Config
+from flask import (
+    abort,
+    redirect,
+    render_template,
+    send_from_directory
+)
+
 from scanomatic.data_processing import phenotyper
+from scanomatic.io.app_config import Config
+from scanomatic.io.paths import Paths
+
 from .general import (
-    serve_log_as_html, convert_url_to_path, get_search_results,
-    convert_path_to_url
+    convert_url_to_path,
+    serve_log_as_html
 )
 
 
@@ -37,11 +41,11 @@ def add_routes(app):
         app_conf = Config()
 
         return render_template(
-            Paths().ui_settings_template, **app_conf.model_copy())
+            Paths().ui_settings_template, **app_conf.model_copy(),
+        )
 
     @app.route("/fixtures")
     def _fixtures():
-
         return send_from_directory(Paths().ui_root, Paths().ui_fixture_file)
 
     @app.route("/status")
@@ -62,27 +66,26 @@ def add_routes(app):
 
     @app.route("/feature_extract", methods=['get'])
     def _feature_extract():
-
         return send_from_directory(
-            Paths().ui_root, Paths().ui_feature_extract_file)
+            Paths().ui_root, Paths().ui_feature_extract_file,
+        )
 
     @app.route("/analysis", methods=['get'])
     def _analysis():
-
         return send_from_directory(Paths().ui_root, Paths().ui_analysis_file)
 
     @app.route("/experiment", methods=['get'])
     def _experiment():
-
-        return send_from_directory(Paths().ui_root, Paths().ui_experiment_file)
+        return send_from_directory(
+            Paths().ui_root, Paths().ui_experiment_file,
+        )
 
     @app.route("/compile", methods=['get'])
     def _compile():
-
         return send_from_directory(Paths().ui_root, Paths().ui_compile_file)
 
     @app.route("/logs/system/<log>")
-    def _logs(log):
+    def _logs(log: str):
         """
         Args:
             log: The log-type to be returned {'server' or 'ui_server'}.
@@ -100,16 +103,17 @@ def add_routes(app):
         return serve_log_as_html(log_path, log.replace("_", " ").capitalize())
 
     @app.route("/logs/project/<path:project>")
-    def _project_logs(project):
+    def _project_logs(project: str):
 
         path = convert_url_to_path(project)
 
         if not os.path.isfile(path):
-
             abort(404)
 
         is_project_analysis = phenotyper.path_has_saved_project_state(path)
         include_levels = 3 if is_project_analysis else 2
 
         return serve_log_as_html(
-            path, os.sep.join(path.split(os.path.sep)[-include_levels:]))
+            path,
+            os.sep.join(path.split(os.path.sep)[-include_levels:])
+        )
