@@ -18,7 +18,7 @@ Ipsum lorem..
 3. Scroll down to '....'
 4. See error
 
-# ✌🏽 Expected behavior
+# ✌🏽 Expected behaviour
 
 What should have happened
 
