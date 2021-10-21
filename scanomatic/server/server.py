@@ -1,31 +1,22 @@
-# TODO: Who handles keyboard interrupts?
-
+import hashlib
 import time
 from math import trunc
-import hashlib
+from typing import Any, Dict
 
-#
-# INTERNAL DEPENDENCIES
-#
-
-import scanomatic.io.logger as logger
-import scanomatic.io.app_config as app_config
-import scanomatic.server.queue as queue
-import scanomatic.server.jobs as jobs
-import scanomatic.io.scanner_manager as scanner_manager
-from scanomatic.io.resource_status import Resource_Status
 import scanomatic.generics.decorators as decorators
+import scanomatic.io.app_config as app_config
+import scanomatic.io.logger as logger
+import scanomatic.io.scanner_manager as scanner_manager
 import scanomatic.models.rpc_job_models as rpc_job_models
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
-from scanomatic.io.paths import Paths
+import scanomatic.server.jobs as jobs
+import scanomatic.server.queue as queue
 from scanomatic.io.backup import backup_file
+from scanomatic.io.paths import Paths
+from scanomatic.io.resource_status import Resource_Status
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 
-#
-# CLASSES
-#
 
-
-class Server(object):
+class Server:
     def __init__(self):
 
         config = app_config.Config()
@@ -46,8 +37,7 @@ class Server(object):
         self._scanner_manager = scanner_manager.ScannerPowerManager()
 
     @property
-    def _is_time_to_cycle_log(self):
-        # self.logger.info(time.time() - self._cycle_log_time)
+    def _is_time_to_cycle_log(self) -> float:
         return time.time() - self._cycle_log_time > logger.LOG_RECYCLE_TIME
 
     def _init_logging(self):
@@ -60,45 +50,32 @@ class Server(object):
         self._cycle_log_time = time.time()
 
     @property
-    def scanner_manager(self):
-        """
-
-        :type : scanomatic.io.scanner_manager.ScannerPowerManager
-        """
+    def scanner_manager(self) -> scanner_manager.ScannerPowerManager:
         return self._scanner_manager
 
     @property
-    def queue(self):
-        """
-
-        :type self: scanomatic.server.queue.Queue
-        """
+    def queue(self) -> queue.Queue:
         return self._queue
 
     @property
-    def jobs(self):
-        """
-
-        :type self: scanomatic.server.jobs.Jobs
-        """
+    def jobs(self) -> jobs.Jobs:
         return self._jobs
 
     @property
-    def serving(self):
-
+    def serving(self) -> bool:
         return self._started
 
-    def shutdown(self):
+    def shutdown(self) -> bool:
         self._waitForJobsToTerminate = False
         self._running = False
         return True
 
-    def safe_shutdown(self):
+    def safe_shutdown(self) -> bool:
         self._waitForJobsToTerminate = True
         self._running = False
         return True
 
-    def get_server_status(self):
+    def get_server_status(self) -> Dict[str, Any]:
 
         if self._server_start_time is None:
             run_time = "Not Running"
@@ -106,23 +83,28 @@ class Server(object):
             m, s = divmod(time.time() - self._server_start_time, 60)
             h, m = divmod(m, 60)
             run_time = "{0:d}h, {1:d}m, {2:.2f}s".format(
-                trunc(h), trunc(m), s)
+                trunc(h),
+                trunc(m),
+                s,
+            )
 
         return {
             "ServerUpTime": run_time,
             "QueueLength": len(self._queue),
             "NumberOfJobs": len(self._jobs),
             "ResourceMem": Resource_Status.check_mem(),
-            "ResourceCPU": Resource_Status.check_cpu()}
+            "ResourceCPU": Resource_Status.check_cpu(),
+        }
 
     def start(self):
-
         if not self._started:
             self._run()
         else:
-            self.logger.warning("Attempted to start Scan-o-Matic server that is already running")
+            self.logger.warning(
+                "Attempted to start Scan-o-Matic server that is already running",  # noqa: E501
+            )
 
-    def _job_may_be_created(self, job):
+    def _job_may_be_created(self, job) -> bool:
         """
 
         Args:
@@ -136,10 +118,12 @@ class Server(object):
         elif job.type == rpc_job_models.JOB_TYPE.Scan:
             return True
         else:
-            return Resource_Status.check_resources(consume_checks=True) or len(self._jobs) == 0
+            return (
+                Resource_Status.check_resources(consume_checks=True)
+                or len(self._jobs) == 0
+            )
 
     def _attempt_job_creation(self):
-
         next_job = self._queue.get_highest_priority()
         if self._job_may_be_created(next_job):
             if self._jobs.add(next_job):
@@ -171,7 +155,6 @@ class Server(object):
         self._shutdown_cleanup()
 
     def _shutdown_cleanup(self):
-
         self.logger.info("Som Server Main process shutting down")
         self._terminate_jobs()
 
@@ -197,18 +180,25 @@ class Server(object):
         i = 0
         max_wait_time = 180
         start_time = time.time()
-        while self._jobs.running and time.time() - start_time < max_wait_time:
-
+        while (
+            self._jobs.running and time.time() - start_time
+            < max_wait_time
+        ):
             if i == 0:
-                self.logger.info("Waiting for jobs to terminate ({0:.2f}s waiting left)".format(max(
-                    0, max_wait_time - (time.time() - start_time))))
+                self.logger.info(
+                    "Waiting for jobs to terminate ({0:.2f}s waiting left)".format(  # noqa: E501
+                        max(0, max_wait_time - (time.time() - start_time)),
+                    ),
+                )
             i += 1
             i %= 30
             time.sleep(0.1)
 
         if self._jobs.running:
 
-            self.logger.warning("Jobs will be abandoned, can't wait for ever..")
+            self.logger.warning(
+                "Jobs will be abandoned, can't wait for ever..",
+            )
 
     def _get_job_id(self):
 
@@ -221,12 +211,8 @@ class Server(object):
 
         return job_id
 
-    def get_job(self, job_id):
-        """Gets the rpc job model if any corresponding to the id
-        :type job_id: str
-        :rtype : scanomatic.models.rpc_job_models.RPCjobModel
-        """
-
+    def get_job(self, job_id: str) -> rpc_job_models.RPCjobModel:
+        """Gets the rpc job model if any corresponding to the id"""
         if job_id in self._queue:
             return self._queue[job_id]
         return self._jobs[job_id]
@@ -244,17 +230,25 @@ class Server(object):
             self.logger.error("Failed to create job model")
             return False
 
-        if job_type is rpc_job_models.JOB_TYPE.Scan and not self.verify_scanner_claim(rpc_job):
+        if (
+            job_type is rpc_job_models.JOB_TYPE.Scan
+            and not self.verify_scanner_claim(rpc_job)
+        ):
             return False
 
         self._queue.add(rpc_job)
 
-        self.logger.info("Job {0} with id {1} added to queue".format(rpc_job, rpc_job.id))
+        self.logger.info(
+            f"Job {rpc_job} with id {rpc_job.id} added to queue",
+        )
         return rpc_job.id
 
     def verify_scanner_claim(self, rpc_job_model):
 
-        if not self.scanner_manager.connected_to_scanners or not self.scanner_manager.has_scanners:
+        if (
+            not self.scanner_manager.connected_to_scanners
+            or not self.scanner_manager.has_scanners
+        ):
             self.logger.error("There are no scanners reachable from server")
             return False
 

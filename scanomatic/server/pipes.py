@@ -1,19 +1,14 @@
 import os
 import time
 from subprocess import Popen
-#
-# INTERNAL DEPENDENCIES
-#
+from typing import Dict, Optional
 
 import scanomatic.io.logger as logger
 import scanomatic.io.rpc_client as rpc_client
-
-#
-# CLASSES
-#
+from scanomatic.server.proc_effector import ProcessEffector
 
 
-class _PipeEffector(object):
+class _PipeEffector:
 
     REQUEST_ALLOWED = "__ALLOWED_CALLS__"
 
@@ -43,30 +38,27 @@ class _PipeEffector(object):
         self._pid = os.getpid()
 
     def setFailVunerableCalls(self, *calls):
-
         self._failVunerableCalls = calls
 
     def setAllowedCalls(self, allowedCalls):
         """Allowed Calls must be iterable with a get item function
         that understands strings"""
-
         self._allowedCalls = allowedCalls
         self._sendOwnAllowedKeys()
 
     def add_allowed_calls(self, additional_calls):
-
         self._allowedCalls.update(additional_calls)
         self._sendOwnAllowedKeys()
 
     def _sendOwnAllowedKeys(self):
-
         self._logger.info("Informing other side of pipe about my allowed calls")
-        self.send(self.REQUEST_ALLOWED, *self._allowedCalls.keys())
+        self.send(
+            self.REQUEST_ALLOWED,
+            *list(self._allowedCalls.keys()),
+        )
 
     def poll(self):
-
         while self._hasContact and self._pipe.poll():
-
             response = None
             try:
                 dataRecvd = self._pipe.recv()
@@ -80,13 +72,16 @@ class _PipeEffector(object):
             try:
                 request, args, kwargs = dataRecvd
             except (IndexError, TypeError):
-
-                self._logger.error(
-                    "Recieved a malformed data package '{0}'".format(dataRecvd))
-
+                self._logger.exception(
+                    f"Recieved a malformed data package '{dataRecvd}'",
+                )
 
             if request == self.REQUEST_ALLOWED:
-                self._logger.info("Got information about other side's allowed calls '{0}'".format(args))
+                self._logger.info(
+                    "Got information about other side's allowed calls '{0}'".format(  # noqa: E501
+                        args,
+                    )
+                )
                 if self._allowedRemoteCalls is None:
                     self._sendOwnAllowedKeys()
                     self._allowedRemoteCalls = args
@@ -97,8 +92,14 @@ class _PipeEffector(object):
                 elif request in self._allowedCalls:
                     response = self._allowedCalls[request](*args, **kwargs)
                 else:
-                    self._logger.warning("Request {0} not an allowed call".format(request))
-                    self._logger.info("Allowed calls are '{0}'".format(self._allowedCalls.keys()))
+                    self._logger.warning(
+                        f"Request {request} not an allowed call",
+                    )
+                    self._logger.info(
+                        "Allowed calls are '{0}'".format(
+                            list(self._allowedCalls.keys()),
+                        ),
+                    )
 
             try:
                 if response not in (None, True, False):
@@ -113,12 +114,12 @@ class _PipeEffector(object):
                 else:
                     self._logger.debug("No response to request")
 
-            except Exception, e:
+            except Exception:
+                self._logger.exception(
+                    f"Could not send response '{response}'",
+                )
 
-                self._logger.error("Could not send response '{0}' ({1})".format(
-                    response, (e, e.message)))
-
-    def _failSend(self, callName, *args, **kwargs):
+    def _failSend(self, callName: str, *args, **kwargs) -> bool:
         """Stores send request in buffer to be sent upon new connection
 
         If `callName` exists in buffer, it is replaced by the newer send
@@ -140,16 +141,15 @@ class _PipeEffector(object):
         bool
             Success status
         """
-        for i, (cN, a, kw) in enumerate(self._sendBuffer):
+        for i, (cN, _, __) in enumerate(self._sendBuffer):
             if cN == callName:
                 self._sendBuffer[i] = (callName, args, kwargs)
-                return True 
+                return True
 
         self._sendBuffer.append((callName, args, kwargs))
         return True
 
     def send(self, callName, *args, **kwargs):
-
         if self._hasContact and self._sendBuffer:
             while self._sendBuffer:
                 cN, a, kw = self._sendBuffer.pop()
@@ -157,137 +157,117 @@ class _PipeEffector(object):
                     self._failSend(cN, a, kw)
                     break
 
-        success = self._send(callName, *args, **kwargs) 
-
+        success = self._send(callName, *args, **kwargs)
         if not success and not self._hasContact:
-
             self._failSend(callName, *args, **kwargs)
-             
         return success
 
-    def _send(self, callName, *args, **kwargs):
-
-        if (self._allowedRemoteCalls is None or
-                callName == self.REQUEST_ALLOWED or
-                callName in self._allowedRemoteCalls):
-
+    def _send(self, callName, *args, **kwargs) -> bool:
+        if (
+            self._allowedRemoteCalls is None
+            or callName == self.REQUEST_ALLOWED
+            or callName in self._allowedRemoteCalls
+        ):
             try:
                 self._pipe.send((callName, args, kwargs))
-            except Exception, e:
+            except Exception as e:
                 self._logger.warning("Failed to send {0} ({1})".format(
-                    (callName, args, kwargs), (e, e.message)))
+                    (callName, args, kwargs),
+                    (e, e.message),
+                ))
                 self._hasContact = False
                 return False
-
             return True
 
         else:
-            self._logger.warning("Other side won't accept '{0}'. ".format(
-                callName) + "Known calls are '{0}'".format(
-                    self._allowedRemoteCalls))
+            self._logger.warning(
+                f"Other side won't accept '{callName}'. "
+                f"Known calls are '{self._allowedRemoteCalls}'"
+            )
             return False
 
 
 class ParentPipeEffector(_PipeEffector):
-
     def __init__(self, pipe):
-
         super(ParentPipeEffector, self).__init__(
-            pipe, loggerName="Parent Pipe Effector")
+            pipe,
+            loggerName="Parent Pipe Effector",
+        )
 
         self._status = {'pid': self._pid}
-
         self._allowedCalls['status'] = self._setStatus
 
     @property
-    def status(self):
-
+    def status(self) -> Dict:
         return self._status
 
     def _setStatus(self, *args, **kwargs):
-
         if 'pid' not in kwargs:
             kwargs['pid'] = self._pid
-
         self._status = kwargs
 
 
 class ChildPipeEffector(_PipeEffector):
-
-    def __init__(self, pipe, procEffector=None):
-
-        """
-
-        :type procEffector: scanomatic.server.proc_effector.ProcessEffector
-        """
+    def __init__(self, pipe, procEffector: Optional[ProcessEffector]=None):
         super(ChildPipeEffector, self).__init__(
-            pipe, loggerName="Child Pipe Effector")
-
-        if (procEffector is None):
-            self._procEffector = None
+            pipe,
+            loggerName="Child Pipe Effector",
+        )
+        if procEffector is None:
             self._allowedCalls = {}
-        else:
-            self.procEffector = procEffector
+        self.procEffector: Optional[ProcessEffector] = procEffector
 
     @property
-    def keepAlive(self):
+    def keepAlive(self) -> bool:
+        return (
+            True if self._procEffector is None
+            else self._procEffector.keep_alive
+        )
 
-        return True if self._procEffector is None else self._procEffector.keep_alive
-
-    def _failSend(self, callName, *args, **kwargs):
-
+    def _failSend(self, callName, *args, **kwargs) -> bool:
         #Not loose calls
         super(ChildPipeEffector, self)._failSend(callName, *args, **kwargs)
 
         if (callName in self._failVunerableCalls):
-
             rC = rpc_client.get_client(admin=True)
 
             if not rC.online:
-
                 self._logger.info("Re-booting server process")
                 Popen('scan-o-matic_server')
                 time.sleep(2)
 
             if rC.online:
-
                 pipe = rC.reestablishMe(
                     self.procEffector.label,
                     self.procEffector.label,
                     self.procEffector.TYPE,
-                    os.getpid())
+                    os.getpid(),
+                )
 
                 if (pipe is False):
-
                     self._logger.critical(
-                        "Server refused to acckowledge me, " +
-                        "nothing left to do but die")
+                        "Server refused to acckowledge me, "
+                        "nothing left to do but die"
+                    )
                     self.procEffector.stop()
                     return False
 
                 else:
                     self._pipe = pipe
                     self._hasContact = True
-        
-        return True
-    
-    @property
-    def procEffector(self):
 
+        return True
+
+    @property
+    def procEffector(self) -> Optional[ProcessEffector]:
         return self._procEffector
 
     @procEffector.setter
-    def procEffector(self, procEffector):
-
-        """
-
-        :type procEffector: scanomatic.server.proc_effector.ProcessEffector
-        """
+    def procEffector(self, procEffector: ProcessEffector):
         self._procEffector = procEffector
         self.setAllowedCalls(procEffector.allow_calls)
         self.setFailVunerableCalls(*procEffector.fail_vunerable_calls)
         procEffector.pipe_effector = self
 
     def sendStatus(self, status):
-
         self.send('status', **status)

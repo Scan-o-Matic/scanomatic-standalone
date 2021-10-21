@@ -1,24 +1,17 @@
+import os
 from multiprocessing import Process
 from threading import Thread
 from time import sleep
+from typing import Dict
+
 import psutil
-import os
 import setproctitle
 
-#
-# INTERNAL DEPENDENCIES
-#
-
-import scanomatic.server.pipes as pipes
 import scanomatic.io.logger as logger
-
-#
-# CLASSES
-#
+import scanomatic.server.pipes as pipes
 
 
-class Fake(object):
-
+class Fake:
     def __init__(self, job, parent_pipe):
 
         self._job = job
@@ -30,16 +23,11 @@ class Fake(object):
         self.abandoned = False
 
     @property
-    def pipe(self):
-        """
-
-        :rtype : scanomatic.server.pipes._PipeEffector
-        """
+    def pipe(self) -> pipes._PipeEffector:
         return self._parent_pipe
 
     @property
-    def status(self):
-
+    def status(self) -> Dict:
         s = self.pipe.status
         if 'id' not in s:
             s['id'] = self._job.id
@@ -54,22 +42,19 @@ class Fake(object):
 
         return s
 
-    def is_alive(self):
-
+    def is_alive(self) -> bool:
         if not self._job.pid:
             return False
 
         return psutil.pid_exists(self._job.pid)
 
-    def update_pid(self):
-
+    def update_pid(self) -> None:
         self._job.pid = self.pipe.status['pid']
 
 
 class RpcJob(Process, Fake):
 
     def __init__(self, job, job_effector, parent_pipe, child_pipe):
-
         super(RpcJob, self).__init__()
         self._job = job
         self._job_effector = job_effector
@@ -93,7 +78,7 @@ class RpcJob(Process, Fake):
 
         pipe_effector = pipes.ChildPipeEffector(
             self._childPipe, self._job_effector(self._job))
-        
+
         setproctitle.setproctitle("SoM {0}".format(
             pipe_effector.procEffector.TYPE.name))
 
@@ -112,7 +97,7 @@ class RpcJob(Process, Fake):
 
                 try:
 
-                    effector_iterator.next()
+                    next(effector_iterator)
 
                 except StopIteration:
 
@@ -121,7 +106,9 @@ class RpcJob(Process, Fake):
                     # pipe_effector.keepAlive = False
 
                 if t.is_alive():
-                    pipe_effector.sendStatus(pipe_effector.procEffector.status())
+                    pipe_effector.sendStatus(
+                        pipe_effector.procEffector.status(),
+                    )
                 sleep(0.05)
 
             else:

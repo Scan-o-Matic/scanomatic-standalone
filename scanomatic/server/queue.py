@@ -1,10 +1,11 @@
-import scanomatic.io.paths as paths
-import scanomatic.io.logger as logger
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
-import scanomatic.models.rpc_job_models as rpc_job_models
 import scanomatic.generics.decorators as decorators
+import scanomatic.io.logger as logger
+import scanomatic.io.paths as paths
+import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.scanner_manager import ScannerPowerManager
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.server.jobs import Jobs
 
 #
 # CLASSES
@@ -13,32 +14,29 @@ from scanomatic.io.scanner_manager import ScannerPowerManager
 
 class Queue(SingeltonOneInit):
 
-    def __one_init__(self, jobs):
-
-        """
-
-        :type jobs: scanomatic.server.jobs.Jobs
-        """
+    def __one_init__(self, jobs: Jobs):
         self._paths = paths.Paths()
         self._logger = logger.Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
-        self._queue = list(RPC_Job_Model_Factory.serializer.load(self._paths.rpc_queue))
+        self._queue = list(RPC_Job_Model_Factory.serializer.load(
+            self._paths.rpc_queue,
+        ))
         self._scanner_manager = ScannerPowerManager()
         self._jobs = jobs
         decorators.register_type_lock(self)
 
     @decorators.type_lock
-    def __len__(self):
+    def __len__(self) -> int:
 
         return len(self._queue)
 
     @decorators.type_lock
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
 
         return len(self._queue) != 0
 
     @decorators.type_lock
-    def __contains__(self, job_id):
+    def __contains__(self, job_id) -> bool:
 
         return any(job.id == job_id for job in self._queue)
 
@@ -72,9 +70,12 @@ class Queue(SingeltonOneInit):
 
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
-            return RPC_Job_Model_Factory.serializer.purge(job, self._paths.rpc_queue)
+            return RPC_Job_Model_Factory.serializer.purge(
+                job,
+                self._paths.rpc_queue,
+            )
 
-        self._logger.warning("No known job {0} in queue, can't remove".format(job.id))
+        self._logger.warning(f"No known job {job.id} in queue, can't remove")
         return False
 
     @decorators.type_lock
@@ -107,8 +108,12 @@ class Queue(SingeltonOneInit):
                 jobs = self._get_allowed_compile_project_jobs(jobs)
 
             ordered_jobs = sorted(jobs, key=lambda job: job.priority)
-            self._logger.info("The available jobs of type {0} are queued as {1}".format(
-                job_type, [(job, job.id) for job in ordered_jobs]))
+            self._logger.info(
+                "The available jobs of type {0} are queued as {1}".format(
+                    job_type,
+                    [(job, job.id) for job in ordered_jobs],
+                ),
+            )
             if ordered_jobs:
                 return ordered_jobs[0]
         else:
@@ -125,8 +130,12 @@ class Queue(SingeltonOneInit):
 
                 if active_job.id == this_job.content_model.start_condition:
 
-                    self._logger.info("Can't launch job {0} becase of job {1}".format(
-                        (this_job, this_job.id), (active_job, active_job.id)))
+                    self._logger.info(
+                        "Can't launch job {0} becase of job {1}".format(
+                            (this_job, this_job.id),
+                            (active_job, active_job.id),
+                        )
+                    )
                     return False
 
             return True
@@ -137,8 +146,10 @@ class Queue(SingeltonOneInit):
     def __next_priority_job_type(self):
 
         attempts = 0
-        while not self._has_job_of_type(self._next_priority) and attempts < len(rpc_job_models.JOB_TYPE):
-
+        while (
+            not self._has_job_of_type(self._next_priority)
+            and attempts < len(rpc_job_models.JOB_TYPE)
+        ):
             self._next_priority = self._next_priority.cycle
             attempts += 1
 
@@ -157,8 +168,10 @@ class Queue(SingeltonOneInit):
         if job.priority < 0:
 
             if self._has_job_of_type(job.type):
-                job.priority = sorted(self._get_job_by_type(job.type),
-                                      key=lambda job_in_queue: job_in_queue.priority)[-1].priority + 1
+                job.priority = sorted(
+                    self._get_job_by_type(job.type),
+                    key=lambda job_in_queue: job_in_queue.priority,
+                )[-1].priority + 1
             else:
                 job.priority = 1
 

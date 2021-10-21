@@ -39,26 +39,38 @@ class JOB_TYPE(CycleEnum):
         return cls.Unknown
 
 
-JOB_STATUS = Enum("JOB_STATUS",
-                  names=("Requested", "Queued", "Running", "Restoring",
-                         "Done", "Aborted", "Crashed", "Unknown"))
+JOB_STATUS = Enum(
+    "JOB_STATUS",
+    names=(
+        "Requested",
+        "Queued",
+        "Running",
+        "Restoring",
+        "Done",
+        "Aborted",
+        "Crashed",
+        "Unknown",
+    ),
+)
 
 
 class RPCjobModel(model.Model):
 
-    def __init__(self,
-                 id=None,
-                 type=JOB_TYPE.Unknown,
-                 status=JOB_STATUS.Unknown,
-                 content_model=None,
-                 priority=-1,
-                 pid=None):
+    def __init__(
+        self,
+        id=None,
+        type=JOB_TYPE.Unknown,
+        status=JOB_STATUS.Unknown,
+        content_model=None,
+        priority=-1,
+        pid=None
+    ):
 
         self.id = id
-        self.type = type
-        self.status = status
+        self.type: JOB_TYPE = type
+        self.status: JOB_STATUS = status
         self.pid = pid
-        self.priority = priority
+        self.priority: int = priority
         self.content_model = content_model
 
         super(RPCjobModel, self).__init__()
