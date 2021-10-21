@@ -1,20 +1,22 @@
+import glob
 import os
 import re
-import glob
+from typing import Dict
 
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory, email_serializer
-from scanomatic.models import compile_project_model
-from scanomatic.models import fixture_models
-from scanomatic.models.factories import fixture_factories
-from scanomatic.io.paths import Paths
-from scanomatic.io.fixtures import Fixtures
 from scanomatic.data_processing.calibration import get_active_cccs
+from scanomatic.generics.abstract_model_factory import (
+    AbstractModelFactory,
+    email_serializer
+)
+from scanomatic.io.fixtures import Fixtures
+from scanomatic.io.paths import Paths
+from scanomatic.models import compile_project_model, fixture_models
+from scanomatic.models.factories import fixture_factories
+from scanomatic.models.scanning_model import ScanningModel
 
 
 class CompileImageFactory(AbstractModelFactory):
-
     MODEL = compile_project_model.CompileImageModel
-
     STORE_SECTION_SERIALIZERS = {
         'index': int,
         'time_stamp': float,
@@ -23,14 +25,8 @@ class CompileImageFactory(AbstractModelFactory):
     STORE_SECTION_HEAD = ("index",)
 
     @classmethod
-    def create(cls, **settings):
-
-        """
-
-        :rtype : scanomatic.models.compile_project_model.CompileImageModel
-        """
+    def create(cls, **settings) -> compile_project_model.CompileImageModel:
         model = super(CompileImageFactory, cls).create(**settings)
-
         if not model.time_stamp:
             cls.set_time_stamp_from_path(model)
 
@@ -40,48 +36,43 @@ class CompileImageFactory(AbstractModelFactory):
         return model
 
     @classmethod
-    def _validate_index(cls, model):
-
-        """
-        :type model: scanomatic.models.compile_project_model.CompileImageModel
-        """
+    def _validate_index(cls, model: compile_project_model.CompileImageModel):
         if model.index >= 0:
             return True
         return model.FIELD_TYPES.index
 
     @classmethod
-    def _validate_path(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileImageModel
-        """
-        if os.path.abspath(model.path) == model.path and os.path.isfile(model.path):
+    def _validate_path(cls, model: compile_project_model.CompileImageModel):
+        if (
+            os.path.abspath(model.path) == model.path
+            and os.path.isfile(model.path)
+        ):
             return True
         return model.FIELD_TYPES.path
 
     @classmethod
-    def _validate_time_stamp(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileImageModel
-        """
+    def _validate_time_stamp(
+        cls,
+        model: compile_project_model.CompileImageModel,
+    ):
         if model.time_stamp >= 0.0:
-
             return True
         return model.FIELD_TYPES.time_stamp
 
     @classmethod
-    def set_time_stamp_from_path(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileImageModel
-        """
+    def set_time_stamp_from_path(
+        cls,
+        model: compile_project_model.CompileImageModel,
+    ):
         match = re.search(r'(\d+\.\d+)\.tiff$', model.path)
         if match:
             model.time_stamp = float(match.groups()[0])
 
     @classmethod
-    def set_index_from_path(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileImageModel
-        """
+    def set_index_from_path(
+        cls,
+        model: compile_project_model.CompileImageModel,
+    ):
         match = re.search(r'_(\d+)_(\d+\.\d+)\.tiff$', model.path)
         if match:
             model.index = int(match.groups()[0])
@@ -109,22 +100,18 @@ class CompileProjectFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.compile_project_model.CompileInstructionsModel
-        """
-
-        model = super(CompileProjectFactory, cls).create(**settings)
-        return model
+    def create(cls, **settings) -> compile_project_model.CompileInstructionsModel:
+        return super(CompileProjectFactory, cls).create(**settings)
 
     @classmethod
-    def dict_from_path_and_fixture(cls, path, fixture=None, is_local=None,
-                                   compile_action=compile_project_model.COMPILE_ACTION.Initiate, **kwargs):
-
-        """
-
-        :type path: str
-        """
+    def dict_from_path_and_fixture(
+        cls,
+        path: str,
+        fixture=None,
+        is_local=None,
+        compile_action=compile_project_model.COMPILE_ACTION.Initiate,
+        **kwargs,
+    ) -> Dict:
         path = path.rstrip("/")
 
         if path != os.path.abspath(path):
@@ -142,16 +129,18 @@ class CompileProjectFactory(AbstractModelFactory):
             compile_action=compile_action.name,
             images=images,
             fixture_type=
-                is_local and compile_project_model.FIXTURE.Local.name or compile_project_model.FIXTURE.Global.name,
+                is_local and compile_project_model.FIXTURE.Local.name
+                or compile_project_model.FIXTURE.Global.name,
             fixture_name=fixture,
             path=path,
-            **kwargs))
+            **kwargs,
+        ))
 
     @classmethod
-    def _validate_images(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileInstructionsModel
-        """
+    def _validate_images(
+        cls,
+        model: compile_project_model.CompileInstructionsModel,
+    ):
         try:
             for image in model.images:
                 if not CompileImageFactory.validate(image):
@@ -164,24 +153,33 @@ class CompileProjectFactory(AbstractModelFactory):
             return model.FIELD_TYPES.images
 
     @classmethod
-    def _validate_path(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileInstructionsModel
-        """
+    def _validate_path(
+        cls,
+        model: compile_project_model.CompileInstructionsModel,
+    ):
         basename = os.path.basename(model.path)
         dirname = os.path.dirname(model.path)
-
-        if model.path != dirname and os.path.isdir(dirname) and os.path.abspath(dirname) == dirname and basename:
+        if (
+            model.path != dirname
+            and os.path.isdir(dirname)
+            and os.path.abspath(dirname) == dirname
+            and basename
+        ):
             return True
         return model.FIELD_TYPES.path
 
     @classmethod
-    def _validate_fixture(cls, model):
-        """
-        :type model: scanomatic.models.compile_project_model.CompileInstructionsModel
-        """
+    def _validate_fixture(
+        cls,
+        model: compile_project_model.CompileInstructionsModel,
+    ):
         if model.fixture_type is compile_project_model.FIXTURE.Local:
-            if os.path.isfile(os.path.join(model.path, Paths().experiment_local_fixturename)):
+            if os.path.isfile(
+                os.path.join(
+                    model.path,
+                    Paths().experiment_local_fixturename,
+                ),
+            ):
                 return True
             else:
                 return model.FIELD_TYPES.fixture_type
@@ -194,11 +192,7 @@ class CompileProjectFactory(AbstractModelFactory):
             return model.FIELD_TYPES.fixture_type
 
     @classmethod
-    def _validate_cell_count_calibration_id(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_cell_count_calibration_id(cls, model: ScanningModel):
         if model.cell_count_calibration_id in get_active_cccs():
             return True
         return model.FIELD_TYPES.cell_count_calibration
@@ -212,30 +206,33 @@ class CompileImageAnalysisFactory(AbstractModelFactory):
         compile_project_model.CompileImageModel: CompileImageFactory,
         fixture_models.FixtureModel: fixture_factories.FixtureFactory
     }
-
     STORE_SECTION_SERIALIZERS = {
         'image': compile_project_model.CompileImageModel,
         'fixture': fixture_models.FixtureModel
     }
 
     @classmethod
-    def create(cls, **settings):
-        """:rtype : scanomatic.models.compile_project_model.CompileImageAnalysisModel"""
+    def create(
+        cls,
+        **settings,
+    ) -> compile_project_model.CompileImageAnalysisModel:
         return super(CompileImageAnalysisFactory, cls).create(**settings)
 
     @classmethod
-    def _validate_fixture(cls, model):
-        """:type model : scanomatic.models.compile_project_model.CompileImageAnalysisModel"""
-
+    def _validate_fixture(
+        cls,
+        model: compile_project_model.CompileImageAnalysisModel,
+    ):
         if cls._is_valid_submodel(model, "fixture"):
             return True
         else:
             return model.FIELD_TYPES.fixture
 
     @classmethod
-    def _validate_image(cls, model):
-        """:type model : scanomatic.models.compile_project_model.CompileImageAnalysisModel"""
-
+    def _validate_image(
+        cls,
+        model: compile_project_model.CompileImageAnalysisModel,
+    ):
         if cls._is_valid_submodel(model, "image"):
             return True
         else:
@@ -243,15 +240,16 @@ class CompileImageAnalysisFactory(AbstractModelFactory):
 
     @classmethod
     def copy_iterable_of_model_update_indices(cls, iterable):
-
         models = cls.copy_iterable_of_model(iterable)
-        for (index, m) in enumerate(sorted(models, key=lambda x: x.image.time_stamp)):
+        for (index, m) in enumerate(sorted(
+            models,
+            key=lambda x: x.image.time_stamp,
+        )):
             m.image.index = index
             yield m
 
     @classmethod
     def copy_iterable_of_model_update_time(cls, iterable):
-
         models = cls.copy_iterable_of_model(iterable)
         inject_time = 0
         previous_time = 0

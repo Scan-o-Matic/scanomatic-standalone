@@ -3,19 +3,26 @@ import re
 import string
 from types import StringTypes
 
-from scanomatic.generics.abstract_model_factory import (
-    AbstractModelFactory, email_serializer)
-from scanomatic.models.scanning_model import (
-    ScanningModel, ScannerModel, ScanningAuxInfoModel, PlateDescription,
-    CULTURE_SOURCE, PLATE_STORAGE, ScannerOwnerModel)
-import scanomatic.io.fixtures as fixtures
 import scanomatic.io.app_config as app_config
-from scanomatic.models.rpc_job_models import RPCjobModel
+import scanomatic.io.fixtures as fixtures
 from scanomatic.data_processing.calibration import get_active_cccs
+from scanomatic.generics.abstract_model_factory import (
+    AbstractModelFactory,
+    email_serializer
+)
+from scanomatic.models.rpc_job_models import RPCjobModel
+from scanomatic.models.scanning_model import (
+    CULTURE_SOURCE,
+    PLATE_STORAGE,
+    PlateDescription,
+    ScannerModel,
+    ScannerOwnerModel,
+    ScanningAuxInfoModel,
+    ScanningModel
+)
 
 
 class PlateDescriptionFactory(AbstractModelFactory):
-
     MODEL = PlateDescription
     STORE_SECTION_HEAD = ("name",)
     STORE_SECTION_SERIALIZERS = {
@@ -25,18 +32,11 @@ class PlateDescriptionFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.scanning_model.PlateDescription
-        """
+    def create(cls, **settings) -> PlateDescription:
         return super(cls, PlateDescriptionFactory).create(**settings)
 
     @classmethod
-    def _validate_index(cls, model):
-        """
-        :type model: scanomatic.models.scanning_model.PlateDescription
-        """
-
+    def _validate_index(cls, model: PlateDescription):
         if not isinstance(model.index, int):
             return model.FIELD_TYPES.index
         elif model.index >= 0:
@@ -45,19 +45,13 @@ class PlateDescriptionFactory(AbstractModelFactory):
             return model.FIELD_TYPES.index
 
     @classmethod
-    def _validate_name(cls, model):
-        """
-        :type model: scanomatic.models.scanning_model.PlateDescription
-        """
+    def _validate_name(cls, model: PlateDescription):
         if isinstance(model.name, StringTypes) and model.str:
             return True
         return model.FIELD_TYPES.name
 
     @classmethod
-    def _validate_name(cls, model):
-        """
-        :type model: scanomatic.models.scanning_model.PlateDescription
-        """
+    def _validate_name(cls, model: PlateDescription):
         if isinstance(model.description, StringTypes) and model.str:
             return True
         return model.FIELD_TYPES.description
@@ -80,21 +74,11 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-
-
-        :rtype : scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
+    def create(cls, **settings) -> ScanningAuxInfoModel:
         return super(cls, ScanningAuxInfoFactory).create(**settings)
 
     @classmethod
-    def _validate_stress_level(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
-
+    def _validate_stress_level(cls, model: ScanningAuxInfoModel):
         if not isinstance(model.stress_level, int):
             return model.FIELD_TYPES.stress_level
         elif model.stress_level is -1 or model.stress_level > 0:
@@ -103,27 +87,20 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
             return model.FIELD_TYPES.stress_level
 
     @classmethod
-    def _validate_plate_storage(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
+    def _validate_plate_storage(cls, model: ScanningAuxInfoModel):
         if cls._is_enum_value(
-                model.plate_storage,
-                cls.STORE_SECTION_SERIALIZERS[
-                    model.FIELD_TYPES.plate_storage.name]):
-
+            model.plate_storage,
+            cls.STORE_SECTION_SERIALIZERS[model.FIELD_TYPES.plate_storage.name]
+        ):
             return True
         return model.FIELD_TYPES.plate_storage
 
     @classmethod
-    def _validate_plate_age(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
-        if (not isinstance(model.plate_age, int) and
-                not isinstance(model.plate_age, float)):
+    def _validate_plate_age(cls, model: ScanningAuxInfoModel):
+        if (
+            not isinstance(model.plate_age, int)
+            and not isinstance(model.plate_age, float)
+        ):
             return model.FIELD_TYPES.plate_age
         elif model.plate_age == -1 or model.plate_age > 0:
             return True
@@ -131,27 +108,22 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
             return model.FIELD_TYPES.plate_age
 
     @classmethod
-    def _validate_pinnig_proj_start_delay(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
-        if (not isinstance(model.pinning_project_start_delay, int) and
-                not isinstance(model.pinning_project_start_delay, float)):
-
+    def _validate_pinnig_proj_start_delay(cls, model: ScanningAuxInfoModel):
+        if (
+            not isinstance(model.pinning_project_start_delay, int)
+            and not isinstance(model.pinning_project_start_delay, float)
+        ):
             return model.FIELD_TYPES.pinning_project_start_delay
-        elif (model.pinning_project_start_delay == -1 or
-                model.pinning_project_start_delay > 0):
+        elif (
+            model.pinning_project_start_delay == -1
+            or model.pinning_project_start_delay > 0
+        ):
             return True
         else:
             return model.FIELD_TYPES.pinning_project_start_delay
 
     @classmethod
-    def _validate_precultures(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
+    def _validate_precultures(cls, model: ScanningAuxInfoModel):
         if not isinstance(model.precultures, int):
             return model.FIELD_TYPES.precultures
         elif model.precultures == -1 or model.precultures >= 0:
@@ -160,11 +132,7 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
             return model.FIELD_TYPES.precultures
 
     @classmethod
-    def _validate_culture_freshness(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
+    def _validate_culture_freshness(cls, model: ScanningAuxInfoModel):
         if not isinstance(model.culture_freshness, int):
             return model.FIELD_TYPES.culture_freshness
         elif model.culture_freshness == -1 or model.culture_freshness > 0:
@@ -173,11 +141,7 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
             return model.FIELD_TYPES.culture_freshness
 
     @classmethod
-    def _validate_culture_source(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningAuxInfoModel
-        """
+    def _validate_culture_source(cls, model: ScanningAuxInfoModel):
         if cls._is_enum_value(model.culture_source, CULTURE_SOURCE):
             return True
         else:
@@ -219,69 +183,54 @@ class ScanningModelFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-
-        :rtype : scanomatic.models.scanning_model.ScanningModel
-        """
+    def create(cls, **settings) -> ScanningModel:
         if not settings.get('cell_count_calibration_id', None):
-
             settings['cell_count_calibration_id'] = 'default'
-
         return super(cls, ScanningModelFactory).create(**settings)
 
     @classmethod
-    def clamp(cls, model):
-        """
+    def clamp(cls, model: ScanningModel):
+        return cls._clamp(
+            model,
+            cls._GET_MIN_MODEL(model, factory=cls),
+            cls._GET_MAX_MODEL(model, factory=cls),
+        )
 
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
-        return cls._clamp(model, cls._GET_MIN_MODEL(model, factory=cls),
-                          cls._GET_MAX_MODEL(model, factory=cls))
-
-    # noinspection PyMethodOverriding
     @classmethod
-    def _correct_type_and_in_bounds(cls, model, attr, dtype):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _correct_type_and_in_bounds(cls, model: ScanningModel, attr, dtype):
         return super(ScanningModelFactory, cls)._correct_type_and_in_bounds(
-            model, attr, dtype, cls._GET_MIN_MODEL, cls._GET_MAX_MODEL)
+            model,
+            attr,
+            dtype,
+            cls._GET_MIN_MODEL,
+            cls._GET_MAX_MODEL,
+        )
 
     @classmethod
-    def _validate_number_of_scans(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_number_of_scans(cls, model: ScanningModel):
         return cls._correct_type_and_in_bounds(model, "number_of_scans", int)
 
     @classmethod
-    def _validate_time_between_scans(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_time_between_scans(cls, model: ScanningModel):
         try:
             model.time_between_scans = float(model.time_between_scans)
         except:
             return model.FIELD_TYPES.time_between_scans
-
         return cls._correct_type_and_in_bounds(
-            model, "time_between_scans", float)
+            model,
+            "time_between_scans",
+            float,
+        )
 
     @classmethod
-    def _validate_project_name(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
-        if not model.project_name or len(model.project_name) != len(
-                tuple(
-                    c for c in model.project_name if c in
-                    string.letters + string.digits + "_")):
-
+    def _validate_project_name(cls, model: ScanningModel):
+        if (
+            not model.project_name
+            or len(model.project_name) != len(tuple(
+                c for c in model.project_name
+                if c in string.letters + string.digits + "_"
+            ))
+        ):
             return model.FIELD_TYPES.project_name
 
         try:
@@ -293,42 +242,26 @@ class ScanningModelFactory(AbstractModelFactory):
         return True
 
     @classmethod
-    def _validate_directory_containing_project(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_directory_containing_project(cls, model: ScanningModel):
         try:
-
             if os.path.isdir(
-                    os.path.abspath(model.directory_containing_project)):
+                os.path.abspath(model.directory_containing_project),
+            ):
                 return True
-
         except:
-
             pass
 
         return model.FIELD_TYPES.directory_containing_project
 
     @classmethod
-    def _validate_description(cls, model):
-
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
-
+    def _validate_description(cls, model: ScanningModel):
         if isinstance(model.description, StringTypes):
             return True
 
         return model.FIELD_TYPES.description
 
     @classmethod
-    def _validate_email(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_email(cls, model: ScanningModel):
         if not model.email:
             return True
 
@@ -339,130 +272,103 @@ class ScanningModelFactory(AbstractModelFactory):
 
         try:
             for address in email:
-
-                if (not (
-                        isinstance(address, StringTypes) and
-                        (address == '' or re.match(
-                            r'[^@]+@[^@]+\.[^@]+', address)))):
-
+                if (
+                    not (
+                        isinstance(address, StringTypes)
+                        and (address == '' or re.match(
+                            r'[^@]+@[^@]+\.[^@]+',
+                            address,
+                        ))
+                    )
+                ):
                     raise TypeError
             return True
         except TypeError:
             return model.FIELD_TYPES.email
 
     @classmethod
-    def _validate_pinning_formats(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_pinning_formats(cls, model: ScanningModel):
         if AbstractModelFactory._is_pinning_formats(model.pinning_formats):
             return True
-
         return model.FIELD_TYPES.pinning_formats
 
     @classmethod
-    def _validate_fixture(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_fixture(cls, model: ScanningModel):
         if model.fixture in fixtures.Fixtures() or not model.fixture:
             return True
-
         return model.FIELD_TYPES.fixture
 
     @classmethod
-    def _validate_scanner(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_scanner(cls, model: ScanningModel):
         if app_config.Config().get_scanner_name(model.scanner) is not None:
             return True
 
         return model.FIELD_TYPES.scanner
 
     @classmethod
-    def _validate_plate_descriptions(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-         """
+    def _validate_plate_descriptions(cls, model: ScanningModel):
         if not not isinstance(
-                model.plate_descriptions,
-                cls.STORE_SECTION_SERIALIZERS[
-                    model.FIELD_TYPES.plate_descriptions.name][1]):
-
+            model.plate_descriptions,
+            cls.STORE_SECTION_SERIALIZERS[
+                model.FIELD_TYPES.plate_descriptions.name
+            ][1]
+        ):
             return model.FIELD_TYPES.plate_descriptions
 
         else:
             for plate_description in model.plate_descriptions:
-
-                if (not isinstance(
+                if (
+                    not isinstance(
                         plate_description,
                         cls.STORE_SECTION_SERIALIZERS[
-                            model.FIELD_TYPES.plate_descriptions.name][1])):
-
+                            model.FIELD_TYPES.plate_descriptions.name
+                        ][1],
+                    )
+                ):
                     return model.FIELD_TYPES.plate_descriptions
 
-            if (len(set(plate_description.name for plate_description in
-                    model.plate_descriptions)) != len(
-                        model.plate_descriptions)):
-
+            if (
+                len(set(
+                    plate_description.name
+                    for plate_description in model.plate_descriptions
+                )) != len(model.plate_descriptions)
+            ):
                 return model.FIELD_TYPES.plate_descriptions
-
         return True
 
     @classmethod
-    def _validate_cell_count_calibration_id(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_cell_count_calibration_id(cls, model: ScanningModel):
         if model.cell_count_calibration_id in get_active_cccs():
             return True
         return model.FIELD_TYPES.cell_count_calibration
 
     @classmethod
-    def _validate_aux_info(cls, model):
-        """
-
-        :type model: scanomatic.models.scanning_model.ScanningModel
-        """
+    def _validate_aux_info(cls, model: ScanningModel):
         if cls._is_valid_submodel(model, "auxillary_info"):
             return True
         return model.FIELD_TYPES.auxillary_info
 
 
 class ScannerOwnerFactory(AbstractModelFactory):
-
     MODEL = ScannerOwnerModel
     STORE_SECTION_HEAD = ("id",)
-
     STORE_SECTION_SERIALIZERS = {
         "id": str,
         "pid": int
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.model.scanning_model.ScannerOwnerModel
-        """
-
+    def create(cls, **settings) -> ScannerOwnerModel:
         return super(ScannerOwnerFactory, cls).create(**settings)
 
 
 class ScannerFactory(AbstractModelFactory):
-
     MODEL = ScannerModel
     STORE_SECTION_HEAD = ("scanner_name",)
     _SUB_FACTORIES = {
         ScannerOwnerModel: ScannerOwnerFactory,
         RPCjobModel: ScannerOwnerFactory
     }
-
     STORE_SECTION_SERIALIZERS = {
         'socket': int,
         'scanner_name': str,
@@ -480,9 +386,5 @@ class ScannerFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-         :rtype : scanomatic.models.scanning_model.ScannerModel
-        """
-
+    def create(cls, **settings) -> ScannerModel:
         return super(ScannerFactory, cls).create(**settings)

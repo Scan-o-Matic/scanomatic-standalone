@@ -1,23 +1,18 @@
 import scanomatic.models.settings_models as settings_models
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
-from scanomatic.io.power_manager import POWER_MODES, POWER_MANAGER_TYPE
+from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 
 class VersionChangeFactory(AbstractModelFactory):
-
     MODEL = settings_models.VersionChangesModel
     STORE_SECTION_SERIALIZERS = {}
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.VersionChangesModel
-        """
+    def create(cls, **settings) -> settings_models.VersionChangesModel:
         return super(VersionChangeFactory, cls).create()
 
 
 class PowerManagerFactory(AbstractModelFactory):
-
     MODEL = settings_models.PowerManagerModel
     STORE_SECTION_HEAD = "Power Manager"
     STORE_SECTION_SERIALIZERS = {
@@ -32,16 +27,11 @@ class PowerManagerFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.PowerManagerModel
-        """
-
+    def create(cls, **settings) -> settings_models.PowerManagerModel:
         return super(PowerManagerFactory, cls).create(**settings)
 
 
 class RPCServerFactory(AbstractModelFactory):
-
     MODEL = settings_models.RPCServerModel
     STORE_SECTION_HEAD = "RPC Server (Main SoM Server)"
     STORE_SECTION_SERIALIZERS = {
@@ -51,15 +41,11 @@ class RPCServerFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.RPCServerModel
-        """
+    def create(cls, **settings) -> settings_models.RPCServerModel:
         return super(RPCServerFactory, cls).create(**settings)
 
 
 class UIServerFactory(AbstractModelFactory):
-
     MODEL = settings_models.UIServerModel
     STORE_SECTION_HEAD = "UI Server"
     STORE_SECTION_SERIALIZERS = {
@@ -69,16 +55,11 @@ class UIServerFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.UIServerModel
-        """
-
+    def create(cls, **settings) -> settings_models.UIServerModel:
         return super(UIServerFactory, cls).create(**settings)
 
 
 class HardwareResourceLimitsFactory(AbstractModelFactory):
-
     MODEL = settings_models.HardwareResourceLimitsModel
     STORE_SECTION_HEAD = "Hardware Resource Limits"
     STORE_SECTION_SERIALIZERS = {
@@ -90,15 +71,11 @@ class HardwareResourceLimitsFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.HardwareResourceLimitsModel
-        """
+    def create(cls, **settings) -> settings_models.HardwareResourceLimitsModel:
         return super(HardwareResourceLimitsFactory, cls).create(**settings)
 
 
 class MailFactory(AbstractModelFactory):
-
     MODEL = settings_models.MailModel
     STORE_SECTION_HEAD = "Mail"
     STORE_SECTION_SERIALIZERS = {
@@ -110,15 +87,11 @@ class MailFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.MailModel
-        """
+    def create(cls, **settings) -> settings_models.MailModel:
         return super(MailFactory, cls).create(**settings)
 
 
 class PathsFactory(AbstractModelFactory):
-
     MODEL = settings_models.PathsModel
     STORE_SECTION_HEAD = "Paths"
     STORE_SECTION_SERIALIZERS = {
@@ -126,10 +99,7 @@ class PathsFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-        """
-        :rtype : scanomatic.models.settings_models.PathsModel
-        """
+    def create(cls, **settings) -> settings_models.PathsModel:
         return super(PathsFactory, cls).create(**settings)
 
 
