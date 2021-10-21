@@ -8,7 +8,7 @@ except:
     MATPLOTLIB = False
 
 
-def get(N, **kwargs):
+def get(N: int, **kwargs):
     """Generator that produces a colorseries of length N.
 
     Parameters:
@@ -28,17 +28,15 @@ def get(N, **kwargs):
             colors will be sampled.
     """
 
-    if ('base' in kwargs and MATPLOTLIB and
-            isinstance(kwargs['base'], mplColors.Colormap)):
-
-        for n in xrange(N):
-
+    if (
+        'base' in kwargs and MATPLOTLIB and
+        isinstance(kwargs['base'], mplColors.Colormap)
+    ):
+        for n in range(N):
             yield kwargs['base'](n * float(kwargs['base'].N) / N)
 
     else:
-
         if 'base' not in kwargs:
-
             random.seed()
             kwargs['base'] = [random.random() for x in range(3)]
 
@@ -54,9 +52,7 @@ def get(N, **kwargs):
         n = 0
 
         while True:
-
             for v in permutations(cV):
-
                 if n < N:
                     if alpha is not None:
                         yield tuple(v) + (alpha, )
@@ -69,5 +65,4 @@ def get(N, **kwargs):
 
             if n >= N:
                 break
-
             cV = [0.5 * v for v in cV]
