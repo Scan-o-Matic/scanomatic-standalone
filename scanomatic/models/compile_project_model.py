@@ -1,9 +1,11 @@
 from enum import Enum
+from typing import Optional, Sequence
+
 from scanomatic.generics.model import Model
+from scanomatic.models.fixture_models import FixtureModel
 
 
 class COMPILE_ACTION(Enum):
-
     Initiate = 0
     Append = 1
     InitiateAndSpawnAnalysis = 10
@@ -11,51 +13,56 @@ class COMPILE_ACTION(Enum):
 
 
 class FIXTURE(Enum):
-
     Local = 0
     Global = 1
 
 
 class CompileInstructionsModel(Model):
-
-    def __init__(self, compile_action=COMPILE_ACTION.InitiateAndSpawnAnalysis,
-                 start_time=0.0, images=tuple(), path="", start_condition="",
-                 fixture_type=FIXTURE.Local, fixture_name=None, email="",
-                 overwrite_pinning_matrices=None,
-                 cell_count_calibration_id="default"):
-
-        self.compile_action = compile_action
-        self.images = images
-        self.path = path
-        self.start_time = start_time
-        self.start_condition = start_condition
-        self.fixture_type = fixture_type
+    def __init__(
+        self,
+        compile_action=COMPILE_ACTION.InitiateAndSpawnAnalysis,
+        start_time=0.0,
+        images=tuple(),
+        path="",
+        start_condition="",
+        fixture_type=FIXTURE.Local,
+        fixture_name=None,
+        email="",
+        overwrite_pinning_matrices=None,
+        cell_count_calibration_id="default",
+    ):
+        self.compile_action: COMPILE_ACTION = compile_action
+        self.images: Sequence = images
+        self.path: str = path
+        self.start_time: float = start_time
+        self.start_condition: str = start_condition
+        self.fixture_type: FIXTURE = fixture_type
         self.fixture_name = fixture_name
-        self.email = email
+        self.email: str = email
         self.overwrite_pinning_matrices = overwrite_pinning_matrices
-        self.cell_count_calibration_id = cell_count_calibration_id
-
+        self.cell_count_calibration_id: str = cell_count_calibration_id
         super(CompileInstructionsModel, self).__init__()
 
 
 class CompileImageModel(Model):
-
-    def __init__(self, index=-1, path="", time_stamp=0.0):
-
-        self.index = index
-        self.path = path
-        self.time_stamp = time_stamp
-
+    def __init__(
+        self,
+        index: int = -1,
+        path: str = "",
+        time_stamp: float = 0.0,
+    ):
+        self.index: int = index
+        self.path: str = path
+        self.time_stamp: float = time_stamp
         super(CompileImageModel, self).__init__()
 
 
 class CompileImageAnalysisModel(Model):
-
-    def __init__(self, image=None, fixture=None):
-
-        self.image = image
-        """:type : CompileImageModel"""
-        self.fixture = fixture
-        """:type : scanomatic.models.fixture_models.FixtureModel"""
-
+    def __init__(
+        self,
+        image: Optional[CompileImageModel] = None,
+        fixture: Optional[FixtureModel] = None,
+    ):
+        self.image: Optional[CompileImageModel] = image
+        self.fixture: Optional[FixtureModel] = fixture
         super(CompileImageAnalysisModel, self).__init__()

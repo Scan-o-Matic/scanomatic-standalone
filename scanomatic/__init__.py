@@ -13,13 +13,13 @@ __status__ = "Development"
 __branch = "dev"
 
 
-def get_version():
+def get_version() -> str:
     return __version__
 
 
-def get_branch():
+def get_branch() -> str:
     return __branch
 
 
-def get_location():
+def get_location() -> str:
     return os.path.dirname(__file__)
