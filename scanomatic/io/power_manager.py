@@ -1,57 +1,45 @@
 import os
 import re
-from subprocess import Popen, PIPE
 import time
-
-
-import urllib2
 import types
-from urllib import urlencode
-from enum import Enum  # NOTE: For python<3.4 use 'pip install enum34' to obtain module
+from typing import Optional, Union
+import urllib.error
+import urllib.parse
+import urllib.request
+from enum import Enum
+from subprocess import PIPE, Popen
+from urllib.parse import urlencode
+
+from . import logger
+
 # FURTHER LAN-specific dependenies further down
-
-#
-# INTERNAL DEPENDENCIES
-#
-
-import logger
-
-#
-# EXCEPTIONS
-#
 
 
 class InvalidInit(Exception):
     pass
 
-#
-# GLOBALS
-#
-
 
 URL_TIMEOUT = 2
 MAX_CONNECTION_TRIES = 10
-POWER_MANAGER_TYPE = Enum("POWER_MANAGER_TYPE",
-                          names=("notInstalled", "USB", "LAN", "linuxUSB", "windowsUSB"))
+POWER_MANAGER_TYPE = Enum(
+    "POWER_MANAGER_TYPE",
+    names=("notInstalled", "USB", "LAN", "linuxUSB", "windowsUSB"),
+)
 POWER_MODES = Enum("POWER_MODES", names=("Toggle", "Impulse"))
 POWER_FLICKER_DELAY = 0.25
 
-#
-# FUNCTIONS
-#
 
-
-def _impulse_scanner(self):
+def _impulse_scanner(self) -> bool:
     on_success = self._on()
     time.sleep(POWER_FLICKER_DELAY)
     return self._off() and on_success
 
 
-def _toggle_scanner_on(self):
+def _toggle_scanner_on(self) -> bool:
     return self._on()
 
 
-def _toggle_scanner_off(self):
+def _toggle_scanner_off(self) -> bool:
     return self._off()
 
 
@@ -63,7 +51,15 @@ def get_enum_name_from_value(enum, value):
     return list(elem for elem in enum if elem.value == value)[0]
 
 
-def get_pm_class(pm_type):
+def get_pm_class(
+    pm_type: Optional[POWER_MANAGER_TYPE]
+) -> Union[
+    "PowerManagerNull",
+    "PowerManagerLan",
+    "PowerManagerUsb",
+    "PowerManagerUsbLinux",
+    "PowerManagerUsbWin"
+]:
 
     if pm_type is POWER_MANAGER_TYPE.notInstalled:
         return PowerManagerNull
@@ -77,16 +73,15 @@ def get_pm_class(pm_type):
         return PowerManagerUsbWin
     return PowerManagerNull
 
-#
-# CLASSES
-#
 
-
-class PowerManagerNull(object):
-
-    def __init__(self, socket, 
-                 power_mode=POWER_MODES.Toggle, name="not installed", **kwargs):
-
+class PowerManagerNull:
+    def __init__(
+        self,
+        socket: int,
+        power_mode: POWER_MODES = POWER_MODES.Toggle,
+        name: str = "not installed",
+        **kwargs,
+    ):
         if power_mode is POWER_MODES.Impulse:
             self.powerUpScanner = types.MethodType(_impulse_scanner, self)
             self.powerDownScanner = types.MethodType(_impulse_scanner, self)
@@ -105,67 +100,84 @@ class PowerManagerNull(object):
         return self._socket
 
     @property
-    def power_mode(self):
+    def power_mode(self) -> str:
         return str(self._power_mode)
 
-    def _on(self):
+    def _on(self) -> bool:
         return True
 
-    def _off(self):
+    def _off(self) -> bool:
         return True
 
-    def status(self):
-
+    def status(self) -> Optional[bool]:
         self._logger.warning("claiming to be off")
         return False
 
-    def could_have_power(self):
+    def could_have_power(self) -> bool:
+        return (
+            self._power_mode is POWER_MODES.Impulse
+            or self.status() is not False
+        )
 
-        return (self._power_mode is POWER_MODES.Impulse or 
-                self.status() is not False)
-
-    def sure_to_have_power(self):
-
-        return (self._power_mode is not POWER_MODES.Impulse and
-                self.status() is not False)
+    def sure_to_have_power(self) -> bool:
+        return (
+            self._power_mode is not POWER_MODES.Impulse
+            and self.status() is not False
+        )
 
 
 class PowerManagerUsb(PowerManagerNull):
     """Base Class for USB-connected PM:s. Not intended to be used directly."""
-    def __init__(self, socket, path, on_args=None, off_args=None, power_mode=POWER_MODES.Toggle, name="USB", **kwargs):
+    def __init__(
+        self,
+        socket: int,
+        path,
+        on_args=None,
+        off_args=None,
+        power_mode: POWER_MODES = POWER_MODES.Toggle,
+        name: str = "USB",
+        **kwargs,
+    ):
 
         if not off_args:
             off_args = []
         if not on_args:
             on_args = []
 
-        super(PowerManagerUsb, self).__init__(socket, power_mode=power_mode, name=name)
+        super(PowerManagerUsb, self).__init__(
+            socket,
+            power_mode=power_mode,
+            name=name,
+        )
 
         self._on_cmd = [path] + on_args
         self._off_cmd = [path] + off_args
         self._fail_error = "No GEMBIRD SiS-PM found"
 
-    def _on(self):
+    def _on(self) -> bool:
 
         on_success = self._exec(self._on_cmd)
         self._logger.info('USB PM, Turning on socket {0} ({1})'.format(
-            self._socket, on_success))
+            self._socket,
+            on_success,
+        ))
         return on_success
 
-    def _off(self):
+    def _off(self) -> bool:
 
         off_success = self._exec(self._off_cmd)
         self._logger.info('USB PM, Turning off socket {0} ({1})'.format(
-            self._socket, off_success))
+            self._socket,
+            off_success,
+        ))
         return off_success
 
-    def _exec(self, cmd):
-
+    def _exec(self, cmd) -> bool:
         exec_err = False
         stderr = ""
         try:
             proc = Popen(cmd, shell=False, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = proc.communicate()
+            _, stderr = proc.communicate()
         except:
             exec_err = True
         if self._fail_error in stderr or exec_err:
@@ -180,7 +192,13 @@ class PowerManagerUsbLinux(PowerManagerUsb):
     ON_TEXT = "on"
     OFF_TEXT = "off"
 
-    def __init__(self, socket, path="sispmctl", power_mode=POWER_MODES.Impulse, **kwargs):
+    def __init__(
+        self,
+        socket: int,
+        path: str = "sispmctl",
+        power_mode: POWER_MODES = POWER_MODES.Impulse,
+        **kwargs
+    ):
 
         super(PowerManagerUsbLinux, self).__init__(
             socket,
@@ -188,33 +206,37 @@ class PowerManagerUsbLinux(PowerManagerUsb):
             on_args=["-o", "{0}".format(socket)],
             off_args=["-f", "{0}".format(socket)],
             power_mode=power_mode,
-            name="USB(Linux)")
+            name="USB(Linux)",
+        )
 
-    def status(self):
-
+    def status(self) -> Optional[bool]:
         self._logger.info('USB PM, trying to connect')
-        proc = Popen('sispmctl -g {0}'.format(self._socket),
-                     stdout=PIPE, stderr=PIPE, shell=True)
-
-        stdout, stderr = proc.communicate()
+        proc = Popen(
+            'sispmctl -g {0}'.format(self._socket),
+            stdout=PIPE,
+            stderr=PIPE,
+            shell=True,
+        )
+        stdout, _ = proc.communicate()
         stdout = stdout.strip()
-
         if stdout.endswith(self.ON_TEXT):
             return True
         elif stdout.endswith(self.OFF_TEXT):
             return False
-
         self._logger.warning('USB PM, could not reach or understand PM')
-
         return None
 
 
 class PowerManagerUsbWin(PowerManagerUsb):
     """Class for handling USB connected PM:s on windows."""
 
-    def __init__(self, socket,
-                 path=r"C:\Program Files\Gembird\Power Manager\pm.exe",
-                 power_mode=POWER_MODES.Toggle, **kwargs):
+    def __init__(
+        self,
+        socket: int,
+        path: str = r"C:\Program Files\Gembird\Power Manager\pm.exe",
+        power_mode: POWER_MODES = POWER_MODES.Toggle,
+        **kwargs,
+    ):
 
         super(PowerManagerUsbWin, self).__init__(
             socket,
@@ -222,21 +244,33 @@ class PowerManagerUsbWin(PowerManagerUsb):
             on_args=["-on", "-PW1", "-Scanner{0}".format(socket)],
             off_args=["-off", "-PW1", "-Scanner{0}".format(socket)],
             power_mode=power_mode,
-            name="USB(Windows)")
+            name="USB(Windows)",
+        )
 
 
-# noinspection PyUnresolvedReferences
 class PowerManagerLan(PowerManagerNull):
     """Class for handling LAN-connected PM:s.
 
     host may be None if MAC is supplied.
     If no password is supplied, default password is used."""
 
-    def __init__(self, socket, host=None, password="1", verify_name=False,
-                 name="Server 1", mac=None,
-                 power_mode=POWER_MODES.Toggle, **kwargs):
+    def __init__(
+        self,
+        socket: int,
+        host=None,
+        password: str = "1",
+        verify_name: bool = False,
+        name: str = "Server 1",
+        mac=None,
+        power_mode: POWER_MODES = POWER_MODES.Toggle,
+        **kwargs,
+    ):
 
-        super(PowerManagerLan, self).__init__(socket, name="LAN", power_mode=power_mode)
+        super(PowerManagerLan, self).__init__(
+            socket,
+            name="LAN",
+            power_mode=power_mode,
+        )
         self._host = host
         self._mac = mac
         if password is None:
@@ -255,21 +289,16 @@ class PowerManagerLan(PowerManagerNull):
         self.test_ip()
 
         if self._host is None:
-
             if mac is not None:
-
                 self._logger.info("LAN PM, No valid host known, searching...")
                 res = self._find_ip()
                 self._logger.info("LAN PM, Found {0}".format(res))
-
             else:
-
                 self._logger.error("LAN PM, No known host and no MAC...no way to find PM")
                 raise InvalidInit()
 
     @property
     def host(self):
-
         return self._host
 
     def _set_urls(self):
@@ -286,12 +315,16 @@ class PowerManagerLan(PowerManagerNull):
         try:
             import nmap
         except ImportError:
-            self._logger.error("Can't scan for Power Manager without nmap installed")
+            self._logger.error(
+                "Can't scan for Power Manager without nmap installed",
+            )
             self._host = None
             return self._host
 
         if not self._mac:
-            self._logger.warning("Can not search for the power manager on the LAN without knowing its MAC")
+            self._logger.warning(
+                "Can not search for the power manager on the LAN without knowing its MAC",  # noqa: E501
+            )
             self._host = None
             return self._host
 
@@ -302,12 +335,14 @@ class PowerManagerLan(PowerManagerNull):
 
         # FILTER OUT THOSE RESPONDING
         self._logger.debug("LAN PM, Evaluating all alive hosts")
-        up_ips = [k for k in nm_res['scan'] if nm_res['scan'][k]['status']['state'] == u'up']
+        up_ips = [
+            k for k in nm_res['scan']
+            if nm_res['scan'][k]['status']['state'] == 'up'
+        ]
 
         # LET THE OS PING THEM AGAIN SO THEY END UP IN ARP
         self._logger.debug("LAN PM, Scanning pinning alive hosts")
         for ip in up_ips:
-
             os.system('ping -c 1 {0}'.format(ip))
 
         # RUN ARP
@@ -316,7 +351,6 @@ class PowerManagerLan(PowerManagerNull):
 
         # FILTER LIST ON ROWS WITH SOUGHT MAC-ADDRESS
         self._logger.debug("LAN PM, Keeping those with correct MAC-addr")
-
         res = [l for l in p.communicate()[0].split("\n") if self._mac in l]
 
         if len(res) > 0:
@@ -336,26 +370,25 @@ class PowerManagerLan(PowerManagerNull):
         return self._host
 
     def _run_url(self, *args, **kwargs):
-
         success = False
         connects = 0
         p = None
 
         while not success and connects < MAX_CONNECTION_TRIES:
-
             try:
-                p = urllib2.urlopen(*args, **kwargs)
+                p = urllib.request.urlopen(*args, **kwargs)
                 success = True
             except:
                 connects += 1
 
         if connects == MAX_CONNECTION_TRIES:
-            self._logger.error("Failed to reach PM ({0} tries)".format(connects))
+            self._logger.error(
+                "Failed to reach PM ({0} tries)".format(connects),
+            )
 
         return p
 
     def _login(self):
-
         if self._host is None or self._host == "":
 
             self._logger.error("LAN PM, Logging in failed, no host")
@@ -364,98 +397,92 @@ class PowerManagerLan(PowerManagerNull):
         else:
 
             self._logger.debug("LAN PM, Logging in")
-            return self._run_url(self._login_out_url, self._pwd_params, timeout=URL_TIMEOUT)
+            return self._run_url(
+                self._login_out_url,
+                self._pwd_params,
+                timeout=URL_TIMEOUT,
+            )
 
     def _logout(self):
-
         if self._host is None or self._host == "":
-
             self._logger.error("LAN PM, Log out failed, no host")
             return None
-
         else:
-
             self._logger.debug("LAN PM, Logging out")
             return self._run_url(self._login_out_url, timeout=URL_TIMEOUT)
 
-    def test_ip(self):
-
-        self._logger.debug("LAN PM, Testing current host '{0}'".format(self._host))
+    def test_ip(self) -> bool:
+        self._logger.debug(
+            "LAN PM, Testing current host '{0}'".format(self._host),
+        )
 
         if self._host is not None:
-
             u = self._logout()
-
             if u is None:
-
                 self._host = None
 
             else:
-
                 s = u.read()
                 u.close()
 
                 if "EnerGenie" not in s:
-
                     self._host = None
 
                 if self._pm_server_name not in s:
-
                     self._host = None
 
         return self._host is not None
 
-    def _on(self):
-
+    def _on(self) -> bool:
         u = self._login()
-
         if u is None:
-
             return False
 
         if not self._verify_name or self._pm_server_str in u.read():
-
-            self._logger.info('USB PM, Turning on socket {0}'.format(self._socket))
-            if self._run_url(self._ctrl_panel_url, self._on_params, timeout=URL_TIMEOUT) is None:
+            self._logger.info(
+                'USB PM, Turning on socket {0}'.format(self._socket),
+            )
+            if self._run_url(
+                self._ctrl_panel_url,
+                self._on_params,
+                timeout=URL_TIMEOUT
+            ) is None:
                 return False
 
             self._logout()
             return True
-
         else:
-
-            self._logger.error("LAN PM, Failed to turn on socket {0}".format(self._socket))
+            self._logger.error(
+                "LAN PM, Failed to turn on socket {0}".format(self._socket),
+            )
             return False
 
-    def _off(self):
-
+    def _off(self) -> bool:
         u = self._login()
-
         if u is None:
-
             return False
 
         if not self._verify_name or self._pm_server_str in u.read():
+            self._logger.info(
+                'USB PM, Turning off socket {0}'.format(self._socket),
+            )
 
-            self._logger.info('USB PM, Turning off socket {0}'.format(self._socket))
-
-            if self._run_url(self._ctrl_panel_url, self._off_params,
-                             timeout=URL_TIMEOUT) is None:
-
+            if self._run_url(
+                self._ctrl_panel_url,
+                self._off_params,
+                timeout=URL_TIMEOUT,
+            ) is None:
                 return False
-
             self._logout()
             return True
-
         else:
-
-            self._logger.error("LAN PM, Failed to turn off socked {0}".format(self._socket))
+            self._logger.error(
+                "LAN PM, Failed to turn off socked {0}".format(self._socket),
+            )
             return False
 
-    def status(self):
-
+    def status(self) -> Optional[bool]:
         u = self._login()
-
         if u is None:
             self._logger.error('Could not reach LAN-PM')
             return None

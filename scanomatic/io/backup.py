@@ -1,9 +1,13 @@
 import os
 import tarfile
+from typing import Sequence
 
 
-def get_backup_name(path_to_original, max_backups=10, pattern="{0}.{1}.tar.gz"):
-
+def get_backup_name(
+    path_to_original: str,
+    max_backups: int = 10,
+    pattern: str= "{0}.{1}.tar.gz",
+) -> str:
     t_prev = None
 
     for i in range(max_backups):
@@ -21,8 +25,7 @@ def get_backup_name(path_to_original, max_backups=10, pattern="{0}.{1}.tar.gz"):
     return pattern.format(path_to_original, 0)
 
 
-def backup_file(*paths):
-
+def backup_file(*paths: str) -> str:
     if not any(os.path.isfile(path) for path in paths):
         return None
 
@@ -35,22 +38,24 @@ def backup_file(*paths):
     return backup_path
 
 
-def get_backup_object_for_stream(paths):
+def get_backup_object_for_stream(paths: Sequence[str]) -> tarfile.TarFile:
     archive = tarfile.open(mode='w:gz')
     for path in paths:
         archive.add(path, recursive=False)
     return archive
 
 
-def backup_recursive(path):
-
+def backup_recursive(path: str):
     dir_path = os.path.dirname(path)
     base_name = os.path.basename(path)
-    with tarfile.open(os.path.join(dir_path, base_name + '.tar.gz'), mode='w:gz') as archive:
+    with tarfile.open(
+        os.path.join(dir_path, base_name + '.tar.gz'),
+        mode='w:gz',
+    ) as archive:
         archive.add(path, recursive=True)
 
 
-def get_recursive_backup_object_for_stream(path):
+def get_recursive_backup_object_for_stream(path: str) -> tarfile.TarFile:
     archive = tarfile.open(mode='w:gz')
     archive.add(path, recursive=True)
     return archive

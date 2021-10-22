@@ -67,13 +67,14 @@ Data structure for CCC-jsons
 }
 
 """
-from types import StringTypes
-from enum import Enum
-from uuid import uuid1
+import json
 import os
 import re
-import json
+from enum import Enum
 from glob import iglob
+from types import StringTypes
+from typing import Any, Dict
+from uuid import uuid1
 
 from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
@@ -86,59 +87,36 @@ class CCCFormatError(Exception):
 
 
 class CellCountCalibration(Enum):
-
     status = 0
-    """:type : CellCountCalibration"""
     species = 1
-    """:type : CellCountCalibration"""
     reference = 2
-    """:type : CellCountCalibration"""
     identifier = 3
-    """:type : CellCountCalibration"""
     images = 4
-    """:type : CellCountCalibration"""
     polynomial = 6
-    """:type : CellCountCalibration"""
     edit_access_token = 7
-    """:type : CellCountCalibration"""
 
 
 class CCCImage(Enum):
-
     identifier = 0
-    """:type : CCCImage"""
     plates = 1
-    """:type : CCCImage"""
     grayscale_name = 2
-    """:type : CCCImage"""
     grayscale_source_values = 3
-    """:type : CCCImage"""
     grayscale_target_values = 4
-    """:type : CCCImage"""
     fixture = 5
-    """:type : CCCImage"""
     marker_x = 6
-    """:type : CCCImage"""
     marker_y = 7
-    """:type : CCCImage"""
 
 
 class CCCPlate(Enum):
     grid_shape = 0
-    """:type : CCCPlate"""
     grid_cell_size = 1
-    """:type : CCCPlate"""
     compressed_ccc_data = 2
-    """:type : CCCPlate"""
 
 
 class CCCMeasurement(Enum):
     source_values = 1
-    """:type : CCCMeasurement"""
     source_value_counts = 2
-    """:type : CCCMeasurement"""
     cell_count = 3
-    """:type : CCCMeasurement"""
 
 
 class CCCPolynomial(Enum):
@@ -147,16 +125,16 @@ class CCCPolynomial(Enum):
 
 
 class CalibrationEntryStatus(Enum):
-
     UnderConstruction = 0
-    """:type: CalibrationEntryStatus"""
     Active = 1
-    """:type: CalibrationEntryStatus"""
     Deleted = 2
-    """:type: CalibrationEntryStatus"""
 
 
-def get_empty_ccc_entry(ccc_id, species, reference):
+def get_empty_ccc_entry(
+    ccc_id,
+    species,
+    reference,
+) -> Dict[CellCountCalibration, Any]:
     return {
         CellCountCalibration.identifier: ccc_id,
         CellCountCalibration.species: species,
@@ -168,8 +146,7 @@ def get_empty_ccc_entry(ccc_id, species, reference):
     }
 
 
-def get_polynomal_entry(power, poly_coeffs):
-
+def get_polynomal_entry(power, poly_coeffs) -> Dict[CCCPolynomial, Any]:
     return {
         CCCPolynomial.power: power,
         CCCPolynomial.coefficients: poly_coeffs,
@@ -178,14 +155,18 @@ def get_polynomal_entry(power, poly_coeffs):
 
 def validate_polynomial_format(polynomial):
     try:
-        if (not (
-                isinstance(polynomial[CCCPolynomial.power], int) and
-                isinstance(polynomial[CCCPolynomial.coefficients], list) and
-                len(polynomial[CCCPolynomial.coefficients]) ==
-                polynomial[CCCPolynomial.power] + 1)):
+        if (
+            not (
+                isinstance(polynomial[CCCPolynomial.power], int)
+                and isinstance(polynomial[CCCPolynomial.coefficients], list)
+                and len(polynomial[CCCPolynomial.coefficients]) ==
+                polynomial[CCCPolynomial.power] + 1
+            )
+        ):
             _logger.error(
                 "Validation of polynomial representaiton {} failed".format(
-                    polynomial)
+                    polynomial,
+                )
             )
             raise ValueError(
                 "Invalid polynomial representation: {}".format(polynomial)
@@ -193,18 +174,18 @@ def validate_polynomial_format(polynomial):
     except (KeyError, TypeError) as err:
         _logger.error(
             "Validation of polynomial representation failed with {}".format(
-                err.message)
+                err.message,
+            )
         )
         raise ValueError(err.message)
 
 
-def _get_new_image_identifier(ccc):
+def _get_new_image_identifier(ccc) -> str:
 
     return "CalibIm_{0}".format(len(ccc[CellCountCalibration.images]))
 
 
-def get_empty_image_entry(ccc):
-
+def get_empty_image_entry(ccc) -> Dict[CCCImage: Any]:
     return {
         CCCImage.identifier: _get_new_image_identifier(ccc),
         CCCImage.plates: {},
@@ -218,14 +199,14 @@ def get_empty_image_entry(ccc):
 
 
 def parse_ccc(data):
-
     data = _decode_dict(data)
-
     for ccc_data_type in CellCountCalibration:
         if ccc_data_type not in data:
             _logger.error(
                 "Corrupt CCC-data, missing {0} in {1}".format(
-                    ccc_data_type, data)
+                    ccc_data_type,
+                    data,
+                )
             )
             return None
 
@@ -257,13 +238,15 @@ def _decode_ccc_key(key):
     raise CCCFormatError("{} not recognized".format(key))
 
 
-def _decode_ccc_enum(value):
+def _decode_ccc_enum(value: str):
     enum_name, enum_value = value.split(".")
     try:
         return __DECODABLE_ENUMS[enum_name][enum_value]
     except (ValueError, KeyError):
         raise CCCFormatError("'{}' not a valid property of '{}'".format(
-            enum_value, enum_name))
+            enum_value,
+            enum_name,
+        ))
 
 
 def _decode_val(v):
@@ -280,8 +263,8 @@ def _decode_val(v):
         return v
 
 
-def _decode_dict(d):
-    return {_decode_ccc_key(k): _decode_val(v) for k, v in d.iteritems()}
+def _decode_dict(d) -> Dict:
+    return {_decode_ccc_key(k): _decode_val(v) for k, v in d.items()}
 
 
 def _encode_ccc_key(key):
@@ -292,8 +275,8 @@ def _encode_ccc_key(key):
     return key
 
 
-def _encode_ccc_enum(key):
-    if type(key) in __DECODABLE_ENUMS.values():
+def _encode_ccc_enum(key) -> str:
+    if type(key) in list(__DECODABLE_ENUMS.values()):
         return "{}.{}".format(str(key).split(".")[-2], key.name)
     else:
         raise CCCFormatError("'{}' not usable in CCC keys".format(key))
@@ -312,16 +295,15 @@ def _encode_val(v):
 
 
 def _encode_dict(d):
-    return {_encode_ccc_key(k): _encode_val(v) for k, v in d.iteritems()}
+    return {_encode_ccc_key(k): _encode_val(v) for k, v in d.items()}
 
 
-def save_ccc(data):
-
+def save_ccc(data) -> bool:
     identifier = data[CellCountCalibration.identifier]
-
     try:
         os.makedirs(
-            os.path.dirname(Paths().ccc_file_pattern.format(identifier)))
+            os.path.dirname(Paths().ccc_file_pattern.format(identifier)),
+        )
     except os.error:
         pass
 
@@ -348,10 +330,11 @@ def load_cccs():
         except CCCFormatError:
             _logger.warning("{} is an outdated CCC".format(ccc_path))
 
-        if (data is None or
-                CellCountCalibration.identifier not in data or
-                not data[CellCountCalibration.identifier]):
-
+        if (
+            data is None
+            or CellCountCalibration.identifier not in data
+            or not data[CellCountCalibration.identifier]
+        ):
             _logger.error("Data file '{0}' is corrupt.".format(ccc_path))
 
         else:

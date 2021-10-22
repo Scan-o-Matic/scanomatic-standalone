@@ -1,21 +1,16 @@
-# import traceback
 import datetime
+import re
 import sys
 import threading
 import time
-from functools import partial
+from typing import Union
 import warnings
-import re
+from functools import partial
 
 LOG_RECYCLE_TIME = 60 * 60 * 24
 
-#
-# CLASSES
-#
 
-
-class Logger(object):
-
+class Logger:
     EXCEPTION = 0
     CRITICAL = 1
     ERROR = 2
@@ -25,7 +20,8 @@ class Logger(object):
 
     _LOGFORMAT = "%Y-%m-%d %H:%M:%S -- {lvl}\t**{name}** "
     LOG_PARSING_EXPRESSION = re.compile(
-        r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)")
+        r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)",  # noqa: E501
+    )
 
     _DEFAULT_LOGFILE = None
     _DEFAULT_CATCH_OUT = False
@@ -37,12 +33,12 @@ class Logger(object):
         (2, 'error', 'ERROR'),
         (3, 'warning', 'WARNING'),
         (4, 'info', 'INFO'),
-        (5, 'debug', 'DEBUG')]
+        (5, 'debug', 'DEBUG')
+    ]
 
     _LOGLEVELS_TO_TEXT = {}
 
     def __init__(self, name, active=True):
-
         self._level = self.INFO
         self._log_file = None
         self._loggerName = name
@@ -54,61 +50,56 @@ class Logger(object):
         if len(self._LOGLEVELS_TO_TEXT) != len(self._LOGLEVELS):
             Logger.set_global_log_levels()
 
-        for lvl, lvlMethodName, lvlName in self._LOGLEVELS:
-
+        for lvl, lvlMethodName, _ in self._LOGLEVELS:
             if hasattr(self, lvlMethodName):
                 pass
             else:
-
-                setattr(self, lvlMethodName,
-                        partial(Logger._output, self, lvl))
-
+                setattr(
+                    self,
+                    lvlMethodName,
+                    partial(Logger._output, self, lvl),
+                )
                 self._logLevelToMethod[lvl] = getattr(self, lvlMethodName)
 
     def exception(self, msg):
-
         self._output(0, msg)
 
     def critical(self, msg):
-
         self._output(1, msg)
 
     def error(self, msg):
-
         self._output(2, msg)
 
     def warning(self, msg):
-
         self._output(3, msg)
 
     def info(self, msg):
-
         self._output(4, msg)
 
     def debug(self, msg):
-
         self._output(5, msg)
 
     def pause(self):
-
         file = self._active_log_file
         if file is None:
-            self.warning("Attempting to pause logging while not having any log file has no effect."
-                         " This is most probably not a problem, even intended.")
+            self.warning(
+                "Attempting to pause logging while not having any log file has no effect."  # noqa: E501
+                " This is most probably not a problem, even intended."
+            )
         else:
             file.pause()
 
     def resume(self):
-
         file = self._active_log_file
         if file is None:
-            self.warning("Attempting to resume logging while not having any log file."
-                         " This has no effect, but should not be a problem either.")
+            self.warning(
+                "Attempting to resume logging while not having any log file."
+                " This has no effect, but should not be a problem either."
+            )
         else:
             file.resume()
 
     def close_output(self):
-
         file = self._active_log_file
         if file is not None:
             file.close()
@@ -119,19 +110,21 @@ class Logger(object):
 
     @classmethod
     def set_global_log_levels(cls, log_levels=None):
-
         if log_levels is not None:
             cls._LOGLEVELS = log_levels
 
         cls._LOGLEVELS_TO_TEXT = {}
-
-        for lvl, lvlMethodName, lvlName in cls._LOGLEVELS:
+        for lvl, _, lvlName in cls._LOGLEVELS:
 
             if lvl in cls._LOGLEVELS_TO_TEXT:
                 raise Exception(
-                    "Duplicated logging level " +
+                    "Duplicated logging level "
                     "{0}: {1} attempt to replace {2}".format(
-                        lvl, cls._LOGLEVELS_TO_TEXT[lvl], lvlName))
+                        lvl,
+                        cls._LOGLEVELS_TO_TEXT[lvl],
+                        lvlName,
+                    ),
+                )
 
             else:
                 cls._LOGLEVELS_TO_TEXT[lvl] = lvlName
@@ -139,16 +132,23 @@ class Logger(object):
 
     @classmethod
     def set_global_output_target(
-            cls,  target, catch_stdout=False, catch_stderr=False,
-            mode='w', buffering=None):
-
+        cls,
+        target,
+        catch_stdout=False,
+        catch_stderr=False,
+        mode='w',
+        buffering=None,
+    ):
         # TODO: Problem if waiting...fix some day
         if cls._DEFAULT_LOGFILE is not None:
             cls._DEFAULT_LOGFILE.close()
 
         if target is not None:
-            cls._DEFAULT_LOGFILE = _ExtendedFileObject(target, mode,
-                                                       buffering=512 if buffering is None else buffering)
+            cls._DEFAULT_LOGFILE = _ExtendedFileObject(
+                target,
+                mode,
+                buffering=512 if buffering is None else buffering,
+            )
         else:
             if cls._DEFAULT_LOGFILE is not None:
                 cls._DEFAULT_LOGFILE.close()
@@ -173,9 +173,10 @@ class Logger(object):
 
     @classmethod
     def get_logging_levels(cls):
-
-        return [cls._LOGLEVELS_TO_TEXT[k] for k in
-                sorted(cls._LOGLEVELS_TO_TEXT.keys())]
+        return [
+            cls._LOGLEVELS_TO_TEXT[k] for k in
+            sorted(cls._LOGLEVELS_TO_TEXT.keys())
+        ]
 
     @property
     def use_private_output(self):
@@ -183,7 +184,6 @@ class Logger(object):
 
     @use_private_output.setter
     def use_private_output(self, value):
-
         if not value:
             self.catch_stdout = False
             self.catch_stderr = False
@@ -191,34 +191,36 @@ class Logger(object):
         self._usePrivateOutput = value
 
     @property
-    def level(self):
+    def level(self) -> int:
         return self._level
 
     @level.setter
-    def level(self, value):
+    def level(self, value: Union[int, str]):
 
         if isinstance(value, int):
-            assert value in self._LOGLEVELS_TO_TEXT.keys(), "Level unknown"
+            assert (
+                value in list(self._LOGLEVELS_TO_TEXT.keys())
+            ), "Level unknown"
             self._level = value
             return
 
         else:
 
-            for k, v in self._LOGLEVELS_TO_TEXT.items():
+            for k, v in list(self._LOGLEVELS_TO_TEXT.items()):
 
                 if v.lower() == value.lower():
-
                     self._level = k
                     return
 
         raise Exception("Level unknown")
 
     @property
-    def catch_stdout(self):
-
-        return (sys.stdout == self._log_file or
-                not self._usePrivateOutput and
-                sys.stdout == self._DEFAULT_LOGFILE)
+    def catch_stdout(self) -> bool:
+        return (
+            sys.stdout == self._log_file
+            or not self._usePrivateOutput
+            and sys.stdout == self._DEFAULT_LOGFILE
+        )
 
     @catch_stdout.setter
     def catch_stdout(self, value):
@@ -232,11 +234,12 @@ class Logger(object):
             warnings.warn("No log file to redirect output into")
 
     @property
-    def catch_stderr(self):
-
-        return (sys.stderr == self._log_file or
-                not self._usePrivateOutput and
-                sys.stderr == self._DEFAULT_LOGFILE)
+    def catch_stderr(self) -> bool:
+        return (
+            sys.stderr == self._log_file
+            or not self._usePrivateOutput
+            and sys.stderr == self._DEFAULT_LOGFILE
+        )
 
     @catch_stderr.setter
     def catch_stderr(self, value):
@@ -258,46 +261,48 @@ class Logger(object):
         self._active = value
 
     @property
-    def surpress_prints(self):
-
+    def surpress_prints(self) -> bool:
         return self._suppressPrints
 
     @surpress_prints.setter
-    def surpress_prints(self, value):
-
+    def surpress_prints(self, value: bool):
         self._suppressPrints = value
 
     def _decorate(self, lvl):
-
         return datetime.datetime.now().strftime(self._LOGFORMAT).format(
             lvl=self._LOGLEVELS_TO_TEXT[lvl],
-            name=self._loggerName)
+            name=self._loggerName,
+        )
 
     def _output(self, lvl, msg):
 
-        if (self._active and lvl <= self._level and
-                lvl in self._LOGLEVELS_TO_TEXT):
+        if (
+            self._active
+            and lvl <= self._level
+            and lvl in self._LOGLEVELS_TO_TEXT,
+        ):
 
             output = self._active_log_file
-
             if output is not None:
                 if isinstance(msg, list) or isinstance(msg, tuple):
                     msg = list(msg)
-                    msg[0] = self._decorate(lvl) + unicode(msg[0])
+                    msg[0] = self._decorate(lvl) + str(msg[0])
                     msg = tuple(msg)
                 else:
-                    msg = (self._decorate(lvl) + unicode(msg),)
-
+                    msg = (self._decorate(lvl) + str(msg),)
                 output.writelines(msg)
 
             elif not self._suppressPrints:
-
-                print(self._decorate(lvl) + str(msg))
+                print((self._decorate(lvl) + str(msg)))
 
     def set_output_target(
-            self, target, catch_stdout=False, catch_stderr=False,
-            mode='w', buffering=0):
-
+        self,
+        target,
+        catch_stdout=False,
+        catch_stderr=False,
+        mode='w',
+        buffering=0,
+    ):
         if self._log_file is not None:
             cache = self._log_file.close()
         else:
@@ -317,7 +322,6 @@ class Logger(object):
                 print(msg)
 
     def traceback(self, lvl=None):
-
         tb = sys.exc_info()[2]  # Get the traceback object
 
         while tb.tb_next:
@@ -337,10 +341,15 @@ class Logger(object):
         output = self._logLevelToMethod[lvl]
 
         txt = "Traceback:\n" + "\n".join(
-            ["\n\tFrame {0} in {1} at line {2}".format(
-                frame.f_code.co_name, frame.f_code.co_filename, frame.f_lineno)
-             for frame in stack[:-3]])
-
+            [
+                "\n\tFrame {0} in {1} at line {2}".format(
+                    frame.f_code.co_name,
+                    frame.f_code.co_filename,
+                    frame.f_lineno,
+                )
+                for frame in stack[:-3]
+            ],
+        )
         output(txt)
 
     @property
@@ -357,15 +366,17 @@ class _ExtendedFileObject(file):
     # TODO: Regain buffer and release threads while closing
 
     def __init__(self, path, mode, buffering=None):
-
-        super(_ExtendedFileObject, self).__init__(path, mode, buffering=buffering)
+        super(_ExtendedFileObject, self).__init__(
+            path,
+            mode,
+            buffering=buffering,
+        )
         self._semaphor = False
         self._buffer = []
         self._flush_buffer = False
         self._cache = []
 
     def pause(self):
-
         if -1 not in self._buffer:
             self._buffer.insert(0, -1)
 
@@ -373,7 +384,6 @@ class _ExtendedFileObject(file):
             time.sleep(0.01)
 
     def close(self):
-
         if self._buffer and not self._buffer[0] == -1:
             self.pause()
         super(_ExtendedFileObject, self).close()
@@ -384,7 +394,6 @@ class _ExtendedFileObject(file):
         return self._cache
 
     def resume(self):
-
         if self._buffer and self._buffer[0] == -1:
             self._buffer.pop(0)
 
@@ -392,21 +401,24 @@ class _ExtendedFileObject(file):
         self._write((s,))
 
     def writelines(self, *lines):
-
-        if len(lines) == 1 and (isinstance(lines[0], list) or isinstance(lines[0], tuple)):
+        if (
+            len(lines) == 1
+            and (
+                isinstance(lines[0], list)
+                or isinstance(lines[0], tuple)
+            )
+        ):
             lines = lines[0]
 
         self._write(lines)
 
     def _write(self, obj):
-
         id = hash(obj)
         self._buffer.append(id)
         t = threading.Thread(target=self._write_to_file, args=(id, obj))
         t.start()
 
     def _write_to_file(self, id, obj):
-
         while self._semaphor and id != self._buffer[0]:
             time.sleep(0.01)
 
@@ -419,12 +431,13 @@ class _ExtendedFileObject(file):
         self._semaphor = True
         self._buffer.remove(id)
 
-        super(_ExtendedFileObject, self).writelines([l if l.endswith(u"\n") else l + u"\n" for l in obj])
+        super(_ExtendedFileObject, self).writelines(
+            [l if l.endswith("\n") else l + "\n" for l in obj],
+        )
         self._semaphor = False
 
 
 def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
-
     with open(path, 'r') as fh:
 
         if seek:
@@ -450,8 +463,13 @@ def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
             match = pattern.match(line)
 
             if match:
-
-                if record and (filter_status is None or record['status'] in filter_status):
+                if (
+                    record
+                    and (
+                        filter_status is None
+                        or record['status'] in filter_status
+                    )
+                ):
                     records.append(record)
                     n += 1
                 groups = match.groups()

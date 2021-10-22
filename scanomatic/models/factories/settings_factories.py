@@ -148,12 +148,7 @@ class ApplicationSettingsFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings):
-
-        """
-         :rtype : scanomatic.models.settings_models.ApplicationSettingsModel
-        """
-
+    def create(cls, **settings) -> settings_models.ApplicationSettingsModel:
         cls.populate_with_default_submodels(settings)
 
         return super(ApplicationSettingsFactory, cls).create(**settings)

@@ -1,20 +1,23 @@
-from subprocess import call, PIPE, Popen
+import json
 import os
+import tempfile
+from typing import Any, Dict, Optional, Tuple
+import zipfile
+from io import StringIO
+from subprocess import PIPE, Popen, call
+
+import requests
+from requests.sessions import TooManyRedirects
 
 from scanomatic import get_version
-from .paths import Paths
+
 from .logger import Logger
-import requests
-import tempfile
-from StringIO import StringIO
-import zipfile
-import json
+from .paths import Paths
 
 _logger = Logger("Source Checker")
 
 
-def _read_source_version(base_path):
-
+def _read_source_version(base_path) -> Optional[str]:
     try:
         with open(os.path.join(base_path, "scanomatic", "__init__.py")) as fh:
             for line in fh:
@@ -27,8 +30,7 @@ def _read_source_version(base_path):
     return None
 
 
-def _load_source_information():
-
+def _load_source_information() -> Dict[str, Any]:
     try:
         with open(Paths().source_location_file, 'r') as fh:
             return json.load(fh)
@@ -51,20 +53,24 @@ def get_source_information(test_info=False, force_location=None):
     if force_location:
         data['location'] = force_location
 
-    data['version'] = _read_source_version(data['location'] if force_location is None else force_location)
+    data['version'] = _read_source_version(
+        data['location'] if force_location is None else force_location
+    )
 
     if test_info:
         if not has_source(data['location']):
             data['location'] = None
-
-        if not data['branch'] and data['location'] and is_under_git_control(data['location']):
+        if (
+            not data['branch']
+            and data['location']
+            and is_under_git_control(data['location'])
+        ):
             data['branch'] = get_active_branch(data['location'])
 
     return data
 
 
-def has_source(path=None):
-
+def has_source(path=None) -> bool:
     if path is None:
         path = get_source_information()['location']
 
@@ -87,8 +93,7 @@ def _git_root_navigator(f):
     return _wrapped
 
 
-def _manual_git_branch_test():
-
+def _manual_git_branch_test() -> Optional[str]:
     try:
         with open(os.path.join(".git", "HEAD")) as fh:
             return fh.readline().split("/")[-1]
@@ -96,8 +101,7 @@ def _manual_git_branch_test():
         return None
 
 @_git_root_navigator
-def is_under_git_control(path):
-
+def is_under_git_control(path) -> bool:
     try:
         retcode = call(['git', 'rev-parse'])
     except OSError:
@@ -106,8 +110,7 @@ def is_under_git_control(path):
 
 
 @_git_root_navigator
-def get_active_branch(path):
-
+def get_active_branch(path) -> Optional[str]:
     branch = None
     try:
         p = Popen(['git', 'branch', '--list'], stdout=PIPE)
@@ -144,7 +147,11 @@ def git_pull(path):
     return False
 
 
-def download(base_uri="https://github.com/local-minimum/scanomatic/archive", branch=None, verbose=False):
+def download(
+    base_uri="https://github.com/local-minimum/scanomatic/archive",
+    branch=None,
+    verbose=False,
+):
     global _logger
     if branch is None:
         branch = 'master'
@@ -158,32 +165,46 @@ def download(base_uri="https://github.com/local-minimum/scanomatic/archive", bra
     zipdata.write(req.content)
 
     with zipfile.ZipFile(zipdata) as zf:
-
         for name in zf.namelist():
-
             zf.extract(name, tf)
             if verbose:
-                _logger.info("Extracting: {0} -> {1}".format(name, os.path.join(tf, name)))
+                _logger.info(
+                    "Extracting: {0} -> {1}".format(
+                        name,
+                        os.path.join(tf, name),
+                    )
+                )
 
     return os.path.join(tf, os.walk(tf).next()[1][0])
 
 
-def install(source_path, branch=None):
-
+def install(source_path, branch=None) -> bool:
     try:
         if branch:
-
-            retcode = call(['python',
-                            os.path.join(source_path, "setup.py"),
-                            "install", "--user",
-                            "--default",
-                            "--branch", branch], stderr=PIPE, stdout=PIPE)
+            retcode = call(
+                [
+                    'python',
+                    os.path.join(source_path, "setup.py"),
+                    "install", "--user",
+                    "--default",
+                    "--branch",
+                    branch,
+                ],
+                stderr=PIPE,
+                stdout=PIPE,
+            )
         else:
-
-            retcode = call(['python',
-                            os.path.join(source_path, "setup.py"),
-                            "install", "--user",
-                            "--default"], stderr=PIPE, stdout=PIPE)
+            retcode = call(
+                [
+                    'python',
+                    os.path.join(source_path, "setup.py"),
+                    "install",
+                    "--user",
+                    "--default",
+                ],
+                stderr=PIPE,
+                stdout=PIPE,
+            )
 
     except OSError:
         return False
@@ -221,26 +242,31 @@ def upgrade(branch=None):
 
 
 def git_version(
-        git_repo='https://raw.githubusercontent.com/local-minimum/scanomatic',
-        branch='master',
-        suffix='scanomatic/__init__.py'):
+    git_repo='https://raw.githubusercontent.com/local-minimum/scanomatic',
+    branch='master',
+    suffix='scanomatic/__init__.py',
+) -> str:
     global _logger
     uri = "/".join((git_repo, branch, suffix))
     for line in requests.get(uri).text.split("\n"):
         if line.startswith("__version__"):
             return line.split("=")[-1].strip('" ')
 
-    _logger.warning("Could not access any valid version information from uri {0}".format(uri))
+    _logger.warning(
+        f"Could not access any valid version information from uri {uri}",
+    )
     return ""
 
 
-def parse_version(version=get_version()):
-
+def parse_version(version: Optional[str] = get_version()) -> Tuple[int, ...]:
     if version is None:
         return 0, 0
 
-    return tuple(int("".join(c for c in v if c in "0123456789")) for v in version.split(".")
-                 if any((c in "0123456789" and c) for c in v))
+    return tuple(
+        int("".join(c for c in v if c in "0123456789"))
+        for v in version.split(".")
+        if any((c in "0123456789" and c) for c in v)
+    )
 
 
 def highest_version(v1, v2):
@@ -273,23 +299,36 @@ def installed_is_newest_version(branch=None):
     current = parse_version()
     online_version = git_version(branch=branch)
     if current == highest_version(current, parse_version(online_version)):
-        _logger.info("Already using most recent version {0} (Branch {1})".format(get_version(), branch))
+        _logger.info(
+            "Already using most recent version {0} (Branch {1})".format(
+                get_version(),
+                branch,
+            ),
+        )
         return True
     else:
-        _logger.info("There's a new version ({1}) on the branch {0} available (you have installed {2}).".format(
-            branch, get_version(), online_version))
+        _logger.info(
+            "There's a new version ({1}) on the branch {0} available (you have installed {2}).".format(  # noqa: E501
+                branch,
+                get_version(),
+                online_version,
+            ),
+        )
         return False
 
 
-def next_subversion(branch, current=None):
-
+def next_subversion(branch, current=None) -> Tuple[int, ...]:
     online_version = git_version(branch=branch)
-    version = parse_version(highest_version(online_version, current if current is not None else get_version()))
-
+    version = parse_version(
+        highest_version(
+            online_version,
+            current if current is not None else get_version(),
+        ),
+    )
     return increase_version(version)
 
 
-def increase_version(version):
+def increase_version(version) -> Tuple[int, ...]:
     version = list(version)
     if len(version) == 2:
         version += [1]
@@ -301,7 +340,7 @@ def increase_version(version):
     return tuple(version)
 
 
-def get_minor_release_version(current_version):
+def get_minor_release_version(current_version) -> Tuple[int, ...]:
 
     current_version = list(current_version[:2])
     if len(current_version) == 0:
@@ -312,7 +351,7 @@ def get_minor_release_version(current_version):
         current_version[-1] += 1
         return current_version
 
-def get_major_release_version(current_version):
+def get_major_release_version(current_version) -> Tuple[int, ...]:
 
     current_version = list(current_version[:1])
     if len(current_version):

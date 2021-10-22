@@ -1,11 +1,8 @@
-from types import StringTypes
-from itertools import izip
-import numpy as np
 import csv
+from types import StringTypes
+from typing import List, Optional, Tuple
 
-#
-#   OPTIONAL IMPORT
-#
+import numpy as np
 
 try:
     import pandas as pd
@@ -14,19 +11,11 @@ except ImportError:
     _PANDAS = False
     pd = None
 
-#
-# INTERNAL DEPENDENCIES
-#
-
 import scanomatic.io.logger as logger
 
 
-#
-# METHODS
-#
 
-
-class DataLoader(object):
+class DataLoader:
 
     _SUFFIXES = []
 
@@ -38,8 +27,7 @@ class DataLoader(object):
         self._row_iterators = []
         self._columns = []
         self._sheet_names = []
-        self._headers = []
-        """:type : [str]"""
+        self._headers: List[Optional[str]] = []
 
     def _reset(self):
 
@@ -66,11 +54,9 @@ class DataLoader(object):
 
     @staticmethod
     def _get_next_row(row):
-
         raise NotImplemented
 
     def _get_empty_headers(self):
-
         return [None for _ in range(self._columns[self._sheet])]
 
     def get_headers(self, plate_size):
@@ -78,32 +64,23 @@ class DataLoader(object):
         if self._headers[self._sheet] is None:
             if self.sheet_is_valid_with_headers(plate_size):
                 self._headers[self._sheet] = self._get_next_row(
-                    self._row_iterators[self._sheet].next())
+                    next(self._row_iterators[self._sheet]),
+                )
             elif self.sheet_is_valid_without_headers(plate_size):
                 self._headers[self._sheet] = self._get_empty_headers()
 
         return self._headers[self._sheet]
 
     @classmethod
-    def can_load(cls, path):
-        """
-
-        Args:
-            path:
-            :type path : str
-        Returns:
-
-        """
+    def can_load(cls, path: str) -> bool:
         suffix = path[::-1].split(".", 1)[0][::-1].lower()
         return suffix in cls._SUFFIXES
 
     @property
-    def sheets(self):
-
+    def sheets(self) -> int:
         return len(self._entries)
 
     def next_sheet(self, plate_size):
-
         self._sheet += 1
 
         while not self.sheet_is_valid(plate_size):
@@ -112,40 +89,42 @@ class DataLoader(object):
                 return None
 
             self._logger.warning(
-                "Sheet {0} ({1} zero-indexed) has {2} and {3} entry rows. This doesn't match plate size {4}".format(
+                "Sheet {0} ({1} zero-indexed) has {2} and {3} entry rows. This doesn't match plate size {4}".format(  # noqa: E501
                     self._sheet_names[self._sheet],
                     self._sheet,
-                    " header row" if self.sheet_is_valid_without_headers(plate_size) else "no headers",
+                    " header row"
+                    if self.sheet_is_valid_without_headers(plate_size)
+                    else "no headers",
                     self._entries[self._sheet],
-                    plate_size))
-
+                    plate_size,
+                ),
+            )
             self._sheet += 1
 
         return self._sheet
 
     @property
-    def has_more_data(self):
-
+    def has_more_data(self) -> bool:
         return self._sheet < len(self._entries)
 
-    def sheet_is_valid_with_headers(self, plate_size):
+    def sheet_is_valid_with_headers(self, plate_size) -> bool:
+        return (
+            plate_size % (self._entries[self._sheet] - 1) == 0
+            and (plate_size / (self._entries[self._sheet] - 1)) % 4 == 1
+        )
 
-        return plate_size % (self._entries[self._sheet] - 1) == 0 and \
-               (plate_size / (self._entries[self._sheet] - 1)) % 4 == 1
+    def sheet_is_valid_without_headers(self, plate_size) -> bool:
+        return (
+            plate_size % self._entries[self._sheet] == 0
+            and plate_size / self._entries[self._sheet] % 4 == 1
+        )
 
-    def sheet_is_valid_without_headers(self, plate_size):
-
-        return plate_size % self._entries[self._sheet] == 0 and \
-               plate_size / self._entries[self._sheet] % 4 == 1
-
-    def sheet_is_valid(self, plate_size):
-
+    def sheet_is_valid(self, plate_size) -> bool:
         if 0 <= self._sheet < len(self._entries):
-
             return (
-                self.sheet_is_valid_with_headers(plate_size) or
-                self.sheet_is_valid_without_headers(plate_size))
-
+                self.sheet_is_valid_with_headers(plate_size)
+                or self.sheet_is_valid_without_headers(plate_size)
+            )
         return False
 
 
@@ -166,18 +145,9 @@ class ExcelLoader(DataLoader):
         doc = pd.ExcelFile(self._path)
         for n in doc.sheet_names:
             self._sheet_names.append(n)
-            self._load_sheet(doc.parse(n, header=None).fillna(value=u''))
+            self._load_sheet(doc.parse(n, header=None).fillna(value=''))
 
-    def _load_sheet(self, df):
-        """
-
-        Args:
-            df: DataFrame / sheet
-            :type df : pandas.DataFrame
-
-        Returns:
-
-        """
+    def _load_sheet(self, df: pd.DataFrame):
         self._data.append(df)
         self._entries.append(df.shape[0])
         self._columns.append(df.shape[1])
@@ -186,7 +156,6 @@ class ExcelLoader(DataLoader):
 
     @staticmethod
     def _get_next_row(row):
-
         return row[1].tolist()
 
 
@@ -199,7 +168,6 @@ class CSVLoader(DataLoader):
         self._load()
 
     def _load(self):
-
         self._reset()
         with open(self._path) as fh:
             raw_data = fh.readlines()
@@ -213,11 +181,10 @@ class CSVLoader(DataLoader):
 
     @staticmethod
     def _get_next_row(row):
-
         return row
 
 
-class MetaData2(object):
+class MetaData2:
 
     _LOADERS = (ExcelLoader, CSVLoader)
 
@@ -228,10 +195,12 @@ class MetaData2(object):
 
         self._data = tuple(
             None if shape is None else np.empty(shape, dtype=np.object)
-            for shape in plate_shapes)
+            for shape in plate_shapes
+        )
 
-        self._headers = list(None for _ in plate_shapes)
-        """:type self._headers: list[(int, int) | None]"""
+        self._headers: List[Optional[Tuple[int, int]]] = [
+            None for _ in plate_shapes
+        ]
         self._loading_plate = 0
         self._loading_offset = []
         self._paths = paths
@@ -242,15 +211,12 @@ class MetaData2(object):
             self._logger.warning("Not enough meta-data to fill all plates")
 
     def __call__(self, plate, outer, inner):
-
         return self._data[plate][outer, inner]
 
     def __getitem__(self, plate):
-
         return self._data[plate].tolist()
 
     def __eq__(self, other):
-
         if hasattr(other, "shapes") and self.shapes != other.shapes:
             return False
 
@@ -261,40 +227,30 @@ class MetaData2(object):
         return True
 
     def __getstate__(self):
-
-        return {k: v for k, v in self.__dict__.iteritems() if k != "_logger"}
+        return {k: v for k, v in self.__dict__.items() if k != "_logger"}
 
     def __setstate__(self, state):
-
         self.__dict__.update(state)
 
     def get_column_index_from_all_plates(self, index):
-
         plates = []
         for id_plate, (outers, inners) in enumerate(self._plate_shapes):
-
             plate = []
             plates.append(plate)
-
             for id_outer in range(outers):
-
                 data = []
                 plate.append(data)
 
                 for id_inner in range(inners):
-
                     data.append(self(id_plate, id_outer, id_inner)[index])
         return plates
 
-    def get_header_row(self, plate):
+    def get_header_row(self, plate: int) -> List[str]:
         """
-
         Args:
             plate: Plate index
-            :type plate : int
 
         Returns: Header row
-            :rtype : list[str]
         """
         return self._headers[plate]
 
@@ -303,37 +259,32 @@ class MetaData2(object):
         return self._plate_shapes
 
     @property
-    def loaded(self):
-
+    def loaded(self) -> bool:
         return self._loading_plate >= len(self._plate_shapes)
 
     @property
-    def _plate_completed(self):
-
+    def _plate_completed(self) -> bool:
         return len(self._loading_offset) == 0
 
     @staticmethod
     def _get_loader(path):
-
         for loader in MetaData2._LOADERS:
-
             if loader.can_load(path):
                 return loader(path)
 
         return None
 
     def _load(self, *paths):
-
         for path in paths:
 
             if self.loaded:
                 return
 
             loader = MetaData2._get_loader(path)
-            """:type : DataLoader"""
             if loader is None:
                 self._logger.warning(
-                    "Unknown file format, can't load {0}".format(path))
+                    "Unknown file format, can't load {0}".format(path),
+                )
                 continue
 
             size = self._get_sought_size()
@@ -348,17 +299,21 @@ class MetaData2(object):
 
                 if not self._has_matching_headers(headers):
                     self._logger.warning(
-                        "Sheet {0} ({1}) of {2} headers don't match {3} != {4}".format(
+                        "Sheet {0} ({1}) of {2} headers don't match {3} != {4}".format(  # noqa: E501
                             loader.get_sheet_name(sheet_id),
                             sheet_id,
                             path,
                             headers,
-                            self._headers[self._loading_plate]))
+                            self._headers[self._loading_plate],
+                        ),
+                    )
                     continue
 
                 self._logger.info("Using {0}:{1} for plate {2}".format(
-                    path, loader.get_sheet_name(sheet_id),
-                    self._loading_plate))
+                    path,
+                    loader.get_sheet_name(sheet_id),
+                    self._loading_plate,
+                ))
                 self._update_headers_if_needed(headers)
                 self._update_meta_data(loader)
                 self._update_loading_offsets()
@@ -372,12 +327,10 @@ class MetaData2(object):
                 size = self._get_sought_size()
 
     def _get_sought_size(self):
-
         size = np.prod(self._plate_shapes[self._loading_plate])
         return size / 4 ** len(self._loading_offset)
 
     def _update_loading_offsets(self):
-
         if not self._loading_offset:
             return
         outer, inner = self._loading_offset[-1]
@@ -393,7 +346,6 @@ class MetaData2(object):
         self._loading_offset[-1] = (outer, inner)
 
     def _has_matching_headers(self, headers):
-
         if self._headers[self._loading_plate] is None:
             return True
         elif len(self._headers[self._loading_plate]) != len(headers):
@@ -401,30 +353,26 @@ class MetaData2(object):
         elif all(h is None for h in self._headers[self._loading_plate]):
             return True
         else:
-            return all(a == b for a, b in
-                       zip(self._headers[self._loading_plate], headers))
+            return all(
+                a == b for a, b in
+                zip(self._headers[self._loading_plate], headers)
+            )
 
     def _update_headers_if_needed(self, headers):
-
-        if (self._headers[self._loading_plate] is None or
-                all(h is None for h in self._headers[self._loading_plate])):
+        if (
+            self._headers[self._loading_plate] is None or
+            all(h is None for h in self._headers[self._loading_plate])
+        ):
 
             self._headers[self._loading_plate] = headers
 
     def _update_meta_data(self, loader):
-
         slotter = self._get_slotting_iter(loader)
-
         for meta_data in loader.get_next():
-            self._data[self._loading_plate][slotter.next()] = meta_data
+            self._data[self._loading_plate][next(slotter)] = meta_data
 
-    def _get_slotting_iter(self, loader):
+    def _get_slotting_iter(self, loader: DataLoader):
         """
-
-        Args:
-            loader:
-            :type loader: DataLoader
-
         Returns:
             Coordinate iterator
             :rtype : iter
@@ -441,17 +389,22 @@ class MetaData2(object):
 
         factor = np.log2(
             self._data[self._loading_plate].size /
-            (loader.rows - loader.sheet_is_valid_with_headers(
-                np.prod(self._plate_shapes[self._loading_plate]))))
+            (
+                loader.rows - loader.sheet_is_valid_with_headers(
+                    np.prod(self._plate_shapes[self._loading_plate]),
+                )
+            )
+        )
 
         if factor != int(factor):
             return None
 
         elif factor == 0:
             # Full plate
-            return izip(*np.unravel_index(
+            return zip(*np.unravel_index(
                 np.arange(self._data[self._loading_plate].size),
-                self._plate_shapes[self._loading_plate]))
+                self._plate_shapes[self._loading_plate],
+            ))
 
         else:
             # Partial plate
@@ -459,12 +412,16 @@ class MetaData2(object):
             if factor > len(self._loading_offset):
 
                 self._loading_offset += [
-                    (0, 0) for _ in range(factor - len(self._loading_offset))]
+                    (0, 0) for _ in range(factor - len(self._loading_offset))
+                ]
 
             outer, inner = map(
                 sum,
-                zip(*((o*2**l, i*2**l) for l, (o, i)
-                      in enumerate(self._loading_offset))))
+                zip(*(
+                    (o*2**l, i*2**l) for l, (o, i) in
+                    enumerate(self._loading_offset)
+                ))
+            )
 
             factor = 2 ** len(self._loading_offset)
             max_outer, max_inner = self._plate_shapes[self._loading_plate]
@@ -472,19 +429,17 @@ class MetaData2(object):
             return coord_lister(outer, inner, max_outer, max_inner)
 
     def get_data_from_numpy_where(self, plate, selection):
-
-        selection = zip(*selection)
+        selection = list(zip(*selection))
         for outer, inner in selection:
             yield self(plate, outer, inner)
 
-    def find(self, value, column=None):
+    def find(self, value: str, column: Optional[str] = None):
         """Generate coordinate tuples for where key matches meta-data
 
         :param value : Search criteria
             :type value : str
-        :param column : Optional column name to limit search to, default (None)
+        :param column : Optional column name to limit search to)
             searches all columns
-            :type column: str | None
 
         Returns
         -------
@@ -499,7 +454,6 @@ class MetaData2(object):
             yield self.find_on_plate(id_plate, value, column=column)
 
     def find_on_plate(self, plate, value, column=None):
-
         if isinstance(column, StringTypes):
             column = self.get_header_index(plate, column)
 
@@ -515,26 +469,24 @@ class MetaData2(object):
                 if value == data[column]:
                     yield (id_row, id_col)
 
-    def get_header_index(self, plate, header):
-
+    def get_header_index(self, plate, header) -> int:
         for i, column_header in enumerate(self.get_header_row(plate)):
-
             if column_header.lower() == header.lower():
                 return i
-
         return -1
 
     def generate_coordinates(self, plate=None):
-
-        plates = ((i, p) for i, p in enumerate(self._plate_shapes)
-                  if plate is None or i is plate)
+        plates = (
+            (i, p) for i, p in enumerate(self._plate_shapes)
+            if plate is None or i is plate
+        )
 
         for id_plate, shape in plates:
 
             if shape is not None:
 
-                for id_row in xrange(shape[0]):
+                for id_row in range(shape[0]):
 
-                    for id_col in xrange(shape[1]):
+                    for id_col in range(shape[1]):
 
                         yield id_plate, id_row, id_col

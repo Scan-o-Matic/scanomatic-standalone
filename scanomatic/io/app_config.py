@@ -1,38 +1,27 @@
-from ConfigParser import ConfigParser, NoOptionError, NoSectionError
-import uuid
 import os
+from typing import Dict, Optional, Sequence, Union
+import uuid
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
-#
-# INTERNAL DEPENDENCIES
-#
-
-import power_manager
-import paths
-import logger
-from scanomatic.generics.singleton import SingeltonOneInit
 import scanomatic.models.scanning_model as scanning_model
+from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.models.factories.settings_factories import (
-    ApplicationSettingsFactory)
+    ApplicationSettingsFactory
+)
+from scanomatic.models.settings_models import ApplicationSettingsModel, HardwareResourceLimitsModel, MailModel, PathsModel, PowerManagerModel, RPCServerModel, UIServerModel, VersionChangesModel
 
-#
-# CLASSES
-#
+from . import logger, paths, power_manager
 
 
 class Config(SingeltonOneInit):
-
     SCANNER_PATTERN = "Scanner {0}"
     POWER_DEFAULT = power_manager.POWER_MODES.Toggle
 
     def __one_init__(self):
-
         self._paths = paths.Paths()
-
         self._logger = logger.Logger("Application Config")
-
         # TODO: Extend functionality to toggle to remote connect
         self._use_local_rpc_settings = True
-
         self._minMaxModels = {
             scanning_model.ScanningModel: {
                 "min": dict(
@@ -44,7 +33,8 @@ class Config(SingeltonOneInit):
                     email=None,
                     pinning_formats=None,
                     fixture=None,
-                    scanner=1),
+                    scanner=1,
+                ),
                 "max": dict(
                     time_between_scans=None,
                     number_of_scans=999999,
@@ -54,185 +44,104 @@ class Config(SingeltonOneInit):
                     email=None,
                     pinning_formats=None,
                     fixture=None,
-                    scanner=1),
-                }
-
+                    scanner=1,
+                ),
             }
-
+        }
         self.reload_settings()
 
     @staticmethod
     def _safe_get(conf_parser, section, key, default, type):
-
         try:
             return type(conf_parser.get(section, key))
         except (NoOptionError, NoSectionError):
             return default
 
     @property
-    def versions(self):
-        """
-
-        Returns: scanomatic.models.settings_models.VersionChangesModel
-
-        """
+    def versions(self) -> VersionChangesModel:
         return self._settings.versions
 
     @property
-    def power_manager(self):
-        """
-
-        Returns: scanomatic.models.settings_models.PowerManagerModel
-
-        """
-
+    def power_manager(self) -> PowerManagerModel:
         return self._settings.power_manager
 
     @property
-    def rpc_server(self):
-        """
-
-        Returns: scanomatic.models.settings_models.RPCServerModel
-
-        """
+    def rpc_server(self) -> RPCServerModel:
         return self._settings.rpc_server
 
     @property
-    def ui_server(self):
-        """
-
-        Returns: scanomatic.models.settings_models.UIServerModel
-
-        """
+    def ui_server(self) -> UIServerModel:
         return self._settings.ui_server
 
     @property
-    def hardware_resource_limits(self):
-        """
-
-        Returns: scanomatic.models.settings_models.HardwareResourceLimitsModel
-
-        """
+    def hardware_resource_limits(self) -> HardwareResourceLimitsModel:
         return self._settings.hardware_resource_limits
 
     @property
-    def mail(self):
-        """
-
-        Returns: scanomatic.models.settings_models.MailModel
-
-        """
+    def mail(self) -> MailModel:
         return self._settings.mail
 
     @property
-    def paths(self):
-        """
-
-        Returns: scanomatic.models.settings_models.PathsModel
-
-        """
+    def paths(self) -> PathsModel:
         return self._settings.paths
 
     @property
-    def computer_human_name(self):
-        """
-
-        Returns: str
-
-        """
+    def computer_human_name(self) -> str:
         return self._settings.computer_human_name
 
     @computer_human_name.setter
-    def computer_human_name(self, value):
-
+    def computer_human_name(self, value: str):
         self._settings.computer_human_name = str(value)
 
     @property
-    def number_of_scanners(self):
-        """
-
-        Returns: int
-
-        """
+    def number_of_scanners(self) -> int:
         return self._settings.number_of_scanners
 
     @number_of_scanners.setter
-    def number_of_scanners(self, value):
-
+    def number_of_scanners(self, value: int):
         if isinstance(value, int) and value >= 0:
             self._settings.number_of_scanners = value
             # TODO: Should update dependent values such as
             # length of scanner names
         else:
             self._logger.warning(
-                "Refused to set number of scanners '{0}', only 0 or positive ints allowed".format(
-                    value))
+                "Refused to set number of scanners '{0}', only 0 or positive ints allowed".format(  # noqa: E501
+                    value,
+                ),
+            )
 
     @property
-    def scanner_name_pattern(self):
-        """
-
-        Returns: str
-
-        """
+    def scanner_name_pattern(self) -> str:
         return self._settings.scanner_name_pattern
 
     @scanner_name_pattern.setter
-    def scanner_name_pattern(self, value):
-
+    def scanner_name_pattern(self, value: str):
         self._settings.scanner_name_pattern = str(value)
 
     @property
-    def scanner_names(self):
-        """
-
-        Returns: [str]
-
-        """
+    def scanner_names(self) -> Sequence[str]:
         return self._settings.scanner_names
 
     @property
-    def scan_program(self):
-        """
-
-        Returns: str
-
-        """
+    def scan_program(self) -> str:
         return self._settings.scan_program
 
     @property
-    def scan_program_version_flag(self):
-        """
-
-        Returns: str
-
-        """
+    def scan_program_version_flag(self) -> str:
         return self._settings.scan_program_version_flag
 
     @property
-    def scanner_models(self):
-        """
-
-        Returns: {str: str}
-
-        """
+    def scanner_models(self) -> Dict[str, str]:
         return self._settings.scanner_models
 
     @property
-    def scanner_sockets(self):
-        """
-
-        Returns: {str: int}
-
-        """
+    def scanner_sockets(self) -> Dict[str, int]:
         return self._settings.scanner_sockets
 
-    def model_copy(self):
-
+    def model_copy(self) -> ApplicationSettingsModel:
         return ApplicationSettingsFactory.copy(self._settings)
 
-    def get_scanner_name(self, scanner):
-
+    def get_scanner_name(self, scanner: Union[int, str]) -> Optional[str]:
         if isinstance(scanner, int) and 0 < scanner <= self.number_of_scanners:
             scanner = self.SCANNER_PATTERN.format(scanner)
 
@@ -242,12 +151,13 @@ class Config(SingeltonOneInit):
         return None
 
     def reload_settings(self):
-
         if os.path.isfile(self._paths.config_main_app):
             try:
                 self._settings = (
                     ApplicationSettingsFactory.serializer.load_first(
-                        self._paths.config_main_app))
+                        self._paths.config_main_app,
+                    )
+                )
             except (IOError):
                 self._settings = ApplicationSettingsFactory.create()
         else:
@@ -255,17 +165,18 @@ class Config(SingeltonOneInit):
 
         if not self._settings:
             self._logger.info(
-                "We'll use default settings for now.")
+                "We'll use default settings for now.",
+            )
             self._settings = ApplicationSettingsFactory.create()
 
         if self._use_local_rpc_settings:
             self.apply_local_rpc_settings()
 
         self._PM = power_manager.get_pm_class(
-            self._settings.power_manager.type)
+            self._settings.power_manager.type,
+        )
 
     def apply_local_rpc_settings(self):
-
         rpc_conf = ConfigParser(allow_no_value=True)
         if not rpc_conf.read(self._paths.config_rpc):
             self._logger.warning(
@@ -273,21 +184,32 @@ class Config(SingeltonOneInit):
                 "though local settings were indicated to exist")
 
         self._settings.rpc_server.host = Config._safe_get(
-            rpc_conf, "Communication", "host", '127.0.0.1', str)
+            rpc_conf,
+            "Communication",
+            "host",
+            '127.0.0.1',
+            str,
+        )
         self._settings.rpc_server.port = Config._safe_get(
-            rpc_conf, "Communication", "port", 12451, int)
+            rpc_conf,
+            "Communication",
+            "port",
+            12451,
+            int,
+        )
 
         try:
             self._settings.rpc_server.admin = open(
-                self._paths.config_rpc_admin, 'r').read().strip()
+                self._paths.config_rpc_admin,
+                'r',
+            ).read().strip()
         except IOError:
             self._settings.rpc_server.admin = self._generate_admin_uuid()
         else:
             if not self._settings.rpc_server.admin:
                 self._settings.rpc_server = self._generate_admin_uuid()
 
-    def _generate_admin_uuid(self):
-
+    def _generate_admin_uuid(self) -> Optional[str]:
         val = str(uuid.uuid1())
         try:
             with open(self._paths.config_rpc_admin, 'w') as fh:
@@ -295,25 +217,22 @@ class Config(SingeltonOneInit):
                 self._logger.info("New admin user identifier generated")
         except IOError:
             self._logger.critical(
-                "Could not write to file '{0}'".format(
-                    self._paths.config_rpc_admin) +
-                ", you won't be able to perform any actions on Scan-o-Matic" +
-                " until fixed." +
-                " If you are really lucky, it works if rebooted, " +
-                "but it seems your installation is corrupt.")
+                f"Could not write to file '{self._paths.config_rpc_admin}'"
+                ", you won't be able to perform any actions on Scan-o-Matic"
+                " until fixed."
+                " If you are really lucky, it works if rebooted, "
+                "but it seems your installation is corrupt."
+            )
             return None
 
         return val
 
-    def validate(self, bad_keys_out=None):
+    def validate(self, bad_keys_out=None) -> bool:
         """
 
         Args:
             bad_keys_out: list to hold keys with bad values
             :type bad_keys_out: list
-
-
-        Returns:
 
         """
         if bad_keys_out is not None:
@@ -326,13 +245,13 @@ class Config(SingeltonOneInit):
         if not ApplicationSettingsFactory.validate(self._settings):
             self._logger.error(
                 "There are invalid values in the current application settings,"
-                "will not save and will reload last saved settings")
+                "will not save and will reload last saved settings",
+            )
 
             if bad_keys_out is not None:
-
                 for label in ApplicationSettingsFactory.get_invalid_names(
-                        self._settings):
-
+                    self._settings
+                ):
                     bad_keys_out.append(label)
 
             self.reload_settings()
@@ -340,41 +259,40 @@ class Config(SingeltonOneInit):
         return True
 
     def save_current_settings(self):
-
         if self.validate():
             ApplicationSettingsFactory.serializer.purge_all(
-                self._paths.config_main_app)
-
+                self._paths.config_main_app,
+            )
             ApplicationSettingsFactory.serializer.dump(
-                self._settings, self._paths.config_main_app)
+                self._settings,
+                self._paths.config_main_app,
+            )
 
-    def get_scanner_socket(self, scanner):
-
+    def get_scanner_socket(self, scanner: Union[int, str]):
         scanner = self.get_scanner_name(scanner)
-
         if scanner:
             return self.scanner_sockes[scanner]
         return None
 
-    def get_pm(self, socket):
-
+    def get_pm(self, socket: Optional[int]):
         if socket is None or socket < 1 or socket > 4:
             self._logger.error("Socket '{0}' is unknown, {1} known".format(
                 socket,
-                "sockets 1-{0}".format(self.power_manager.number_of_sockets) if
-                self.power_manager.number_of_sockets else "no sockets"))
+                f"sockets 1-{self.power_manager.number_of_sockets}" if
+                self.power_manager.number_of_sockets else "no sockets"
+            ))
             return power_manager.PowerManagerNull("None")
 
         self._logger.info(
             "Creating scanner PM for socked {0} and settings {1}".format(
-                socket, dict(**self.power_manager)))
-
+                socket,
+                dict(**self.power_manager),
+            ),
+        )
         return self._PM(socket, **self.power_manager)
 
     def get_min_model(self, model, factory):
-
         return factory.create(**self._minMaxModels[type(model)]['min'])
 
     def get_max_model(self, model, factory):
-
         return factory.create(**self._minMaxModels[type(model)]['max'])

@@ -1,35 +1,22 @@
-from cPickle import UnpicklingError, Unpickler, load
-from StringIO import StringIO
+from pickle import UnpicklingError, Unpickler, load
+from io import StringIO
 import os
 
 
-def unpickle(path):
+def unpickle(path: str):
     """Unpickles data safely
-
-    Args:
-        path (str): Path to file
-
     Returns: Unpickled object
-
     """
-
     return load(safe_load(path))
 
 
-def unpickles(data):
+def unpickles(data: str):
     """Unpickles data safely
-
-    Args:
-        data (str): Data
-
     Returns: Unpickled object
-
     """
     try:
-        # return Unpickler(StringIO(data)).load()
         raise ImportError
     except (ImportError, UnpicklingError):
-
         version_compatibility = _RefactoringPhases()
         io_buffer = SafeStringIO(data, version_compatibility)
         version_compatibility.io = io_buffer
@@ -37,7 +24,6 @@ def unpickles(data):
 
 
 def safe_load(path, return_string=False):
-
     version_compatibility = _RefactoringPhases()
     fh = SafeProxyFileObject(path, version_compatibility)
     version_compatibility.io = fh
@@ -67,38 +53,47 @@ def unpickle_with_unpickler(unpickler, path, *args, **kwargs):
     return unpickler(safe_load(path), *args, **kwargs)
 
 
-class _RefactoringPhases(object):
+class _RefactoringPhases:
     def __init__(self):
-        """Rewrites pickled data to match refactorings
-        """
+        """Rewrites pickled data to match refactorings"""
         self._next = None
         self.io = None
 
-    def __call__(self, line):
+    def __call__(self, line: str):
         """
-
         Args:
             line (str): A pickled line
-
-        Returns:
-
         """
         if self._next is None:
 
-            if line.endswith("scanomatic.data_processing.curve_phase_phenotypes"):
+            if line.endswith(
+                "scanomatic.data_processing.curve_phase_phenotypes",
+            ):
 
                 tell = self.io.tell()
                 _next = self.io.readline()
                 self.io.seek(tell)
 
                 if _next.startswith('VectorPhenotypes'):
-                    return line[:-49] + "scanomatic.data_processing.phases.features"
+                    return (
+                        line[:-49]
+                        + "scanomatic.data_processing.phases.features"
+                    )
                 elif _next.startswith('CurvePhasePhenotypes'):
-                    return line[:-49] + "scanomatic.data_processing.phases.analysis"
+                    return (
+                        line[:-49]
+                        + "scanomatic.data_processing.phases.analysis"
+                    )
                 elif _next.startswith('CurvePhases'):
-                    return line[:-49] + "scanomatic.data_processing.phases.segmentation"
+                    return (
+                        line[:-49]
+                        + "scanomatic.data_processing.phases.segmentation"
+                    )
                 elif _next.startswith('CurvePhaseMetaPhenotypes'):
-                    return line[:-49] + "scanomatic.data_processing.phases.features"
+                    return (
+                        line[:-49]
+                        + "scanomatic.data_processing.phases.features"
+                    )
 
             return line
         else:
@@ -110,7 +105,6 @@ class _RefactoringPhases(object):
 class SafeFileObject(file):
 
     def __init__(self, name, *validation_functions):
-
         file.__init__(self, name, mode='rb')
         self._validation_functions = validation_functions
 

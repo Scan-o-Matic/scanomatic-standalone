@@ -1,32 +1,34 @@
-import xmlrpclib
 import enum
-from subprocess import Popen
 import socket
-from types import StringTypes
-from types import GeneratorType, TypeType
-
-#
-# INTERNAL DEPENDENCIES
-#
+from typing import Optional
+import xmlrpc.client
+from subprocess import Popen
+from types import GeneratorType, StringTypes, TypeType
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.logger as logger
 
-#
-# METHODS
-#
-
 
 def sanitize_communication(obj):
-
     if isinstance(obj, dict):
-        return {str(k): sanitize_communication(v) for k, v in obj.iteritems() if v is not None}
-    elif isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
-        return type(obj)(False if v is None else sanitize_communication(v) for v in obj)
+        return {
+            str(k): sanitize_communication(v) for k, v in obj.items()
+            if v is not None
+        }
+    elif (
+        isinstance(obj, list)
+        or isinstance(obj, tuple)
+        or isinstance(obj, set)
+    ):
+        return type(obj)(
+            False if v is None else sanitize_communication(v) for v in obj
+        )
     elif isinstance(obj, enum.Enum):
         return obj.name
     elif isinstance(obj, GeneratorType):
-        return tuple(False if v is None else sanitize_communication(v) for v in obj)
+        return tuple(
+            False if v is None else sanitize_communication(v) for v in obj
+        )
     elif obj is None:
         return False
     elif isinstance(obj, TypeType):
@@ -36,7 +38,6 @@ def sanitize_communication(obj):
 
 
 def get_client(host=None, port=None, admin=False, log_level=None):
-
     appCfg = app_config.Config()
     if port is None:
         port = appCfg.rpc_server.port
@@ -50,10 +51,6 @@ def get_client(host=None, port=None, admin=False, log_level=None):
 
     return cp
 
-#
-# CLASSES
-#
-
 
 class _ClientProxy(object):
 
@@ -63,14 +60,16 @@ class _ClientProxy(object):
         if log_level is not None:
             self._logger.level = log_level
         self._userID = userID
-        self._adminMethods = ('communicateWith',
-                              'createFeatureExtractJob',
-                              'createAnalysisJob',
-                              'removeFromQueue',
-                              'reestablishMe',
-                              'flushQueue',
-                              'serverRestart',
-                              'serverShutDown')
+        self._adminMethods = (
+            'communicateWith',
+            'createFeatureExtractJob',
+            'createAnalysisJob',
+            'removeFromQueue',
+            'reestablishMe',
+            'flushQueue',
+            'serverRestart',
+            'serverShutDown',
+        )
 
         self._client = None
         self._host = None
@@ -86,31 +85,35 @@ class _ClientProxy(object):
                 self._logger.info("Launching new local server")
                 return lambda: Popen(["scan-o-matic_server"])
             else:
-                return lambda: self._logger.warning("Can't launch because server is {0}".format(['not local', 'online'][self.online]))
+                return lambda: self._logger.warning(
+                    "Can't launch because server is {0}".format(
+                        ['not local', 'online'][self.online],
+                    )
+                )
 
         elif key in self._allowedMethods():
             m = self._userIDdecorator(getattr(self._client, key))
-            m.__doc__ = (self._client.system.methodHelp(key) +
-                         ["", "\n\nNOTE: userID is already supplied"][
-                             self._userID is not None])
+            m.__doc__ = (
+                self._client.system.methodHelp(key) +
+                ["", "\n\nNOTE: userID is already supplied"][
+                    self._userID is not None
+                ]
+            )
             return m
         else:
-            raise AttributeError("Client doesn't support attribute {0}".format(
-                key))
+            raise AttributeError(f"Client doesn't support attribute {key}")
 
     def __dir__(self):
-
         return list(self._allowedMethods())
 
     def _setupClient(self):
-
         if (self._host is None or self._port is None):
             self._client = None
             self._logger.info("No client active")
         else:
             address = "{0}:{1}/".format(self._host, self._port)
             self._logger.info("Communicates with '{0}'".format(address))
-            self._client = xmlrpclib.ServerProxy(address)
+            self._client = xmlrpc.client.ServerProxy(address)
 
     def _userIDdecorator(self, f):
 
@@ -122,7 +125,9 @@ class _ClientProxy(object):
             args = sanitize_communication(args)
             kwargs = sanitize_communication(kwargs)
 
-            self._logger.debug("Sanitized args {0} and kwargs {1}".format(args, kwargs))
+            self._logger.debug(
+                "Sanitized args {0} and kwargs {1}".format(args, kwargs),
+            )
 
             return f(*args, **kwargs)
 
@@ -132,28 +137,35 @@ class _ClientProxy(object):
 
         retTup = tuple()
 
-        if not(self._client is None or
-                hasattr(self._client, "system") is False):
+        if not(
+            self._client is None
+            or hasattr(self._client, "system") is False
+        ):
 
             try:
-                retTup = (v for v in self._client.system.listMethods() if
-                          not v.startswith("system.") and not (
-                          self._userID is None and v in self._adminMethods))
+                retTup = (
+                    v for v in self._client.system.listMethods()
+                    if not v.startswith("system.")
+                    and not (self._userID is None and v in self._adminMethods)
+                )
             except socket.error:
                 self._logger.warning("Connection Refused for '{0}:{1}'".format(
-                    self.host, self.port))
+                    self.host,
+                    self.port,
+                ))
                 return ("launch_local",)
 
         return retTup
 
     @property
-    def working_on_job_or_has_queue(self):
-
-        return self.online and (self.get_job_status() or self.get_queue_status())
+    def working_on_job_or_has_queue(self) -> bool:
+        return (
+            self.online
+            and (self.get_job_status() or self.get_queue_status())
+        )
 
     @property
-    def online(self):
-
+    def online(self) -> bool:
         if self._client is not None:
             try:
                 return bool(dir(self._client.system.listMethods()))
@@ -162,32 +174,30 @@ class _ClientProxy(object):
         return False
 
     @property
-    def local(self):
-
+    def local(self) -> bool:
         return "127.0.0.1" in self.host or "localhost" in self.host
 
     @property
     def userID(self):
-
         return self._userID
 
     @userID.setter
     def userID(self, value):
-
         self._userID = value
 
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         return self._host
 
     @host.setter
     def host(self, value):
-
         if not isinstance(value, StringTypes):
             value = str(value)
 
         value = "{0}{1}".format(
-            ['', 'http://'][not value.startswith('http://')], value)
+            ['', 'http://'][not value.startswith('http://')],
+            value,
+        )
 
         self._host = value
         self._setupClient()
@@ -198,6 +208,5 @@ class _ClientProxy(object):
 
     @port.setter
     def port(self, value):
-
         self._port = value
         self._setupClient()

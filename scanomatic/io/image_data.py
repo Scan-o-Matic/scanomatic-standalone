@@ -1,24 +1,17 @@
-import numpy as np
-import os
 import glob
+import os
 import re
+from typing import Optional, Tuple
 
-#
-# INTERNAL DEPENDENCIES
-#
+import numpy as np
 
-import scanomatic.io.paths as paths
 import scanomatic.io.logger as logger
+import scanomatic.io.paths as paths
 from scanomatic.io.pickler import unpickle_with_unpickler
-#
-#
-#
+from scanomatic.models.analysis_model import COMPARTMENTS, MEASURES, AnalysisModel
+from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _SECONDS_PER_HOUR = 60.0 * 60.0
-
-#
-# CLASSES
-#
 
 
 class ImageData(object):
@@ -27,101 +20,137 @@ class ImageData(object):
     _PATHS = paths.Paths()
 
     @staticmethod
-    def write_image(analysis_model, image_model, features):
-
-        """
-
-        :type image_model: scanomatic.models.compile_project_model.CompileImageAnalysisModel
-        """
-        return ImageData._write_image(analysis_model.output_directory, image_model.image.index, features,
-                                      analysis_model.image_data_output_item,
-                                      analysis_model.image_data_output_measure)
+    def write_image(
+        analysis_model: AnalysisModel,
+        image_model: CompileImageAnalysisModel,
+        features,
+    ):
+        return ImageData._write_image(
+            analysis_model.output_directory,
+            image_model.image.index,
+            features,
+            analysis_model.image_data_output_item,
+            analysis_model.image_data_output_measure,
+        )
 
     @staticmethod
-    def _write_image(path, image_index, features, output_item, output_value):
+    def _write_image(
+        path: str,
+        image_index: int,
+        features,
+        output_item: COMPARTMENTS,
+        output_value: MEASURES,
+    ) -> Optional[bool]:
 
         path = os.path.join(*ImageData.directory_path_to_data_path_tuple(
-            path, image_index=image_index))
+            path,
+            image_index=image_index,
+        ))
 
         if features is None:
-            ImageData._LOGGER.warning("Image {0} had no data".format(image_index))
+            ImageData._LOGGER.warning(f"Image {image_index} had no data")
             return
 
         number_of_plates = features.shape[0]
         plates = [None] * number_of_plates
-        ImageData._LOGGER.info("Writing features for {0} plates ({1})".format(number_of_plates, features.shape))
+        ImageData._LOGGER.info(
+            "Writing features for {0} plates ({1})".format(
+                number_of_plates,
+                features.shape,
+            ),
+        )
 
         for plate_features in features.data:
-
             if plate_features is None:
                 continue
 
             plate = np.zeros(plate_features.shape) * np.nan
-            ImageData._LOGGER.info("Writing plate features for plates index {0}".format(plate_features.index))
+            ImageData._LOGGER.info(
+                "Writing plate features for plates index {0}".format(
+                    plate_features.index
+                ),
+            )
             plates[plate_features.index] = plate
-
             for cell_features in plate_features.data:
-
                 if output_item in cell_features.data:
-
                     compartment_features = cell_features.data[output_item]
-
                     if output_value in compartment_features.data:
 
                         try:
-                            plate[cell_features.index[::-1]] = compartment_features.data[output_value]
+                            plate[cell_features.index[::-1]] = (
+                                compartment_features.data[output_value]
+                            )
                         except IndexError:
 
                             ImageData._LOGGER.critical(
-                                "Shape mismatch between plate {0} and colony position {1}".format(
-                                    plate_features.shape, cell_features.index))
+                                "Shape mismatch between plate {0} and colony position {1}".format(  # noqa: E501
+                                    plate_features.shape,
+                                    cell_features.index,
+                                ),
+                            )
 
                             return False
                     else:
-                        ImageData._LOGGER.info("Missing data for colony position {0}, plate {1}".format(
+                        ImageData._LOGGER.info("Missing data for colony position {0}, plate {1}".format(  # noqa: E501
                             cell_features.index,
-                            plate_features.index))
+                            plate_features.index,
+                        ))
                 else:
-                    ImageData._LOGGER.info("Missing compartment for colony position {0}, plate {1}".format(
+                    ImageData._LOGGER.info("Missing compartment for colony position {0}, plate {1}".format(  # noqa: E501
                         cell_features.index,
-                        plate_features.index
+                        plate_features.index,
                     ))
 
-        ImageData._LOGGER.info("Saved Image Data '{0}' with {1} plates".format(
-            path, len(plates)))
-
+        ImageData._LOGGER.info(
+            "Saved Image Data '{0}' with {1} plates".format(
+                path,
+                len(plates),
+            ),
+        )
         np.save(path, plates)
         return True
 
     @staticmethod
-    def write_times(analysis_model, image_model, overwrite):
-
-        """
-
-        :type image_model: scanomatic.models.compile_project_model.CompileImageAnalysisModel
-        """
+    def write_times(
+        analysis_model,
+        image_model: CompileImageAnalysisModel,
+        overwrite,
+    ):
         global _SECONDS_PER_HOUR
 
         if not overwrite:
-            current_data = ImageData.read_times(analysis_model.output_directory)
+            current_data = ImageData.read_times(
+                analysis_model.output_directory,
+            )
         else:
             current_data = np.array([], dtype=np.float)
 
         if not (image_model.image.index < current_data.size):
             current_data = np.r_[
                 current_data,
-                [None] * (1 + image_model.image.index - current_data.size)].astype(np.float)
+                [None] * (1 + image_model.image.index - current_data.size)
+            ].astype(np.float)
 
-        current_data[image_model.image.index] = image_model.image.time_stamp / _SECONDS_PER_HOUR
-        np.save(os.path.join(*ImageData.directory_path_to_data_path_tuple(analysis_model.output_directory, times=True)),
-                current_data)
+        current_data[image_model.image.index] = (
+            image_model.image.time_stamp / _SECONDS_PER_HOUR
+        )
+        np.save(
+            os.path.join(*ImageData.directory_path_to_data_path_tuple(
+                analysis_model.output_directory,
+                times=True,
+            )),
+            current_data,
+        )
 
     @staticmethod
     def read_times(path):
-
-        path = os.path.join(*ImageData.directory_path_to_data_path_tuple(path, times=True))
+        path = os.path.join(*ImageData.directory_path_to_data_path_tuple(
+            path,
+            times=True,
+        ))
         ImageData._LOGGER.info("Reading times from {0}".format(
-            path))
+            path,
+        ))
         if os.path.isfile(path):
             return unpickle_with_unpickler(np.load, path)
         else:
@@ -130,20 +159,24 @@ class ImageData(object):
 
     @staticmethod
     def read_image(path):
-
         if os.path.isfile(path):
             return unpickle_with_unpickler(np.load, path)
         else:
             return None
 
     @staticmethod
-    def directory_path_to_data_path_tuple(directory_path, image_index="*", times=False):
-
-        if os.path.isdir(directory_path) and not directory_path.endswith(os.path.sep):
+    def directory_path_to_data_path_tuple(
+        directory_path: str,
+        image_index="*",
+        times: bool = False,
+    ) -> Tuple[str, str]:
+        if (
+            os.path.isdir(directory_path)
+            and not directory_path.endswith(os.path.sep)
+        ):
             directory_path += os.path.sep
 
         path_dir = os.path.dirname(directory_path)
-
         if times:
             path_basename = ImageData._PATHS.image_analysis_time_series
         else:
@@ -153,12 +186,14 @@ class ImageData(object):
 
     @staticmethod
     def iter_image_paths(path_pattern):
-
-        return (p for p in glob.iglob(os.path.join(
-            *ImageData.directory_path_to_data_path_tuple(path_pattern))))
+        return (
+            p for p in glob.iglob(os.path.join(
+                *ImageData.directory_path_to_data_path_tuple(path_pattern)
+            ))
+        )
 
     @staticmethod
-    def iter_read_images(path):
+    def iter_read_images(path: str):
         """A generator for reading image data given a directory path.
 
         Args:
@@ -187,7 +222,7 @@ class ImageData(object):
             yield ImageData.read_image(p)
 
     @staticmethod
-    def convert_per_time_to_per_plate(data):
+    def convert_per_time_to_per_plate(data) -> Optional[np.ndarray]:
         """Conversion method for data per time (scan) as generated by the
         image analysis to data per plate as used by feature extraction,
         quality control and user output.
@@ -206,34 +241,39 @@ class ImageData(object):
             data = np.array(data)
 
         try:
-            new_data = [(None if data[0][plate_index] is None else [])
-                        for plate_index in range(max(scan.shape[0] for scan in data if isinstance(scan, np.ndarray)))]
+            new_data = [
+                (None if data[0][plate_index] is None else [])
+                for plate_index in range(
+                    max(scan.shape[0] for scan in data
+                    if isinstance(scan, np.ndarray))
+                )
+            ]
         except ValueError:
             ImageData._LOGGER.error("There is no data")
             return None
 
         for scan in data:
             for plate_id, plate in enumerate(scan):
-
                 if plate is None:
                     continue
-
                 new_data[plate_id].append(plate)
 
         for plate_id, plate in enumerate(new_data):
-
             if plate is None:
                 continue
 
             p = np.array(plate)
             new_data[plate_id] = np.lib.stride_tricks.as_strided(
-                p, (p.shape[1], p.shape[2], p.shape[0]),
-                (p.strides[1], p.strides[2], p.strides[0]))
-
+                p,
+                (p.shape[1], p.shape[2], p.shape[0]),
+                (p.strides[1], p.strides[2], p.strides[0]),
+            )
         return np.array(new_data)
 
     @staticmethod
-    def read_image_data_and_time(path):
+    def read_image_data_and_time(
+        path: str,
+    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Reads all images data files in a directory and report the
         indices used and data restructured per plate.
 
@@ -257,16 +297,19 @@ class ImageData(object):
                 data.append(unpickle_with_unpickler(np.load, p))
             except AttributeError:
                 ImageData._LOGGER.warning(
-                    "File '{0}' has no index number in it, need that!".format(
-                        p))
+                    f"File '{p}' has no index number in it, need that!",
+                )
 
         try:
             times = np.array(times[time_indices])
         except IndexError:
             ImageData._LOGGER.error(
-                "Could not filter image times to match data")
+                "Could not filter image times to match data",
+            )
             return None, None
 
         sort_list = np.array(time_indices).argsort()
-        return times[sort_list],  ImageData.convert_per_time_to_per_plate(
-            np.array(data)[sort_list])
+        return (
+            times[sort_list],
+            ImageData.convert_per_time_to_per_plate(np.array(data)[sort_list])
+        )
