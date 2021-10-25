@@ -1,5 +1,5 @@
-from scipy.stats.mstats import mquantiles
 import numpy as np
+from scipy.stats.mstats import mquantiles
 
 
 def iqr_mean(data, *args, **kwargs):

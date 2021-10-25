@@ -4,23 +4,22 @@ _INSTANCES = {}
 _INITED = {}
 
 
-class Singleton(object):
-
+class Singleton:
     def __new__(cls, *args):
-
         global _INSTANCES
         if cls not in _INSTANCES:
             if cls is Singleton:
-                _INSTANCES[cls] = super(Singleton, cls).__new__(Singleton, *args)
+                _INSTANCES[cls] = super(Singleton, cls).__new__(
+                    Singleton,
+                    *args,
+                )
             else:
                 _INSTANCES[cls] = super(Singleton, cls).__new__(cls)
         return _INSTANCES[cls]
 
 
 class SingeltonOneInit(Singleton):
-
     def __new__(cls, *args):
-
         global _INITED
         instance = super(SingeltonOneInit, cls).__new__(cls)
         if instance not in _INITED:
@@ -34,5 +33,4 @@ class SingeltonOneInit(Singleton):
             _INITED[self] = True
 
     def __one_init__(self, *args, **kwargs):
-
         warnings.warn("One init not overwritten on {0}".format(type(self)))

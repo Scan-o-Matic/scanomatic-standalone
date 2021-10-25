@@ -1,24 +1,18 @@
-from scanomatic.io.paths import Paths
 from scanomatic.io.app_config import Config
+from scanomatic.io.paths import Paths
 
 
-class PathUser(object):
-
+class PathUser:
     def __init__(self):
+        self._path = Paths()
 
-        self._path = Paths() 
 
-
-class AppConfigUser(object):
-
+class AppConfigUser:
     def __init__(self):
-
         self._appConfig = Config()
 
 
-class PathAndAppConfigUser(object):
-
+class PathAndAppConfigUser:
     def __init__(self):
-
-        self._path = Paths() 
+        self._path = Paths()
         self._appConfig = Config()

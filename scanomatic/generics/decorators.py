@@ -1,23 +1,18 @@
-import scanomatic.io.logger as logger
-
-import time
 import datetime
 import multiprocessing
+import time
+from functools import wraps
 from inspect import ismethod
 from threading import Thread
-from functools import wraps
+
+import scanomatic.io.logger as logger
 
 
 class UnknownLock(KeyError):
     pass
 
-#
-#   CLASS PROPERTY
-#
-
 
 class _ClassPropertyDescriptor(property):
-
     def __init__(self, get_function, set_function=None):
         self._get_function = get_function
         self._set_function = set_function
@@ -72,11 +67,8 @@ def class_property(func):
         def foo(self, value):
             cls._HIDDEN = value
     """
-
     if not isinstance(func, (classmethod, staticmethod)):
-
         return _ClassPropertyDescriptor(classmethod(func))
-
     else:
         return _ClassPropertyDescriptor(func)
 
@@ -92,15 +84,11 @@ def _get_id_tuple(f, args, kwargs, mark=object()):
         l.append(id(v))
     return tuple(l)
 
-#
-#   MEMOIZATION
-#
 
 _MEMOIZED = {}
 
 
 def memoize(f):
-
     def memoized(*args, **kwargs):
         key = _get_id_tuple(f, args, kwargs)
         if key not in _MEMOIZED:
@@ -109,29 +97,23 @@ def memoize(f):
     return memoized
 
 
-#
-#   TIMING
-#
-
 _TIME_LOGGER = logger.Logger("Time It")
 
 
 def timeit(f):
 
     def timer(*args, **kwargs):
-
         t = time.time()
         _TIME_LOGGER.info("Calling {0}".format(f))
         ret = f(*args, **kwargs)
-        _TIME_LOGGER.info("Call to {0} lasted {1}".format(f, str(datetime.timedelta(seconds=time.time() - t))))
+        _TIME_LOGGER.info("Call to {0} lasted {1}".format(
+            f,
+            str(datetime.timedelta(seconds=time.time() - t)),
+        ))
         return ret
 
     return timer
 
-
-#
-#   PATH LOCKING
-#
 
 _PATH_LOCK = dict()
 
@@ -144,7 +126,12 @@ def path_lock(f):
             while not _PATH_LOCK[path].acquire(False):
                 time.sleep(0.05)
         except KeyError:
-            raise UnknownLock("Path '{0}' not registered by {1}".format(path, register_path_lock))
+            raise UnknownLock(
+                "Path '{0}' not registered by {1}".format(
+                    path,
+                    register_path_lock,
+                )
+            )
 
     def locking_wrapper_method(self_cls, path, *args, **kwargs):
         global _PATH_LOCK
@@ -175,10 +162,6 @@ def register_path_lock(path):
     _PATH_LOCK[path] = multiprocessing.RLock()
 
 
-#
-#   TYPE LOCKING
-#
-
 _TYPE_LOCK = {}
 
 
@@ -188,14 +171,16 @@ def register_type_lock(object_instance):
 
 
 def type_lock(f):
-
     def _acquire(object_type):
         global _TYPE_LOCK
         try:
             while not _TYPE_LOCK[object_type].acquire():
                 time.sleep(0.05)
         except KeyError:
-            raise UnknownLock("{0} never registered by {1}".format(object_type, register_type_lock))
+            raise UnknownLock("{0} never registered by {1}".format(
+                object_type,
+                register_type_lock,
+            ))
 
     def locking_wrapper(self, *args, **kwargs):
         global _TYPE_LOCK
@@ -205,8 +190,11 @@ def type_lock(f):
             result = f(self, *args, **kwargs)
         except Exception as e:
             logger.Logger("Type Lock").critical(
-                "Something failed attempting to call {0} with '{1}' as args and '{2}' as kwargs".format(
-                    f, args, kwargs))
+                "Something failed attempting to call {0} with '{1}' as args and '{2}' as kwargs".format(  # noqa: E501
+                    f,
+                    args,
+                    kwargs,
+                ))
             _TYPE_LOCK[object_type].release()
             raise e
         _TYPE_LOCK[object_type].release()
@@ -214,15 +202,10 @@ def type_lock(f):
 
     return locking_wrapper
 
-#
-#   THREADING
-#
-
 
 def threaded(f):
 
     def _threader(*args, **kwargs):
-
         thread = Thread(target=f, args=args, kwargs=kwargs)
         thread.start()
 
