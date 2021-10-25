@@ -1,19 +1,8 @@
-
-#
-# DEPENDENCIES
-#
-
 import numpy as np
-import types
-
-#
-# CLASSES
-#
 
 
-class Histogram():
+class Histogram:
     def __init__(self, img, run_at_init=True, bins=256):
-
         self.labels = None
         self.counts = None
         self.bins = bins
@@ -27,7 +16,7 @@ class Histogram():
 
     def re_hist(self, img):
 
-        if type(img) == types.ListType:
+        if type(img) == list:
 
             img = np.asarray(img)
 
@@ -42,26 +31,21 @@ class Histogram():
 
         return (self.labels, self.counts)
 
-    #def __repr__(self):
-    #    return "(%d,%d)"%(self.counts,self.labels)
-
     def __checkSupport(self, img):
 
         if len(img.shape) == 3:
 
             raise NotImplemented(
-                "Support for color images is not yet supported by 'histogram'")
+                "Support for color images is not yet supported by 'histogram'",
+            )
 
     def counts(self):
-
         return self.counts
 
     def labels(self):
-
         return self.labels
 
     def _hist(self, img):
-
         # if image is of type uint8:
         counts, labels = np.histogram(img, bins=self.bins+1)
 
@@ -80,24 +64,21 @@ def otsu(histogram=None, labels=None, counts=None):
     class0 = {labels<=threshold}
     and class1 = {lables>threshold}
 
-    The function either takes a histogram class instance or two lists 
+    The function either takes a histogram class instance or two lists
     (labels and counts) as arguments.
     """
 
     if histogram is not None:
-
         labels = np.float32(histogram.labels)
         counts = np.float32(histogram.counts)
 
     elif labels is not None and counts is not None:
-
         labels = np.float32(labels)
         counts = np.float32(counts)
 
     else:
-
         return None
-        
+
     # First compute muT = 'overall mean', mu2T= 'mean square'
     #and sumc ='sum of counts'
 
@@ -107,8 +88,7 @@ def otsu(histogram=None, labels=None, counts=None):
     if nSlots == 0:
         return None
 
-    for k in xrange(nSlots):
-
+    for k in range(nSlots):
         count = counts[k]
         label = labels[k]
         muT += count * label
@@ -133,8 +113,7 @@ def otsu(histogram=None, labels=None, counts=None):
     mu0 = 0
     mu1 = muT
 
-    for k in xrange(nSlots):
-
+    for k in range(nSlots):
         if counts[k] > 0:
 
             wchange = counts[k]

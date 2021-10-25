@@ -1,29 +1,26 @@
-import ConfigParser
-import numpy as np
+import configparser
 
-#
-# INTERNAL DEPENDENCIES
-#
+import numpy as np
 
 import scanomatic.io.paths as paths
 from scanomatic.io.logger import Logger
 
-#
-# GLOBALS
-#
-
 _GRAYSCALE_PATH = paths.Paths().analysis_grayscales
-
-_GRAYSCALE_CONFIGS = ConfigParser.ConfigParser()
+_GRAYSCALE_CONFIGS = configparser.ConfigParser()
 _KEY_DEFUALT = 'default'
 _KEY_TARGETS = 'targets'
-
-GRAYSCALE_SCALABLE = ('width', 'min_width', 'lower_than_half_width',
-                      'higher_than_half_width', 'length')
-
-GRAYSCALE_CONFIG_KEYS = (_KEY_DEFUALT, _KEY_TARGETS,
-                         'sections') + GRAYSCALE_SCALABLE
-
+GRAYSCALE_SCALABLE = (
+    'width',
+    'min_width',
+    'lower_than_half_width',
+    'higher_than_half_width',
+    'length',
+)
+GRAYSCALE_CONFIG_KEYS = (
+    _KEY_DEFUALT,
+    _KEY_TARGETS,
+    'sections',
+) + GRAYSCALE_SCALABLE
 _GRAYSCALE_VALUE_TYPES = {
     'default': bool,
     'targets': eval,
@@ -34,15 +31,10 @@ _GRAYSCALE_VALUE_TYPES = {
     'higher_than_half_width': float,
     'length': float,
 }
-
 _logger = Logger("Grayscale settings")
-#
-# METHODS
-#
 
 
 def getGrayscales():
-
     try:
         _GRAYSCALE_CONFIGS.readfp(open(_GRAYSCALE_PATH, 'r'))
     except:
@@ -52,25 +44,25 @@ def getGrayscales():
 
 
 def getDefualtGrayscale():
-
     for gs in getGrayscales():
-
         if _GRAYSCALE_CONFIGS.getboolean(gs, _KEY_DEFUALT):
             return gs
 
 
 def getGrayscale(grayScaleName):
-
     if grayScaleName in getGrayscales():
-        return {k: _GRAYSCALE_VALUE_TYPES[k](v) for k, v in
-                _GRAYSCALE_CONFIGS.items(grayScaleName)}
+        return {
+            k: _GRAYSCALE_VALUE_TYPES[k](v) for k, v in
+            _GRAYSCALE_CONFIGS.items(grayScaleName)
+        }
     else:
         raise Exception("{0} not among known grayscales {1}".format(
-            grayScaleName, getGrayscales()))
+            grayScaleName,
+            getGrayscales(),
+        ))
 
 
 def getGrayscaleTargets(grayScaleName):
-
     targets = getGrayscale(grayScaleName)[_KEY_TARGETS]
     try:
         return _GRAYSCALE_VALUE_TYPES[_KEY_TARGETS](targets)
@@ -79,24 +71,18 @@ def getGrayscaleTargets(grayScaleName):
 
 
 def _saveConfig():
-
     with open(_GRAYSCALE_PATH, 'w') as configFile:
         _GRAYSCALE_CONFIGS.write(configFile)
 
 
 def _setNewDefault(grayScaleName):
-
     for s in _GRAYSCALE_CONFIGS.sections():
-
         _GRAYSCALE_CONFIGS.set(s, _KEY_DEFUALT, str(s == grayScaleName))
 
 
 def updateGrayscaleValues(grayScaleName, **kwargs):
-
     if grayScaleName in getGrayscales():
-
         for k, v in kwargs.items():
-
             if k in GRAYSCALE_CONFIG_KEYS:
                 if k == _KEY_DEFUALT and v is True:
                     _setNewDefault(grayScaleName)
@@ -106,26 +92,26 @@ def updateGrayscaleValues(grayScaleName, **kwargs):
         _saveConfig()
 
     else:
-
         raise Exception("{0} not among known grayscales {1}".format(
-            grayScaleName, getGrayscales()))
+            grayScaleName,
+            getGrayscales(),
+        ))
 
 
 def addGrayscale(grayScaleName, **kwargs):
-
     if grayScaleName in getGrayscales():
-
         raise Exception("{0} already exists!".format(grayScaleName))
 
-    missingKeys = set(GRAYSCALE_CONFIG_KEYS).difference(kwargs.keys())
+    missingKeys = set(GRAYSCALE_CONFIG_KEYS).difference(list(kwargs.keys()))
 
     if len(missingKeys) > 0:
-
         raise Exception("Missing {0} keys: {1}".format(
-            len(missingKeys), tuple(missingKeys)))
+            len(missingKeys),
+            tuple(missingKeys),
+        ))
 
     _GRAYSCALE_CONFIGS.add_section(grayScaleName)
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         if k == _KEY_DEFUALT and v is True:
             _setNewDefault(grayScaleName)
         else:
@@ -135,7 +121,6 @@ def addGrayscale(grayScaleName, **kwargs):
 
 
 def validateFromData(name, source, target):
-
     if None in (source, target):
         return False
 
@@ -171,15 +156,16 @@ def validateFromData(name, source, target):
     #4 evaluations per step. It would probably do with less
     derivativeValues = derivativePolynomial(np.linspace(0, 255, 1024))
     #For all non-zero values, the check the sign
-    derivativeSigns = (derivativeValues[
-        derivativeValues.nonzero()] > 0).astype(np.bool)
+    derivativeSigns = (
+        derivativeValues[derivativeValues.nonzero()] > 0
+    ).astype(np.bool)
     #If either all are True OR if None are, the method returns True
     return derivativeSigns.all() or derivativeSigns.sum() == 0
 
 
 def validate(fixture_settings):
-
     return validateFromData(
         fixture_settings['grayscaleName'],
         fixture_settings['grayscaleSource'],
-        fixture_settings['grayscaleTarget'])
+        fixture_settings['grayscaleTarget'],
+    )

@@ -1,7 +1,5 @@
 """Resource module for handling basic images operations."""
-
 import numpy as np
-import scanomatic.io.logger as logger
 from scipy.ndimage import zoom
 
 try:
@@ -9,6 +7,7 @@ try:
 except ImportError:
     from PIL import Image
 
+import scanomatic.io.logger as logger
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 
 #
@@ -23,24 +22,28 @@ _logger = logger.Logger("Basic Image Utils")
 
 
 def scale_16bit_to_8bit_range(data):
-
     return data / (2 ** 16 - 1.) * 255
 
 
 def round_to_8bit(data):
-
     return np.round(data).astype(np.uint8)
 
 
-def load_image_to_numpy(path, orientation=IMAGE_ROTATIONS.Portrait, dtype=np.float64):
-
+def load_image_to_numpy(
+    path,
+    orientation=IMAGE_ROTATIONS.Portrait,
+    dtype=np.float64,
+):
     im = Image.open(path)
     data = np.array(im)
 
     if data.dtype == np.uint16:
         data = scale_16bit_to_8bit_range(data)
 
-    data_orientation = IMAGE_ROTATIONS.Portrait if max(data.shape) == data.shape[0] else IMAGE_ROTATIONS.Landscape
+    data_orientation = (
+        IMAGE_ROTATIONS.Portrait if max(data.shape) == data.shape[0]
+        else IMAGE_ROTATIONS.Landscape
+    )
 
     if data_orientation == orientation:
         if dtype is None or data.dtype == dtype:
@@ -58,30 +61,28 @@ def load_image_to_numpy(path, orientation=IMAGE_ROTATIONS.Portrait, dtype=np.flo
             return data.T.astype(dtype)
 
 
-def Quick_Scale_To_im(path=None, im=None, source_dpi=600, target_dpi=150,
-                      scale=None):
-
+def Quick_Scale_To_im(
+    path=None,
+    im=None,
+    source_dpi=600,
+    target_dpi=150,
+    scale=None,
+):
     if im is None:
-
         try:
-
             im = load_image_to_numpy(path, dtype=np.uint8)
-
         except:
-
             _logger.error("Could not open source")
-
             return -1
 
     if scale is None:
         scale = target_dpi / float(source_dpi)
 
     small_im = zoom(im, scale, order=1)
-
     return small_im
 
 
-class Image_Transpose(object):
+class Image_Transpose:
 
     def __init__(self, sourceValues=None, targetValues=None, polyCoeffs=None):
 
@@ -95,11 +96,14 @@ class Image_Transpose(object):
 
             try:
                 self._polyCoeffs = np.polyfit(self._source, self._target, 3)
-            except Exception, e:
+            except Exception as e:
                 self._logger.critical(
                     "Could not produce polynomial from source " +
-                    "{0} and target {1}".format(self._source, self._target))
-
+                    "{0} and target {1}".format(
+                        self._source,
+                        self._target,
+                    ),
+                )
                 raise e
 
         if self._polyCoeffs is not None:
@@ -114,7 +118,9 @@ class Image_Transpose(object):
                 errorCause += "No Coefficients"
             raise Exception(
                 "Polynomial not initiated; can't transpose image: {0}".format(
-                    errorCause))
+                    errorCause
+                ),
+            )
 
     @property
     def source(self):
@@ -133,5 +139,4 @@ class Image_Transpose(object):
         return self._poly
 
     def __call__(self, im):
-
         return self._poly(im)
