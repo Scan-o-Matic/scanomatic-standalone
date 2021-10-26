@@ -1,5 +1,5 @@
 import os
-from types import DictType, ListType
+from typing import Mapping, Sequence
 
 import scanomatic.models.analysis_model as analysis_model
 from scanomatic.data_processing.calibration import (
@@ -353,11 +353,11 @@ class AnalysisFeaturesFactory(AbstractModelFactory):
                 k: cls.deep_to_dict(model_or_data[k]) for k in
                 cls.to_dict(model_or_data)
             }
-        elif isinstance(model_or_data, DictType):
+        elif isinstance(model_or_data, Mapping):
             return {
                 k: cls.deep_to_dict(model_or_data[k]) for k in model_or_data
             }
-        elif isinstance(model_or_data, ListType):
+        elif isinstance(model_or_data, Sequence):
             return [cls.deep_to_dict(v) for v in model_or_data]
         else:
             return model_or_data

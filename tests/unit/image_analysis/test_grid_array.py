@@ -1,6 +1,5 @@
 from collections import namedtuple
 from itertools import product
-from types import NoneType
 from typing import Optional
 
 import numpy as np
@@ -39,8 +38,8 @@ def bad_grid_array(hard_plate) -> grid_array_module.GridArray:
 
 
 @pytest.mark.parametrize("grid_cell,expected_type", (
-    (None, NoneType),
-    (MockedGridCell(xy1=None, xy2=None), NoneType),
+    (None, type(None)),
+    (MockedGridCell(xy1=None, xy2=None), type(None)),
 ))
 def test_get_im_slicei_no_im(grid_cell, expected_type):
     im = None
@@ -49,12 +48,12 @@ def test_get_im_slicei_no_im(grid_cell, expected_type):
 
 
 @pytest.mark.parametrize("grid_cell,expected_type,expected_shape", (
-    (None, NoneType, None),
-    (MockedGridCell(xy1=None, xy2=None), NoneType, None),
-    (MockedGridCell(xy1=(1, 1), xy2=None), NoneType, None),
-    (MockedGridCell(xy1=None, xy2=(1, 1)), NoneType, None),
-    (MockedGridCell(xy1=(1, 1), xy2=(1,)), NoneType, None),
-    (MockedGridCell(xy1=(1,), xy2=(1, 1)), NoneType, None),
+    (None, type(None), None),
+    (MockedGridCell(xy1=None, xy2=None), type(None), None),
+    (MockedGridCell(xy1=(1, 1), xy2=None), type(None), None),
+    (MockedGridCell(xy1=None, xy2=(1, 1)), type(None), None),
+    (MockedGridCell(xy1=(1, 1), xy2=(1,)), type(None), None),
+    (MockedGridCell(xy1=(1,), xy2=(1, 1)), type(None), None),
     (MockedGridCell(xy1=(1, 1), xy2=(1, 1)), ndarray, (0, 0)),
     (MockedGridCell(xy1=(0, 1), xy2=(10, 20)), ndarray, (10, 19)),
     (

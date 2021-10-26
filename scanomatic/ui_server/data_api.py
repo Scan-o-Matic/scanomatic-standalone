@@ -3,7 +3,7 @@ import os
 import shutil
 from configparser import Error as ConfigError
 from enum import Enum
-from types import DictType, ListType
+from typing import Mapping, Sequence
 
 import numpy as np
 from flask import jsonify, request, send_from_directory
@@ -52,7 +52,7 @@ _logger = Logger("Data API")
 
 def _depth(arr, lvl=1):
 
-    if isinstance(arr, ListType) and len(arr) and isinstance(arr[0], ListType):
+    if isinstance(arr, Sequence) and len(arr) and isinstance(arr[0], Sequence):
         _depth(arr[0], lvl + 1)
     else:
         return lvl
@@ -75,9 +75,9 @@ def json_data(data):
         return None
     elif hasattr(data, "tolist"):
         return json_data(data.tolist())
-    elif isinstance(data, ListType):
+    elif isinstance(data, Sequence):
         return [json_data(d) for d in data]
-    elif isinstance(data, DictType):
+    elif isinstance(data, Mapping):
         return {json_data(k): json_data(data[k]) for k in data}
     elif isinstance(data, Enum):
         return data.name
