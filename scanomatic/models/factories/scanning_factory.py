@@ -80,7 +80,7 @@ class ScanningAuxInfoFactory(AbstractModelFactory):
     def _validate_stress_level(cls, model: ScanningAuxInfoModel):
         if not isinstance(model.stress_level, int):
             return model.FIELD_TYPES.stress_level
-        elif model.stress_level is -1 or model.stress_level > 0:
+        elif model.stress_level == -1 or model.stress_level > 0:
             return True
         else:
             return model.FIELD_TYPES.stress_level

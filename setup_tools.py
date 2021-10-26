@@ -247,9 +247,8 @@ def install_data_files(
                 b = BytesIO()
 
                 with open(source_path, 'rb') as fh:
-
-                    buff = fh.read()
-                    b.write(p.sub(replacement, buff))
+                    buff = fh.read().decode()
+                    b.write(p.sub(replacement, buff).encode())
 
                 b.flush()
                 b.seek(0)

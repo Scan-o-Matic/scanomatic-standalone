@@ -1,10 +1,4 @@
 #!/usr/bin/env python3.9
-
-
-#
-# DEPENDENCIES
-#
-
 import os
 import sys
 from subprocess import Popen, PIPE, call
@@ -106,7 +100,7 @@ if len(sys.argv) > 1:
 
     if sys.argv[1] == 'uninstall':
         call(
-            'python -c"from setup_tools import uninstall;uninstall()"',
+            'python3.9 -c"from setup_tools import uninstall;uninstall()"',
             shell=True,
         )
         sys.exit()
@@ -245,7 +239,7 @@ if len(sys.argv) > 1:
             'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
             'Natural Language :: English',
             'Operating System :: POSIX :: Linux',
-            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3.9',
             'Topic :: Scientific/Engineering :: Bio-Informatics'
         ],
         requires=package_dependencies
@@ -354,4 +348,4 @@ if len(sys.argv) > 1:
     # postSetup.CheckDependencies(package_dependencies)
     _logger.info("Install Complete")
     from subprocess import call
-    call(["python", "get_installed_version.py"])
+    call(["python3.9", "get_installed_version.py"])

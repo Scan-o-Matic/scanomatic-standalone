@@ -8,10 +8,10 @@ import zipfile
 from io import IOBase, StringIO
 from itertools import chain
 from urllib.parse import quote, unquote
+from PIL import Image
 
 import numpy as np
 from flask import jsonify, render_template, send_file
-from scipy.misc import imread, toimage
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
@@ -354,7 +354,7 @@ def serve_pil_image(pil_img):
 
 
 def serve_numpy_as_image(data):
-    return serve_pil_image(toimage(data))
+    return serve_pil_image(Image.fromarray(data))
 
 
 def get_fixture_image_by_name(name, ext="tiff"):
@@ -402,7 +402,7 @@ def get_image_data_as_array(image_data, reshape=None):
         stream.flush()
         stream.seek(0)
         try:
-            return imread(stream)
+            return np.array(Image.open(stream))
         except IOError:
             try:
                 s = pad_decode_base64(image_data)
@@ -412,7 +412,7 @@ def get_image_data_as_array(image_data, reshape=None):
             stream.write(s)
             stream.flush()
             stream.seek(0)
-            return imread(stream)
+            return np.array(Image.open(stream))
     elif isinstance(image_data, list):
         if reshape is None:
             return np.array(image_data)
@@ -422,7 +422,7 @@ def get_image_data_as_array(image_data, reshape=None):
         isinstance(image_data, IOBase)
         or isinstance(image_data, FileStorage)
     ):
-        return imread(image_data)
+        return np.array(Image.open(image_data))
 
     else:
         return image_data

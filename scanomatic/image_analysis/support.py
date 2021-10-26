@@ -4,7 +4,6 @@ import time
 
 import numpy as np
 from PIL import Image
-from scipy.misc import toimage
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.logger as logger
@@ -26,7 +25,10 @@ def save_image_as_png(from_path, **kwargs):
                 im2.getdata(),
                 dtype=np.uint8,
             ).reshape(im2.size[::-1])
-            toimage(data).save(os.path.extsep.join((file, "png")), **kwargs)
+            Image.fromarray(data).save(
+                os.path.extsep.join((file, "png")),
+                **kwargs,
+            )
             _logger.info("Attempted conversion to 8bit PNG format")
         else:
             raise TypeError(
