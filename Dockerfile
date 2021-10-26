@@ -4,8 +4,13 @@ WORKDIR /src
 RUN npm install
 RUN npm run build
 
-FROM ubuntu:18.04
-RUN apt update && apt -y install usbutils software-properties-common python-pip
+FROM ubuntu:latest
+RUN apt update
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+    && apt install -y tzdata \
+    && dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt -y install usbutils software-properties-common python3-pip python3.9
 # net-tools & iputils-ping are used in the xml-writer which should be removed soon
 RUN apt -y install net-tools iputils-ping
 RUN apt -y install libsane sane-utils libsane-common
@@ -26,6 +31,6 @@ COPY setup_tools.py /tmp/setup_tools.py
 COPY get_installed_version.py /tmp/get_installed_version.py
 COPY --from=npmbuilder /src/scanomatic/ui_server_data/js/ccc.js /tmp/scanomatic/ui_server_data/js/ccc.js
 
-RUN cd /tmp && python setup.py install --default
+RUN cd /tmp && python3.9 setup.py install --default
 CMD scan-o-matic --no-browser
 EXPOSE 5000
