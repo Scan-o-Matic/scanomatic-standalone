@@ -3,11 +3,8 @@ import sys
 import time
 
 import numpy as np
+from PIL import Image
 from scipy.misc import toimage
-try:
-    import Image
-except ImportError:
-    from PIL import Image
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.logger as logger

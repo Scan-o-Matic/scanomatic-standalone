@@ -1,11 +1,7 @@
 """Resource module for handling basic images operations."""
 import numpy as np
+from PIL import Image
 from scipy.ndimage import zoom
-
-try:
-    import Image
-except ImportError:
-    from PIL import Image
 
 import scanomatic.io.logger as logger
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
