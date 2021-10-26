@@ -71,7 +71,7 @@ def Quick_Scale_To_im(
     if im is None:
         try:
             im = load_image_to_numpy(path, dtype=np.uint8)
-        except:
+        except Exception:
             _logger.error("Could not open source")
             return -1
 

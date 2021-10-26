@@ -74,13 +74,13 @@ def get_server(
             smtp_port = 25
         try:
             server = smtplib.SMTP(host, port=smtp_port)
-        except:
+        except Exception:
             return None
 
     else:
         try:
             server = smtplib.SMTP()
-        except:
+        except Exception:
             return None
 
     if tls:
@@ -120,17 +120,18 @@ def mail(
     message: str,
     final_message: bool = True,
     server: Optional[smtplib.SMTP] = None,
-) ->  bool:
+) -> bool:
     """
-
-    :param sender: Then mail address of the sender, if has value `None` a default address will be generated using
-    `get_default_email()`
+    :param sender: Then mail address of the sender, if has value `None` a
+        default address will be generated using `get_default_email()`
     :param receiver: The mail address(es) of the reciever(s)
     :param subject: Subject line
     :param message: Bulk of message
-    :param final_message (optional): If this is the final message intended to be sent by the server.
-    If so, server will be disconnected afterwards. Default `True`
-    :param server (optional): The server to send the message, if not supplied will create a default server
+    :param final_message (optional): If this is the final message intended to
+        be sent by the server. If so, server will be disconnected afterwards.
+        Default `True`
+    :param server (optional): The server to send the message, if not supplied
+        will create a default server
      using `get_server()`
     """
     if server is None:
@@ -148,7 +149,9 @@ def mail(
         msg = MIMEMultipart.MIMEMultipart()
 
     msg['From'] = sender
-    msg['To'] = receiver if isinstance(receiver, StringTypes) else ", ".join(receiver)
+    msg['To'] = (
+        receiver if isinstance(receiver, StringTypes) else ", ".join(receiver)
+    )
     msg['Subject'] = subject
     msg.attach(MIMEText(message))
 
@@ -157,12 +160,14 @@ def mail(
     try:
         server.sendmail(sender, receiver, msg.as_string())
     except smtplib.SMTPException:
-        _logger.error("Could not mail, either no network connection or missing mailing functionality.")
+        _logger.error(
+            "Could not mail, either no network connection or missing mailing functionality.",  # noqa: E501
+        )
 
     if final_message:
         try:
             server.quit()
-        except:
+        except Exception:
             pass
 
     return True

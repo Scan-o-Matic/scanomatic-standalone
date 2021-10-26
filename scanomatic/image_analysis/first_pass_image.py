@@ -8,7 +8,10 @@ import numpy as np
 from scanomatic.io.fixtures import FixtureSettings
 from scanomatic.io.logger import Logger
 from scanomatic.models.factories.fixture_factories import FixturePlateFactory
-from scanomatic.models.fixture_models import FixturePlateModel, GrayScaleAreaModel
+from scanomatic.models.fixture_models import (
+    FixturePlateModel,
+    GrayScaleAreaModel
+)
 
 from . import image_basics, image_fixture, image_grayscale
 from .image_basics import load_image_to_numpy
@@ -279,7 +282,7 @@ class FixtureImage:
             sort_order, sort_error = self._get_sort_order(length, length_ref)
 
             self._logger.debug(
-                "Found sort order that matches the reference {0} (error {1})".format(
+                "Found sort order that matches the reference {0} (error {1})".format(  # noqa: E501
                     sort_order,
                     sort_error,
                 ),
@@ -372,7 +375,11 @@ class FixtureImage:
         )
         return x_delta.mean(), y_delta.mean()
 
-    def get_plate_im_section(self, plate_model: FixturePlateModel, scale: float = 1.0):
+    def get_plate_im_section(
+        self,
+        plate_model: FixturePlateModel,
+        scale: float = 1.0,
+    ):
         im = self.im
 
         if im is not None and plate_model is not None:

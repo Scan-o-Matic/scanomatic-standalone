@@ -21,7 +21,7 @@ class PowerManagerModel(model.Model):
         password: str = "1",
         verify_name: bool = False,
         mac=None,
-        name: str= "Server 1",
+        name: str = "Server 1",
         power_mode: POWER_MODES = POWER_MODES.Toggle,
     ):
         self.type: POWER_MANAGER_TYPE = type
@@ -92,7 +92,7 @@ class MailModel(model.Model):
         server: Optional[str] = None,
         user: Optional[str] = None,
         port: int = 0,
-        password: Optional[str] =None,
+        password: Optional[str] = None,
         warn_scanning_done_minutes_before: float = 30,
     ):
 
@@ -107,7 +107,8 @@ class MailModel(model.Model):
 
 
 class ApplicationSettingsModel(model.Model):
-    def __init__(self,
+    def __init__(
+        self,
         number_of_scanners: int = 3,
         scanner_name_pattern: str = "Scanner {0}",
         scan_program: str = "scanimage",
@@ -116,9 +117,10 @@ class ApplicationSettingsModel(model.Model):
         power_manager: Optional[PowerManagerModel] = None,
         rpc_server: Optional[RPCServerModel] = None,
         ui_server: Optional[UIServerModel] = None,
-        hardware_resource_limits: Optional[HardwareResourceLimitsModel] =
-            None,
-        computer_human_name: str="Unnamed Computer",
+        hardware_resource_limits: Optional[HardwareResourceLimitsModel] = (
+            None
+        ),
+        computer_human_name: str = "Unnamed Computer",
         mail: Optional[MailModel] = None,
         paths: Optional[PathsModel] = None,
     ):

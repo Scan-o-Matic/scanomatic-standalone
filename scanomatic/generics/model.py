@@ -174,7 +174,7 @@ class UnionModel(Model):
     def __getattr__(self, item):
         for model in self.__dict__[UnionModel._MODELS_KEY]:
             if item in model:
-                return  getattr(model, item)
+                return getattr(model, item)
 
         raise AttributeError("Unknown attribute {0} in {1}".format(item, self))
 

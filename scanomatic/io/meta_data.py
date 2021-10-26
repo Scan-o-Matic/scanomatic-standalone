@@ -14,9 +14,7 @@ except ImportError:
 import scanomatic.io.logger as logger
 
 
-
 class DataLoader:
-
     _SUFFIXES = []
 
     def __init__(self, path):
@@ -54,7 +52,7 @@ class DataLoader:
 
     @staticmethod
     def _get_next_row(row):
-        raise NotImplemented
+        raise NotImplementedError
 
     def _get_empty_headers(self):
         return [None for _ in range(self._columns[self._sheet])]
@@ -418,7 +416,7 @@ class MetaData2:
             outer, inner = map(
                 sum,
                 zip(*(
-                    (o*2**l, i*2**l) for l, (o, i) in
+                    (o*2**line, i*2**line) for line, (o, i) in
                     enumerate(self._loading_offset)
                 ))
             )

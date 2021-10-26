@@ -115,7 +115,7 @@ def get_perfect_frequency(best_measures, guess_frequency, tollerance=0.15):
 
 def get_perfect_frequency2(best_measures, guess_frequency, tollerance=0.15):
 
-    where_measure = np.where(best_measures == True)[0]
+    where_measure = np.where(best_measures == True)[0]  # noqa: E712
     if where_measure.size < 1:
         return guess_frequency
 
@@ -168,14 +168,15 @@ def get_best_offset(n, measures, frequency=None):
 
     if sum(measures.shape) == 0:
         _logger.warning(
-            "No spikes where passed, so best offset can't be found.")
+            "No spikes where passed, so best offset can't be found.",
+        )
         return None
 
     if n > measures.size:
         n = measures.size
 
     if measures.max() == 1:
-        m_where = np.where(measures == True)[0]
+        m_where = np.where(measures == True)[0]  # noqa: E712
     else:
         m_where = measures
 
@@ -190,8 +191,8 @@ def get_best_offset(n, measures, frequency=None):
 
         for m in m_where:
 
-            #IMPROVE THIS ONE...
-            #n_signal_dist is peak index of the closest signal peak
+            # IMPROVE THIS ONE...
+            # n_signal_dist is peak index of the closest signal peak
             n_signal_dist = np.round((m - offset) / float(frequency))
 
             signal_diff = offset + frequency * n_signal_dist - m
@@ -201,8 +202,8 @@ def get_best_offset(n, measures, frequency=None):
                 quality.append(0)
         dist_results.append(np.sum(np.sort(np.asarray(quality))[:n]))
 
-    #print np.argsort(np.asarray(dist_results))
-    #print np.sort(np.asarray(dist_results))
+    # print np.argsort(np.asarray(dist_results))
+    # print np.sort(np.asarray(dist_results))
     return np.asarray(dist_results).argmin()
 
 
@@ -231,7 +232,7 @@ def get_spike_quality(measures, n=None, offset=None, frequency=None):
     if frequency is None:
         frequency = get_signal_frequency(measures)
 
-    if offset is None and n != None:
+    if offset is None and n is not None:
         offset = get_best_offset(n, measures, frequency)
 
     if offset is None:
@@ -241,7 +242,7 @@ def get_spike_quality(measures, n=None, offset=None, frequency=None):
     quality_results = []
 
     for m in measures:
-        #n_signal_dist is peak number of the closest signal peak
+        # n_signal_dist is peak number of the closest signal peak
         n_signal_dist = np.round((m - offset) / frequency)
 
         quality_results.append((m - offset + frequency * n_signal_dist) ** 2)
@@ -293,7 +294,7 @@ def get_true_signal(
         offset = get_best_offset(n, measures, frequency)
 
     if measures.max() == 1:
-        m_array = np.where(np.asarray(measures) == True)[0]
+        m_array = np.where(np.asarray(measures) == True)[0]  # noqa: E712
     else:
         m_array = np.asarray(measures)
 
@@ -363,7 +364,7 @@ def get_true_signal(
             start_position_qualities.append(0)
         start_peak += 1
 
-    #If there simply isn't anything that looks good, the we need to stop here.
+    # If there simply isn't anything that looks good, the we need to stop here.
     if len(start_position_qualities) == 0:
         return None
 
@@ -426,7 +427,7 @@ def get_center_of_spikes(spikes):
 
 
 def get_spike_distances(spikes):
-    spikes_where = np.where(spikes == True)[0]
+    spikes_where = np.where(spikes == True)[0]  # noqa: E712
     if spikes_where.size == 0:
         return np.array([])
 
@@ -582,7 +583,7 @@ def get_closest_signal_pair(s1, s2, s1_value=-1, s2_value=1):
     s1_positions = np.where(s1 == s1_value)[0]
     s2_positions = np.where(s2 == s2_value)[0]
 
-    #Match all
+    # Match all
     signals = list()
     for p in s1_positions:
         tmp_diff = s2_positions - p
@@ -609,7 +610,7 @@ def get_signal_spikes(down_slopes, up_slopes):
     #     down_slopes.astype(np.int) * -1 + up_slopes.astype(np.int)
     # )
 
-    #Edge-detect so that signal start is >0 and signal end <0
+    # Edge-detect so that signal start is >0 and signal end <0
     kernel = np.array([-1, 1])
     d_down = np.round(
         signal.fftconvolve(down_slopes, kernel, mode='same'),
@@ -653,14 +654,14 @@ def _get_orphans(X, shortX):
 
 
 def get_offset_quality(s, offset, expected_spikes, wl, raw_signal):
-    #Get the ideal signal from parameters
+    # Get the ideal signal from parameters
     ideal_signal = np.arange(expected_spikes) * wl + offset
 
     Z = _get_alt_closest(s, ideal_signal)
 
-    #Making arrays
-    #X  is s positions
-    #Y  is ideal_signal positions
+    # Making arrays
+    # X  is s positions
+    # Y  is ideal_signal positions
     X = Z[0::2]
     Y = Z[1::2]
 
@@ -687,28 +688,28 @@ def _get_wave_length_and_errors(s, expected_spikes):
     # Scaled to proxy step sizes
     bis_proxy_step = diff.diagonal(offset=-2) / 2.0
 
-    #Getting wl from IQR-mean of proximate signal step lengths
+    # Getting wl from IQR-mean of proximate signal step lengths
     ps_order = proxy_step.argsort()
     wl = proxy_step[ps_order[ps_order.size / 4: ps_order.size * 3 / 4]].mean()
 
-    #Get the errors in step sizes
+    # Get the errors in step sizes
     ps_error = np.abs(proxy_step - wl)
     bps_error = np.abs(bis_proxy_step - wl)
 
-    #Extend bps-error so it has equal size as ps_error
+    # Extend bps-error so it has equal size as ps_error
     bps_error = np.r_[bps_error, ps_error[-1]]
 
-    #Get the best mesure (In other words, let one vary in size)
+    # Get the best mesure (In other words, let one vary in size)
     s_error = np.c_[ps_error, bps_error].min(1)
 
     return wl, s_error
 
 
 def _insert_spikes_where_missed(s, s_error, expected_spikes, wl):
-    #Get distances in terms of k waves:
+    # Get distances in terms of k waves:
     k_wave_d = np.arange(expected_spikes) * wl
 
-    #Investigate if a spike seems to be missed?
+    # Investigate if a spike seems to be missed?
     insert_spikes = np.abs(
         np.subtract.outer(s_error, k_wave_d),
     ).argmin(axis=1)
@@ -731,7 +732,7 @@ def _insert_spikes_where_missed(s, s_error, expected_spikes, wl):
 
 def _remove_false_inter_spikes(s, expected_spikes, wl):
 
-    #Get distances in terms of k waves:
+    # Get distances in terms of k waves:
     k_wave_d = np.arange(expected_spikes) * wl
     steps = np.abs(np.subtract.outer(
         np.abs(np.subtract.outer(s, s)),
@@ -788,13 +789,15 @@ def _get_candidate_validation(s, s_error, expected_spikes, raw_signal):
         if s_val[g_order[pos]] == 0:
             eval_s_val = s_val.copy()
             eval_s_val[g_order[pos]] = True
-            es_true_range = np.where(eval_s_val == True)[0][tmp_2_slice]
+            es_true_range = np.where(
+                eval_s_val == True,  # noqa: E712
+            )[0][tmp_2_slice]
             eval_s_val[es_true_range[0]: es_true_range[1] + 1] = True
             if eval_s_val.sum() < expected_spikes:
                 s_val = eval_s_val
         pos += 1
 
-    sb = np.where(s_val == True)[0][tmp_2_slice]
+    sb = np.where(s_val == True)[0][tmp_2_slice]  # noqa: E712
     if sb[1] == s_val.size - 1:
         s_val[sb[0] - 1] = True
     else:

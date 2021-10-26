@@ -100,7 +100,10 @@ class CompileProjectFactory(AbstractModelFactory):
     }
 
     @classmethod
-    def create(cls, **settings) -> compile_project_model.CompileInstructionsModel:
+    def create(
+        cls,
+        **settings,
+    ) -> compile_project_model.CompileInstructionsModel:
         return super(CompileProjectFactory, cls).create(**settings)
 
     @classmethod
@@ -123,14 +126,18 @@ class CompileProjectFactory(AbstractModelFactory):
 
         image_path = os.path.join(path, "*.tiff")
 
-        images = [{'path': p, 'index': i} for i, p in enumerate(sorted(glob.glob(image_path)))]
+        images = [
+            {'path': p, 'index': i}
+            for i, p in enumerate(sorted(glob.glob(image_path)))
+        ]
 
         return cls.to_dict(cls.create(
             compile_action=compile_action.name,
             images=images,
-            fixture_type=
+            fixture_type=(
                 is_local and compile_project_model.FIXTURE.Local.name
-                or compile_project_model.FIXTURE.Global.name,
+                or compile_project_model.FIXTURE.Global.name
+            ),
             fixture_name=fixture,
             path=path,
             **kwargs,

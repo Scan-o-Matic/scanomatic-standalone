@@ -149,7 +149,7 @@ def growth_curve_doublings(curve_smooth_growth_data, *args, **kwargs):
 def residual_growth(curve_smooth_growth_data, *args, **kwargs):
     return (
         curve_end_average(curve_smooth_growth_data)
-        -  population_size_at_generation_time(
+        - population_size_at_generation_time(
             curve_smooth_growth_data=curve_smooth_growth_data,
             index=_get_generation_time_index(
                 kwargs['derivative_values_log2'],

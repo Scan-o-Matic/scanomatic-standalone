@@ -161,10 +161,12 @@ def assign_common_phase_phenotypes(
     # D. Get Population Doublings
     current_phase_phenotypes[CurvePhasePhenotypes.PopulationDoublings] = (
         (
-            (model.log2_curve[right - 1]
+            model.log2_curve[right - 1]
             + model.log2_curve[min(right, model.log2_curve.size - 1)]
         ) / 2
-        - (model.log2_curve[left] + model.log2_curve[max(0, left - 1)]) / 2)
+        - (
+            model.log2_curve[left] + model.log2_curve[max(0, left - 1)]
+        ) / 2
     )
 
     # E. Get Yield
@@ -237,7 +239,8 @@ def assign_non_linear_phase_phenotypes(
         CurvePhasePhenotypes.AsymptoteIntersection
     ] = (i_x - time_left) / (time_right - time_left)
 
-    # Taking k2 - k1 here should imply positive values for Counter Clock-Wise rotations
+    # Taking k2 - k1 here should imply positive values for Counter Clock-Wise
+    # rotations
 
     if (
         not np.isfinite(k1)
@@ -256,7 +259,8 @@ def assign_non_linear_phase_phenotypes(
         ] = np.arctan2(k2, 1) - np.arctan2(k1, 1)
 
         if (
-            current_phase_phenotypes[CurvePhasePhenotypes.AsymptoteAngle] > np.pi
+            current_phase_phenotypes[CurvePhasePhenotypes.AsymptoteAngle]
+            > np.pi
         ):
             current_phase_phenotypes[CurvePhasePhenotypes.AsymptoteAngle] = (
                 2 * np.pi

@@ -7,7 +7,6 @@ from io import StringIO
 from subprocess import PIPE, Popen, call
 
 import requests
-from requests.sessions import TooManyRedirects
 
 from scanomatic import get_version
 
@@ -100,6 +99,7 @@ def _manual_git_branch_test() -> Optional[str]:
     except (IOError, IndexError, TypeError):
         return None
 
+
 @_git_root_navigator
 def is_under_git_control(path) -> bool:
     try:
@@ -119,9 +119,9 @@ def get_active_branch(path) -> Optional[str]:
         branch = _manual_git_branch_test()
     else:
         branch = "master"
-        for l in o.split("\n"):
-            if l.startswith("*"):
-                branch = l.strip("* ")
+        for line in o.split("\n"):
+            if line.startswith("*"):
+                branch = line.strip("* ")
                 break
 
     return branch
@@ -341,7 +341,6 @@ def increase_version(version) -> Tuple[int, ...]:
 
 
 def get_minor_release_version(current_version) -> Tuple[int, ...]:
-
     current_version = list(current_version[:2])
     if len(current_version) == 0:
         return [0, 1]
@@ -351,8 +350,8 @@ def get_minor_release_version(current_version) -> Tuple[int, ...]:
         current_version[-1] += 1
         return current_version
 
-def get_major_release_version(current_version) -> Tuple[int, ...]:
 
+def get_major_release_version(current_version) -> Tuple[int, ...]:
     current_version = list(current_version[:1])
     if len(current_version):
         return [current_version[0] + 1]

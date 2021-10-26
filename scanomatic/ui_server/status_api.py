@@ -1,7 +1,5 @@
 from flask import jsonify
 
-from scanomatic.io.paths import Paths
-
 from .general import convert_path_to_url, json_abort
 
 

@@ -1,7 +1,6 @@
 import glob
 import os
 import re
-import time
 from types import StringTypes
 
 import numpy as np
@@ -166,15 +165,15 @@ def animate_marker_positions(
     def make_cutout(img, pos_y, pos_x):
         cutout = np.zeros((slice_size, slice_size), dtype=np.float) * np.nan
         cutout[
-            abs(min(pos_x - half_slice_size, 0))
-            : min(cutout.shape[0], img.shape[0] - pos_x),
-            abs(min(pos_y - half_slice_size, 0))
-            : min(cutout.shape[1], img.shape[1] - pos_y)
+            abs(min(pos_x - half_slice_size, 0)):
+            min(cutout.shape[0], img.shape[0] - pos_x),
+            abs(min(pos_y - half_slice_size, 0)):
+            min(cutout.shape[1], img.shape[1] - pos_y)
         ] = img[
-            max(pos_x - half_slice_size, 0)
-            : min(pos_x + half_slice_size + 1, img.shape[0]),
-            max(pos_y - half_slice_size, 0)
-            : min(pos_y + half_slice_size + 1, img.shape[1])
+            max(pos_x - half_slice_size, 0):
+            min(pos_x + half_slice_size + 1, img.shape[0]),
+            max(pos_y - half_slice_size, 0):
+            min(pos_y + half_slice_size + 1, img.shape[1])
         ]
         return cutout
 

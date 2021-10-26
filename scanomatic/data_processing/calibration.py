@@ -362,11 +362,11 @@ def get_local_fixture_for_image(identifier, image_identifier):
 
 @_validate_ccc_edit_request
 def save_image_slices(
-        identifier,
-        image_identifier,
-        grayscale_slice=None,
-        plate_slices=None,
-    ):
+    identifier,
+    image_identifier,
+    grayscale_slice=None,
+    plate_slices=None,
+):
 
     im = load_image_to_numpy(
         Paths().ccc_image_pattern.format(identifier, image_identifier),
@@ -602,10 +602,10 @@ def _collect_all_included_data(ccc):
     target_value = []
 
     for _, image_data in enumerate(ccc[CellCountCalibration.images]):
-
         for _, plate in list(image_data[CCCImage.plates].items()):
-
-            for colony_data in list(plate[CCCPlate.compressed_ccc_data].values()):
+            for colony_data in list(
+                plate[CCCPlate.compressed_ccc_data].values(),
+            ):
 
                 source_value_counts.append(
                     colony_data[CCCMeasurement.source_value_counts],

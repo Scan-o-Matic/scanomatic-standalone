@@ -68,7 +68,7 @@ class AnalysisModel(model.Model):
         grid_images=None,
         grid_model: Optional["GridModel"] = None,
         image_data_output_item: COMPARTMENTS = COMPARTMENTS.Blob,
-        image_data_output_measure: MEASURES  = MEASURES.Sum,
+        image_data_output_measure: MEASURES = MEASURES.Sum,
         chain: bool = True,
         plate_image_inclusion=None,
         cell_count_calibration=None,
@@ -152,7 +152,7 @@ class AnalysisMetaData(model.Model):
 
 
 class AnalysisFeatures(model.Model):
-    def __init__(self, index: int =-1, data=None, shape=tuple()):
+    def __init__(self, index: int = -1, data=None, shape=tuple()):
         self.data = data
         self.shape = shape
         self.index: int = index

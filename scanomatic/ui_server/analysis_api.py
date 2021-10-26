@@ -6,7 +6,10 @@ from flask import jsonify, request
 
 from scanomatic.image_analysis.grid_array import GridArray
 from scanomatic.io.paths import Paths
-from scanomatic.models.analysis_model import AnalysisModel, DefaultPinningFormats
+from scanomatic.models.analysis_model import (
+    AnalysisModel,
+    DefaultPinningFormats
+)
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.ui_server.general import (
     convert_path_to_url,

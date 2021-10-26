@@ -74,6 +74,7 @@ class SCAN_FLAGS(Enum):
     ListScanners = '-L'
     ProgramVersion = '-V'
 
+
 """These are default settings that will be overwritten from file.
 They will be deprecated in a futre version.
 """

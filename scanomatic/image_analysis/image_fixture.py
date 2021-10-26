@@ -141,7 +141,7 @@ class FixtureImage:
             """
 
             x = np.arange(0, size, 1, float)
-            y = x[:,np.newaxis]
+            y = x[:, np.newaxis]
 
             x0 = center[1]
             y0 = center[0]
@@ -152,8 +152,10 @@ class FixtureImage:
             image_slice = conv_img
         else:
             image_slice = conv_img[
-                int(round(coordinates['d0_min'])): int(round(coordinates['d0_max'])),
-                int(round(coordinates['d1_min'])): int(round(coordinates['d1_max']))
+                int(round(coordinates['d0_min'])):
+                int(round(coordinates['d0_max'])),
+                int(round(coordinates['d1_min'])):
+                int(round(coordinates['d1_max']))
             ]
         gauss_size = max(image_slice.shape)
         gauss = make_2d_guass_filter(
@@ -196,7 +198,7 @@ class FixtureImage:
 
         hit = np.array((hit[0][0], hit[1][0]), dtype=float)
 
-        #Zeroing out hit
+        # Zeroing out hit
         half_stencil_size = [x / 2.0 for x in stencil_size]
 
         coordinates = {
@@ -208,8 +210,7 @@ class FixtureImage:
 
         for _ in range(max_refinement_iterations):
             offset = FixtureImage.get_hit_refined(
-                hit - (coordinates['d0_min'],
-                coordinates['d1_min']),
+                hit - (coordinates['d0_min'], coordinates['d1_min']),
                 conv_img,
                 coordinates,
                 refine_hit_gauss_weight_size_fraction
@@ -238,7 +239,6 @@ class FixtureImage:
         ] = conv_img.min() - 1
         return hit, conv_img
 
-
     def get_best_locations(
         self,
         conv_img,
@@ -254,7 +254,7 @@ class FixtureImage:
         i = 0
         try:
             n = int(n)
-        except:
+        except Exception:
             n = 3
 
         while i < n:

@@ -150,9 +150,11 @@ def get_para_trimmed_slice(
         acceptable_placement += kernel_size[0] / 2
 
         return im_ortho_trimmed[
-            int(round(max(0, acceptable_placement - buffered_half_length)))
-            : int(round(min(im_ortho_trimmed.shape[0],
-            acceptable_placement + buffered_half_length)))
+            int(round(max(0, acceptable_placement - buffered_half_length))):
+            int(round(min(
+                im_ortho_trimmed.shape[0],
+                acceptable_placement + buffered_half_length,
+            )))
         ]
 
     return im_ortho_trimmed
@@ -329,7 +331,7 @@ def detect_grayscale(im_trimmed, grayscale):
 
             if edges.size != grayscale['sections'] + 1:
                 _logger.error(
-                    "Number of edges doesn't correspond to the grayscale segments ({0}!={1})".format(
+                    "Number of edges doesn't correspond to the grayscale segments ({0}!={1})".format(  # noqa: E501
                         edges.size,
                         grayscale['sections'] + 1,
                     ),
@@ -346,7 +348,10 @@ def detect_grayscale(im_trimmed, grayscale):
             _logger.info("GRAYSCALE: Got signal with new method")
 
             # CHECKING OVERFLOWS
-            if grayscale_segment_centers[0] - frequency * NEW_SAFETY_PADDING < 0:
+            if (
+                grayscale_segment_centers[0] - frequency * NEW_SAFETY_PADDING
+                < 0
+            ):
                 grayscale_segment_centers += frequency
             if (
                 grayscale_segment_centers[-1] + frequency * NEW_SAFETY_PADDING
@@ -413,7 +418,7 @@ def detect_grayscale(im_trimmed, grayscale):
 
     else:
         _logger.warning(
-            "Skipped new method, threshold not met ({0} > {1}; slice {2})".format(
+            "Skipped new method, threshold not met ({0} > {1}; slice {2})".format(  # noqa: E501
                 gs_l_diff,
                 NEW_GS_ALG_L_DIFF_T,
                 rect,
@@ -500,7 +505,10 @@ def detect_grayscale(im_trimmed, grayscale):
             if left < 0:
                 left = 0
 
-            right = grayscale_segment_centers[-1] + 0.5 * frequency * SAFETY_COEFF
+            right = (
+                grayscale_segment_centers[-1]
+                + 0.5 * frequency * SAFETY_COEFF
+            )
 
             if right >= im_trimmed.shape[0]:
                 right = im_trimmed.shape[0] - 1

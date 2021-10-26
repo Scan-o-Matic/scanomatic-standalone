@@ -8,7 +8,11 @@ import numpy as np
 import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 from scanomatic.io.pickler import unpickle_with_unpickler
-from scanomatic.models.analysis_model import COMPARTMENTS, MEASURES, AnalysisModel
+from scanomatic.models.analysis_model import (
+    COMPARTMENTS,
+    MEASURES,
+    AnalysisModel
+)
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _SECONDS_PER_HOUR = 60.0 * 60.0
@@ -244,8 +248,10 @@ class ImageData(object):
             new_data = [
                 (None if data[0][plate_index] is None else [])
                 for plate_index in range(
-                    max(scan.shape[0] for scan in data
-                    if isinstance(scan, np.ndarray))
+                    max(
+                        scan.shape[0] for scan in data
+                        if isinstance(scan, np.ndarray)
+                    )
                 )
             ]
         except ValueError:

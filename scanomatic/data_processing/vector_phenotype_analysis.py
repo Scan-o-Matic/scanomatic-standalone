@@ -42,13 +42,12 @@ def get_linearized_positions(data):
 
 def _resolve_neighbours_gauss(data):
     gauss = gaussian(data.shape[0] * 2, 3)
-    for coord in zip(*np.where(np.isfinite(data) == False)):
+    for coord in zip(*np.where(np.isfinite(data) == False)):  # noqa: E712
         data[coord] = np.ma.masked_invalid(
             data[
                 :,
-                coord[1]] * gauss[data.shape[0] - coord[0]:
-                gauss.shape[0] - coord[0]
-            ],
+                coord[1]
+            ] * gauss[data.shape[0] - coord[0]: gauss.shape[0] - coord[0]],
         ).mean()
 
     return data
@@ -85,14 +84,14 @@ def get_pca_components(
     dims=2,
 ):
     M = data.T.copy()
-    print((np.isfinite(M) == False).sum())
+    print((np.isfinite(M) == False).sum())  # noqa: E712
     M = _blank_missing_data(M)
-    print((np.isfinite(M) == False).sum())
+    print((np.isfinite(M) == False).sum())  # noqa: E712
     M = resolve_nans_method(M)
-    print((np.isfinite(M) == False).sum())
+    print((np.isfinite(M) == False).sum())  # noqa: E712
     _, s, Vt = np.linalg.svd(M, full_matrices=False)
     V = Vt.T
-    return tuple(s[dim]**(1./2) * V[:,dim] for dim in range(dims))
+    return tuple(s[dim]**(1./2) * V[:, dim] for dim in range(dims))
 
 
 @_ensure_indata

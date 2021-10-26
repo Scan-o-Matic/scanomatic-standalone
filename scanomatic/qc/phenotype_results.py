@@ -441,7 +441,7 @@ def plot_plate_phase_assigment_frequencies(phenotypes, plate):
     ax3.axis("off")
     ax3.legend(
         ax.lines + tax.lines,
-        [l.get_label() for l in ax.lines + tax.lines],
+        [line.get_label() for line in ax.lines + tax.lines],
         loc="center",
         fontsize='small',
         numpoints=1,
@@ -551,7 +551,7 @@ def plot_plate_phase_pop_size_variance_decomp(
         ax.set_ylabel("Log2 Population Size Variance for curves in phase")
         ax.legend(
             ax.lines + tax.lines,
-            [l.get_label() for l in ax.lines + tax.lines],
+            [line.get_label() for line in ax.lines + tax.lines],
             loc="upper right",
             fontsize='x-small',
             numpoints=1,
@@ -1196,7 +1196,7 @@ def animate_plate_over_time(
     @MovieWriter(save_target, fps=fps, fig=fig)
     def _animation():
 
-        if ax is None:
+        if ax is None:  # noqa: F823
             ax = fig.gca()
 
         im = ax.imshow(
@@ -1206,7 +1206,7 @@ def animate_plate_over_time(
             vmax=vmax,
             cmap=cmap,
         )
-
+        index = 0
         while index < plate.shape[-1]:
             im.set_data(plate[..., index])
             ax.set_title("Time {0}".format(index))
@@ -1421,7 +1421,7 @@ def plot_phase_segmentation_in_steps(
             f=f,
             deriv=model.dydt if plot_deriv else None,
             plot_legend=False,
-            set_labels=i==0,
+            set_labels=i == 0,
             **kwargs,
         )
 

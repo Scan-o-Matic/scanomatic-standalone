@@ -44,7 +44,7 @@ class Resource_Status:
 
         cpuOK = (
             sum(free_cpus)
-            >= Resource_Status._APP_CONFIG.hardware_resource_limits.cpu_free_count
+            >= Resource_Status._APP_CONFIG.hardware_resource_limits.cpu_free_count  # noqa: E501
             and sum(100 - curCpu for curCpu in cur_cpus)
             > Resource_Status._APP_CONFIG.hardware_resource_limits.cpu_total_percent_free  # noqa: E501
         )

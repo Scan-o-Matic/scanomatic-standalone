@@ -242,7 +242,7 @@ class TestFinalizeEndpoint:
         )
         assert (
             json.loads(response.data)['reason'] == "Failed to activate ccc"
-        ), "POST when unfinished gave wrong reason {} (expected 'Failed to activate ccc')".format(
+        ), "POST when unfinished gave wrong reason {} (expected 'Failed to activate ccc')".format(  # noqa: E501
             json.loads(response.data)['reason'],
         )
         assert (
@@ -265,13 +265,13 @@ class TestFinalizeEndpoint:
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
-        ), "POST with bad token gave unexpected reason {} (expected '{}')".format(
+        ), "POST with bad token gave unexpected reason {} (expected '{}')".format(  # noqa: E501
             json.loads(response.data)['reason'],
             expected,
         )
         assert (
             response.status_code == 401
-        ), "POST with bad token gave unexpected response {} (expected 401)".format(
+        ), "POST with bad token gave unexpected response {} (expected 401)".format(  # noqa: E501
             response.status,
         )
 
@@ -289,11 +289,11 @@ class TestFinalizeEndpoint:
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
-        ), "POST with bad token gave unexpected reason {} (expected '{}')".format(
+        ), "POST with bad token gave unexpected reason {} (expected '{}')".format(  # noqa: E501
             json.loads(response.data)['reason'], expected)
         assert (
             response.status_code == 401
-        ), "POST with bad token gave unexpected response {} (expected 401)".format(
+        ), "POST with bad token gave unexpected response {} (expected 401)".format(  # noqa: E501
             response.status,
         )
 
@@ -314,13 +314,13 @@ class TestDeleteEndpoint:
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
-        ), "POST with bad token gave unexpected reason {0} (expected '{1}')".format(
+        ), "POST with bad token gave unexpected reason {0} (expected '{1}')".format(  # noqa: E501
             json.loads(response.data)['reason'],
             expected,
         )
         assert (
              response.status_code == 401
-        ), "POST with bad token gave unexpected response {} (expected 401)".format(
+        ), "POST with bad token gave unexpected response {} (expected 401)".format(  # noqa: E501
             response.status,
         )
 
@@ -418,13 +418,6 @@ class TestCompressCalibration:
     def set_colony_compressed_data(self):
         with mock.patch(
             'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data',  # noqa: E501
-        ) as function:
-            yield function
-
-    @pytest.fixture
-    def set_colony_compressed_data(self):
-        with mock.patch(
-            'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data'  # noqa: E501
         ) as function:
             yield function
 

@@ -53,7 +53,7 @@ def patch_image_file_names_by_interval(path, interval=20.0):
                 return
         else:
             _logger.info(
-                f"Skipping file '{i}' since it doesn't seem to belong in project",
+                f"Skipping file '{i}' since it doesn't seem to belong in project",  # noqa: E501
             )
 
     _logger.info("Will process {0} images".format(included_images))

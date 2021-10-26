@@ -106,7 +106,7 @@ def get_best_reference_for_experiments(
             ),
         )
         ravel_experiments = np.ma.masked_invalid(
-            plate[reference_position_filter == False].reshape(
+            plate[reference_position_filter == False].reshape(  # noqa: E712
                 reference_position_filter.size
                 - reference_position_filter.sum(),
                 plate.shape[-1],

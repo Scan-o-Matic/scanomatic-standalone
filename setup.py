@@ -96,7 +96,7 @@ if version_update:
 # Python-setup
 #
 
-from setup_tools import (
+from setup_tools import (  # noqa: E402
     MiniLogger,
     patch_bashrc_if_not_reachable,
     test_executable_is_reachable
@@ -146,7 +146,6 @@ if len(sys.argv) > 1:
                     install_dependencies,
                 ),
             )
-
 
     _logger.info("Non python dependencies done")
     _logger.info("Preparing setup parameters")
@@ -252,7 +251,9 @@ if len(sys.argv) > 1:
         requires=package_dependencies
     )
 
-    if set(v.lower() for v in sys.argv).intersection(('--help', '--help-commands')):
+    if set(v.lower() for v in sys.argv).intersection(
+        ('--help', '--help-commands'),
+    ):
 
         print("""
         SCAN-O-MATIC Specific Setup

@@ -5,7 +5,6 @@ from collections import namedtuple
 
 import mock
 import numpy as np
-from numpy.lib.twodim_base import triu_indices_from
 import pytest
 
 from scanomatic.data_processing import calibration
@@ -50,20 +49,20 @@ def test_poly_as_text():
 
 
 def test_get_calibration_polynomial_residuals():
-        colony_summer = calibration.get_calibration_optimization_function(2)
-        data = calibration.CalibrationData(
-            source_value_counts=[[10, 2], [3]],
-            source_values=[[1, 2], [3]],
-            target_value=np.array([100, 126]),
-        )
-        c1 = 0  # e^x = 1
-        c2 = EVAL_AS_ZERO  # e^x = 0
-        residuals = calibration.get_calibration_polynomial_residuals(
-            [c2, c1],
-            colony_summer,
-            data,
-        )
-        assert (residuals == (100.0 - 14.0, 126.0 - 9.0)).all()
+    colony_summer = calibration.get_calibration_optimization_function(2)
+    data = calibration.CalibrationData(
+        source_value_counts=[[10, 2], [3]],
+        source_values=[[1, 2], [3]],
+        target_value=np.array([100, 126]),
+    )
+    c1 = 0  # e^x = 1
+    c2 = EVAL_AS_ZERO  # e^x = 0
+    residuals = calibration.get_calibration_polynomial_residuals(
+        [c2, c1],
+        colony_summer,
+        data,
+    )
+    assert (residuals == (100.0 - 14.0, 126.0 - 9.0)).all()
 
 
 class TestGetCalibrationOptimizationFunction:
@@ -335,6 +334,7 @@ class TestEditCCC:
             ],
             rtol=0.01,
         )
+
 
 class TestActivateCCC:
     def test_has_selected_polynomial(self, finalizable_ccc):
@@ -656,7 +656,7 @@ class TestSaving:
         return_value=True,
     )
     @mock.patch('scanomatic.data_processing.calibration.save_ccc')
-    def test_add_image_to_ccc(self, save_mock, validator_mock, ccc):
+    def test_set_image_info_to_ccc(self, save_mock, validator_mock, ccc):
         assert calibration.set_image_info(
             ccc[calibration.CellCountCalibration.identifier],
             0,
@@ -693,8 +693,7 @@ class TestCCCEditValidator:
 
     def test_no_access_(self, ccc):
         assert not calibration._ccc_edit_validator(
-                ccc[calibration.CellCountCalibration.identifier
-            ],
+            ccc[calibration.CellCountCalibration.identifier],
         )
 
 

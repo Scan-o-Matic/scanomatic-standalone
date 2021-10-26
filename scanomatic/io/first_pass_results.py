@@ -5,7 +5,10 @@ from typing import Optional, Sequence
 
 from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
-from scanomatic.models.compile_project_model import CompileImageAnalysisModel, CompileInstructionsModel
+from scanomatic.models.compile_project_model import (
+    CompileImageAnalysisModel,
+    CompileInstructionsModel
+)
 from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory,
     CompileProjectFactory

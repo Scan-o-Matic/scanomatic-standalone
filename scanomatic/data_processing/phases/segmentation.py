@@ -439,12 +439,13 @@ def _validate_linear_non_flat_phase(model, elected, phase, thresholds):
         or elected.sum() < thresholds[Thresholds.NonFlatLinearMinimumLength]
     ):
         # if model.pos == (8, 3):
-        #     print("***Failed phase, too short ({3}, {4}) {0} / {1} < {2}".format(
-        #         phase,
-        #         elected.sum(),
-        #         thresholds[Thresholds.NonFlatLinearMinimumLength],
-        #         model.plate,
-        #         model.pos,
+        #     print(
+        #         "***Failed phase, too short ({3}, {4}) {0} / {1} < {2}".format(  # noqa: E501
+        #             phase,
+        #             elected.sum(),
+        #             thresholds[Thresholds.NonFlatLinearMinimumLength],
+        #             model.plate,
+        #             model.pos,
         #     ))
         return False
 
@@ -1042,8 +1043,8 @@ def get_barad_dur_towers(extension_lengths, filt, thresholds):
 
     arange = np.arange(filt.size)
     in_out_filt = np.zeros_like(filt)
-    for l, r in zip(lefts, rights):
-        in_out_filt = in_out_filt | ((arange >= l) & (arange <= r))
+    for left, right in zip(lefts, rights):
+        in_out_filt = in_out_filt | ((arange >= left) & (arange <= right))
 
     out_in_filt = (~ in_out_filt) & filt
     in_out_filt &= filt
@@ -1112,7 +1113,9 @@ def set_nonflat_linearity_segments(model, extension_lengths, thresholds):
                 ) > 0
                 filt[ext_elected] = False
 
-                model.phases[elected_padding] = CurvePhases.UndeterminedNonLinear.value
+                model.phases[elected_padding] = (
+                    CurvePhases.UndeterminedNonLinear.value
+                )
                 # print("***{1} Found segment, phases now {0}".format(
                 #     model.phases.data,
                 #     model.pos,

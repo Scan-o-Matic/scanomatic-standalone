@@ -99,7 +99,7 @@ def verify_outdata_directory(outdata_directory):
             try:
                 os.makedirs(outdata_directory)
                 dir_OK = True
-            except:
+            except Exception:
                 pass
         if not dir_OK:
             _logger.critical(
@@ -181,7 +181,7 @@ def print_progress_bar(fraction=0.0, size=40, start_time=None):
 def custom_traceback(excType, excValue, traceback):
     """Custom traceback function"""
 
-    #TODO: This is no good!
+    # TODO: This is no good!
 
     run_file_path = (
         "(sorry couldn't find the name,"
@@ -211,7 +211,7 @@ def get_run_will_do_something(
     meta_data,
     image_dictionaries,
 ):
-    #Verifying sanity of request: Suppression requires watching?
+    # Verifying sanity of request: Suppression requires watching?
     if suppress_analysis:
         if graph_watch is None or len(graph_watch) == 0:
             _logger.critical(

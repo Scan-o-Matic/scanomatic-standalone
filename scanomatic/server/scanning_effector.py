@@ -114,8 +114,8 @@ def som_mail_body_scan_fail(current_image: int) -> str:
         """This is an automated email, please don't reply!
 
 The project '{project_name}' on scanner {scanner} on """
-    + AppConfig().computer_human_name +
-        f" failed to scan image {current_image} "
+        + AppConfig().computer_human_name
+        + f" failed to scan image {current_image} "
         """ for '{project_name}'.
 
 All the best,
@@ -133,8 +133,8 @@ The project '{project_name}' on ''"""
         """' got an image of very small size.
 
 """
-    f"{path}:\t{size} bytes\n"
-    """
+        f"{path}:\t{size} bytes\n"
+        """
 
 Several reasons are probable:
 
@@ -161,7 +161,7 @@ The project '{project_name}' on ''"""
 
 """
         f"{path}:\t{size} bytes\n\n"
-        f"Previously, the largest size was {previous_size}, such deviations aren't expected."
+        f"Previously, the largest size was {previous_size}, such deviations aren't expected."  # noqa: E501
         """
 Several reasons are probable:
 
@@ -209,8 +209,10 @@ The project '{project_name} on ''"""
 launch the automatic analysis.
 
 """
-    f"Scanning estimated to end in {0:0.0f} minutes".format(seconds_left / 60.)
-    + """
+        + f"Scanning estimated to end in {0:0.0f} minutes".format(
+            seconds_left / 60.,
+        )
+        + """
 
 It's a great time to start preparing the next experiment.
 
@@ -318,17 +320,19 @@ class ScannerEffector(proc_effector.ProcessEffector):
 
         self._scanning_effector_data.compile_project_model = (
             compile_project_factory.CompileProjectFactory.create(
-                compile_action=COMPILE_ACTION.Initiate
+                compile_action=(
+                    COMPILE_ACTION.Initiate
                     if self._scanning_job.number_of_scans > 1
                     else COMPILE_ACTION.InitiateAndSpawnAnalysis
-                ,
+                ),
                 path=paths_object.get_original_compilation_path_from_scan_model(  # noqa: E501
                     self._scanning_job,
                 ),
                 fixture_type=FIXTURE.Global,
                 fixture_name=self._scanning_job.fixture,
-                cell_count_calibration_id=
+                cell_count_calibration_id=(
                     self._scanning_job.cell_count_calibration_id
+                ),
             )
         )
 
@@ -346,7 +350,8 @@ class ScannerEffector(proc_effector.ProcessEffector):
             sane.SaneBase.get_program_version()
         )
 
-        # NOTE: In actual scanning the scanner USB setting is prepended to the settings
+        # NOTE: In actual scanning the scanner USB setting is prepended to the
+        # settings
         self._scanning_job.scanning_program_params = (
             self._scanner.get_scan_instructions_as_tuple()
         )
@@ -371,8 +376,9 @@ class ScannerEffector(proc_effector.ProcessEffector):
         if run_time <= 0 or not self._allow_start:
             return 0.
         else:
-            # Actual duration is expected to be one less than the number of scans plus duration of first and last scan
-            # so adding 30 seconds to expected runtime
+            # Actual duration is expected to be one less than the number of
+            # scans plus duration of first and last scan so adding 30
+            # seconds to expected runtime
 
             return run_time / (
                 (self._scanning_job.number_of_scans - 1)
@@ -653,7 +659,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
         else:
             self._logger.warning(
                 "Giving up waiting for scan (taking too long, {0} min)".format(  # noqa: E501
-                self.scan_cycle_step_duration / 60.0,
+                    self.scan_cycle_step_duration / 60.0,
                 ),
             )
             return SCAN_STEP.NextMinor
@@ -778,7 +784,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
             if self._scanning_effector_data.warned_file_size is False:
                 self._scanning_effector_data.warned_file_size = True
                 self._mail(
-                "Scan-o-Matic: Project '{project_name}' got suspicious image",  # noqa: E501
+                    "Scan-o-Matic: Project '{project_name}' got suspicious image",  # noqa: E501
                     self._scanning_job,
                     som_mail_body_image_suspicious(
                         self._scanning_effector_data.current_image_path,
@@ -801,19 +807,20 @@ class ScannerEffector(proc_effector.ProcessEffector):
         return SCAN_STEP.NextMinor
 
     def _removed_current_image(self):
-
-            del self._scanning_effector_data.compile_project_model.images[-1]
-            try:
-                os.remove(self._scanning_effector_data.current_image_path)
-            except OSError:
-                pass
+        del self._scanning_effector_data.compile_project_model.images[-1]
+        try:
+            os.remove(self._scanning_effector_data.current_image_path)
+        except OSError:
+            pass
 
     def _do_verify_discspace(self):
 
         def get_free_space():
 
             try:
-                vfs = os.statvfs(self._scanning_job.directory_containing_project)
+                vfs = os.statvfs(
+                    self._scanning_job.directory_containing_project,
+                )
                 return vfs.f_frsize * vfs.f_bavail
             except OSError:
                 return 0
@@ -1008,4 +1015,6 @@ class ScannerEffector(proc_effector.ProcessEffector):
             path=path,
         )
 
-        self._scanning_effector_data.compile_project_model.images.append(image_model)
+        self._scanning_effector_data.compile_project_model.images.append(
+            image_model,
+        )

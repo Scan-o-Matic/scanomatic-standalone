@@ -6,7 +6,12 @@ from scanomatic.image_analysis import first_pass
 from scanomatic.io.app_config import Config as AppConfig
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.io.paths import Paths
-from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE, CompileImageModel, CompileInstructionsModel
+from scanomatic.models.compile_project_model import (
+    COMPILE_ACTION,
+    FIXTURE,
+    CompileImageModel,
+    CompileInstructionsModel
+)
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory,
@@ -280,8 +285,9 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             compile_instructions=self._compile_instructions_path,
             compilation=self._compile_job.path,
             email=self._compile_job.email,
-            cell_count_calibration_id=
-                self._compile_job.cell_count_calibration_id,
+            cell_count_calibration_id=(
+                self._compile_job.cell_count_calibration_id
+            ),
         )
 
         if self._compile_job.overwrite_pinning_matrices:

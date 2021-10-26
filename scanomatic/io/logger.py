@@ -279,7 +279,7 @@ class Logger:
         if (
             self._active
             and lvl <= self._level
-            and lvl in self._LOGLEVELS_TO_TEXT,
+            and lvl in self._LOGLEVELS_TO_TEXT
         ):
 
             output = self._active_log_file
@@ -423,7 +423,7 @@ class _ExtendedFileObject(file):
             time.sleep(0.01)
 
         if self._flush_buffer:
-            for l in obj:
+            for _ in obj:
                 self._cache.append(obj)
             self._buffer.remove(id)
             return
@@ -432,7 +432,7 @@ class _ExtendedFileObject(file):
         self._buffer.remove(id)
 
         super(_ExtendedFileObject, self).writelines(
-            [l if l.endswith("\n") else l + "\n" for l in obj],
+            [line if line.endswith("\n") else line + "\n" for line in obj],
         )
         self._semaphor = False
 

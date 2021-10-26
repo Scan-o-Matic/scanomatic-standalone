@@ -76,7 +76,7 @@ def string_parse_2d_list(data_string, dtype=float):
     parsed = [p2.findall(f) for f in p1.findall(data_string)]
     if all(len(p) == len(parsed[0]) for p in parsed):
         try:
-            return [[dtype(v) for v in l] for l in parsed]
+            return [[dtype(v) for v in item] for item in parsed]
         except ValueError:
             return []
 
@@ -291,7 +291,10 @@ def json_response(exits, data, success=True):
 
 def get_common_root_and_relative_paths(*file_list):
 
-    dir_list = set(tuple(os.path.dirname(f) if os.path.isfile(f) else f for f in file_list))
+    dir_list = set(tuple(
+        os.path.dirname(f) if os.path.isfile(f) else f
+        for f in file_list
+    ))
     common_test = zip(*(p.split(os.sep) for p in dir_list))
     root = ""
     for d_list in common_test:
@@ -313,8 +316,8 @@ def serve_zip_file(zip_name, *file_list):
     Code inspired by:
     http://stackoverflow.com/questions/2463770/python-in-memory-zip-library#2463818
 
-    The filesystem in the zip will use the deepest common denominator in the filelist
-    as its root.
+    The filesystem in the zip will use the deepest common denominator in the
+    filelist as its root.
 
     :param file_list: local paths
     :return: Flask sending of data
@@ -404,7 +407,7 @@ def get_image_data_as_array(image_data, reshape=None):
         except IOError:
             try:
                 s = pad_decode_base64(image_data)
-            except:
+            except Exception:
                 s = remove_pad_decode_base64(image_data)
             stream = io.StringIO()
             stream.write(s)
@@ -508,7 +511,7 @@ def split_areas_into_grayscale_and_plates(
 
 def serve_log_as_html(log_path, title):
     data = parse_log_file(log_path)
-    data['garbage'] = [l.replace("\n", "<br>") for l in data['garbage']]
+    data['garbage'] = [line.replace("\n", "<br>") for line in data['garbage']]
     for e in data['records']:
         e['message'] = e['message'].split("\n")
 

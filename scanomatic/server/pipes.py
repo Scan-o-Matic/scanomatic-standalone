@@ -16,23 +16,23 @@ class _PipeEffector:
 
         self._logger = logger.Logger(loggerName)
 
-        #The actual communications object
+        # The actual communications object
         self._pipe = pipe
 
-        #Calls this side accepts
+        # Calls this side accepts
         self._allowedCalls = dict()
 
-        #Calls that the other side will accept according to other side
+        # Calls that the other side will accept according to other side
         self._allowedRemoteCalls = None
 
-        #Flag indicating if other side is missing
+        # Flag indicating if other side is missing
         self._hasContact = True
 
-        #Sends that faild get stored here
+        # Sends that faild get stored here
         self._sendBuffer = []
 
-        #Calls that should trigger special reaction if pipe is not working
-        #Reaction will depend on if server or client side
+        # Calls that should trigger special reaction if pipe is not working
+        # Reaction will depend on if server or client side
         self._failVunerableCalls = []
 
         self._pid = os.getpid()
@@ -106,7 +106,9 @@ class _PipeEffector:
                     if (isinstance(response, dict) and
                             request == "status"):
                         self.send(request, **response)
-                        self._logger.info("Sent status response {0}".format(response))
+                        self._logger.info("Sent status response {0}".format(
+                            response,
+                        ))
                     else:
                         self.send(response[0], *response[1], **response[2])
                         self._logger.info("Sent response {0}".format(response))
@@ -208,7 +210,7 @@ class ParentPipeEffector(_PipeEffector):
 
 
 class ChildPipeEffector(_PipeEffector):
-    def __init__(self, pipe, procEffector: Optional[ProcessEffector]=None):
+    def __init__(self, pipe, procEffector: Optional[ProcessEffector] = None):
         super(ChildPipeEffector, self).__init__(
             pipe,
             loggerName="Child Pipe Effector",
@@ -225,7 +227,7 @@ class ChildPipeEffector(_PipeEffector):
         )
 
     def _failSend(self, callName, *args, **kwargs) -> bool:
-        #Not loose calls
+        # Not loose calls
         super(ChildPipeEffector, self)._failSend(callName, *args, **kwargs)
 
         if (callName in self._failVunerableCalls):

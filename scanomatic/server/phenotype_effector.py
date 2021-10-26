@@ -159,7 +159,7 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
                 )
 
             self._mail(
-                "Scan-o-Matic: Feature extraction of '{analysis_directory}' completed",
+                "Scan-o-Matic: Feature extraction of '{analysis_directory}' completed",  # noqa: E501
                 SOM_MAIL_BODY,
                 self._feature_job,
             )

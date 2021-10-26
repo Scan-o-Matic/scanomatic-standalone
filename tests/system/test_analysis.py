@@ -104,7 +104,6 @@ def test_post_analysis_job_request(scanomatic, browser):
     if payload.get('instructions'):
         assert False, (
             "Test environment is not clean. There's stuff in the output folder"
-            .format(payload)
         )
 
     browser.get(scanomatic + '/analysis')

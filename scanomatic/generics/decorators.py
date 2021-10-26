@@ -1,7 +1,6 @@
 import datetime
 import multiprocessing
 import time
-from functools import wraps
 from inspect import ismethod
 from threading import Thread
 
@@ -27,7 +26,7 @@ class _ClassPropertyDescriptor(property):
             cls = type(obj)
         ret = self._get_function.__get__(obj, cls)()
         ret.__doc__ = self._get_function.__doc__
-        return  ret
+        return ret
 
     def __set__(self, obj, value):
         if not self._set_function:
@@ -74,15 +73,14 @@ def class_property(func):
 
 
 def _get_id_tuple(f, args, kwargs, mark=object()):
-
-    l = [id(f)]
+    ids = [id(f)]
     for arg in args:
-        l.append(id(arg))
-    l.append(id(mark))
+        ids.append(id(arg))
+    ids.append(id(mark))
     for k, v in kwargs:
-        l.append(k)
-        l.append(id(v))
-    return tuple(l)
+        ids.append(k)
+        ids.append(id(v))
+    return tuple(ids)
 
 
 _MEMOIZED = {}

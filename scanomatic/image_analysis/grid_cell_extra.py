@@ -263,14 +263,16 @@ class CellItem:
                 try:
                     feature_data[MEASURES.IQR_Mean] = iqr_mean(feature_array)
                     # tmean(feature_array, feature_data['IQR'])
-                except:
+                except Exception:
                     feature_data[MEASURES.IQR_Mean] = None
                     feature_data[MEASURES.IQR] = None
 
             if MEASURES.Centroid in self._features_key_list:
                 try:
-                    feature_data[MEASURES.Centroid] = center_of_mass(self.filter_array)
-                except:
+                    feature_data[MEASURES.Centroid] = center_of_mass(
+                        self.filter_array,
+                    )
+                except Exception:
                     feature_data[MEASURES.Centroid] = None
 
             if MEASURES.Perimeter in self._features_key_list:
@@ -848,8 +850,8 @@ class Blob(CellItem):
                 if self.filter_array[
                     tuple(map(
                         int,
-                        list(map(round, centre_of_masses[item_label]),
-                    )))
+                        list(map(round, centre_of_masses[item_label]))
+                    ))
                 ]:
                     composite_blob.append(item_label)
 

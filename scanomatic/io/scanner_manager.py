@@ -50,7 +50,6 @@ class ScannerPowerManager(SingeltonOneInit):
 
         self._pm = self._get_power_manager(self._scanners)
 
-
     def __getitem__(self, item) -> ScannerModel:
         if isinstance(item, int):
             return self._scanners[item]

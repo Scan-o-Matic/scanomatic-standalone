@@ -1,9 +1,12 @@
 from typing import Dict
-from scanomatic.io.fixtures import FixtureSettings
 
 import scanomatic.io.logger as logger
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.models.compile_project_model import CompileImageAnalysisModel, CompileImageModel
+from scanomatic.io.fixtures import FixtureSettings
+from scanomatic.models.compile_project_model import (
+    CompileImageAnalysisModel,
+    CompileImageModel
+)
 from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory
 )
@@ -61,7 +64,7 @@ def _do_markers(
     _logger.info(f"Running marker analysis on {compile_analysis_model}")
     image.run_marker_analysis()
 
-    _logger.info("Marker analysis run".format(compile_analysis_model))
+    _logger.info("Marker analysis run")
     if compile_analysis_model.fixture.orientation_marks_x is None:
         raise MarkerDetectionFailed()
 

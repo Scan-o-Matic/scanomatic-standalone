@@ -37,7 +37,7 @@ _logger = Logger("Grayscale settings")
 def getGrayscales():
     try:
         _GRAYSCALE_CONFIGS.readfp(open(_GRAYSCALE_PATH, 'r'))
-    except:
+    except Exception:
         _logger.critical(
             "Settings for grayscales not found at: " + _GRAYSCALE_PATH)
     return _GRAYSCALE_CONFIGS.sections()
@@ -66,7 +66,7 @@ def getGrayscaleTargets(grayScaleName):
     targets = getGrayscale(grayScaleName)[_KEY_TARGETS]
     try:
         return _GRAYSCALE_VALUE_TYPES[_KEY_TARGETS](targets)
-    except:
+    except Exception:
         return targets
 
 
@@ -133,33 +133,32 @@ def validateFromData(name, source, target):
     if len(target) != len(source):
         return False
 
-    #A true grayscale is monotoniously increasing or decreasing
-    #Given that the fitted log2_curve is,
+    # A true grayscale is monotoniously increasing or decreasing
+    # Given that the fitted log2_curve is,
     #
     # y = a * x**3 + b * x**2 + c * x + d
     #
-    #and thus its derivative,
+    # and thus its derivative,
     #
     # dy/dx = 3 * a * x ** 2 + 2 * b * x + c
     #
-    #may not change sign for the range of interest. That is it must all
-    #be positive or all negative.
-    #
+    # may not change sign for the range of interest. That is it must all
+    # be positive or all negative.
 
-    #The polynomial coefficients are extracted
+    # The polynomial coefficients are extracted
     polyCoefficients = np.polyfit(target, source, 3)
-    #The derivative's coefficients calculated
+    # The derivative's coefficients calculated
     derivativeCoefficients = np.arange(4)[::-1] * polyCoefficients
-    #A numpy polynomial created from the derivative coefficients
+    # A numpy polynomial created from the derivative coefficients
     derivativePolynomial = np.poly1d(derivativeCoefficients)
-    #The sign of the derivative evaluated for the range of a 8bit image
-    #4 evaluations per step. It would probably do with less
+    # The sign of the derivative evaluated for the range of a 8bit image
+    # 4 evaluations per step. It would probably do with less
     derivativeValues = derivativePolynomial(np.linspace(0, 255, 1024))
-    #For all non-zero values, the check the sign
+    # For all non-zero values, the check the sign
     derivativeSigns = (
         derivativeValues[derivativeValues.nonzero()] > 0
     ).astype(np.bool)
-    #If either all are True OR if None are, the method returns True
+    # If either all are True OR if None are, the method returns True
     return derivativeSigns.all() or derivativeSigns.sum() == 0
 
 

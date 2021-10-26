@@ -154,11 +154,16 @@ def _get_lock_state(lock_time, lock_key, alt_key) -> LockState:
         return LockState.LockedByOther
 
 
-def _validate_lock_key(path, key="", ip="", require_claim=True) -> Tuple[LockState, Dict]:
+def _validate_lock_key(
+    path,
+    key="",
+    ip="",
+    require_claim=True,
+) -> Tuple[LockState, Dict]:
     if not key:
         key = ""
 
-    time_stamp, current_key, lock_ip = _read_lock_file(path)
+    time_stamp, current_key, _ = _read_lock_file(path)
     lock_state = _get_lock_state(time_stamp, current_key, key)
 
     if lock_state is LockState.Unlocked and (require_claim or key):
@@ -304,8 +309,10 @@ def add_routes(app):
                 project=project,
                 is_project=is_project,
                 project_name=name,
-                add_lock=convert_path_to_url("/api/results/lock/add", path)
-                    if is_project else None,
+                add_lock=(
+                    convert_path_to_url("/api/results/lock/add", path)
+                    if is_project else None
+                ),
                 remove_lock=convert_path_to_url(
                     "/api/results/lock/remove",
                     path,
@@ -338,14 +345,18 @@ def add_routes(app):
                     "/api/results/has_normalized",
                     path,
                 ) if is_project else None,
-                curves=convert_path_to_url("/api/results/curves", path)
-                    if is_project else None,
+                curves=(
+                    convert_path_to_url("/api/results/curves", path)
+                    if is_project else None
+                ),
                 quality_index=convert_path_to_url(
                     "/api/results/quality_index",
                     path,
                 ) if is_project else None,
-                gridding=convert_path_to_url("/api/results/gridding", path)
-                    if is_project else None,
+                gridding=(
+                    convert_path_to_url("/api/results/gridding", path)
+                    if is_project else None
+                ),
                 analysis_date=datetime.fromtimestamp(
                     analysis_date,
                     local_zone,
@@ -760,8 +771,10 @@ def add_routes(app):
                 ["urls"],
                 {
                     "urls": urls,
-                    "reason": "Phenotype not included"
-                        if pheno else "Unknown phenotype",
+                    "reason": (
+                        "Phenotype not included"
+                        if pheno else "Unknown phenotype"
+                    ),
                 },
                 **response,
             ))
@@ -824,8 +837,9 @@ def add_routes(app):
                 ["urls"],
                 {
                     "urls": urls,
-                    "reason": "Unknown phenotype"
-                        if did_supply_phenotype else "",
+                    "reason": (
+                        "Unknown phenotype" if did_supply_phenotype else ""
+                    ),
                 },
                 **response,
             ))
@@ -1272,7 +1286,7 @@ def add_routes(app):
         "/api/results/curve_mark/set/<mark>/<phenotype>/<int:plate>/<int:d1_row>/<int:d2_col>/<path:project>",  # noqa: E501
     )
     @app.route(
-        "/api/results/curve_mark/set/<mark>/<phenotype>/<int:plate>/<path:project>",
+        "/api/results/curve_mark/set/<mark>/<phenotype>/<int:plate>/<path:project>",  # noqa: E501
         methods=["POST", "GET"],
     )
     @app.route("/api/results/curve_mark/set/<path:project>")
@@ -1783,8 +1797,8 @@ def add_routes(app):
             response['success'] = False
             return jsonify(
                 reason=f"Bad offset name {offset}",
-                **json_response(["urls"], dict(urls=urls, **response),
-            ))
+                **json_response(["urls"], dict(urls=urls, **response)),
+            )
 
         state.set_control_surface_offsets(offset, plate)
         state.save_state(path, ask_if_overwrite=False)

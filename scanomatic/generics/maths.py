@@ -17,7 +17,7 @@ def mid50_mean(data):
     if not isinstance(data, np.ma.masked_array):
         data = np.ma.masked_invalid(data)
 
-    data = data.data[data.mask == False]
+    data = data.data[data.mask == False]  # noqa: E712
     center_points = int(np.floor(data.size * 0.5))
     flank = int(np.floor((data.size - center_points) / 2))
     data.sort()
@@ -29,7 +29,7 @@ def quantiles_stable(data):
     if not isinstance(data, np.ma.masked_array):
         data = np.ma.masked_invalid(data)
 
-    data = data[data.mask == False]
+    data = data[data.mask == False]  # noqa: E712
     threshold = int(np.floor(data.size * 0.25))
     data.sort()
     return data[threshold], data[-threshold]

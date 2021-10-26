@@ -59,10 +59,10 @@ class COMPILE_STATE(Enum):
 class ScanningAuxInfoModel(model.Model):
     def __init__(
         self,
-        stress_level = -1,
+        stress_level=-1,
         plate_storage: PLATE_STORAGE = PLATE_STORAGE.Unknown,
         plate_age: float = -1.0,
-        pinning_project_start_delay: Union[int, float] =-1,
+        pinning_project_start_delay: Union[int, float] = -1,
         precultures=-1,
         culture_freshness=-1,
         culture_source: CULTURE_SOURCE = CULTURE_SOURCE.Unknown,
@@ -91,7 +91,7 @@ class ScanningModel(model.Model):
         description: str = "",
         email: str = "",
         pinning_formats: Tuple[Tuple[int, int], ...] = tuple(),
-        fixture: str=  "",
+        fixture: str = "",
         scanner: int = 1,
         scanner_hardware: str = "EPSON V700",
         mode: str = "TPU",
@@ -133,9 +133,9 @@ class PlateDescription(model.Model):
         self,
         name: str = '',
         index: int = -1,
-        description: str= '',
+        description: str = '',
     ):
-        if name is '':
+        if name == '':
             name = "Plate {0}".format(index + 1)
         self.name: str = name
         self.index: int = index

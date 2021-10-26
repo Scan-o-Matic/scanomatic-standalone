@@ -14,7 +14,7 @@ class FeaturesModel(model.Model):
         self,
         analysis_directory: str = "",
         email: str = "",
-        extraction_data:FeatureExtractionData = FeatureExtractionData.Default,
+        extraction_data: FeatureExtractionData = FeatureExtractionData.Default,
         try_keep_qc: bool = False,
     ):
 

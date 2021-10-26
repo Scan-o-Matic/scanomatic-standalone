@@ -122,16 +122,17 @@ class StrainSelector:
 
         return np.array(
             tuple(
-                tuple(phenotypes[p][i]
-                for p in self.__phenotyper.analysed_phenotypes)
-                for i, _ in enumerate(self.__selection)
+                tuple(
+                    phenotypes[p][i] for p in
+                    self.__phenotyper.analysed_phenotypes
+                ) for i, _ in enumerate(self.__selection)
             ),
         )
 
     @property
     def vector_phenotypes(self):
         # TODO: something here
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @property
     def meta_data(self):

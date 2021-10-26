@@ -5,7 +5,7 @@ import re
 import numpy as np
 from matplotlib import pyplot as plt
 # This import is used in 3D plotting just not explicitly stupid matplotlib
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 from scanomatic.generics.maths import mid50_mean
 from scanomatic.io.image_data import ImageData
@@ -72,8 +72,7 @@ def plot_growth_curve(growth_data, position, ax=None, save_target=None):
 
     ax.semilogy(
         times,
-        data[position[0]][position[1],
-        position[2]],
+        data[position[0]][position[1], position[2]],
         "g-",
         basey=2,
     )

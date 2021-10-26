@@ -48,7 +48,7 @@ class Jobs(SingeltonOneInit):
             if job.id == key:
                 return job
             else:
-                self._logger.info("{0}!={1}".format(job,id, key))
+                self._logger.info("{0}!={1}".format(job.id, key))
 
         self._logger.warning("Unknown job {0} requested".format(key))
         return None
@@ -71,7 +71,7 @@ class Jobs(SingeltonOneInit):
                 )
         else:
             self._logger.warning(
-                "Can't delete job {0} as it does not exist, I only know of {2}".format(  # noqa: E501
+                "Can't delete job {0} as it does not exist, I only know of {1}".format(  # noqa: E501
                     job,
                     list(self._jobs.keys()),
                 ),
@@ -174,7 +174,7 @@ class Jobs(SingeltonOneInit):
                     )
                 else:
                     self._logger.info(
-                        "Waiting for actual USB assignment on request from {0}".format(
+                        "Waiting for actual USB assignment on request from {0}".format(  # noqa: E501
                             scanner.owner.id,
                         ),
                     )

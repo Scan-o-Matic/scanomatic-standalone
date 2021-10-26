@@ -2,14 +2,18 @@ import os
 from subprocess import call
 from threading import Thread
 from time import sleep
-from typing import Dict, List, Optional
+from typing import Dict
 
 import numpy as np
-from scanomatic.io.first_pass_results import CompilationResults
 
+from scanomatic.io.first_pass_results import CompilationResults
 from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
-from scanomatic.models.analysis_model import IMAGE_ROTATIONS, AnalysisFeatures, AnalysisModel
+from scanomatic.models.analysis_model import (
+    IMAGE_ROTATIONS,
+    AnalysisFeatures,
+    AnalysisModel
+)
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 from scanomatic.models.factories.analysis_factories import (
     AnalysisFeaturesFactory
@@ -124,7 +128,10 @@ class ProjectImage:
             ):
                 if i not in self._grid_arrays or i < 0 or i >= platewise_len:
                     if platewise_len > i > 0:
-                        if self._analysis_model.plate_image_inclusion[i] is not None:
+                        if (
+                            self._analysis_model.plate_image_inclusion[i]
+                            is not None
+                        ):
                             self._logger.warning(
                                 f"There's a image selection for plate index {i}, but this plate does not exist",  # noqa: E501
                             )
@@ -283,16 +290,18 @@ class ProjectImage:
 
                     if not self._grid_arrays[index].set_grid(
                         im,
-                        analysis_directory=
-                            self._analysis_model.output_directory,
-                        offset=
+                        analysis_directory=(
+                            self._analysis_model.output_directory
+                        ),
+                        offset=(
                             self._analysis_model.grid_model.gridding_offsets[
                                 index
-                            ],
+                            ]
+                        ),
                         grid=os.path.join(
                             reference_folder,
                             Paths().grid_pattern.format(index + 1),
-                        )
+                        ),
                     ):
 
                         self._logger.error(
@@ -305,8 +314,9 @@ class ProjectImage:
                         target=self._grid_arrays[index].detect_grid,
                         args=(im,),
                         kwargs=dict(
-                            analysis_directory=
-                            self._analysis_model.output_directory
+                            analysis_directory=(
+                                self._analysis_model.output_directory
+                            ),
                         )
                     )
                     t.start()
@@ -334,9 +344,13 @@ class ProjectImage:
                     self._analysis_model.compilation,
                 ),
             ])
-        else :
+        else:
 
-            self._logger.warning("No gridding done for plates {0} because image not loaded.".format(plate_indices))
+            self._logger.warning(
+                "No gridding done for plates {0} because image not loaded.".format(  # noqa: E501
+                    plate_indices,
+                ),
+            )
 
         return True
 
@@ -479,8 +493,8 @@ class ProjectImage:
         self._grid_corrections = np.array((d1, d2))
 
     def clear_features(self):
-        for grid_array in self._grid_arrays.values():
-            grid_array.clear_features()
+        for grid_arr in self._grid_arrays.values():
+            grid_arr.clear_features()
 
     def analyse(self, image_model: CompileImageAnalysisModel):
         self.load_image(image_model.image.path)
@@ -532,9 +546,9 @@ class ProjectImage:
             threads = set(t for t in threads if t.is_alive())
             sleep(0.01)
         """
-        for index, grid_array in self._grid_arrays.items():
+        for index, grid_arr in self._grid_arrays.items():
             if index not in grid_arrays_processed:
-                grid_array.clear_features()
+                grid_arr.clear_features()
 
         self._logger.info(
             "Image {0} processed".format(image_model.image.index),

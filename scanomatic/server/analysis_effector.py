@@ -34,7 +34,11 @@ All the best,
 Scan-o-Matic"""
 )
 
-def get_label_from_analysis_model(analysis_model: AnalysisModel, id_hash: str) -> str:
+
+def get_label_from_analysis_model(
+    analysis_model: AnalysisModel,
+    id_hash: str,
+) -> str:
     """Make a suitable label to show in status view
 
     :param analysis_model: The model
@@ -152,8 +156,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 if rc.create_feature_extract_job(
                     FeaturesFactory.to_dict(
                         FeaturesFactory.create(
-                            analysis_directory=
-                                self._analysis_job.output_directory,
+                            analysis_directory=(
+                                self._analysis_job.output_directory
+                            ),
                             email=self._analysis_job.email,
                         ),
                     ),
@@ -163,7 +168,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                     self._logger.warning(
                         "Enqueing of feature extraction job refused",
                     )
-            except:
+            except Exception:
                 self._logger.error(
                     "Could not spawn analysis at directory {0}".format(
                         self._analysis_job.output_directory
@@ -187,8 +192,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._stopping = True
             return False
         elif self._reference_compilation_image_model is None:
-            # Using the first recieved model / last in project as reference model.
-            # Used for one_time type of analysis settings
+            # Using the first recieved model / last in project as reference
+            # model. Used for one_time type of analysis settings
             self._reference_compilation_image_model = image_model
 
         # TODO: Verify that this isn't the thing causing the capping!
@@ -204,7 +209,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             )
             return True
 
-
         # Overwrite grayscale with previous if has been requested
         if self._analysis_job.one_time_grayscale:
 
@@ -212,7 +216,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 "Using the grayscale detected on {0} for {1}".format(
                     self._reference_compilation_image_model.image.path,
                     image_model.image.path,
-            ))
+                ),
+            )
 
             image_model.fixture.grayscale = GrayScaleAreaModelFactory.copy(
                 self._reference_compilation_image_model.fixture.grayscale,

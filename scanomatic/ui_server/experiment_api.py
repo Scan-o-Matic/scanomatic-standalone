@@ -55,12 +55,15 @@ def add_routes(app, rpc_client):
         else:
             return json_abort(
                 400,
-                reason="The following has bad data: {0}".format(
-                    ", ".join(
-                        FeaturesFactory.get_invalid_names(model)
+                reason=(
+                    "The following has bad data: {0}".format(
+                        ", ".join(
+                            FeaturesFactory.get_invalid_names(model)
+                        )
                     )
-                ) if not FeaturesFactory.validate(model) else
-                    "Refused by the server, check logs.",
+                    if not FeaturesFactory.validate(model)
+                    else "Refused by the server, check logs."
+                ),
             )
 
     @app.route("/api/project/feature_extract/bioscreen", methods=['post'])
@@ -131,11 +134,15 @@ def add_routes(app, rpc_client):
         else:
             return json_abort(
                 400,
-                reason="The following has bad data: {0}".format(
-                    ", ".join(
-                        FeaturesFactory.get_invalid_names(model)
-                )) if not FeaturesFactory.validate(model) else
-                    "Refused by the server, check logs.",
+                reason=(
+                    "The following has bad data: {0}".format(
+                        ", ".join(
+                            FeaturesFactory.get_invalid_names(model)
+                        ),
+                    )
+                    if not FeaturesFactory.validate(model)
+                    else "Refused by the server, check logs."
+                ),
             )
 
     @app.route("/api/project/analysis", methods=['post'])
@@ -193,7 +200,7 @@ def add_routes(app, rpc_client):
         if regridding_folder:
             grid_list = data_object.get("gridding_offsets", [])
             grid_list = tuple(
-                tuple(map(int, l)) if l else None for l in grid_list
+                tuple(map(int, item)) if item else None for item in grid_list
             )
 
             model.grid_model.reference_grid_folder = regridding_folder
@@ -300,10 +307,13 @@ def add_routes(app, rpc_client):
 
             return json_abort(
                 400,
-                reason="The following has bad data: {0}".format(
-                    ScanningModelFactory.get_invalid_as_text(m),
-                ) if not validates else
-                    "Job refused, probably scanner can't be reached.",
+                reason=(
+                    "The following has bad data: {0}".format(
+                        ScanningModelFactory.get_invalid_as_text(m),
+                    )
+                    if not validates
+                    else "Job refused, probably scanner can't be reached."
+                ),
             )
 
     @app.route("/api/project/compile", methods=['post'])
@@ -348,8 +358,10 @@ def add_routes(app, rpc_client):
             path,
             fixture=fixture,
             is_local=fixture_is_local,
-            compile_action=COMPILE_ACTION.InitiateAndSpawnAnalysis
-                if chain_steps else COMPILE_ACTION.Initiate,
+            compile_action=(
+                COMPILE_ACTION.InitiateAndSpawnAnalysis
+                if chain_steps else COMPILE_ACTION.Initiate
+            ),
         )
 
         n_images_in_folder = len(dict_model['images'])

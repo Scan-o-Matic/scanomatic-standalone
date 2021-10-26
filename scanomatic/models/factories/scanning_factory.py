@@ -51,7 +51,7 @@ class PlateDescriptionFactory(AbstractModelFactory):
         return model.FIELD_TYPES.name
 
     @classmethod
-    def _validate_name(cls, model: PlateDescription):
+    def _validate_description(cls, model: PlateDescription):
         if isinstance(model.description, StringTypes) and model.str:
             return True
         return model.FIELD_TYPES.description
@@ -214,7 +214,7 @@ class ScanningModelFactory(AbstractModelFactory):
     def _validate_time_between_scans(cls, model: ScanningModel):
         try:
             model.time_between_scans = float(model.time_between_scans)
-        except:
+        except Exception:
             return model.FIELD_TYPES.time_between_scans
         return cls._correct_type_and_in_bounds(
             model,
@@ -248,7 +248,7 @@ class ScanningModelFactory(AbstractModelFactory):
                 os.path.abspath(model.directory_containing_project),
             ):
                 return True
-        except:
+        except Exception:
             pass
 
         return model.FIELD_TYPES.directory_containing_project

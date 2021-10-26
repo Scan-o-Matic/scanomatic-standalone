@@ -2,13 +2,13 @@ import csv
 import glob
 import os
 import pickle as pickle
-from typing import Callable, Optional, Union
 import zipfile
 from collections import deque
 from enum import Enum
 from io import StringIO
 from itertools import chain, product
 from types import StringTypes
+from typing import Callable, Optional, Union
 
 import numpy as np
 from scipy.ndimage import median_filter
@@ -33,7 +33,10 @@ from scanomatic.data_processing.norm import (
     norm_by_log2_diff_corr_scaled,
     norm_by_signal_to_noise
 )
-from scanomatic.data_processing.phases.analysis import CurvePhasePhenotypes, get_phase_analysis
+from scanomatic.data_processing.phases.analysis import (
+    CurvePhasePhenotypes,
+    get_phase_analysis
+)
 from scanomatic.data_processing.phases.features import (
     CurvePhaseMetaPhenotypes,
     VectorPhenotypes,
@@ -439,7 +442,8 @@ class NormState(Enum):
     NormalizedAbsoluteNonBatched = 3
 
 
-# TODO: Phenotypes should possibly not be indexed based on enum value either and use dict like the undo/filter
+# TODO: Phenotypes should possibly not be indexed based on enum value either
+# and use dict like the undo/filter
 
 
 class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
@@ -1211,7 +1215,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 gauss_sigma,
                 "Median filter" if apply_median else "No median filter",
                 edge_condition
-        ))
+            ),
+        )
 
         median_kernel = np.ones((1, self._median_kernel_size))
         smooth_data = []
@@ -1266,7 +1271,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             for id_curve, log2_curve in enumerate(log2_data):
 
                 log2_curve = filter_edge_condition(
-                    log2_curve, left_filt, right_filt, edge_condition, logger=self._logger)
+                    log2_curve,
+                    left_filt,
+                    right_filt,
+                    edge_condition,
+                    logger=self._logger,
+                )
                 p, r, r0 = zip(*self._poly_estimate_raw_growth_curve(
                     times,
                     log2_curve,
@@ -1388,9 +1398,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         # This conversion is done to reflect that previous filter worked on
         # indices and expected ratio to hours is 1:3.
         gauss_kwargs = {
-            'sigma': self._gaussian_filter_sigma / 3.0
+            'sigma': (
+                self._gaussian_filter_sigma / 3.0
                 if self._gaussian_filter_sigma == 5
                 else self._gaussian_filter_sigma
+            ),
         }
 
         for plate_id, plate in enumerate(self._smooth_growth_data):
@@ -1820,9 +1832,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             norm_method = norm_by_diff
             self._logger.warning(
                 "Using {0} to normalize hasn't been fully vetted".format(
-                method,
-            ),
-        )
+                    method,
+                ),
+            )
 
         for phenotype in self._normalizable_phenotypes:
             if self._phenotypes_inclusion(phenotype) is False:
@@ -2298,7 +2310,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 if isinstance(val, np.bool_):
                     return val
                 elif val is None:
-                        return False
+                    return False
                 else:
                     raise ValueError("Any check failed")
             except ValueError:
@@ -2372,12 +2384,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         return allowed
 
     def _set_smooth_growth_data(self, data):
-            if self._data_lacks_data(data):
-                self._smooth_growth_data = None
-                return False
-            else:
-                self._smooth_growth_data = data
-                return True
+        if self._data_lacks_data(data):
+            self._smooth_growth_data = None
+            return False
+        else:
+            self._smooth_growth_data = data
+            return True
 
     def _set_phenotype_filter_undo(self, data):
         allowed = False
@@ -2467,7 +2479,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                     n_phenotypes = plate.shape[2]
                 except IndexError:
                     self._logger.error(
-                        "Plate format not understood, old phenotype extraction not accepted",  #  noqa: E501
+                        "Plate format not understood, old phenotype extraction not accepted",  # noqa: E501
                     )
                     return None
 
@@ -2573,7 +2585,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
         if phenotype_data is not None:
             self._phenotype_filter[plate_index][phenotype][
-                np.where(np.isfinite(phenotype_data) == False)
+                np.where(np.isfinite(phenotype_data) == False)  # noqa: E712
             ] = Filter.UndecidedProblem.value
 
             self._phenotype_filter[plate_index][phenotype][
@@ -2642,7 +2654,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                         < self._no_growth_pop_doublings_threshold
                     )
                     | (
-                        np.isfinite(plate[Phenotypes.ExperimentPopulationDoublings])
+                        np.isfinite(
+                            plate[Phenotypes.ExperimentPopulationDoublings],
+                        )
                         == np.False_
                     )
                 )

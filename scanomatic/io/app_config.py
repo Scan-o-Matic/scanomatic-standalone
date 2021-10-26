@@ -1,14 +1,23 @@
 import os
-from typing import Dict, Optional, Sequence, Union
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
+from typing import Dict, Optional, Sequence, Union
 
 import scanomatic.models.scanning_model as scanning_model
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory
 )
-from scanomatic.models.settings_models import ApplicationSettingsModel, HardwareResourceLimitsModel, MailModel, PathsModel, PowerManagerModel, RPCServerModel, UIServerModel, VersionChangesModel
+from scanomatic.models.settings_models import (
+    ApplicationSettingsModel,
+    HardwareResourceLimitsModel,
+    MailModel,
+    PathsModel,
+    PowerManagerModel,
+    RPCServerModel,
+    UIServerModel,
+    VersionChangesModel
+)
 
 from . import logger, paths, power_manager
 

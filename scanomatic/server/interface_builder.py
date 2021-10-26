@@ -4,8 +4,10 @@ import sys
 from functools import wraps
 from time import sleep
 from typing import Dict, Optional, Tuple, Union
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 
 import scanomatic.generics.decorators as decorators
+from scanomatic.generics.model import Model
 import scanomatic.io.logger as logger
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -52,14 +54,12 @@ def _verify_admin(f):
     return _verify_global_admin
 
 
-def _report_invalid(logger, factory, model, title):
-    """
-
-    :type logger: scanomatic.io.logger.Logger
-    :type factory: scanomatic.generics.abstract_model_factory.AbstractModelFactory
-    :type model: scanomatic.generics.model.Model
-    :return: None
-    """
+def _report_invalid(
+    logger: logger.Logger,
+    factory: AbstractModelFactory,
+    model: Model,
+    title,
+):
     for param in factory.get_invalid_names(model):
         logger.warning(
             f"{title} got invalid parameter {param} value '{model[param]}'",
@@ -82,7 +82,9 @@ class InterfaceBuilder(SingeltonOneInit):
             _SOM_SERVER = Server()
             _SOM_SERVER.start()
         else:
-            _SOM_SERVER.logger.warning("Attempt to launch second instance of server")
+            _SOM_SERVER.logger.warning(
+                "Attempt to launch second instance of server",
+            )
 
     def _start_rpc_server(self):
 
@@ -183,7 +185,7 @@ class InterfaceBuilder(SingeltonOneInit):
             sleep(0.1)
 
         del _SOM_SERVER
-        _SOM_SERVER = None
+        _SOM_SERVER = None  # noqa: F841
 
         self._start_som_server()
         self._start_rpc_server()
@@ -231,8 +233,9 @@ class InterfaceBuilder(SingeltonOneInit):
         data = {
                 'pm': type(pm),
                 'host': host,
-                'unasigned_usbs':
-                    _SOM_SERVER.scanner_manager.non_reported_usbs,
+                'unasigned_usbs': (
+                    _SOM_SERVER.scanner_manager.non_reported_usbs
+                ),
                 'power_status': _SOM_SERVER.scanner_manager.power_statuses,
                 'modes': _SOM_SERVER.scanner_manager.pm_types,
              }
@@ -408,7 +411,6 @@ class InterfaceBuilder(SingeltonOneInit):
         #
         #     return False
 
-
     @_verify_admin
     def _server_create_scanning_job(self, user_id, scanning_model):
 
@@ -446,13 +448,11 @@ class InterfaceBuilder(SingeltonOneInit):
                     "" if path_valid else "in",
                 ),
             )
-        except:
+        except Exception:
             path_valid = False
             _SOM_SERVER.logger.warning(
                 "Bad data in attempting to check path for scanning job creation",  # noqa: E501
             )
-
-
 
         if not path_valid or not ScanningModelFactory.validate(scanning_model):
             if not path_valid:
@@ -663,7 +663,11 @@ class InterfaceBuilder(SingeltonOneInit):
         return sanitize_communication(_SOM_SERVER.scanner_manager.fixtures)
 
     @_verify_admin
-    def _server_create_analysis_job(self, user_id, analysis_model: Dict) -> bool:
+    def _server_create_analysis_job(
+        self,
+        user_id,
+        analysis_model: dict,
+    ) -> bool:
         """Enques a new analysis job.
 
         Parameters
@@ -726,12 +730,12 @@ class InterfaceBuilder(SingeltonOneInit):
 
 
         feature_extract_model : dict
-            A dictionary representation of scanomatic.models.features_model.FeaturesModel
+            A dictionary representation of
+            scanomatic.models.features_model.FeaturesModel
 
         Returns
         =======
-            bool.   ``True`` if job request was successfully enqueued, else
-                    ``False``
+            ``True`` if job request was successfully enqueued, else ``False``
         """
 
         global _SOM_SERVER

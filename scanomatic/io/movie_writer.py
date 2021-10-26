@@ -5,7 +5,7 @@ http://matplotlib.org/examples/animation/moviewriter.html
 
 import numpy as np
 import time
-from  scanomatic.generics.purge_importing import ExpiringModule
+from scanomatic.generics.purge_importing import ExpiringModule
 
 
 class MovieWriter:

@@ -433,9 +433,10 @@ class GridArray:
 
     def _is_valid_grid_shape(self):
 
-        return all(
-            g == i for g, i in zip(self._grid.shape[1:], self._pinning_matrix),
-        )
+        return all((
+            g == i for g, i in
+            zip(self._grid.shape[1:], self._pinning_matrix)
+        ))
 
     def _set_grid_cell_corners(self):
         self._grid_cell_corners = np.zeros(

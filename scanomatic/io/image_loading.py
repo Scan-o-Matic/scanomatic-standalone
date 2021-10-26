@@ -200,7 +200,7 @@ def load_colony_images_for_animation(
     )
 
     times = np.array(tuple(
-        entry.image.time_stamp for entry in compilation_results,
+        entry.image.time_stamp for entry in compilation_results
     ))
     images = np.zeros(tuple(grid_size) + times.shape, dtype=np.uint16)
     im = None

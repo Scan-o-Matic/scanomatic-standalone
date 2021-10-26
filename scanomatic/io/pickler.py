@@ -120,7 +120,7 @@ class SafeFileObject(file):
             while size != self.tell():
                 yield self.readline()
 
-        return [l for l in yielder()]
+        return [line for line in yielder()]
 
 
 class SafeProxyFileObject(object):
@@ -144,7 +144,7 @@ class SafeProxyFileObject(object):
             while size != self.tell():
                 yield self.readline()
 
-        return [l for l in yielder()]
+        return [line for line in yielder()]
 
     def __getattr__(self, item):
 
@@ -172,4 +172,4 @@ class SafeStringIO(StringIO):
             while self.len != self.pos:
                 yield self.readline()
 
-        return [l for l in yielder()]
+        return [line for line in yielder()]

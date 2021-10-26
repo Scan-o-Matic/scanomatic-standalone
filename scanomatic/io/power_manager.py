@@ -178,7 +178,7 @@ class PowerManagerUsb(PowerManagerNull):
         try:
             proc = Popen(cmd, shell=False, stdout=PIPE, stderr=PIPE)
             _, stderr = proc.communicate()
-        except:
+        except Exception:
             exec_err = True
         if self._fail_error in stderr or exec_err:
             return False
@@ -294,7 +294,9 @@ class PowerManagerLan(PowerManagerNull):
                 res = self._find_ip()
                 self._logger.info("LAN PM, Found {0}".format(res))
             else:
-                self._logger.error("LAN PM, No known host and no MAC...no way to find PM")
+                self._logger.error(
+                    "LAN PM, No known host and no MAC...no way to find PM",
+                )
                 raise InvalidInit()
 
     @property
@@ -351,7 +353,10 @@ class PowerManagerLan(PowerManagerNull):
 
         # FILTER LIST ON ROWS WITH SOUGHT MAC-ADDRESS
         self._logger.debug("LAN PM, Keeping those with correct MAC-addr")
-        res = [l for l in p.communicate()[0].split("\n") if self._mac in l]
+        res = [
+            line for line in p.communicate()[0].split("\n")
+            if self._mac in line
+        ]
 
         if len(res) > 0:
             # RETURN THE IP
@@ -378,7 +383,7 @@ class PowerManagerLan(PowerManagerNull):
             try:
                 p = urllib.request.urlopen(*args, **kwargs)
                 success = True
-            except:
+            except Exception:
                 connects += 1
 
         if connects == MAX_CONNECTION_TRIES:
@@ -495,7 +500,7 @@ class PowerManagerLan(PowerManagerNull):
                 states = eval(states)
                 if len(states) >= self._socket:
                     return states[self._socket - 1] == 1
-            except:
+            except Exception:
                 pass
 
         return None

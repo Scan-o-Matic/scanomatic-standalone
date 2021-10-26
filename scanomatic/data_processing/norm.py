@@ -176,7 +176,7 @@ def get_control_position_filtered_arrays(
             plate_offset,
             [a / b for a, b in zip(new_plate.shape, plate_offset.shape)],
         )
-        new_plate[filt == False] = fill_value
+        new_plate[filt == False] = fill_value  # noqa: E712
 
     return np.array(out)
 
@@ -763,8 +763,7 @@ def initial_plate_transform(
 ):
     return (
         magnitude_scaling_vector
-        * (flex_scaling_vector
-        * (ipv - ipv[np.isfinite(ipv)].mean()))
+        * (flex_scaling_vector * (ipv - ipv[np.isfinite(ipv)].mean()))
     )
 
 

@@ -121,7 +121,7 @@ def loadCSV2Numpy(
             try:
                 for k, v in pMeasures.items():
                     plate[k][...] = v
-            except:
+            except Exception:
                 _L.critical(
                     "{0}: Unexpected data for shape {1}, plate {2} pos {3}: {4}".format(  # noqa: E501
                          path,
@@ -348,7 +348,7 @@ def plotRndStrains(
     ax = fig.gca()
 
     ax.boxplot([D[key].ravel() for key in Dkeys[:n]])
-    ax.set_xticklabels([", ".join(l) for l in Dkeys[:n]])
+    ax.set_xticklabels([", ".join(label) for label in Dkeys[:n]])
 
     offset = (ax.get_ylim()[1] - ax.get_ylim()[0]) / 30.0
     axTop = ax.get_ylim()[1]

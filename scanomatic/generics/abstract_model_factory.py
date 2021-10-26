@@ -2,7 +2,7 @@ import copy
 import os
 import pickle
 import types
-from typing import Dict, Generator, Sequence, Union
+from typing import Dict, Generator, Union
 import warnings
 from collections import defaultdict
 from configparser import ConfigParser, NoSectionError
@@ -183,8 +183,7 @@ class AbstractModelFactory:
             raise TypeError("Wrong model for factory {1} is not a {0}".format(
                 cls.MODEL,
                 model,
-            )
-        )
+            ))
 
         return True
 
@@ -569,7 +568,7 @@ class AbstractModelFactory:
                 or _is_pinning_format(pinning_format)
                 for pinning_format in pinning_formats
             )
-        except:
+        except Exception:
             pass
         return False
 
@@ -612,7 +611,7 @@ def _is_pinning_format(pinning_format):
             and val > 0
             for val in pinning_format
         ) and len(pinning_format) == 2
-    except:
+    except Exception:
         pass
 
     return False
@@ -766,7 +765,6 @@ class LinkerConfigParser(ConfigParser):
             if hasattr(self, '_nonzero')
             else len(self.sections())
         )
-
 
 
 class MockConfigParser:
@@ -1100,7 +1098,11 @@ class Serializer:
                 SerializationHelper.serialize_structure(obj, dtype),
             )
 
-        elif isinstance(dtype, type) and issubclass(dtype, Model) and obj is not None:
+        elif (
+            isinstance(dtype, type)
+            and issubclass(dtype, Model)
+            and obj is not None
+        ):
             subfactory = factory.get_sub_factory(obj)
 
             conf.set(
@@ -1273,7 +1275,13 @@ class SerializationHelper:
             except (TypeError, ValueError):
                 try:
                     return dtype(eval(serialized_obj))
-                except (SyntaxError, NameError, AttributeError, TypeError, ValueError):
+                except (
+                    SyntaxError,
+                    NameError,
+                    AttributeError,
+                    TypeError,
+                    ValueError,
+                ):
                     return None
 
         elif isinstance(dtype, types.FunctionType):
@@ -1285,7 +1293,10 @@ class SerializationHelper:
         elif isinstance(serialized_obj, types.GeneratorType):
             return dtype(serialized_obj)
 
-        elif isinstance(serialized_obj, _SectionsLink) or isinstance(serialized_obj, dtype):
+        elif (
+            isinstance(serialized_obj, _SectionsLink)
+            or isinstance(serialized_obj, dtype)
+        ):
             return serialized_obj
 
         elif SerializationHelper.isvalidtype(serialized_obj, dtype):

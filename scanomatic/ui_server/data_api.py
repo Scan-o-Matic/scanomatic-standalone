@@ -260,8 +260,8 @@ def add_routes(app, rpc_client, is_debug_mode):
             _grayscales @ route /api/data/grayscales:
                 Getting the names of the known grayscales
         """
-        raise NotImplemented("This endpoint is not complete")
-
+        raise NotImplementedError("This endpoint is not complete")
+        fixture = None
         data_object = request.get_json(silent=True, force=True)
         if not data_object:
             data_object = request.values
@@ -283,7 +283,10 @@ def add_routes(app, rpc_client, is_debug_mode):
 
         try:
             _, values = get_grayscale(
-                fixture, grayscale_area_model, debug=is_debug_mode)
+                fixture,
+                grayscale_area_model,
+                debug=is_debug_mode,
+            )
         except TypeError:
             return jsonify(
                 success=False, is_endpoint=True,
@@ -553,7 +556,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             areas,
         )
         _logger.info("Grayscale {0}".format(grayscale_area_model))
-        _logger.info("Plates".format(plates))
+        _logger.info("Plates")
 
         if grayscale_area_model:
 
@@ -780,8 +783,10 @@ def add_routes(app, rpc_client, is_debug_mode):
         return jsonify(
             success=False,
             is_endpoint=True,
-            reason="No fixture image name" if image_is_allowed(ext) else
-                "Image type not allowed",
+            reason=(
+                "No fixture image name" if image_is_allowed(ext)
+                else "Image type not allowed"
+            ),
         )
 
     @app.route("/api/data/image/transform/grayscale", methods=['POST'])

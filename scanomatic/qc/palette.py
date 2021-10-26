@@ -4,7 +4,7 @@ from itertools import permutations
 try:
     from matplotlib import colors as mplColors
     MATPLOTLIB = True
-except:
+except ImportError:
     MATPLOTLIB = False
 
 
@@ -45,8 +45,8 @@ def get(N: int, **kwargs):
         else:
             alpha = None
 
-        l = sum([v ** 2 for v in kwargs['base'][:3]]) ** 0.5
-        cV = [v / l for v in kwargs['base'][:3]]
+        summary = sum([v ** 2 for v in kwargs['base'][:3]]) ** 0.5
+        cV = [v / summary for v in kwargs['base'][:3]]
         maxV = float(max(cV))
         cV = [v / maxV for v in cV]
         n = 0

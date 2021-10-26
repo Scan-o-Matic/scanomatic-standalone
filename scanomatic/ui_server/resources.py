@@ -14,7 +14,7 @@ class ScanCollection(Resource):
     reqparser = reqparse.RequestParser()
     reqparser.add_argument(
         'project',
-        type=inputs.regex('^\w+(/\w+)*$'),
+        type=inputs.regex(r'^\w+(/\w+)*$'),
         required=True,
     )
     reqparser.add_argument('scan_index', type=inputs.natural, required=True)

@@ -6,7 +6,7 @@ from typing import Sequence
 def get_backup_name(
     path_to_original: str,
     max_backups: int = 10,
-    pattern: str= "{0}.{1}.tar.gz",
+    pattern: str = "{0}.{1}.tar.gz",
 ) -> str:
     t_prev = None
 

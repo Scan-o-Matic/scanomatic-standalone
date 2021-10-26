@@ -66,7 +66,10 @@ def rename_project_folder(new_name):
     base_path = _get_basepath(new_name)
     destination = os.path.join(os.path.dirname(base_path), new_name)
 
-    _logger.info("Renaming project directory {0} => {1}".format(base_path, destination))
+    _logger.info("Renaming project directory {0} => {1}".format(
+        base_path,
+        destination,
+    ))
 
     os.rename(base_path, destination)
 
@@ -77,10 +80,21 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
     new_name = _ensure_only_basename(new_name)
     old_name = _ensure_valid_old_name(old_name)
 
-    for instructions in glob.glob(os.path.join(base_path, _paths.scan_project_file_pattern.format(old_name + "*"))):
+    for instructions in glob.glob(
+        os.path.join(
+            base_path,
+            _paths.scan_project_file_pattern.format(old_name + "*"),
+        )
+    ):
 
-        destination = os.path.join(base_path, os.path.basename(instructions.replace(old_name, new_name, 1)))
-        _logger.info("Renaming file {0} => {1}".format(instructions, destination))
+        destination = os.path.join(
+            base_path,
+            os.path.basename(instructions.replace(old_name, new_name, 1)),
+        )
+        _logger.info("Renaming file {0} => {1}".format(
+            instructions,
+            destination,
+        ))
         os.rename(instructions, destination)
         m = ScanningModelFactory.serializer.load_first(destination)
         m.project_name = new_name
@@ -90,4 +104,8 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
 
             _logger.info("Updated the contents of {0}".format(destination))
         else:
-            _logger.error("Can't update contents of {0} because model doesn't validate".format(destination))
+            _logger.error(
+                "Can't update contents of {0} because model doesn't validate".format(  # noqa: E501
+                    destination,
+                ),
+            )

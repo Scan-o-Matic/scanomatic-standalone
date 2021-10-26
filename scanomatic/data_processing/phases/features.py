@@ -111,8 +111,9 @@ class VectorPhenotypes(Enum):
 def filter_plate_custom_filter(
     plate,
     phase: CurvePhases = CurvePhases.GrowthAcceleration,
-    measure: CurvePhaseMetaPhenotypes
-        = CurvePhasePhenotypes.AsymptoteIntersection,
+    measure: CurvePhaseMetaPhenotypes = (
+        CurvePhasePhenotypes.AsymptoteIntersection
+    ),
     phases_requirement=lambda phases: len(phases) == 1,
     phase_selector=lambda phases: phases[0]
 ):
@@ -142,17 +143,17 @@ def filter_plate_on_phase_id(plate, phases_id, measure):
 
 
 def _get_phase_id(plate, *phases):
-    l = len(phases)
+    length = len(phases)
 
     def f(v):
         try:
             v = zip(*v)[0]
             i = 0
             for id_phase, phase in enumerate(v):
-                if i < l:
+                if i < length:
                     if phase is phases[i]:
                         i += 1
-                        if i == l:
+                        if i == length:
                             return id_phase
         except TypeError:
             pass
@@ -178,6 +179,7 @@ def _py_impulse_counter(phase_vector):
     except TypeError:
         return -1
 
+
 _np_impulse_counter = np.frompyfunc(_py_impulse_counter, 1, 1)
 
 
@@ -199,6 +201,7 @@ def _py_inner_impulse_counter(phase_vector):
     except TypeError:
         return -1
 
+
 _np_inner_impulse_counter = np.frompyfunc(_py_inner_impulse_counter, 1, 1)
 
 
@@ -215,6 +218,7 @@ def _py_collapse_counter(phase_vector):
         )
     except TypeError:
         return -1
+
 
 _np_collapse_counter = np.frompyfunc(_py_collapse_counter, 1, 1)
 
@@ -272,6 +276,7 @@ def _py_get_major_impulse_for_plate(phases) -> np.ndarray:
     except TypeError:
         pass
     return -1
+
 
 _np_get_major_impulse_for_plate = np.frompyfunc(
     _py_get_major_impulse_for_plate,
@@ -420,8 +425,9 @@ def extract_phenotypes(plate, meta_phenotype, phenotypes):
             phases_requirement=lambda phases: len(phases) >= phase_need,
             phase_selector=lambda phases:
             phases[np.argsort(tuple(
-                phase[CurvePhasePhenotypes.PopulationDoublings] if
-                phase[CurvePhasePhenotypes.PopulationDoublings] else -np.inf for phase in phases
+                phase[CurvePhasePhenotypes.PopulationDoublings]
+                if phase[CurvePhasePhenotypes.PopulationDoublings]
+                else -np.inf for phase in phases
             ))[index]],
         )
 
@@ -679,9 +685,9 @@ def get_variance_decomposition_by_phase(
 
 def _get_index_array(shape):
     m = np.mgrid[:shape[0], :shape[1]]
-    l = list(zip(*(v.ravel() for v in m)))
+    length = list(zip(*(v.ravel() for v in m)))
     a2 = np.empty(m.shape[1:], dtype=np.object)
-    a2.ravel()[:] = l
+    a2.ravel()[:] = length
     return a2
 
 
@@ -848,7 +854,7 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
                 / (end_time - major_phase_time)
             )
         except KeyError:
-            print (phase_phenotypes)
+            print(phase_phenotypes)
             raise
 
         if PhaseData.Anchor in phase:
@@ -932,9 +938,9 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
     coords = coords[major_idx.mask == np.False_]
     major_idx = major_idx[major_idx.mask == np.False_]
 
-    l = _np_phase_counter(plate_data)
+    length = _np_phase_counter(plate_data)
     id_most_left_phases = major_idx.argmax()
-    id_most_right_phases = (l - major_idx).argmax()
+    id_most_right_phases = (length - major_idx).argmax()
     major_idx = [int(v) if np.isfinite(v) else None for v in major_idx]
 
     # Init left phases

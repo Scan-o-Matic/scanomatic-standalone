@@ -109,28 +109,27 @@ def produce_grid_images(
 
 
 def make_grid(im, grid_plot, grid, marked_position):
-
-        x = 0
-        y = 1
-        for row in range(grid.shape[1]):
-
-            grid_plot.plot(
-                grid[x, row, :], -grid[y, row, :] + im.shape[y], 'r-')
-
-        for col in range(grid.shape[2]):
-
-            grid_plot.plot(
-                grid[x, :, col], -grid[y, :, col] + im.shape[y], 'r-')
-
-        if marked_position is None:
-            marked_position = (-1, 0)
+    x = 0
+    y = 1
+    for row in range(grid.shape[1]):
 
         grid_plot.plot(
-            grid[x, marked_position[0], marked_position[1]],
-            grid[y, marked_position[0], marked_position[1]] +
-            im.shape[y],
-            'o', alpha=0.75, ms=10, mfc='none', mec='blue', mew=1,
-        )
+            grid[x, row, :], -grid[y, row, :] + im.shape[y], 'r-')
+
+    for col in range(grid.shape[2]):
+
+        grid_plot.plot(
+            grid[x, :, col], -grid[y, :, col] + im.shape[y], 'r-')
+
+    if marked_position is None:
+        marked_position = (-1, 0)
+
+    grid_plot.plot(
+        grid[x, marked_position[0], marked_position[1]],
+        grid[y, marked_position[0], marked_position[1]] +
+        im.shape[y],
+        'o', alpha=0.75, ms=10, mfc='none', mec='blue', mew=1,
+    )
 
 
 def make_grid_im(im, grid, save_grid_name, marked_position=None):

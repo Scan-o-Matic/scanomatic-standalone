@@ -36,7 +36,8 @@ class PhenotypeDataType(Enum):
     Attributes:
         PhenotypeDataType.Scalar: The phenotype is scalar, this is the default
             expectation
-        PhenotypeDataType.Vector: These are the phenotype that are entire vectors:
+        PhenotypeDataType.Vector: These are the phenotype that are entire
+            vectors.
             [
                 `VectorPhenotypes.PhasesPhenotypes`,
                 `VectorPhenotypes.PhasesClassification`,
@@ -169,7 +170,10 @@ class PhenotypeDataType(Enum):
                     p for p in Phenotypes
                     if p not in _trusted and p not in _under_development
                 )
-            return phenotype not in _trusted and phenotype not in _under_development
+            return (
+                phenotype not in _trusted
+                and phenotype not in _under_development
+            )
 
         elif self is PhenotypeDataType.All:
             if phenotype is None:

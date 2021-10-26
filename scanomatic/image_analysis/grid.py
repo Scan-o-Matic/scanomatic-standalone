@@ -31,8 +31,8 @@ def get_adaptive_threshold(
         segmented_image = (np.random.random(im.shape) > p).astype(np.uint8)
 
     labled, labels = _get_sectioned_image(segmented_image)
-    for l in range(1, labels + 1):
-        l_filter = labled == l
+    for label in range(1, labels + 1):
+        l_filter = labled == label
         if l_filter.sum() > 1:
             i_slice = im[l_filter]
             if i_slice.std() != 0:
@@ -133,6 +133,7 @@ def get_segments_by_shape(
 
     return out
 
+
 _DEVIATION_FROM_SQUARE_TOLERANCE = 0.25
 
 
@@ -142,6 +143,7 @@ def is_almost_square(feature_slice):
         abs(1 - float(feature_slice.shape[0]) / feature_slice.shape[1])
         > _DEVIATION_FROM_SQUARE_TOLERANCE
     )
+
 
 _DEVIATION_FROM_CIRCLE_TOLERANCE = 0.1
 _INSET_CIRCLE_IN_SQUARE_FACTOR = np.pi / 4.0
@@ -229,8 +231,7 @@ def get_heatmap(data, votes, weights, sigma):
 
     vote_slice = np.logical_and(
         np.logical_and(x_votes >= 0, y_votes >= 0),
-        np.logical_and(x_votes <= x_data.max(),
-        y_votes <= y_data.max()),
+        np.logical_and(x_votes <= x_data.max(), y_votes <= y_data.max()),
     )
 
     x_votes = x_votes[vote_slice]
@@ -356,8 +357,8 @@ def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
                 - array_view[1, :, 0].mean()
             )
             distance_dim2_upper = (
-                ideal_grid[1, :, rings[1]
-                + current_ring].mean() - array_view[1, :, -1].mean()
+                ideal_grid[1, :, rings[1] + current_ring].mean()
+                - array_view[1, :, -1].mean()
             )
             distance_dim2_lower_slice = np.s_[1, :, : rings[1] - current_ring]
             ideal_grid[distance_dim2_lower_slice][

@@ -28,6 +28,7 @@ class MiniLogger(object):
     def error(txt):
         print(f"ERROR: {txt}")
 
+
 _logger = MiniLogger()
 
 home_dir = os.path.expanduser("~")
@@ -121,7 +122,7 @@ def update_init_file(do_version=True, do_branch=True, release=False):
                 str(data['branch']) if data['branch'] else None,
                 get_version(),
             )
-        except:
+        except Exception:
             _logger.warning("Can reach GitHub to verify version")
             data['version'] = source.increase_version(
                 source.parse_version(data['version']),
@@ -181,7 +182,7 @@ def install_data_files(
     if not cur_dir:
         cur_dir = os.path.curdir
 
-    buff_size = 65536
+    # buff_size = 65536
     replacement = r'ver={0}'.format(".".join(
         (str(v) for v in source.parse_version(
             source.get_source_information(
@@ -310,19 +311,19 @@ def uninstall():
     uninstall_launcher(_logger)
 
 
-def uninstall_lib(l: MiniLogger):
+def uninstall_lib(logger: MiniLogger):
     current_location = os.path.abspath(os.curdir)
     os.chdir(os.pardir)
     import shutil
 
     try:
         import scanomatic as som
-        l.info("Found installation at {0}".format(som.__file__))
+        logger.info("Found installation at {0}".format(som.__file__))
         if (
             os.path.abspath(som.__file__) != som.__file__
             or current_location in som.__file__
         ):
-            l.error(
+            logger.error(
                 "Trying to uninstall the local folder, "
                 "just remove it instead if this was intended",
             )
@@ -331,7 +332,7 @@ def uninstall_lib(l: MiniLogger):
             try:
                 shutil.rmtree(os.path.dirname(som.__file__))
             except OSError:
-                l.error(
+                logger.error(
                     "Not enough permissions to remove {0}".format(
                         os.path.dirname(som.__file__),
                     ),
@@ -344,31 +345,31 @@ def uninstall_lib(l: MiniLogger):
                 try:
                     os.remove(egg)
                 except OSError:
-                    l.error(
+                    logger.error(
                         "Not enough permissions to remove {0}".format(egg),
                     )
 
-            l.info("Removed installation at {0}".format(som.__file__))
+            logger.info("Removed installation at {0}".format(som.__file__))
     except (ImportError, OSError):
-        l.info("All install location removed")
+        logger.info("All install location removed")
 
-    l.info("Uninstall complete")
+    logger.info("Uninstall complete")
     os.chdir(current_location)
 
 
-def uninstall_executables(l: MiniLogger):
+def uninstall_executables(logger: MiniLogger):
     for path in os.environ['PATH'].split(":"):
         for file_path in glob.glob(os.path.join(path, "scan-o-matic*")):
-            l.info("Removing {0}".format(file_path))
+            logger.info("Removing {0}".format(file_path))
             try:
                 os.remove(file_path)
             except OSError:
-                l.warning(
+                logger.warning(
                     f"Not enough permission to remove {file_path}",
                 )
 
 
-def uninstall_launcher(l: MiniLogger):
+def uninstall_launcher(logger: MiniLogger):
     user_home = os.path.expanduser("~")
     if sys.platform.startswith('linux'):
         target = os.path.join(
@@ -378,19 +379,19 @@ def uninstall_launcher(l: MiniLogger):
             'applications',
             'scan-o-matic.desktop',
         )
-        l.info(
+        logger.info(
             f"Removing desktop-launcher/menu integration at {target}",
         )
         try:
             os.remove(target)
         except OSError:
-            l.info(
+            logger.info(
                 "No desktop-launcher/menu integration was found"
                 " or no permission to remove it.",
             )
 
     else:
-        l.info("Not on linux, no launcher should have been installed.")
+        logger.info("Not on linux, no launcher should have been installed.")
 
 
 def purge():
