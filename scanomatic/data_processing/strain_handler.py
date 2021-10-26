@@ -1,78 +1,67 @@
-import numpy as np
+from typing import Any, Union
 import matplotlib.pyplot as plt
-
-#
-#   INTERNAL DEPENDENCIES
-#
+import numpy as np
 
 import scanomatic.io.logger as logger
-
-#
-#   GLOBALS
-#
+from scanomatic.io.meta_data import MetaData2
 
 _L = logger.Logger("Strain Handler Module")
 
 _PLATE_STRING = "Plate {0}"
 
-#
-#   MEMEBER METHODS
-#
 
-
-def loadCSV2Numpy(path, measure=-1, delim='\t', dtype=np.float):
+def loadCSV2Numpy(
+    path: str,
+    measure: Union[str, int, slice] = -1,
+    delim: str = '\t',
+    dtype=np.float,
+):
     """Loads a csv-file produced by QC as a numpy array of plates.
 
     Args:
-
-        path (string):  The path to the csv-file
+        path:  The path to the csv-file
 
     Kwargs:
-
-        measure (str, int, slice):
-
+        measure:
             If `int`, the index of the column to be used to produce the
             array
             If `slice`, the slice of the data vector for each row to be used
             in the array.
             If `string`, the name of the column header
 
-        delim (string):
-
+        delim:
             Column delimiter in the csv
 
-        dtype (type):
-
+        dtype:
             Type of data, default is `numpy.float`, if it is, unfilled values
             will be set to nan, else they will be zero of that data type
-
     """
 
     def _putInData(d, pos, m):
-
-        plateI, xI, yI = map(int, pos)
+        plateI, xI, yI = list(map(int, pos))
         if plateI not in d:
             d[plateI] = dict()
-        d[plateI][(xI, yI)] = map(dtype, m)
+        d[plateI][(xI, yI)] = list(map(dtype, m))
 
     fs = open(path, 'r')
 
     h = fs.readline().split(delim)
 
     if isinstance(measure, str):
-
         for i, colH in enumerate(h):
-
             if colH == measure:
                 measure = slice(i, i + 1)
                 break
 
         if isinstance(measure, str):
-
             fs.close()
             _L.error(
                 "{0}: Could not find {1} among headers {2}".format(
-                    path, measure, h))
+                    path,
+                    measure,
+                    h,
+                ),
+            )
             return False
     elif isinstance(measure, int):
         if measure <= 0:
@@ -91,10 +80,14 @@ def loadCSV2Numpy(path, measure=-1, delim='\t', dtype=np.float):
                 rowLength = len(rowList)
         except ValueError:
             _L.info("{0}: Not data row, could be headers {1}".format(
-                path, rowList))
+                path,
+                rowList,
+            ))
         except IndexError:
             _L.info("{0}: Unexpeded length of row {1}".format(
-                path, rowList))
+                path,
+                rowList,
+            ))
 
     fs.close()
 
@@ -108,15 +101,18 @@ def loadCSV2Numpy(path, measure=-1, delim='\t', dtype=np.float):
     if np.sign(start) == np.sign(stop):
         measures = abs(int(np.ceil((stop - start) / float(step))))
     else:
-        measures = abs(int(np.ceil((stop - (rowLength + start)) / float(step))))
+        measures = abs(int(np.ceil(
+            (stop - (rowLength + start)) / float(step),
+        )))
 
     for plateI in range(nPlate):
-
         if plateI in dataDict:
             pMeasures = dataDict[plateI]
             plate = np.zeros(
-                [v + 1 for v in map(max, zip(*pMeasures.keys()))] + [measures],
-                dtype=dtype)
+                [v + 1 for v in map(max, zip(*list(pMeasures.keys())))]
+                + [measures],
+                dtype=dtype,
+            )
 
             if dtype == np.float:
                 plate *= np.nan
@@ -127,27 +123,34 @@ def loadCSV2Numpy(path, measure=-1, delim='\t', dtype=np.float):
                     plate[k][...] = v
             except:
                 _L.critical(
-                    ("{0}: Unexpected data for shape {1}," +
-                     "plate {2} pos {3}: {4}").format(
-                         path, plate.shape, plateI, k, v))
+                    "{0}: Unexpected data for shape {1}, plate {2} pos {3}: {4}".format(  # noqa: E501
+                         path,
+                         plate.shape,
+                         plateI,
+                         k,
+                         v,
+                    ),
+                )
                 return None
-
         else:
-
             data.append(None)
 
     return np.array(data)
 
 
-def uniques(metaData, forcePlatewise=False, slicer=None):
+def uniques(
+    metaData: MetaData2,
+    forcePlatewise: bool = False,
+    slicer=None,
+) -> dict:
     """Generates a dictionary lookup for unique strains and the positions
     they occur in.
 
     Args:
-        metaData (meta_data.Meta_Data): Instance of metadata
+        metaData: Instance of metadata
 
     Kwargs:
-        forcePlatewise (bool):
+        forcePlatewise:
             If strains sharing same name on different plates should be
             considered different strains (good if having different
             media on different plates but no difference in metadata).
@@ -157,8 +160,8 @@ def uniques(metaData, forcePlatewise=False, slicer=None):
                 for uniqueness
 
     Returns:
-        dict    A dictionary with unique keys and lists of positions that they
-                occur on
+        A dictionary with unique keys and lists of positions that they
+        occur on
     """
     _uniques = dict()
     if not isinstance(slicer, slice):
@@ -179,62 +182,61 @@ def uniques(metaData, forcePlatewise=False, slicer=None):
     return _uniques
 
 
-def filterUniquesOnPlate(uniqueDict, plate):
+def filterUniquesOnPlate(
+    uniqueDict: dict,
+    plate: int,
+) -> dict:
     """If forcePlatewise was true when getting uniques, this method
     returns the uniques of a specific plate.
 
     Args:
-        uniqueDict (dict):  A dict containing unique identifiers and position
-                            lists as returned by the unique method
+        uniqueDict:  A dict containing unique identifiers and position
+            lists as returned by the unique method
 
-        plate (int):    A plate to return uniques dict for
+        plate:    A plate to return uniques dict for
     """
-
     plate = _PLATE_STRING.format(plate)
+    return {k: v for k, v in list(uniqueDict.items()) if k[-1] == plate}
 
-    return {k: v for k, v in uniqueDict.items() if k[-1] == plate}
 
-
-def splitStrainsPerPlates(strainDict):
+def splitStrainsPerPlates(strainDict: dict) -> list[dict]:
     """If `forcePlatewise` was `True`, this will make an ordered list with
     each plate's info in a separate item.
 
     Parameters
     ----------
 
-    strainDict: dict
-        A dict with strain meta-data as keys
+    strainDict: A dict with strain meta-data as keys
 
     Returns
     -------
 
-    list of dicts
-        A 4 long list with a subset of the input dict matching each plate
+    A 4 long list with a subset of the input dict matching each plate
     """
 
     return [filterUniquesOnPlate(strainDict, p) for p in range(4)]
 
 
-def getDataPerUnique(uniqueDict, dataObject, measure=None):
+def getDataPerUnique(
+    uniqueDict: dict,
+    dataObject,
+    measure=None,
+) -> dict:
     """Collects all measures for each strain
 
     Args:
-        uniqueDict (dict):  A dict containing unique identifiers and position
-                            lists as returned by the unique method
+        uniqueDict:  A dict containing unique identifiers and position
+            lists as returned by the unique method
 
-        dataObject (several):   An object exposing basic numpy array interface
-                                and hold relevant position based data.
+        dataObject:   An object exposing basic numpy array interface
+            and hold relevant position based data.
 
     Kwargs:
-
         measure:    Either a slice or an argument passable to slice for
-                    subselecting measure type that is to be evaluated
-                    for uniqueness
+            subselecting measure type that is to be evaluated for uniqueness
 
     Returns:
-
         Dict of all measures
-
     """
     if not isinstance(measure, slice):
         measure = slice(measure)
@@ -243,10 +245,10 @@ def getDataPerUnique(uniqueDict, dataObject, measure=None):
     easeMode = dataObject.ndim == 3
 
     for strain, positions in uniqueDict.items():
-
         if easeMode:
             vals = dataObject[
-                tuple(map(np.array, zip(*positions)))][..., measure]
+                tuple(map(np.array, zip(*positions)))
+            ][..., measure]
         else:
             vals = []
             for p, r, c in positions:
@@ -259,71 +261,81 @@ def getDataPerUnique(uniqueDict, dataObject, measure=None):
     return _measures
 
 
-def generalStatsOnStrains(uniqueDict, dataObject, measure=None):
+def generalStatsOnStrains(
+    uniqueDict: dict,
+    dataObject,
+    measure=None,
+) -> dict:
     """Collects basic stats on strains independent on plate (if not part
     of strain info). And presents their basic statistics.
 
     Args:
-        uniqueDict (dict):  A dict containing unique identifiers and position
-                            lists as returned by the unique method
+        uniqueDict:  A dict containing unique identifiers and position
+            lists as returned by the unique method
 
-        dataObject (several):   An object exposing basic numpy array interface
-                                and hold relevant position based data.
+        dataObject:   An object exposing basic numpy array interface
+            and hold relevant position based data.
 
     Kwargs:
-
         measure:    Either a slice or an argument passable to slice for
-                    subselecting measure type that is to be evaluated
-                    for uniqueness
+            subselecting measure type that is to be evaluated for uniqueness
 
     Returns:
-
         Dict of dicts that hold relevant stats per strain
     """
 
     _stats = dict()
 
-    for strain, vals in getDataPerUnique(uniqueDict, dataObject,
-                                         measure=measure).items():
-
+    for strain, vals in getDataPerUnique(
+        uniqueDict,
+        dataObject,
+        measure=measure,
+    ).items():
         finVals = vals[np.isfinite(vals)]
-
         _stats[strain] = dict(
             n=vals.size,
             nans=vals.size - finVals.size,
             mean=finVals.mean(),
             std=finVals.std(ddof=1),
-            cv=finVals.std(ddof=1) / finVals.mean())
-
+            cv=finVals.std(ddof=1) / finVals.mean(),
+        )
     return _stats
 
 
-def getArray(strainStatsDict, key):
+def getArray(strainStatsDict: dict, key: str) -> tuple[list[Any], np.ndarray]:
     """Produces an array of the stats-measure over all strains.
 
     Args:
-        strainStatsDict (dict): A dict as returned from generalStatsOnStrains
+        strainStatsDict: A dict as returned from generalStatsOnStrains
 
-        key (string):   A known strain stats key such as e.g. 'mean' or 'cv'
+        key:   A known strain stats key such as e.g. 'mean' or 'cv'
 
     Returns:
-
-        numpy.array     The corresponding key value for all strains
+        The corresponding key value for all strains
     """
 
-    return strainStatsDict.keys(), np.array([s[key] for s in strainStatsDict.values()])
+    return (
+        list(strainStatsDict.keys()),
+        np.array([s[key] for s in list(strainStatsDict.values())]),
+    )
 
 #
 # PLOTTERS
 #
 
 
-def plotRndStrains(uniqueDict, dataObject, forceInclude=None,
-                   measure=None, n=10, fig=None, showFig=True):
-
+def plotRndStrains(
+    uniqueDict,
+    dataObject,
+    forceInclude=None,
+    measure=None,
+    n=10,
+    fig=None,
+    showFig=True,
+):
     D = getDataPerUnique(uniqueDict, dataObject, measure=measure)
 
-    Dkeys = D.keys()
+    Dkeys = list(D.keys())
     np.random.shuffle(Dkeys)
     if (forceInclude is not None and forceInclude in uniqueDict):
         Dkeys = [k for k in Dkeys if k != forceInclude]
@@ -335,10 +347,8 @@ def plotRndStrains(uniqueDict, dataObject, forceInclude=None,
     fig.clf()
     ax = fig.gca()
 
-    ax.boxplot(
-        [D[key].ravel() for key in Dkeys[:n]])
-    ax.set_xticklabels(
-        [", ".join(l) for l in Dkeys[:n]])
+    ax.boxplot([D[key].ravel() for key in Dkeys[:n]])
+    ax.set_xticklabels([", ".join(l) for l in Dkeys[:n]])
 
     offset = (ax.get_ylim()[1] - ax.get_ylim()[0]) / 30.0
     axTop = ax.get_ylim()[1]
@@ -351,7 +361,11 @@ def plotRndStrains(uniqueDict, dataObject, forceInclude=None,
 
         ax.annotate(
             "n {0}".format(np.isfinite(d).sum()),
-            (i + 0.75, (uB + offset) < axTop and (uB + offset) or (lB - offset)))
+            (
+                i + 0.75,
+                (uB + offset) < axTop and (uB + offset) or (lB - offset),
+            )
+        )
 
     if showFig:
         fig.show()

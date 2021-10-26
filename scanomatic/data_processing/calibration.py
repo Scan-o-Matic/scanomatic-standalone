@@ -1,26 +1,36 @@
-import numpy as np
+import re
+from collections import namedtuple
 from enum import Enum
-from itertools import izip
+from typing import Any, Callable, Dict, Union
+from uuid import uuid1
+
+import numpy as np
 from scipy.optimize import leastsq
 from scipy.stats import linregress
-import re
-from uuid import uuid1
-from collections import namedtuple
-
 
 from scanomatic.generics.maths import mid50_mean
+from scanomatic.image_analysis.first_pass_image import FixtureImage
+from scanomatic.image_analysis.image_basics import (
+    Image_Transpose,
+    load_image_to_numpy
+)
+from scanomatic.io.ccc_data import (
+    CalibrationEntryStatus,
+    CCCImage,
+    CCCMeasurement,
+    CCCPlate,
+    CCCPolynomial,
+    CellCountCalibration,
+    get_empty_ccc_entry,
+    get_empty_image_entry,
+    get_polynomal_entry,
+    load_cccs,
+    save_ccc,
+    validate_polynomial_format
+)
+from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
-from scanomatic.io.fixtures import Fixtures
-from scanomatic.image_analysis.image_basics import (
-    load_image_to_numpy, Image_Transpose)
-from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.io.ccc_data import (
-    CCCImage, CCCPlate, CCCPolynomial, CCCMeasurement, CellCountCalibration,
-    CalibrationEntryStatus, get_empty_ccc_entry, load_cccs,
-    get_polynomal_entry, get_empty_image_entry, save_ccc,
-    validate_polynomial_format,
-)
 
 __CCC = {}
 _logger = Logger("CCC")
@@ -44,56 +54,49 @@ class CCCConstructionError(Exception):
 
 class CalibrationValidation(Enum):
     OK = 0
-    """:type : CalibrationValidation"""
     BadSlope = 1
-    """:type : CalibrationValidation"""
     BadStatistics = 3
-    """:type : CalibrationValidation"""
     BadData = 4
 
 
 def _ccc_edit_validator(identifier, **kwargs):
-
     if identifier in __CCC:
-
         ccc = __CCC[identifier]
 
-        if ("access_token" in kwargs and
-                ccc[CellCountCalibration.edit_access_token] ==
-                kwargs["access_token"] and
-                kwargs["access_token"]):
+        if (
+            "access_token" in kwargs
+            and ccc[CellCountCalibration.edit_access_token]
+            == kwargs["access_token"]
+            and kwargs["access_token"]
+        ):
 
-            if (ccc[CellCountCalibration.status] ==
-                    CalibrationEntryStatus.UnderConstruction):
-
+            if (
+                ccc[CellCountCalibration.status]
+                == CalibrationEntryStatus.UnderConstruction
+            ):
                 return True
-
             else:
-
                 _logger.error(
                     "Can not modify {0} since not under construction".format(
-                        identifier)
+                        identifier,
+                    )
                 )
 
         else:
 
             _logger.error(
-                "Bad access token for {}, request refused using {}"
-                .format(
+                "Bad access token for {}, request refused using {}".format(
                     identifier,
                     kwargs.get('access_token', '++NO TOKEN SUPPLIED++'),
-                )
+                ),
             )
     else:
-
         _logger.error("Unknown CCC {0}".format(identifier))
     return False
 
 
 def _validate_ccc_edit_request(f):
-
     def wrapped(identifier, *args, **kwargs):
-
         if _ccc_edit_validator(identifier, **kwargs):
             del kwargs["access_token"]
             return f(identifier, *args, **kwargs)
@@ -114,27 +117,27 @@ def get_empty_ccc(species, reference):
 
 
 def _get_ccc_identifier(species, reference):
-
     if not species or not reference:
         return None
 
-    if any(True for ccc in __CCC.itervalues() if
-           ccc[CellCountCalibration.species] == species and
-           ccc[CellCountCalibration.reference] == reference):
+    if any(
+        True for ccc in __CCC.values()
+        if ccc[CellCountCalibration.species] == species
+        and ccc[CellCountCalibration.reference] == reference
+    ):
         return None
 
     candidate = re.sub(r'[^A-Z]', r'', species.upper())[:6]
 
-    while any(True for ccc in __CCC.itervalues()
-              if ccc[CellCountCalibration.identifier] == candidate):
-
+    while any(
+        True for ccc in __CCC.values()
+        if ccc[CellCountCalibration.identifier] == candidate
+    ):
         candidate += "qwxz"[np.random.randint(0, 4)]
-
     return candidate
 
 
 def _insert_default_ccc():
-
     ccc = get_empty_ccc(
         species='S. cerevisiae',
         reference='Zackrisson et. al. 2016',
@@ -158,26 +161,23 @@ def reload_cccs():
 
     for ccc in load_cccs():
         if ccc[CellCountCalibration.identifier] in __CCC:
-
             _logger.error(
                 "Duplicated identifier {0} is not allowed!".format(
-                    ccc[CellCountCalibration.identifier])
+                    ccc[CellCountCalibration.identifier],
+                ),
             )
-
         else:
-
             __CCC[ccc[CellCountCalibration.identifier]] = ccc
 
 
 def get_active_cccs():
-
     return {
-        identifier: ccc for identifier, ccc in __CCC.iteritems()
-        if ccc[CellCountCalibration.status] == CalibrationEntryStatus.Active}
+        identifier: ccc for identifier, ccc in __CCC.items()
+        if ccc[CellCountCalibration.status] == CalibrationEntryStatus.Active
+    }
 
 
 def get_polynomial_coefficients_from_ccc(identifier):
-
     ccc = __CCC[identifier]
     if ccc[CellCountCalibration.status] != CalibrationEntryStatus.Active:
         raise KeyError
@@ -186,28 +186,28 @@ def get_polynomial_coefficients_from_ccc(identifier):
 
 
 def get_under_construction_cccs():
-
     return {
-        identifier: ccc for identifier, ccc in __CCC.iteritems()
-        if ccc[CellCountCalibration.status] ==
-        CalibrationEntryStatus.UnderConstruction}
+        identifier: ccc for identifier, ccc in __CCC.items()
+        if ccc[CellCountCalibration.status]
+        == CalibrationEntryStatus.UnderConstruction
+    }
 
 
 def add_ccc(ccc):
 
-    if (ccc[CellCountCalibration.identifier] and
-            ccc[CellCountCalibration.identifier] not in __CCC):
-
+    if (
+        ccc[CellCountCalibration.identifier]
+        and ccc[CellCountCalibration.identifier] not in __CCC
+    ):
         __CCC[ccc[CellCountCalibration.identifier]] = ccc
-
         save_ccc_to_disk(ccc)
         return True
 
     else:
-
         _logger.error(
             "'{0}' is not a valid new CCC identifier".format(
-                ccc[CellCountCalibration.identifier])
+                ccc[CellCountCalibration.identifier]
+            ),
         )
         return False
 
@@ -219,14 +219,14 @@ def has_valid_polynomial(ccc):
     except ValueError as err:
         _logger.error(
             "Checking that CCC has valid polynomial failed with {}".format(
-                err.message)
+                err.message
+            ),
         )
         raise ActivationError(err.message)
 
 
 @_validate_ccc_edit_request
 def activate_ccc(identifier):
-
     ccc = __CCC[identifier]
     try:
         has_valid_polynomial(ccc)
@@ -235,37 +235,28 @@ def activate_ccc(identifier):
 
     ccc[CellCountCalibration.status] = CalibrationEntryStatus.Active
     ccc[CellCountCalibration.edit_access_token] = uuid1().hex
-
     return save_ccc_to_disk(ccc)
 
 
 @_validate_ccc_edit_request
 def delete_ccc(identifier):
-
     ccc = __CCC[identifier]
-
     ccc[CellCountCalibration.status] = CalibrationEntryStatus.Deleted
     ccc[CellCountCalibration.edit_access_token] = uuid1().hex
-
     return save_ccc_to_disk(ccc)
 
 
 def save_ccc_to_disk(ccc):
-
     if ccc[CellCountCalibration.identifier] in __CCC:
-
         return save_ccc(ccc)
-
     else:
-
         _logger.error("Unknown CCC identifier {0} ({1})".format(
-            ccc[CellCountCalibration.identifier], __CCC.keys()))
+            ccc[CellCountCalibration.identifier], list(__CCC.keys())))
         return False
 
 
 @_validate_ccc_edit_request
 def add_image_to_ccc(identifier, image):
-
     ccc = __CCC[identifier]
     im_json = get_empty_image_entry(ccc)
     im_identifier = im_json[CCCImage.identifier]
@@ -279,33 +270,24 @@ def add_image_to_ccc(identifier, image):
 
 
 def get_image_identifiers_in_ccc(identifier):
-
     if identifier in __CCC:
-
         ccc = __CCC[identifier]
-
         return [
             im_json[CCCImage.identifier] for im_json in
             ccc[CellCountCalibration.images]
         ]
-
     return False
 
 
 @_validate_ccc_edit_request
 def set_image_info(identifier, image_identifier, **kwargs):
-
     ccc = __CCC[identifier]
     im_json = get_image_json_from_ccc(identifier, image_identifier)
 
     for key in kwargs:
-
         try:
-
             im_json[CCCImage[key]] = kwargs[key]
-
         except (KeyError, TypeError):
-
             _logger.error("{0} is not a known property of images".format(key))
             return False
 
@@ -314,8 +296,13 @@ def set_image_info(identifier, image_identifier, **kwargs):
 
 @_validate_ccc_edit_request
 def set_plate_grid_info(
-        identifier, image_identifier, plate,
-        grid_shape=None, grid_cell_size=None, **kwargs):
+    identifier,
+    image_identifier,
+    plate,
+    grid_shape=None,
+    grid_cell_size=None,
+    **kwargs
+):
 
     ccc = __CCC[identifier]
     im_json = get_image_json_from_ccc(identifier, image_identifier)
@@ -327,7 +314,7 @@ def set_plate_grid_info(
         plate_json = {
             CCCPlate.grid_cell_size: None,
             CCCPlate.grid_shape: None,
-            CCCPlate.compressed_ccc_data: {}
+            CCCPlate.compressed_ccc_data: {},
         }
         im_json[CCCImage.plates][plate] = plate_json
 
@@ -338,21 +325,15 @@ def set_plate_grid_info(
 
 
 def get_image_json_from_ccc(identifier, image_identifier):
-
     if identifier in __CCC:
-
         ccc = __CCC[identifier]
-
         for im_json in ccc[CellCountCalibration.images]:
-
             if im_json[CCCImage.identifier] == image_identifier:
-
                 return im_json
     return None
 
 
 def get_local_fixture_for_image(identifier, image_identifier):
-
     im_json = get_image_json_from_ccc(identifier, image_identifier)
     if im_json is None:
         return None
@@ -364,9 +345,11 @@ def get_local_fixture_for_image(identifier, image_identifier):
     fixture = FixtureImage(fixture_settings)
     current_settings = fixture['current']
     current_settings.model.orientation_marks_x = np.array(
-        im_json[CCCImage.marker_x])
+        im_json[CCCImage.marker_x],
+    )
     current_settings.model.orientation_marks_y = np.array(
-        im_json[CCCImage.marker_y])
+        im_json[CCCImage.marker_y],
+    )
     issues = {}
     fixture.set_current_areas(issues)
 
@@ -379,32 +362,40 @@ def get_local_fixture_for_image(identifier, image_identifier):
 
 @_validate_ccc_edit_request
 def save_image_slices(
-        identifier, image_identifier, grayscale_slice=None, plate_slices=None):
+        identifier,
+        image_identifier,
+        grayscale_slice=None,
+        plate_slices=None,
+    ):
 
     im = load_image_to_numpy(
         Paths().ccc_image_pattern.format(identifier, image_identifier),
-        dtype=np.uint8)
+        dtype=np.uint8,
+    )
 
     if grayscale_slice:
         np.save(
             Paths().ccc_image_gs_slice_pattern.format(
-                identifier, image_identifier),
-            _get_im_slice(im, grayscale_slice)
+                identifier,
+                image_identifier,
+            ),
+            _get_im_slice(im, grayscale_slice),
         )
 
     if plate_slices:
         for plate_model in plate_slices:
             np.save(
                 Paths().ccc_image_plate_slice_pattern.format(
-                    identifier, image_identifier, plate_model.index),
+                    identifier,
+                    image_identifier,
+                    plate_model.index,
+                ),
                 _get_im_slice(im, plate_model)
             )
-
     return True
 
 
 def _get_im_slice(im, model):
-
     return im[
         int(np.floor(model.y1)): int(np.ceil(model.y2)),
         int(np.floor(model.x1)): int(np.ceil(model.x2))
@@ -412,63 +403,89 @@ def _get_im_slice(im, model):
 
 
 def get_grayscale_slice(identifier, image_identifier):
-
     try:
         return np.load(Paths().ccc_image_gs_slice_pattern.format(
-            identifier, image_identifier)
-        )
+            identifier,
+            image_identifier,
+        ))
     except IOError:
         return None
 
 
 def get_plate_slice(
-        identifier, image_identifier, id_plate, gs_transformed=False):
+    identifier,
+    image_identifier,
+    id_plate,
+    gs_transformed=False,
+):
 
     if gs_transformed:
         try:
             return np.load(
                 Paths().ccc_image_plate_transformed_slice_pattern.format(
-                    identifier, image_identifier, id_plate)
+                    identifier,
+                    image_identifier,
+                    id_plate,
+                ),
             )
         except IOError:
             _logger.error(
                 "Problem loading: {0}".format(
                     Paths().ccc_image_plate_transformed_slice_pattern.format(
-                        identifier, image_identifier, id_plate)))
+                        identifier,
+                        image_identifier,
+                        id_plate,
+                    ),
+                ),
+            )
             return None
     else:
         try:
             return np.load(
                 Paths().ccc_image_plate_slice_pattern.format(
-                    identifier, image_identifier, id_plate)
+                    identifier,
+                    image_identifier,
+                    id_plate,
+                )
             )
         except IOError:
             _logger.error(
                 "Problem loading: {0}".format(
                     Paths().ccc_image_plate_slice_pattern.format(
-                        identifier, image_identifier, id_plate)
-                )
+                        identifier,
+                        image_identifier,
+                        id_plate,
+                    ),
+                ),
             )
             return None
 
 
 @_validate_ccc_edit_request
 def transform_plate_slice(identifier, image_identifier, plate_id):
-
     im_json = get_image_json_from_ccc(identifier, image_identifier)
     if not im_json:
         _logger.error(
-            "CCC {0} Image {1} has not been setup, you must first add the image before working on it.".format(
-                identifier, image_identifier)
+            "CCC {0} Image {1} has not been setup, you must first add the image before working on it.".format(  # noqa: E501
+                identifier,
+                image_identifier,
+            ),
         )
 
     plate = get_plate_slice(
-        identifier, image_identifier, plate_id, gs_transformed=False)
+        identifier,
+        image_identifier,
+        plate_id,
+        gs_transformed=False,
+    )
 
     if plate is None:
         _logger.error(
             "No plate slice has been saved for {0}:{1}: plate {2}".format(
-                identifier, image_identifier, plate_id)
+                identifier,
+                image_identifier,
+                plate_id,
+            )
         )
         return False
 
@@ -481,12 +498,16 @@ def transform_plate_slice(identifier, image_identifier, plate_id):
 
     transpose_polynomial = Image_Transpose(
         sourceValues=grayscale_values,
-        targetValues=grayscale_targets)
+        targetValues=grayscale_targets,
+    )
 
     try:
         np.save(
             Paths().ccc_image_plate_transformed_slice_pattern.format(
-                identifier, image_identifier, plate_id),
+                identifier,
+                image_identifier,
+                plate_id,
+            ),
             transpose_polynomial(plate)
         )
         return True
@@ -494,33 +515,48 @@ def transform_plate_slice(identifier, image_identifier, plate_id):
         _logger.error(
             "Problem saving: {0}".format(
                 Paths().ccc_image_plate_transformed_slice_pattern.format(
-                    identifier, image_identifier, plate_id)
-            )
+                    identifier,
+                    image_identifier,
+                    plate_id,
+                ),
+            ),
         )
         return False
 
 
 @_validate_ccc_edit_request
 def set_colony_compressed_data(
-        identifier, image_identifier, plate_id, x, y, cell_count,
-        image, blob_filter, background_filter):
+    identifier,
+    image_identifier,
+    plate_id,
+    x,
+    y,
+    cell_count,
+    image,
+    blob_filter,
+    background_filter,
+):
 
     ccc = __CCC[identifier]
     background = mid50_mean(image[background_filter].ravel())
     if np.isnan(background):
         _logger.error(
-            "The background had too little information to make mid50 mean")
+            "The background had too little information to make mid50 mean",
+        )
         return False
-
     colony = image[blob_filter].ravel() - background
 
-    values, counts = zip(
-        *{k: (colony == k).sum() for k in
-          np.unique(colony).tolist()}.iteritems())
+    values, counts = list(zip(
+        *iter({
+            k: (colony == k).sum() for k in
+            np.unique(colony).tolist()
+        }.items())
+    ))
 
     if np.sum(counts) != blob_filter.sum():
         _logger.error(
-            "Counting mismatch between compressed format and blob filter")
+            "Counting mismatch between compressed format and blob filter",
+        )
         return False
 
     image_data = get_image_json_from_ccc(identifier, image_identifier)
@@ -549,8 +585,7 @@ def calculate_sizes(data, poly):
     ]
 
 
-def validate_polynomial(slope, p_value, stderr):
-
+def validate_polynomial(slope, p_value, stderr) -> CalibrationValidation:
     if abs(1.0 - slope) > 0.1:
         _logger.error("Bad slope for polynomial: {0}".format(slope))
         return CalibrationValidation.BadSlope
@@ -566,14 +601,15 @@ def _collect_all_included_data(ccc):
     source_value_counts = []
     target_value = []
 
-    for id_image, image_data in enumerate(ccc[CellCountCalibration.images]):
+    for _, image_data in enumerate(ccc[CellCountCalibration.images]):
 
-        for id_plate, plate in image_data[CCCImage.plates].items():
+        for _, plate in list(image_data[CCCImage.plates].items()):
 
-            for colony_data in plate[CCCPlate.compressed_ccc_data].values():
+            for colony_data in list(plate[CCCPlate.compressed_ccc_data].values()):
 
                 source_value_counts.append(
-                    colony_data[CCCMeasurement.source_value_counts])
+                    colony_data[CCCMeasurement.source_value_counts],
+                )
                 source_values.append(colony_data[CCCMeasurement.source_values])
                 target_value.append(colony_data[CCCMeasurement.cell_count])
 
@@ -594,12 +630,11 @@ def _collect_all_included_data(ccc):
         ],
         target_value=np.array([
             target_value[sort] for sort in sort_order
-        ])
+        ]),
     )
 
 
 def get_calibration_optimization_function(degree=5):
-
     coeffs = np.zeros((degree + 1,), np.float)
 
     def poly(data_store, *guess):
@@ -613,18 +648,18 @@ def get_calibration_optimization_function(degree=5):
 
 
 def get_calibration_polynomial_residuals(
-        guess, colony_sum_function, data_store):
-
+    guess,
+    colony_sum_function: Callable,
+    data_store
+):
     return data_store.target_value - colony_sum_function(data_store, *guess)
 
 
 def get_calibration_polynomial(coefficients_array):
-
     return np.poly1d(coefficients_array)
 
 
-def poly_as_text(poly):
-
+def poly_as_text(poly) -> str:
     def coeffs():
         for i, coeff in enumerate(poly[::-1]):
             if (coeff != 0):
@@ -634,7 +669,6 @@ def poly_as_text(poly):
 
 
 def calculate_polynomial(data_store, degree=5):
-
     fit_function = get_calibration_optimization_function(degree)
 
     p0 = np.zeros((degree,), np.float)
@@ -661,14 +695,14 @@ def calculate_polynomial(data_store, degree=5):
 
     _logger.info(
         "Produced {} degree polynomial {}".format(
-            degree, poly_as_text(poly_vals)
-        )
+            degree,
+            poly_as_text(poly_vals),
+        ),
     )
     return poly_vals
 
 
 def _get_all_grid_shapes(ccc):
-
     plates = []
     cells = []
 
@@ -683,8 +717,7 @@ def _get_all_grid_shapes(ccc):
 
 
 @_validate_ccc_edit_request
-def construct_polynomial(identifier, power):
-
+def construct_polynomial(identifier, power) -> Union[bool, Dict[str, Any]]:
     ccc = __CCC[identifier]
     data_store = _collect_all_included_data(ccc)
     try:
@@ -697,13 +730,16 @@ def construct_polynomial(identifier, power):
 
     calculated_sizes = calculate_sizes(data_store, poly)
     slope, intercept, _, p_value, stderr = linregress(
-        data_store.target_value, calculated_sizes)
+        data_store.target_value,
+        calculated_sizes,
+    )
 
     validation = validate_polynomial(slope, p_value, stderr)
 
     if validation is CalibrationValidation.OK:
         ccc[CellCountCalibration.polynomial] = get_polynomal_entry(
-            power, poly_coeffs,
+            power,
+            poly_coeffs,
         )
 
         if not save_ccc_to_disk(ccc):
@@ -723,7 +759,7 @@ def construct_polynomial(identifier, power):
     }
 
 
-def get_all_colony_data(identifier):
+def get_all_colony_data(identifier) -> dict[str, Any]:
     ccc = __CCC[identifier]
     data_store = _collect_all_included_data(ccc)
     if data_store.source_values:

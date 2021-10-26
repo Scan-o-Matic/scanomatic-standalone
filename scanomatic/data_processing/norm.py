@@ -1,25 +1,22 @@
-#
-#   DEPENDENCIES
-#
-
 from enum import Enum
-import numpy as np
 from types import StringTypes
-from scipy.interpolate import griddata
-from scipy.ndimage import gaussian_filter, sobel, laplace, convolve, generic_filter, median_filter
-from scipy.stats import pearsonr
+from typing import Literal, Optional, Sequence
 
-#
-#   INTERNAL DEPENDENCIES
-#
+import numpy as np
+from scipy.interpolate import griddata
+from scipy.ndimage import (
+    convolve,
+    gaussian_filter,
+    generic_filter,
+    laplace,
+    median_filter,
+    sobel
+)
+from scipy.stats import pearsonr
 
 from scanomatic.data_processing.data_bridge import Data_Bridge
 from scanomatic.generics.maths import mid50_mean
-from scanomatic.generics.phenotype_filter import FilterArray, Filter
-
-#
-#   STATIC GLOBALS
-#
+from scanomatic.generics.phenotype_filter import Filter, FilterArray
 
 
 class Offsets(Enum):
@@ -41,50 +38,53 @@ class Offsets(Enum):
 
     def __call__(self):
 
-        return np.array([[self is Offsets.UpperLeft, self is Offsets.UpperRight],
-                         [self is Offsets.LowerLeft, self is Offsets.LowerRight]], dtype=np.bool)
+        return np.array(
+            [
+                [self is Offsets.UpperLeft, self is Offsets.UpperRight],
+                [self is Offsets.LowerLeft, self is Offsets.LowerRight],
+            ],
+            dtype=np.bool,
+        )
 
 
 def infer_offset(arr):
-
     for offset in Offsets:
-
         if (offset() == arr).all():
             return offset
 
-    raise ValueError("Supplied pattern {0} not a known offset".format(arr.tolist()))
-
-#
-#   METHODS: Normalisation methods
-#
+    raise ValueError(
+        "Supplied pattern {0} not a known offset".format(arr.tolist()),
+    )
 
 
-def get_downsampled_plates(data, subsampling="BR"):
+def get_downsampled_plates(
+    data,
+    subsampling: Literal['TL', 'TR', 'BL', 'BR'] = "BR",
+):
     """
+    The subsampling is either supplied as a generic position for all plates
+    or as a list of individual positions for each plate of the dataBridge
+    or object following the same interface (e.g. numpy array of plates).
 
-        The subsampling is either supplied as a generic position for all plates
-        or as a list of individual positions for each plate of the dataBridge
-        or object following the same interface (e.g. numpy array of plates).
+    The subsampling will attempt to extract one of the four smaller sized
+    plates that made up the current plate. E.g. one of the four 384 plates
+    that makes up a 1536 as the 384 looked before being pinned over.
 
-        The subsampling will attempt to extract one of the four smaller sized
-        plates that made up the current plate. E.g. one of the four 384 plates
-        that makes up a 1536 as the 384 looked before being pinned over.
+    The returned array will work on the same memory as the original so
+    any changes will affect the original data.
 
-        The returned array will work on the same memory as the original so
-        any changes will affect the original data.
+    The subSampling should be one of the following four expressions:
 
-        The subSampling should be one of the following four expressions:
+        TL:     Top left
+        TR:     Top right
+        BL:     Bottom left
+        BR:     Bottom right
 
-            TL:     Top left
-            TR:     Top right
-            BL:     Bottom left
-            BR:     Bottom right
-
-        Args:
-            data:
-                The data
-            subsampling:
-                The subsampling used
+    Args:
+        data:
+            The data
+        subsampling:
+            The subsampling used
     """
 
     # Generic -> Per plate
@@ -92,8 +92,12 @@ def get_downsampled_plates(data, subsampling="BR"):
         subsampling = [subsampling for _ in range(data.shape[0])]
 
         # Lookup to translate subsamplingexpressions to coordinates
-        sub_sample_lookup = {'TL': Offsets.UpperLeft, 'TR': Offsets.UpperRight,
-                             'BL': Offsets.LowerLeft, 'BR': Offsets.LowerRight}
+        sub_sample_lookup = {
+            'TL': Offsets.UpperLeft,
+            'TR': Offsets.UpperRight,
+            'BL': Offsets.LowerLeft,
+            'BR': Offsets.LowerRight,
+        }
 
         # Name to offset
         subsampling = [sub_sample_lookup[s]() for s in subsampling]
@@ -108,15 +112,17 @@ def get_downsampled_plates(data, subsampling="BR"):
     out = []
     for i, plate in enumerate(data):
         offset = subsampling[i]
-
         if offset.astype(bool).sum() != 1:
             raise ValueError(
                 "Only exactly 1 reference position offset per plate allowed. "
-                "You had {0}".format(offset))
+                "You had {0}".format(offset),
+            )
         elif offset.shape != (2, 2):
             raise ValueError(
                 "Only subsampling by 2x2 arrays allowed. You had {0}".format(
-                    offset.shape))
+                    offset.shape,
+                ),
+            )
 
         d1, d2 = np.where(offset)
 
@@ -125,7 +131,11 @@ def get_downsampled_plates(data, subsampling="BR"):
     return out
 
 
-def get_control_position_filtered_arrays(data, offsets=None, fill_value=np.nan):
+def get_control_position_filtered_arrays(
+    data,
+    offsets=None,
+    fill_value=np.nan,
+):
 
     """Support method that returns array in the shape corresponding
     to the data in the DataBridge such that only the values reported
@@ -146,7 +156,11 @@ def get_control_position_filtered_arrays(data, offsets=None, fill_value=np.nan):
     else:
         for i, d in enumerate(data):
             if isinstance(d, FilterArray):
-                data[i] = d.masked(Filter.UndecidedProblem, Filter.BadData, Filter.Empty).filled()
+                data[i] = d.masked(
+                    Filter.UndecidedProblem,
+                    Filter.BadData,
+                    Filter.Empty,
+                ).filled()
 
     n_plates = len(data)
     out = []
@@ -154,26 +168,30 @@ def get_control_position_filtered_arrays(data, offsets=None, fill_value=np.nan):
     if offsets is None:
         offsets = [Offsets.LowerRight() for _ in range(n_plates)]
 
-    for id_plate in xrange(n_plates):
-
+    for id_plate in range(n_plates):
         new_plate = data[id_plate].copy()
         out.append(new_plate)
         plate_offset = offsets[id_plate]
-        filt = np.tile(plate_offset, [a / b for a, b in zip(new_plate.shape, plate_offset.shape)])
+        filt = np.tile(
+            plate_offset,
+            [a / b for a, b in zip(new_plate.shape, plate_offset.shape)],
+        )
         new_plate[filt == False] = fill_value
 
     return np.array(out)
 
 
 def _get_positions(data, offsets):
-
     out = []
-
     for id_plate, plate in enumerate(data):
-
         offset = offsets[id_plate]
-        filt = np.tile(offset, [a / b for a, b in zip(plate.shape, offset.shape)])
-        filt = filt.reshape(filt.shape + tuple(1 for _ in range(plate.ndim - filt.ndim)))
+        filt = np.tile(
+            offset,
+            [a / b for a, b in zip(plate.shape, offset.shape)],
+        )
+        filt = filt.reshape(
+            filt.shape + tuple(1 for _ in range(plate.ndim - filt.ndim)),
+        )
         out.append(np.where(filt & np.isfinite(plate)))
 
     return out
@@ -188,33 +206,31 @@ def get_control_position_coordinates(data, offsets=None):
         offsets:
             Control position offsets
     """
-
     n_plates = len(data)
-
     if offsets is None:
         offsets = [Offsets.LowerRight() for _ in range(n_plates)]
-
     return _get_positions(data, offsets)
 
 
 def get_experiment_positions_coordinates(data, offsets=None):
-
     if offsets is None:
         offsets = [Offsets.LowerRight() for _ in range(len(data))]
-
     experiment_positions_offsets = [k == np.False_ for k in offsets]
-
     return _get_positions(data, experiment_positions_offsets)
 
 
-def get_coordinate_filtered(data, coordinates, measure=1, require_finite=True, require_correlated=False):
-
+def get_coordinate_filtered(
+    data,
+    coordinates,
+    measure=1,
+    require_finite=True,
+    require_correlated=False,
+):
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
 
     filtered = []
     for i in range(len(data)):
-
         p = data[i][..., measure]
         filtered_plate = p[coordinates[i]]
 
@@ -226,14 +242,12 @@ def get_coordinate_filtered(data, coordinates, measure=1, require_finite=True, r
     filtered = np.array(filtered)
 
     if require_correlated:
-
         filtered = filtered[:, np.isfinite(filtered).all(axis=0)]
 
     return filtered
 
 
 def get_center_transformed_control_positions(control_pos_coordinates, data):
-
     """Remaps coordinates so they are relative to the plates' center
 
     Args:
@@ -250,16 +264,19 @@ def get_center_transformed_control_positions(control_pos_coordinates, data):
         data = data.get_as_array()
 
     for id_plate, plate in enumerate(control_pos_coordinates):
-
         center = data[id_plate].shape[:2] / 2.0
-        center_transformed.append((plate[0] - center[0],  plate[1] - center[1]))
+        center_transformed.append(
+            (plate[0] - center[0],  plate[1] - center[1]),
+        )
 
     return center_transformed
 
 
-def get_control_positions_average(control_pos_data_array,
-                                  overwrite_experiment_values=np.nan,
-                                  average_method=mid50_mean):
+def get_control_positions_average(
+    control_pos_data_array,
+    overwrite_experiment_values=np.nan,
+    average_method=mid50_mean,
+):
     """Returns the average per measure of each measurement type for
     the control positions. Default is to return the mean of the
     the mid 50 values.
@@ -276,38 +293,49 @@ def get_control_positions_average(control_pos_data_array,
     plate_control_averages = []
 
     for plate in control_pos_data_array:
-
         measurement_vector = []
         plate_control_averages.append(measurement_vector)
 
-        for id_measurement in xrange(plate.shape[2]):
-
+        for id_measurement in range(plate.shape[2]):
             if overwrite_experiment_values in (np.nan, np.inf):
-
                 if np.isnan(overwrite_experiment_values):
-
                     valid_data_test = np.isnan
-
                 else:
-
                     valid_data_test = np.isinf
 
                 measurement_vector.append(
-                    average_method(plate[..., id_measurement][
-                        valid_data_test(plate[..., id_measurement]) == np.False_]))
+                    average_method(
+                        plate[..., id_measurement][
+                            valid_data_test(plate[..., id_measurement])
+                            == np.False_
+                        ],
+                    )
+                )
 
             else:
 
                 measurement_vector.append(
-                    average_method(plate[..., id_measurement][
-                                      plate[..., id_measurement] != overwrite_experiment_values]))
+                    average_method(
+                        plate[..., id_measurement][
+                            plate[..., id_measurement]
+                            != overwrite_experiment_values
+                        ],
+                    )
+                )
 
     return np.array(plate_control_averages)
 
 
-def get_normalisation_surface(control_positions_filtered_data, control_position_coordinates=None,
-                              norm_sequence=('cubic', 'linear', 'nearest'), use_accumulated=False, fill_value=np.nan,
-                              offsets=None, apply_median_smoothing_kernel=None, apply_gaussian_smoothing_sigma=None):
+def get_normalisation_surface(
+    control_positions_filtered_data,
+    control_position_coordinates=None,
+    norm_sequence: Sequence[str] = ('cubic', 'linear', 'nearest'),
+    use_accumulated: bool = False,
+    fill_value=np.nan,
+    offsets=None,
+    apply_median_smoothing_kernel: Optional[int] = None,
+    apply_gaussian_smoothing_sigma: Optional[float] = None,
+):
     """Constructs normalisation surface using iterative runs of
     scipy.interpolate's gridddata based on sequence of supplied
     method preferences.
@@ -323,7 +351,7 @@ def get_normalisation_surface(control_positions_filtered_data, control_position_
             per plate control positions vector. If not supplied
             it is constructed using controlPositionKernel
 
-        norm_sequence (str):
+        norm_sequence:
             ('cubic', 'linear', 'nearest')
             The griddata method order to be invoked.
 
@@ -340,36 +368,42 @@ def get_normalisation_surface(control_positions_filtered_data, control_position_
             controlPositionsCoordinates if it is not supplied.
 
         apply_median_smoothing_kernel (int):
-            Optional argument to apply a median smoothing of certain size to the surface
-            after interpolation. Omitted if `None`.
+            Optional argument to apply a median smoothing of certain size to
+            the surface after interpolation. Omitted if `None`.
 
         apply_gaussian_smoothing_sigma (float):
             Optional argument to apply a gaussian smoothing with sigma.
             Omitted if `None`.
-
     """
 
     def get_stripped_invalid_points(selector):
-
-        return tuple(map(np.array, zip(*((x, y) for is_selected, x, y in zip(selector, *anchor_points)
-                                         if is_selected))))
+        return tuple(map(
+            np.array,
+            list(
+                zip(*(
+                    (x, y)
+                    for is_selected, x, y in zip(selector, *anchor_points)
+                    if is_selected
+                ))
+            )
+        ))
 
     out = []
     n_plates = len(control_positions_filtered_data)
 
     if control_position_coordinates is None:
-        control_position_coordinates = get_control_position_coordinates(control_positions_filtered_data, offsets)
+        control_position_coordinates = get_control_position_coordinates(
+            control_positions_filtered_data,
+            offsets,
+        )
 
     if np.isnan(fill_value):
-
         missing_data_test = np.isnan
 
     else:
-
         missing_data_test = np.isinf
 
-    for id_plate in xrange(n_plates):
-
+    for id_plate in range(n_plates):
         if control_positions_filtered_data[id_plate] is None:
             out.append(None)
             continue
@@ -382,44 +416,69 @@ def get_normalisation_surface(control_positions_filtered_data, control_position_
         grid_x, grid_y = np.mgrid[0:plate.shape[0], 0:plate.shape[1]]
 
         if plate.ndim == 3:
-            for id_measurement in xrange(plate.shape[2]):
-
+            for id_measurement in range(plate.shape[2]):
                 for method in norm_sequence:
-
                     if use_accumulated:
-                        anchor_points = np.where(missing_data_test(plate[..., id_measurement]) == np.False_)
+                        anchor_points = np.where(
+                            missing_data_test(plate[..., id_measurement])
+                            == np.False_
+                        )
                     anchor_values = plate[anchor_points]
 
                     finite_values = np.isfinite(anchor_values)
                     if finite_values.sum() > 0:
 
                         if (finite_values == np.False_).any():
-
-                            anchor_points = tuple(p[finite_values] for p in anchor_points)
+                            anchor_points = tuple(
+                                p[finite_values] for p in anchor_points
+                            )
                             anchor_values = anchor_values[finite_values]
 
-                        splined_plate = griddata(tuple(anchor_points[:2]), anchor_values, (grid_x, grid_y), method=method,
-                                                 fill_value=fill_value)
-                        missing_data = np.where(missing_data_test(plate[..., id_measurement]))
-                        plate[..., id_measurement][missing_data] = splined_plate[missing_data]
+                        splined_plate = griddata(
+                            tuple(anchor_points[:2]),
+                            anchor_values,
+                            (grid_x, grid_y),
+                            method=method,
+                            fill_value=fill_value,
+                        )
+                        missing_data = np.where(
+                            missing_data_test(plate[..., id_measurement]),
+                        )
+                        plate[..., id_measurement][
+                            missing_data
+                        ] = splined_plate[missing_data]
 
-                        if not missing_data_test(plate[..., id_measurement]).any():
+                        if not missing_data_test(
+                            plate[..., id_measurement],
+                        ).any():
                             break
         else:
             for method in norm_sequence:
 
                 if use_accumulated:
-                    anchor_points = np.where(missing_data_test(plate) == np.False_)
+                    anchor_points = np.where(
+                        missing_data_test(plate) == np.False_,
+                    )
 
-                anchor_points = get_stripped_invalid_points(np.isfinite(plate[anchor_points]))
+                anchor_points = get_stripped_invalid_points(
+                    np.isfinite(plate[anchor_points]),
+                )
                 anchor_values = plate[anchor_points]
 
-                if anchor_values.size == 0 or np.isfinite(plate).all() or np.isfinite(anchor_values).sum() < 4:
+                if (
+                    anchor_values.size == 0
+                    or np.isfinite(plate).all()
+                    or np.isfinite(anchor_values).sum() < 4
+                ):
                     break
                 else:
-
-                    splined_plate = griddata(anchor_points, anchor_values, (grid_x, grid_y), method=method,
-                                             fill_value=fill_value)
+                    splined_plate = griddata(
+                        anchor_points,
+                        anchor_values,
+                        (grid_x, grid_y),
+                        method=method,
+                        fill_value=fill_value,
+                    )
                     missing_data = np.where(missing_data_test(plate))
                     plate[missing_data] = splined_plate[missing_data]
 
@@ -429,78 +488,79 @@ def get_normalisation_surface(control_positions_filtered_data, control_position_
     out = np.array(out)
 
     if apply_median_smoothing_kernel is not None:
-        for id_measurement in xrange(out[0].shape[2]):
+        for id_measurement in range(out[0].shape[2]):
             apply_median_smoothing(
                 out,
                 filter_shape=apply_median_smoothing_kernel,
-                measure=id_measurement)
+                measure=id_measurement,
+            )
 
     if apply_gaussian_smoothing_sigma is not None:
-        for id_measurement in xrange(out[0].shape[2]):
+        for id_measurement in range(out[0].shape[2]):
             apply_gauss_smoothing(
                 out,
                 sigma=apply_gaussian_smoothing_sigma,
-                measure=id_measurement)
+                measure=id_measurement,
+            )
 
     return out
 
-#
-#   METHODS: Apply functions
-#
-#   Apply functions update the dataArray/Bridge values!
-#
 
-
-def apply_outlier_filter(data, median_filter_size=(3, 3), measure=None, k=2.0, p=10, max_iterations=10):
+def apply_outlier_filter(
+    data: np.ndarray,
+    median_filter_size: Optional[tuple[int, ...]] = (3, 3),
+    measure: Optional[int] = None,
+    k: float = 2.0,
+    p: int = 10,
+    max_iterations: int = 10,
+):
     """Checks all positions in each array and filters those outside
     set boundries based upon their peak/valey properties using
     laplace and normal distribution assumptions.
 
     Args:
-        data (numpy.array):    Array of platewise values
+        data:    Array of platewise values
 
-        median_filter_size (tuple):    Used in median filter that is nan-safe as
-                                first smoothing step before testing outliers.
-                                If set to None, step is skipped
+        median_filter_size:    Used in median filter that is nan-safe as
+            first smoothing step before testing outliers.
+            If set to None, step is skipped
 
-        measure (int):  The measure to be outlier filtered
+        measure:  The measure to be outlier filtered
 
-        k (float) : Distance in sigmas for setting nan-threshold
+        k: Distance in sigmas for setting nan-threshold
 
-        p (int) :   Estimate number of positions to be qualified as outliers
+        p:   Estimate number of positions to be qualified as outliers
 
-        max_iterations (int) :   Maximum number of iterations filter may be
-                                applied
+        max_iterations:   Maximum number of iterations filter may be applied
     """
 
     def nan_filler(item):
         if np.isnan(item[kernel_center]):
-
             return np.median(item[np.isfinite(item)])
-
         else:
-
             return item[kernel_center]
 
     if median_filter_size is not None:
-
         kernel_center = (np.prod(median_filter_size) - 1) / 2
+        assert np.array(
+            [v % 2 == 1 for v in median_filter_size],
+        ).all(), "nanFillSize can only have odd values"
 
-        assert np.array([v % 2 == 1 for v in median_filter_size]).all(), "nanFillSize can only have odd values"
-
-    laplace_kernel = np.array([
-        [0.5, 1, 0.5],
-        [1, -6, 1],
-        [0.5, 1, 0.5]], dtype=data[0].dtype)
+    laplace_kernel = np.array(
+        [
+            [0.5, 1, 0.5],
+            [1, -6, 1],
+            [0.5, 1, 0.5]
+        ],
+        dtype=data[0].dtype,
+    )
 
     for plate in data:
-
         old_nans = -1
         new_nans = 0
         iterations = 0
 
         while new_nans != old_nans and iterations < max_iterations:
-
             old_nans = new_nans
             iterations += 1
 
@@ -512,10 +572,19 @@ def apply_outlier_filter(data, median_filter_size=(3, 3), measure=None, k=2.0, p
             if median_filter_size is not None:
 
                 # Apply median filter to fill nans
-                plate_copy = generic_filter(plate_copy, nan_filler, size=median_filter_size, mode="nearest")
+                plate_copy = generic_filter(
+                    plate_copy,
+                    nan_filler,
+                    size=median_filter_size,
+                    mode="nearest",
+                )
 
             # Apply laplace
-            plate_copy = convolve(plate_copy, laplace_kernel, mode="nearest")
+            plate_copy = convolve(
+                plate_copy,
+                laplace_kernel,
+                mode="nearest",
+            )
 
             # Make normalness analysis to find lower and upper threshold
             # Rang based to z-score, compare to threshold adjusted by expected
@@ -530,17 +599,29 @@ def apply_outlier_filter(data, median_filter_size=(3, 3), measure=None, k=2.0, p
             z_scores = np.abs(plate_copy_ravel.data - mu)
 
             for pos in np.argsort(z_scores)[::-1]:
-                if np.isnan(plate_ravel[pos]) or \
-                        z_scores[pos] > k * sigma / np.exp(-(np.isfinite(plate_ravel).sum() /
-                                                             float(plate_ravel.size)) ** p):
+                if (
+                    np.isnan(plate_ravel[pos])
+                    or z_scores[pos] > k * sigma / np.exp(
+                        -(
+                            np.isfinite(plate_ravel).sum()
+                            / float(plate_ravel.size)
+                        ) ** p
+                    )
+                ):
 
                     if measure is None:
-                        plate[pos / plate.shape[1], pos % plate.shape[1]] = np.nan
+                        plate[
+                            pos / plate.shape[1],
+                            pos % plate.shape[1]
+                        ] = np.nan
                     else:
-                        plate[pos / plate.shape[1], pos % plate.shape[1], measure] = np.nan
+                        plate[
+                            pos / plate.shape[1],
+                            pos % plate.shape[1],
+                            measure
+                        ] = np.nan
 
                 else:
-
                     break
 
             if measure is None:
@@ -565,13 +646,13 @@ def apply_log2_transform(data, measures=None):
         measures = np.arange(data[0].shape[-1])
 
     for id_plate in range(len(data)):
-        data[id_plate][..., measures] = np.log2(
-            data[id_plate][..., measures])
+        data[id_plate][..., measures] = np.log2(data[id_plate][..., measures])
 
 
 def apply_sobel_filert(data, measure=1, threshold=1, **kwargs):
     """Applies a Sobel filter to the arrays and then compares this to a
-    threshold setting all positions greater than said absolute threshold to NaN.
+    threshold setting all positions greater than said absolute threshold to
+    NaN.
 
     Args:
         data:       The data to be filtered
@@ -586,9 +667,10 @@ def apply_sobel_filert(data, measure=1, threshold=1, **kwargs):
 
     for id_plate in range(len(data)):
 
-        filt = (np.sqrt(sobel(
-            data[id_plate][..., measure], axis=0, **kwargs) ** 2 +
-                        sobel(data[id_plate][..., measure], axis=1, **kwargs) ** 2) > threshold)
+        filt = np.sqrt(
+            sobel(data[id_plate][..., measure], axis=0, **kwargs) ** 2
+            + sobel(data[id_plate][..., measure], axis=1, **kwargs) ** 2
+        ) > threshold
 
         data[id_plate][..., measure][filt] = np.nan
 
@@ -608,9 +690,9 @@ def apply_laplace_filter(data, measure=1, threshold=1, **kwargs):
         kwargs['mode'] = 'nearest'
 
     for id_plate in range(len(data)):
-
-        filt = np.abs(laplace(data[id_plate][..., measure], **kwargs)) > threshold
-
+        filt = np.abs(
+            laplace(data[id_plate][..., measure], **kwargs),
+        ) > threshold
         data[id_plate][..., measure][filt] = np.nan
 
 
@@ -630,19 +712,24 @@ def apply_gauss_smoothing(data, measure=1, sigma=3.5, **kwargs):
         kwargs['mode'] = 'nearest'
 
     for id_plate in range(len(data)):
-
         data[id_plate][..., measure] = gaussian_filter(
-            data[id_plate][..., measure], sigma=sigma, **kwargs)
+            data[id_plate][..., measure],
+            sigma=sigma,
+            **kwargs,
+        )
 
 
 def apply_median_smoothing(data, measure=1, filter_shape=(3, 3), **kwargs):
-
     if 'mode' not in kwargs:
         kwargs['mode'] = 'nearest'
 
     for id_plate, plate in enumerate(data):
 
-        data[id_plate][..., measure] = median_filter(plate[..., measure], size=filter_shape, **kwargs)
+        data[id_plate][..., measure] = median_filter(
+            plate[..., measure],
+            size=filter_shape,
+            **kwargs,
+        )
 
 
 def apply_sigma_filter(data, sigma=3):
@@ -661,33 +748,40 @@ def apply_sigma_filter(data, sigma=3):
             finite_values = values[np.isfinite(values)]
             mean = finite_values.mean()
             std = finite_values.std()
-            values[np.logical_or(values < mean - sigma * std,
-                                 values > mean + sigma * std)] = np.nan
+            values[
+                np.logical_or(
+                    values < mean - sigma * std,
+                    values > mean + sigma * std,
+                )
+            ] = np.nan
 
 
-#
-#   FITTING METHODS: For normalisation with GT and inital value
-#
-
-
-def initial_plate_transform(ipv, flex_scaling_vector, magnitude_scaling_vector):
-
-    return magnitude_scaling_vector * (flex_scaling_vector * (ipv - ipv[np.isfinite(ipv)].mean()))
+def initial_plate_transform(
+    ipv,
+    flex_scaling_vector,
+    magnitude_scaling_vector,
+):
+    return (
+        magnitude_scaling_vector
+        * (flex_scaling_vector
+        * (ipv - ipv[np.isfinite(ipv)].mean()))
+    )
 
 
 def ipv_residue(scaling_params, ipv, gt):
-
     ip_flex = scaling_params[: scaling_params.size / 2]
     ip_scale = scaling_params[scaling_params.size / 2:]
-    ret = np.array([gt[id_p] - initial_plate_transform(
-        ipv, ip_flex[id_p], ip_scale[id_p]) for id_p in xrange(gt.shape[0])
-                     if gt[id_p].size > 0], dtype=np.float)
+    ret = np.array(
+        [
+            gt[id_p]
+            - initial_plate_transform(ipv, ip_flex[id_p], ip_scale[id_p])
+            for id_p in range(gt.shape[0])
+            if gt[id_p].size > 0
+        ],
+        dtype=np.float
+    )
 
     return np.hstack([p[np.isfinite(p)].ravel() for p in ret])
-
-#
-#   METHODS: Normalisation method
-#
 
 
 def norm_by_log2_diff(plate, surface, **kwargs):
@@ -706,11 +800,14 @@ def norm_by_log2_diff_corr_scaled(plate, surface, **kwargs):
     plate = np.log2(plate)
     surface = np.log2(surface)
     filt = np.isfinite(plate) & np.isfinite(surface)
-    return (plate - surface) * (pearsonr(plate[filt], surface[filt])[0] + 1) * 0.5
+    return (
+        (plate - surface)
+        * (pearsonr(plate[filt], surface[filt])[0] + 1)
+        * 0.5
+    )
 
 
 def get_normalized_data(data, offsets=None, method=norm_by_log2_diff):
-
     if data is None:
         return None
 
@@ -722,20 +819,22 @@ def get_normalized_data(data, offsets=None, method=norm_by_log2_diff):
     std = [None] * len(data)
 
     if method == norm_by_signal_to_noise:
-        std = [plate[np.isfinite(plate)].std() if plate is not None else None for plate in pre_surface]
+        std = [
+            plate[np.isfinite(plate)].std() if plate is not None else None
+            for plate in pre_surface
+        ]
 
     try:
         surface = get_normalisation_surface(surface, offsets=offsets)
     except ValueError:
-        print offsets
-        print data
+        print(offsets)
+        print(data)
         raise
 
     return normalisation(data, surface, method=method, std=std)
 
 
 def get_reference_positions(data, offsets, outlier_filter=True):
-
     surface = get_control_position_filtered_arrays(data, offsets=offsets)
     pre_surface = get_downsampled_plates(surface, offsets)
     if outlier_filter:
@@ -744,16 +843,13 @@ def get_reference_positions(data, offsets, outlier_filter=True):
 
 
 def normalisation(data, norm_surface, method=norm_by_log2_diff, std=(None,)):
-
     normed_data = []
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
 
-    for id_plate, (plate, surf, plate_std) in enumerate(zip(data, norm_surface, std)):
-
+    for _, (plate, surf, plate_std) in enumerate(zip(data, norm_surface, std)):
         if plate is None or surf is None:
             normed_data.append(None)
-
         else:
             normed_data.append(method(plate, surf, std=plate_std))
 

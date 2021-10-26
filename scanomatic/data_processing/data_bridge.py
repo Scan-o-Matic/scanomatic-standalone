@@ -1,10 +1,6 @@
 import numpy as np
 
-#
-#   INTERNAL DEPENDENCIES
-#
-
-import mock_numpy_interface
+from . import mock_numpy_interface
 
 
 class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
@@ -40,22 +36,18 @@ class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
             self.update_source = self._update_to_array
 
         elif isinstance(self._source, dict):
-
             plates = [[]] * len(self._source)  # Creates plates and 1D pos
-
-            for p in self._source.values():
+            for p in list(self._source.values()):
 
                 for d1 in p:
                     plates[-1].append([])  # Vector for 2D pos
 
                     for cell in d1:
-
                         plates[-1][-1].append([])
 
-                        for compartment in cell.values():
+                        for compartment in list(cell.values()):
 
-                            for value in compartment.values():
-
+                            for value in list(compartment.values()):
                                 plates[-1][-1][-1].append(value)
 
             self._data = np.array(plates)
@@ -75,24 +67,23 @@ class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
             for id_d1, d1 in enumerate(p):
 
                 for id_d2, cell in enumerate(d1):
-
                     id_measure = 0
-
-                    for compartment in cell.values():
+                    for compartment in list(cell.values()):
 
                         for key in compartment:
-
                             compartment[key] = self._data[
-                                id_plate, id_d1, id_d2, id_measure]
+                                id_plate,
+                                id_d1,
+                                id_d2,
+                                id_measure
+                            ]
 
                             id_measure += 1
             id_plate += 1
 
     def _update_to_array(self):
         """Updates the source inplace"""
-
         for i, p in enumerate(self._source):
-
             p[...] = self._data[i]
 
     def get_source(self):
@@ -102,15 +93,15 @@ class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
 
     def get_as_array(self):
         """Returns the data as a normalisations compatible array"""
-
         return self._data
 
     def set_array_representation(self, array):
         """Method for overwriting the array representation of the data"""
-
         if array.shape == self._data.shape:
             self._data = array
         else:
             raise Exception(
                 "New representation must match current shape: {0}".format(
-                    self._data.shape))
+                    self._data.shape,
+                ),
+            )

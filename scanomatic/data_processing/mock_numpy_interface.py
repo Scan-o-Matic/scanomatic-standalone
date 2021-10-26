@@ -3,7 +3,7 @@ from types import StringTypes
 # TODO: Clean up use?
 
 
-class NumpyArrayInterface(object):
+class NumpyArrayInterface:
 
     def __init__(self, data):
         """data is an object, preferably a numpy array
@@ -33,13 +33,10 @@ class NumpyArrayInterface(object):
             return self._data[key[0]][key[1:]]
 
     def __iter__(self):
-
-        for i in xrange(len(self._data)):
-
+        for i in range(len(self._data)):
             yield self.__getitem__(i)
 
     def __len__(self):
-
         return self._data.shape[0]
 
     @property
