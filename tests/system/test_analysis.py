@@ -1,11 +1,10 @@
-from __future__ import absolute_import
+from time import sleep
+from warnings import warn
 
 import pytest
-from warnings import warn
 import requests
-from time import sleep
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 
 
 @pytest.yield_fixture(autouse=True)
@@ -33,7 +32,8 @@ def assert_has_job(scanomatic, job_settings):
                 )
                 has_ccc = (
                     model['cell_count_calibration_id'] ==
-                    job_settings['cell_count_calibration_id'])
+                    job_settings['cell_count_calibration_id']
+                )
                 has_output = (
                     model['output_directory'] ==
                     job_settings['output_directory']
@@ -41,28 +41,29 @@ def assert_has_job(scanomatic, job_settings):
                 if has_output:
                     assert has_compilation, (
                         "Job used unexpected compilation '{}'".format(
-                            model.get('compilation')
+                            model.get('compilation'),
                         )
                     )
                     assert has_ccc, (
                         "Job used unexpected ccc '{}'".format(
-                            model.get('cell_count_calibration_id')
+                            model.get('cell_count_calibration_id'),
                         )
                     )
                     return
                 else:
                     warn("Unexpectedly found other job in queue {}".format(
-                        model
+                        model,
                     ))
             else:
                 warn("Unexpectedly found other job in queue {}".format(
-                    item
+                    item,
                 ))
 
     uri = (
         scanomatic +
         '/api/analysis/instructions/testproject/{}'.format(
-            job_settings['output_directory'])
+            job_settings['output_directory'],
+        )
     )
     tries = 0
     while tries < 25:
@@ -73,14 +74,14 @@ def assert_has_job(scanomatic, job_settings):
                 job_settings['cell_count_calibration_id']), (
                 "Job used unexpected CCC, found {}, expected {}".format(
                     payload['instructions'].get('ccc'),
-                    job_settings['cell_count_calibration_id']
+                    job_settings['cell_count_calibration_id'],
                 )
             )
             assert (
                 job_settings['compilation'] in
                 payload['instructions'].get('compilation')
             ), "Job used unexpected compilation file {}".format(
-                payload['instructions'].get('compilation')
+                payload['instructions'].get('compilation'),
             )
 
             return

@@ -1,12 +1,11 @@
-from __future__ import absolute_import
 from collections import namedtuple
 
 import numpy
 import pytest
 
+from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.server.analysis_effector import AnalysisEffector
-from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 
 
 @pytest.fixture(scope='session')
@@ -57,7 +56,8 @@ def test_grid_plate(proj1, proj1_analysis):
 
     expected = numpy.load(str(proj1.join('analysis/grid_plate___1.npy')))
     actual = numpy.load(
-        str(proj1_analysis.workdir.join('analysis/grid_plate___1.npy')))
+        str(proj1_analysis.workdir.join('analysis/grid_plate___1.npy')),
+    )
     numpy.testing.assert_allclose(expected, actual, atol=3)
 
 
@@ -69,5 +69,6 @@ def test_grid_size(proj1, proj1_analysis):
 
     expected = numpy.load(str(proj1.join('analysis/grid_size___1.npy')))
     actual = numpy.load(
-        str(proj1_analysis.workdir.join('analysis/grid_size___1.npy')))
+        str(proj1_analysis.workdir.join('analysis/grid_size___1.npy')),
+    )
     assert (expected == actual).all()

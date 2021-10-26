@@ -2,7 +2,6 @@ import requests
 
 
 class TestCommonResources:
-
     def test_own_js(self, scanomatic, browser):
         for js_file in (
             'analysis.js',
@@ -25,7 +24,6 @@ class TestCommonResources:
             assert r.text and len(r.text), '{} is empty'.format(js_file)
 
     def test_external_js(self, scanomatic, browser):
-
         for js_file in (
             'bootstrap-toggle.js',
             'bootstrap.js',
@@ -41,7 +39,6 @@ class TestCommonResources:
             assert r.text and len(r.text), '{} is empty'.format(js_file)
 
     def test_images(self, scanomatic, browser):
-
         for im_file in (
             'favicon.ico',
             'stop.png',
@@ -65,7 +62,6 @@ class TestCommonResources:
             assert r.text and len(r.text), '{} is empty'.format(css_file)
 
     def test_fonts(self, scanomatic, browser):
-
         for font_file in (
             'glyphicons-halflings-regular.eot',
             'glyphicons-halflings-regular.svg',

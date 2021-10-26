@@ -1,8 +1,8 @@
-from StringIO import StringIO
-from collections import namedtuple
 import fnmatch
+import http.client
+from collections import namedtuple
 from hashlib import sha256
-import httplib
+from io import StringIO
 
 import pytest
 import requests
@@ -40,7 +40,7 @@ def test_upload_image(scanomatic, image):
             'image': (image.filename, image.image, 'image/tiff'),
         },
     )
-    assert response.status_code == httplib.CREATED, response.content
+    assert response.status_code == http.client.CREATED, response.content
     assert get_number_of_images(scanomatic, project) == 1
 
 
@@ -58,5 +58,5 @@ def test_upload_image_unknown_project(scanomatic, image):
             'image': (image.filename, image.image, 'image/tiff'),
         },
     )
-    assert response.status_code == httplib.BAD_REQUEST, response.content
+    assert response.status_code == http.client.BAD_REQUEST, response.content
     assert get_number_of_images(scanomatic, project) == 0
