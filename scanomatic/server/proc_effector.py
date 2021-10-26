@@ -2,7 +2,6 @@ import os
 import socket
 import time
 from threading import Thread
-from types import StringTypes
 from typing import Dict, Optional
 
 import scanomatic.generics.decorators as decorators
@@ -60,7 +59,7 @@ class ProcessEffector(object):
         if add is not None:
             try:
                 self._job.content_model.email += (
-                    [add] if isinstance(add, StringTypes) else add
+                    [add] if isinstance(add, str) else add
                 )
             except TypeError:
                 return False

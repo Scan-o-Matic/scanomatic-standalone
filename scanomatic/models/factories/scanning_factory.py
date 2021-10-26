@@ -1,7 +1,6 @@
 import os
 import re
 import string
-from types import StringTypes
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.fixtures as fixtures
@@ -46,13 +45,13 @@ class PlateDescriptionFactory(AbstractModelFactory):
 
     @classmethod
     def _validate_name(cls, model: PlateDescription):
-        if isinstance(model.name, StringTypes) and model.str:
+        if isinstance(model.name, str) and model.str:
             return True
         return model.FIELD_TYPES.name
 
     @classmethod
     def _validate_description(cls, model: PlateDescription):
-        if isinstance(model.description, StringTypes) and model.str:
+        if isinstance(model.description, str) and model.str:
             return True
         return model.FIELD_TYPES.description
 
@@ -255,7 +254,7 @@ class ScanningModelFactory(AbstractModelFactory):
 
     @classmethod
     def _validate_description(cls, model: ScanningModel):
-        if isinstance(model.description, StringTypes):
+        if isinstance(model.description, str):
             return True
 
         return model.FIELD_TYPES.description
@@ -265,7 +264,7 @@ class ScanningModelFactory(AbstractModelFactory):
         if not model.email:
             return True
 
-        if isinstance(model.email, StringTypes):
+        if isinstance(model.email, str):
             email = ",".split(model.email)
         else:
             email = model.email
@@ -274,7 +273,7 @@ class ScanningModelFactory(AbstractModelFactory):
             for address in email:
                 if (
                     not (
-                        isinstance(address, StringTypes)
+                        isinstance(address, str)
                         and (address == '' or re.match(
                             r'[^@]+@[^@]+\.[^@]+',
                             address,

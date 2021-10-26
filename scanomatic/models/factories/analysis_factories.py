@@ -1,5 +1,5 @@
 import os
-from types import DictType, ListType, StringTypes
+from types import DictType, ListType
 
 import scanomatic.models.analysis_model as analysis_model
 from scanomatic.data_processing.calibration import (
@@ -190,7 +190,7 @@ class AnalysisModelFactory(AbstractModelFactory):
     def _validate_output_directory(cls, model: analysis_model.AnalysisModel):
         if (
             model.output_directory is None
-            or isinstance(model.output_directory, StringTypes)
+            or isinstance(model.output_directory, str)
             and os.sep not in model.output_directory
         ):
             return True

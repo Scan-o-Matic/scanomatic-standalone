@@ -1,5 +1,4 @@
 import json
-from types import StringTypes
 
 import pytest
 
@@ -89,7 +88,7 @@ def test_load_cccs():
     for ccc in ccc_data.load_cccs():
         assert isinstance(
             ccc[ccc_data.CellCountCalibration.identifier],
-            StringTypes,
+            str,
         )
         assert ccc[ccc_data.CellCountCalibration.edit_access_token]
         assert ccc[ccc_data.CellCountCalibration.species]

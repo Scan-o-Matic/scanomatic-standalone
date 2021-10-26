@@ -1,5 +1,4 @@
 import os
-from types import StringTypes
 
 import scanomatic.models.features_model as features_model
 from scanomatic.generics.abstract_model_factory import (
@@ -21,7 +20,7 @@ class FeaturesFactory(AbstractModelFactory):
     @classmethod
     def _validate_analysis_directory(cls, model: features_model.FeaturesModel):
 
-        if not isinstance(model.analysis_directory, StringTypes):
+        if not isinstance(model.analysis_directory, str):
             return model.FIELD_TYPES.analysis_directory
 
         analysis_directory = model.analysis_directory.rstrip("/")

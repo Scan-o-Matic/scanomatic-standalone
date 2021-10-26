@@ -1,7 +1,6 @@
 import re
 from functools import wraps
 from itertools import chain, product
-from types import StringTypes
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -62,12 +61,12 @@ PHASE_PLOTTING_COLORS = {
 @wraps
 def _validate_input(f):
     def _wrapped(*args, **kwargs):
-        if len(args) > 0 and isinstance(args[0], StringTypes):
+        if len(args) > 0 and isinstance(args[0], str):
             args = list(args)
             args[0] = Phenotyper.LoadFromState(args[0])
         elif (
             'phenotypes' in kwargs
-            and isinstance(kwargs['phenotypes'], StringTypes)
+            and isinstance(kwargs['phenotypes'], str)
         ):
             kwargs['phenotypes'] = Phenotyper.LoadFromState(
                 kwargs['phenotypes'],

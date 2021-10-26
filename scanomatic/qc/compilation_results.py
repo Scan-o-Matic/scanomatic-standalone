@@ -1,7 +1,6 @@
 import glob
 import os
 import re
-from types import StringTypes
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -21,7 +20,7 @@ def _input_validate(f):
 
         if len(args) > 0:
 
-            if isinstance(args[0], StringTypes):
+            if isinstance(args[0], str):
 
                 args = list(args)
                 args[0] = CompileImageAnalysisFactory.serializer.load(args[0])

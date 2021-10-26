@@ -3,7 +3,7 @@ import socket
 from typing import Optional
 import xmlrpc.client
 from subprocess import Popen
-from types import GeneratorType, StringTypes, TypeType
+from types import GeneratorType, TypeType
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.logger as logger
@@ -191,7 +191,7 @@ class _ClientProxy(object):
 
     @host.setter
     def host(self, value):
-        if not isinstance(value, StringTypes):
+        if not isinstance(value, str):
             value = str(value)
 
         value = "{0}{1}".format(

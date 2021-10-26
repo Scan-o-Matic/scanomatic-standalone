@@ -1,5 +1,3 @@
-from types import StringTypes
-
 # TODO: Clean up use?
 
 
@@ -24,7 +22,7 @@ class NumpyArrayInterface:
 
     def __getitem__(self, key):
 
-        if isinstance(key, StringTypes):
+        if isinstance(key, str):
             plate, x, y = self._position_2_string_tuple(key)
             return self._data[plate][x, y]
         elif isinstance(key, int):

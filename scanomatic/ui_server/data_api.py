@@ -3,7 +3,7 @@ import os
 import shutil
 from configparser import Error as ConfigError
 from enum import Enum
-from types import DictType, ListType, StringTypes
+from types import DictType, ListType
 
 import numpy as np
 from flask import jsonify, request, send_from_directory
@@ -623,7 +623,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         markers = get_2d_list(request.values, 'markers')
 
         if not markers and isinstance(
-                request.values.get('markers', default=None), StringTypes):
+                request.values.get('markers', default=None), str):
 
             _logger.warning(
                 "Attempting fallback string parsing of markers as text",

@@ -362,15 +362,10 @@ class Logger:
             return self._log_file
 
 
-class _ExtendedFileObject(file):
+class _ExtendedFileObject:
     # TODO: Regain buffer and release threads while closing
-
     def __init__(self, path, mode, buffering=None):
-        super(_ExtendedFileObject, self).__init__(
-            path,
-            mode,
-            buffering=buffering,
-        )
+        self._fh = open(path, mode, buffering=buffering)
         self._semaphor = False
         self._buffer = []
         self._flush_buffer = False
@@ -386,7 +381,9 @@ class _ExtendedFileObject(file):
     def close(self):
         if self._buffer and not self._buffer[0] == -1:
             self.pause()
-        super(_ExtendedFileObject, self).close()
+        if self._fh:
+            self._fh.close()
+            self._fh = None
         self._flush_buffer = True
         self.resume()
         while self._buffer:
@@ -431,9 +428,10 @@ class _ExtendedFileObject(file):
         self._semaphor = True
         self._buffer.remove(id)
 
-        super(_ExtendedFileObject, self).writelines(
-            [line if line.endswith("\n") else line + "\n" for line in obj],
-        )
+        if self._fh:
+            self._fh.writelines(
+                [line if line.endswith("\n") else line + "\n" for line in obj],
+            )
         self._semaphor = False
 
 

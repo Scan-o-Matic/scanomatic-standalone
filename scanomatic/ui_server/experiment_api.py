@@ -1,5 +1,4 @@
 import os
-from types import StringTypes
 
 from flask import jsonify, request
 from flask_restful import Api
@@ -212,7 +211,7 @@ def add_routes(app, rpc_client):
 
         if plate_image_inclusion:
 
-            if isinstance(plate_image_inclusion, StringTypes):
+            if isinstance(plate_image_inclusion, str):
                 plate_image_inclusion = tuple(
                     val.strip() for val in plate_image_inclusion.split(";")
                 )
@@ -265,7 +264,7 @@ def add_routes(app, rpc_client):
 
         plate_descriptions = data_object.get("plate_descriptions")
         if all(
-            isinstance(p, StringTypes) or p is None
+            isinstance(p, str) or p is None
             for p in plate_descriptions
         ):
             plate_descriptions = tuple(

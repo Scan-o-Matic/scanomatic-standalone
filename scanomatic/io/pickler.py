@@ -102,14 +102,13 @@ class _RefactoringPhases:
             return ret
 
 
-class SafeFileObject(file):
-
+class SafeFileObject:
     def __init__(self, name, *validation_functions):
-        file.__init__(self, name, mode='rb')
+        self._file = open(name, mode='rb')
         self._validation_functions = validation_functions
 
     def readline(self):
-        line = file.readline(self).rstrip("\r\n")
+        line = self._file.readline(self).rstrip("\r\n")
         for validation_func in self._validation_functions:
             line = validation_func(line)
         return line

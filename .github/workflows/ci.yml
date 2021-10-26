@@ -67,7 +67,26 @@ jobs:
 
         - name: Lint and Types
           run: |
-            tox -e lint,mypy
+            tox -e lint
+
+    backend-mypy:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 2.7
+
+        - name: Install General Dependencies
+          run: |
+            python2.7 -m pip install --upgrade pip
+            pip install tox
+
+        - name: Lint and Types
+          run: |
+            tox -e mypy
 
     backend-test:
         runs-on: ubuntu-18.04

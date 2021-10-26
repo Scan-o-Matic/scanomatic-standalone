@@ -7,7 +7,6 @@ from collections import deque
 from enum import Enum
 from io import StringIO
 from itertools import chain, product
-from types import StringTypes
 from typing import Callable, Optional, Union
 
 import numpy as np
@@ -563,7 +562,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         """
         :param phenotype: The phenotype
         """
-        if isinstance(phenotype, StringTypes):
+        if isinstance(phenotype, str):
             try:
                 phenotype = infer_phenotype_from_name(phenotype)
             except ValueError:
@@ -2986,7 +2985,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     @staticmethod
     def _make_csv_row(*args):
         for a in args:
-            if isinstance(a, StringTypes):
+            if isinstance(a, str):
                 yield a
             else:
                 try:

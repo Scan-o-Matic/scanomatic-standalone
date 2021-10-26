@@ -72,7 +72,6 @@ import os
 import re
 from enum import Enum
 from glob import iglob
-from types import StringTypes
 from typing import Any, Dict
 from uuid import uuid1
 
@@ -185,7 +184,7 @@ def _get_new_image_identifier(ccc) -> str:
     return "CalibIm_{0}".format(len(ccc[CellCountCalibration.images]))
 
 
-def get_empty_image_entry(ccc) -> Dict[CCCImage: Any]:
+def get_empty_image_entry(ccc) -> Dict[CCCImage, Any]:
     return {
         CCCImage.identifier: _get_new_image_identifier(ccc),
         CCCImage.plates: {},
@@ -224,7 +223,7 @@ __DECODABLE_ENUMS = {
 
 
 def _decode_ccc_key(key):
-    if isinstance(key, StringTypes):
+    if isinstance(key, str):
         if '.' in key:
             return _decode_ccc_enum(key)
         else:
@@ -254,7 +253,7 @@ def _decode_val(v):
         return _decode_dict(v)
     if isinstance(v, list) or isinstance(v, tuple):
         return type(v)(_decode_val(e) for e in v)
-    elif isinstance(v, StringTypes):
+    elif isinstance(v, str):
         try:
             return _decode_ccc_enum(v)
         except (CCCFormatError, ValueError):

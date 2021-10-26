@@ -1,5 +1,4 @@
 from itertools import product
-from types import StringTypes
 
 import numpy as np
 from flask import Blueprint, current_app, jsonify, request, send_file
@@ -184,9 +183,11 @@ def set_ccc_image_data(ccc_identifier, image_identifier):
             continue
         val = data_object.get(data_type.name, None)
         if val:
-            if data_type is calibration.CCCImage.marker_x or \
-                    data_type is calibration.CCCImage.marker_y and \
-                    isinstance(val, StringTypes):
+            if (
+                data_type is calibration.CCCImage.marker_x
+                or data_type is calibration.CCCImage.marker_y
+                and isinstance(val, str)
+            ):
 
                 try:
                     val = [float(v) for v in val.split(",")]

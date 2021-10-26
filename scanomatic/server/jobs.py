@@ -1,5 +1,4 @@
 from multiprocessing import Pipe
-from types import StringTypes
 from typing import Dict, List, Union
 
 import scanomatic.io.logger as logger
@@ -31,10 +30,10 @@ class Jobs(SingeltonOneInit):
 
     def __contains__(
         self,
-        key: Union[StringTypes, rpc_job_models.RPCjobModel],
+        key: Union[str, rpc_job_models.RPCjobModel],
     ) -> bool:
 
-        if isinstance(key, StringTypes):
+        if isinstance(key, str):
             return any(True for j in self._jobs if j.id == key)
 
         return key in self._jobs

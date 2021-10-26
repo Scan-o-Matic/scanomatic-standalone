@@ -1,5 +1,4 @@
 import csv
-from types import StringTypes
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -452,7 +451,7 @@ class MetaData2:
             yield self.find_on_plate(id_plate, value, column=column)
 
     def find_on_plate(self, plate, value, column=None):
-        if isinstance(column, StringTypes):
+        if isinstance(column, str):
             column = self.get_header_index(plate, column)
 
             if column < 0:

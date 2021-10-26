@@ -1,5 +1,4 @@
 from enum import Enum
-from types import StringTypes
 from typing import Literal, Optional, Sequence
 
 import numpy as np
@@ -88,7 +87,7 @@ def get_downsampled_plates(
     """
 
     # Generic -> Per plate
-    if isinstance(subsampling, StringTypes):
+    if isinstance(subsampling, str):
         subsampling = [subsampling for _ in range(data.shape[0])]
 
         # Lookup to translate subsamplingexpressions to coordinates

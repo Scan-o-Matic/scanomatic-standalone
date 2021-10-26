@@ -7,7 +7,6 @@ from typing import List, Sequence, Tuple
 import zipfile
 from io import IOBase, StringIO
 from itertools import chain
-from types import StringTypes
 from urllib.parse import quote, unquote
 
 import numpy as np
@@ -67,7 +66,7 @@ def image_is_allowed(ext):
 
 def string_parse_2d_list(data_string, dtype=float):
 
-    if not isinstance(data_string, StringTypes):
+    if not isinstance(data_string, str):
         return None
 
     p1 = re.compile(r'\[[^\]\[]+\]')
@@ -397,7 +396,7 @@ def remove_pad_decode_base64(data):
 
 
 def get_image_data_as_array(image_data, reshape=None):
-    if isinstance(image_data, StringTypes):
+    if isinstance(image_data, str):
         stream = io.StringIO()
         stream.write(image_data)
         stream.flush()

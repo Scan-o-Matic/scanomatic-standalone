@@ -6,7 +6,6 @@ import time
 from enum import Enum
 from itertools import chain
 from subprocess import PIPE, Popen
-from types import StringTypes
 
 from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
@@ -313,7 +312,7 @@ class SaneBase(object):
         if not model:
             return None
 
-        if isinstance(scan_mode, StringTypes):
+        if isinstance(scan_mode, str):
             scan_mode = scan_mode.upper()
             if scan_mode == "COLOUR":
                 scan_mode = "COLOR"

@@ -3,7 +3,6 @@ import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from struct import unpack
-from types import StringTypes
 from typing import Optional, Sequence, Union
 
 import requests
@@ -150,12 +149,12 @@ def mail(
 
     msg['From'] = sender
     msg['To'] = (
-        receiver if isinstance(receiver, StringTypes) else ", ".join(receiver)
+        receiver if isinstance(receiver, str) else ", ".join(receiver)
     )
     msg['Subject'] = subject
     msg.attach(MIMEText(message))
 
-    if isinstance(receiver, StringTypes):
+    if isinstance(receiver, str):
         receiver = [receiver]
     try:
         server.sendmail(sender, receiver, msg.as_string())

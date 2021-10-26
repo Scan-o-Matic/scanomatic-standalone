@@ -1,7 +1,7 @@
 import os
 
-import pytest
-from scipy import ndimage
+import pytest  # type: ignore
+from scipy import ndimage  # type: ignore
 
 TESTDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testdata')
 
