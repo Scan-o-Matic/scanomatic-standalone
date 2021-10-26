@@ -1,5 +1,3 @@
-
-
 import numpy as np
 
 from scanomatic.generics.maths import quantiles_stable

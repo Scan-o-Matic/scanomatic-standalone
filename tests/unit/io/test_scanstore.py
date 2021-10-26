@@ -1,5 +1,5 @@
 from datetime import timedelta
-from StringIO import StringIO
+from io import StringIO
 
 import pytest
 

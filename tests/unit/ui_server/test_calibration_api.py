@@ -1,22 +1,22 @@
-from __future__ import absolute_import
-import os
 import json
-
-import pytest
-import mock
-import numpy as np
-from scipy.stats import norm
-from scipy.ndimage import center_of_mass
-from flask import Flask
+import os
 from itertools import product
 
+import mock
+import numpy as np
+import pytest
+from flask import Flask
+from scipy.ndimage import center_of_mass
+from scipy.stats import norm
+
+from scanomatic.data_processing import calibration
+from scanomatic.io.ccc_data import parse_ccc
+from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS
 from scanomatic.ui_server import calibration_api
-from scanomatic.io.paths import Paths
-from scanomatic.io.ccc_data import parse_ccc
-from scanomatic.data_processing import calibration
 from scanomatic.ui_server.calibration_api import (
-    get_bounding_box_for_colony, get_colony_detection
+    get_bounding_box_for_colony,
+    get_colony_detection
 )
 
 
@@ -27,7 +27,8 @@ def _fixture_load_ccc(rel_path):
     _ccc = parse_ccc(data)
     if _ccc:
         calibration.__CCC[
-            _ccc[calibration.CellCountCalibration.identifier]] = _ccc
+            _ccc[calibration.CellCountCalibration.identifier]
+        ] = _ccc
         return _ccc
     raise ValueError("The `{0}` is not valid/doesn't parse".format(rel_path))
 
@@ -82,12 +83,10 @@ def test_app():
     (('1', '2'), (1, 2)),
 ))
 def test_get_int_tuple(data, expected):
-
     assert calibration_api.get_int_tuple(data) == expected
 
 
 def test_get_bounding_box_for_colony():
-
     # 3x3 colony grid
     grid = np.array(
         [
@@ -109,10 +108,14 @@ def test_get_bounding_box_for_colony():
     width = 50
     height = 30
 
-    for x, y in product(range(3), range(3)):
-
+    for x, y in product(list(range(3)), list(range(3))):
         box = calibration_api.get_bounding_box_for_colony(
-            grid, x, y, width, height)
+            grid,
+            x,
+            y,
+            width,
+            height,
+        )
 
         assert (box['center'] == grid[:, y, x]).all()
         assert box['yhigh'] - box['ylow'] == height + 1
@@ -123,7 +126,6 @@ def test_get_bounding_box_for_colony():
 
 def test_get_boundin_box_for_colony_if_grid_partially_outside():
     """only important that never gets negative numbers for box"""
-
     grid = np.array(
         [
             [
@@ -140,11 +142,14 @@ def test_get_boundin_box_for_colony_if_grid_partially_outside():
     width = 50
     height = 30
 
-    for x, y in product(range(2), range(2)):
-
+    for x, y in product(list(range(2)), list(range(2))):
         box = calibration_api.get_bounding_box_for_colony(
-            grid, x, y, width, height)
-
+            grid,
+            x,
+            y,
+            width,
+            height,
+        )
         assert box['center'][0] >= 0
         assert box['center'][1] >= 0
         assert box['xlow'] >= 0
@@ -156,109 +161,130 @@ class TestFinalizeEndpoint:
 
     def test_token_not_valid(self, test_app, finalizable_ccc):
         identifier = finalizable_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'wrongPassword'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
         ), "POST with bad token gave wrong reason {} (expected '{}')".format(
-            json.loads(response.data)['reason'], expected)
+            json.loads(response.data)['reason'],
+            expected,
+        )
         assert (
             response.status_code == 401
         ), "POST with bad token gave wrong response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
     @pytest.mark.parametrize("method", ["get", "put", "delete"])
     def test_finalize_only_supports_post(
-            self, method, test_app, finalizable_ccc):
+        self,
+        method,
+        test_app,
+        finalizable_ccc,
+    ):
         identifier = finalizable_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.open(
             self.route.format(identifier=identifier),
             method=method,
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         assert (
             response.status_code == 405
         ), "API call gave unexpected response {} (expected 405)".format(
-            response.status)
+            response.status,
+        )
 
     def test_finalize_works_when_finished(self, test_app, finalizable_ccc):
         identifier = finalizable_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         with mock.patch(
-                'scanomatic.data_processing.calibration.save_ccc') as save_ccc:
+            'scanomatic.data_processing.calibration.save_ccc',
+        ) as save_ccc:
             response = test_app.post(
                 self.route.format(identifier=identifier),
                 data={"access_token": token},
-                follow_redirects=True
+                follow_redirects=True,
             )
             save_ccc.assert_called()
 
         assert (
             response.status_code == 200
         ), "POST gave unexpected response {} (expected 200)".format(
-            response.status)
+            response.status,
+        )
 
     def test_finalize_fails_when_unfinished(self, test_app, edit_ccc):
         identifier = edit_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         assert (
             json.loads(response.data)['reason'] == "Failed to activate ccc"
         ), "POST when unfinished gave wrong reason {} (expected 'Failed to activate ccc')".format(
-            json.loads(response.data)['reason'])
+            json.loads(response.data)['reason'],
+        )
         assert (
             response.status_code == 400
         ), "POST when unfinished gave wrong response {} (expected 400)".format(
-            response.status)
+            response.status,
+        )
 
     def test_finalize_fails_when_activated(self, test_app, active_ccc):
         identifier = active_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
         ), "POST with bad token gave unexpected reason {} (expected '{}')".format(
-            json.loads(response.data)['reason'], expected)
+            json.loads(response.data)['reason'],
+            expected,
+        )
         assert (
             response.status_code == 401
         ), "POST with bad token gave unexpected response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
     def test_finalize_fails_when_deleted(self, test_app, deleted_ccc):
         identifier = deleted_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         expected = "Invalid access token or CCC not under construction"
         assert (
@@ -268,7 +294,8 @@ class TestFinalizeEndpoint:
         assert (
             response.status_code == 401
         ), "POST with bad token gave unexpected response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
 
 class TestDeleteEndpoint:
@@ -282,35 +309,44 @@ class TestDeleteEndpoint:
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         expected = "Invalid access token or CCC not under construction"
         assert (
             json.loads(response.data)['reason'] == expected
         ), "POST with bad token gave unexpected reason {0} (expected '{1}')".format(
-            json.loads(response.data)['reason'], expected)
+            json.loads(response.data)['reason'],
+            expected,
+        )
         assert (
              response.status_code == 401
         ), "POST with bad token gave unexpected response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
     @pytest.mark.parametrize("method", ["get", "put", "delete"])
     def test_delete_only_supports_post(
-            self, method, test_app, finalizable_ccc):
+        self,
+        method,
+        test_app,
+        finalizable_ccc,
+    ):
         identifier = finalizable_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.open(
             self.route.format(identifier=identifier),
             method=method,
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         assert (
             response.status_code == 405
         ), "API call gave unexpected response {} (expected 405)".format(
-            response.status)
+            response.status,
+        )
 
     def test_delete_editable_ccc(self, test_app, edit_ccc):
         identifier = edit_ccc[
@@ -318,47 +354,53 @@ class TestDeleteEndpoint:
         token = 'password'
 
         with mock.patch(
-                'scanomatic.data_processing.calibration.save_ccc') as save_ccc:
+            'scanomatic.data_processing.calibration.save_ccc'
+        ) as save_ccc:
             response = test_app.post(
                 self.route.format(identifier=identifier),
                 data={"access_token": token},
-                follow_redirects=True
+                follow_redirects=True,
             )
             save_ccc.assert_called()
         assert (
             response.status_code == 200
         ), "POST gave unexpected response {} (expected 200)".format(
-            response.status)
+            response.status,
+        )
 
     def test_delete_deleted_ccc(self, test_app, deleted_ccc):
         identifier = deleted_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         assert (
             response.status_code == 401
         ), "POST gave unexpected response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
     def test_delete_active_ccc(self, test_app, active_ccc):
         identifier = active_ccc[
-            calibration.CellCountCalibration.identifier]
+            calibration.CellCountCalibration.identifier
+        ]
         token = 'password'
 
         response = test_app.post(
             self.route.format(identifier=identifier),
             data={"access_token": token},
-            follow_redirects=True
+            follow_redirects=True,
         )
         assert (
             response.status_code == 401
         ), "POST gave unexpected response {} (expected 401)".format(
-            response.status)
+            response.status,
+        )
 
 
 class TestCompressCalibration:
@@ -367,7 +409,7 @@ class TestCompressCalibration:
     @pytest.fixture(autouse=True)
     def get_image_json_from_ccc(self):
         with mock.patch(
-            'scanomatic.ui_server.calibration_api.calibration.get_image_json_from_ccc',
+            'scanomatic.ui_server.calibration_api.calibration.get_image_json_from_ccc',  # noqa: E501
             return_value={},
         ):
             yield
@@ -375,14 +417,14 @@ class TestCompressCalibration:
     @pytest.fixture
     def set_colony_compressed_data(self):
         with mock.patch(
-            'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data'
+            'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data',  # noqa: E501
         ) as function:
             yield function
 
     @pytest.fixture
     def set_colony_compressed_data(self):
         with mock.patch(
-            'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data'
+            'scanomatic.ui_server.calibration_api.calibration.set_colony_compressed_data'  # noqa: E501
         ) as function:
             yield function
 
@@ -392,7 +434,7 @@ class TestCompressCalibration:
             "blob": [[0] * 20, [1] * 20],
             'background': [[1] * 20, [0] * 20],
             "cell_count": 42,
-            'access_token': 'XXX'
+            'access_token': 'XXX',
         }
 
     def test_valid_params(self, test_app, set_colony_compressed_data, params):
@@ -403,7 +445,7 @@ class TestCompressCalibration:
         assert kwargs['access_token'] == 'XXX'
         assert np.array_equal(
             kwargs['background_filter'],
-            np.array([[True] * 20, [False] * 20])
+            np.array([[True] * 20, [False] * 20]),
         )
         assert np.array_equal(
             kwargs['blob_filter'],
@@ -412,7 +454,11 @@ class TestCompressCalibration:
         assert kwargs['access_token'] == 'XXX'
 
     def test_missing_cell_count(
-            self, test_app, set_colony_compressed_data, params):
+        self,
+        test_app,
+        set_colony_compressed_data,
+        params,
+    ):
         del params['cell_count']
         response = test_app.post(self.url, data=json.dumps(params))
         assert response.status_code == 400
@@ -423,7 +469,11 @@ class TestCompressCalibration:
         set_colony_compressed_data.assert_not_called()
 
     def test_non_integer_cell_count(
-            self, test_app, set_colony_compressed_data, params):
+        self,
+        test_app,
+        set_colony_compressed_data,
+        params,
+    ):
         params['cell_count'] = 'abc'
         response = test_app.post(self.url, data=json.dumps(params))
         assert response.status_code == 400
@@ -434,7 +484,11 @@ class TestCompressCalibration:
         set_colony_compressed_data.assert_not_called()
 
     def test_negative_cell_count(
-            self, test_app, set_colony_compressed_data, params):
+        self,
+        test_app,
+        set_colony_compressed_data,
+        params,
+    ):
         params['cell_count'] = -1
         response = test_app.post(self.url, data=json.dumps(params))
         assert response.status_code == 400
@@ -446,7 +500,6 @@ class TestCompressCalibration:
 
 
 class TestConstructCalibration:
-
     url = '/{ccc}/construct/{power}'
 
     @pytest.mark.parametrize(
@@ -458,24 +511,32 @@ class TestConstructCalibration:
         )
     )
     def test_fails_with_bad_parameters(
-        self, test_app, ccc_identifier, power, access_token, expected_status,
+        self,
+        test_app,
+        ccc_identifier,
+        power,
+        access_token,
+        expected_status,
         finalizable_ccc
     ):
         # finalizable_ccc is needed for enpoint to have that ccc loaded
         response = test_app.post(
             self.url.format(ccc=ccc_identifier, power=power),
-            data=json.dumps({'acccess_token': access_token}))
+            data=json.dumps({'acccess_token': access_token}),
+        )
         assert response.status_code == expected_status
 
     def test_returns_a_polynomial(self, test_app, finalizable_ccc):
         with mock.patch(
-                'scanomatic.data_processing.calibration.save_ccc') as save_ccc:
+            'scanomatic.data_processing.calibration.save_ccc',
+        ) as save_ccc:
             ccc_identifier = 'testgoodedit'
             power = 5
             access_token = 'password'
             response = test_app.post(
                 self.url.format(ccc=ccc_identifier, power=power),
-                data=json.dumps({'access_token': access_token}))
+                data=json.dumps({'access_token': access_token}),
+            )
 
             assert response.status_code == 200
             save_ccc.assert_called()
@@ -489,8 +550,11 @@ class TestConstructCalibration:
             assert all(
                 key in data['colonies'] for key in
                 (
-                    'source_values', 'source_value_counts', 'target_values',
-                    'min_source_values', 'max_source_values',
+                    'source_values',
+                    'source_value_counts',
+                    'target_values',
+                    'min_source_values',
+                    'max_source_values',
                     'max_source_counts',
                 )
             )
@@ -517,14 +581,15 @@ class TestConstructCalibration:
             access_token = 'password'
             response = test_app.post(
                 self.url.format(ccc=ccc_identifier, power=power),
-                data=json.dumps({'access_token': access_token}))
+                data=json.dumps({'access_token': access_token}),
+            )
 
             assert response.status_code == 400
             construct_polynomial.assert_called()
 
             data = json.loads(response.data)
             assert data['reason'].startswith(
-                u"Construction refused. "
+                "Construction refused. "
                 "Validation of polynomial says: BadSlope "
                 "(y = 1.00E+00 x^1 + 2.00E+00 x^2) "
                 "correlation: {"
@@ -536,12 +601,30 @@ class TestConstructCalibration:
 
 
 @pytest.mark.parametrize('grid,x,y,w,h,expected', (
-    (np.array([[[10]], [[10]]]), 0, 0, 5, 6,
-     {'ylow': 7, 'yhigh': 14, 'xlow': 8, 'xhigh': 13, 'center': (10, 10)}),
-    (np.array([[[10, 20]], [[10, 10]]]), 1, 0, 5, 6,
-     {'ylow': 17, 'yhigh': 24, 'xlow': 8, 'xhigh': 13, 'center': (20, 10)}),
-    (np.array([[[5]], [[10]]]), 0, 0, 10, 20,
-     {'ylow': 0, 'yhigh': 16, 'xlow': 5, 'xhigh': 16, 'center': (5, 10)}),
+    (
+        np.array([[[10]], [[10]]]),
+        0,
+        0,
+        5,
+        6,
+        {'ylow': 7, 'yhigh': 14, 'xlow': 8, 'xhigh': 13, 'center': (10, 10)},
+    ),
+    (
+        np.array([[[10, 20]], [[10, 10]]]),
+        1,
+        0,
+        5,
+        6,
+        {'ylow': 17, 'yhigh': 24, 'xlow': 8, 'xhigh': 13, 'center': (20, 10)},
+    ),
+    (
+        np.array([[[5]], [[10]]]),
+        0,
+        0,
+        10,
+        20,
+        {'ylow': 0, 'yhigh': 16, 'xlow': 5, 'xhigh': 16, 'center': (5, 10)},
+    ),
 ))
 def test_bounding_box_for_colony(grid, x, y, w, h, expected):
     result = get_bounding_box_for_colony(grid, x, y, w, h)
@@ -558,7 +641,6 @@ def colony_image():
 
 
 class TestGetColonyDetection:
-
     def test_colony_is_darker(self, colony_image):
         grid_cell = get_colony_detection(colony_image)
         blob = grid_cell.get_item(COMPARTMENTS.Blob).filter_array
