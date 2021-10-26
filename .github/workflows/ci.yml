@@ -58,7 +58,7 @@ jobs:
         - name: Setup Python
           uses: actions/setup-python@v2
           with:
-            python-version: 2.7
+            python-version: 3.9
 
         - name: Install General Dependencies
           run: |
@@ -77,11 +77,11 @@ jobs:
         - name: Setup Python
           uses: actions/setup-python@v2
           with:
-            python-version: 2.7
+            python-version: 3.9
 
         - name: Install General Dependencies
           run: |
-            python2.7 -m pip install --upgrade pip
+            python3.9 -m pip install --upgrade pip
             pip install tox
 
         - name: Lint and Types
@@ -96,16 +96,16 @@ jobs:
         - name: Setup Python
           uses: actions/setup-python@v2
           with:
-            python-version: 2.7
+            python-version: 3.9
 
         - name: Install General Dependencies
           run: |
-            python2.7 -m pip install --upgrade pip
+            python3.9 -m pip install --upgrade pip
             pip install tox
 
         - name: Test non-system-tests
           run: |
-            tox -e py27
+            tox -e py39
 
     docker-build:
         runs-on: ubuntu-18.04
