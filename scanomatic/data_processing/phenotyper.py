@@ -1381,7 +1381,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     def normalize_phenotypes(
         self,
-        method: NormalizationMethod = NormalizationMethod.Log2Differenc
+        method: NormalizationMethod = NormalizationMethod.Log2Difference,
     ):
         """Normalize phenotypes.
 

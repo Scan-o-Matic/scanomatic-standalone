@@ -8,14 +8,18 @@ import psutil
 import setproctitle
 
 import scanomatic.io.logger as logger
-import scanomatic.server.pipes as pipes
+from scanomatic.server.proc_effector import (
+    ChildPipeEffector,
+    ParentPipeEffector,
+    _PipeEffector
+)
 
 
 class Fake:
     def __init__(self, job, parent_pipe):
 
         self._job = job
-        self._parent_pipe = pipes.ParentPipeEffector(parent_pipe)
+        self._parent_pipe = ParentPipeEffector(parent_pipe)
         self._logger = logger.Logger("Fake Process {0}".format(job.id))
         self._logger.info("Running ({0}) with pid {1}".format(
             self.is_alive(), job.pid))
@@ -23,7 +27,7 @@ class Fake:
         self.abandoned = False
 
     @property
-    def pipe(self) -> pipes._PipeEffector:
+    def pipe(self) -> _PipeEffector:
         return self._parent_pipe
 
     @property
@@ -58,7 +62,7 @@ class RpcJob(Process, Fake):
         super(RpcJob, self).__init__()
         self._job = job
         self._job_effector = job_effector
-        self._parent_pipe = pipes.ParentPipeEffector(parent_pipe)
+        self._parent_pipe = ParentPipeEffector(parent_pipe)
         self._childPipe = child_pipe
         self._logger = logger.Logger("Job {0} Process".format(job.id))
         self.abandoned = False
@@ -76,7 +80,7 @@ class RpcJob(Process, Fake):
         job_running = True
         _l = logger.Logger("RPC Job {0} (proc-side)".format(self._job.id))
 
-        pipe_effector = pipes.ChildPipeEffector(
+        pipe_effector = ChildPipeEffector(
             self._childPipe, self._job_effector(self._job))
 
         setproctitle.setproctitle("SoM {0}".format(

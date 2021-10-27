@@ -54,7 +54,7 @@ class PhenotyperState:
     meta_data: Optional[MetaData2] = field(default=None)
     phenotype_filter: Optional[np.ndarray] = field(default=None)
     phenotype_filter_undo: Optional[tuple[deque, ...]] = field(default=None)
-    reference_surface_positions: list[Offsets] = field(default=[])
+    reference_surface_positions: list[Offsets] = field(default_factory=list)
     smooth_growth_data: Optional[np.ndarray] = field(default=None)
     times_data: Optional[np.ndarray] = field(default=None)
     vector_meta_phenotypes: Optional[np.ndarray] = field(default=None)
