@@ -136,7 +136,6 @@ def get_linkage_matrix(
         cov = aligned_phases.var(axis=0) / aligned_phases.mean(axis=0)
         aligned_phases = aligned_phases[:, cov >= drop_low_cov_phenotypes]
 
-    print((aligned_phases.shape))
     return sch.linkage(
         aligned_phases,
         method=clust_method,
@@ -791,7 +790,7 @@ def plot_phases_all_curves(
         if set_title:
             ax.set_title("({0}, {1})".format(id1, id2))
 
-        print(("Constructing plot {0}".format((id1, id2))))
+        print("Constructing plot {0}".format((id1, id2)))
 
         curve = plate[id1, id2]
         deriv = phenotyper_object.get_derivative(

@@ -219,7 +219,7 @@ class ScannerPowerManager(SingeltonOneInit):
                 return False
         else:
             self._logger.critical(
-                f"There's one scanner on {usb}, but non that claims to be",
+                f"There's one scanner on {usb}, but none that claims to be",
             )
             return False
 

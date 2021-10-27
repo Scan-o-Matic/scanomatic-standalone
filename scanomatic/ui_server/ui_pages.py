@@ -13,7 +13,7 @@ from scanomatic.io.paths import Paths
 
 from .general import (
     convert_url_to_path,
-    serve_log_as_html
+    serve_log_as_html,
 )
 
 
@@ -115,5 +115,5 @@ def add_routes(app):
 
         return serve_log_as_html(
             path,
-            os.sep.join(path.split(os.path.sep)[-include_levels:])
+            os.sep.join(path.split(os.path.sep)[-include_levels:]),
         )

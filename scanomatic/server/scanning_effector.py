@@ -65,7 +65,7 @@ Scan-o-Matic"""
 SOM_MAIL_BODY_SCAN_ERROR = (
     """This is an automated email, please don't reply!
 
-The project '{project_name}' on ''"""
+The project '{project_name}' on '"""
     + AppConfig().computer_human_name +
     """' reports an error while scanning.
 Please hurry to correct this so that the project won't be spoiled.
@@ -882,8 +882,8 @@ class ScannerEffector(proc_effector.ProcessEffector):
     def _do_request_project_compilation(self) -> SCAN_STEP:
         """Requests compile project if there was a fixture given.
 
-                If it is the first request of compilation, the COMPILE_ACTION
-                is set to initiate from the setup-method.
+        If it is the first request of compilation, the COMPILE_ACTION
+        is set to initiate from the setup-method.
         """
         if (
             self._scanning_job.fixture
