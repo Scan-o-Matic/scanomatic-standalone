@@ -248,7 +248,7 @@ class ChildPipeEffector(_PipeEffector):
 
                 if (pipe is False):
                     self._logger.critical(
-                        "Server refused to acckowledge me, "
+                        "Server refused to acknowledge me, "
                         "nothing left to do but die"
                     )
                     self.procEffector.stop()
