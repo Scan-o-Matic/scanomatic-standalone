@@ -7,7 +7,6 @@ from itertools import chain, product
 from typing import Any, Callable, Optional, Union
 
 import numpy as np
-from scanomatic.data_processing.pheno.save import save_state, save_state_to_zip
 from scipy.ndimage import median_filter
 from scipy.signal import convolve
 from scipy.stats import norm
@@ -46,14 +45,12 @@ from scanomatic.data_processing.phases.features import (
     VectorPhenotypes,
     extract_phenotypes
 )
+from scanomatic.data_processing.pheno.save import save_state, save_state_to_zip
 from scanomatic.data_processing.pheno.state import (
     PhenotyperSettings,
     PhenotyperState
 )
-from scanomatic.data_processing.phenotypes import (
-    PhenotypeDataType,
-    infer_phenotype_from_name
-)
+from scanomatic.data_processing.phenotypes import PhenotypeDataType
 from scanomatic.data_processing.strain_selector import StrainSelector
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
 from scanomatic.io.meta_data import MetaData2
@@ -195,28 +192,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         if run_extraction:
             self.extract_phenotypes()
 
-    def __contains__(self, phenotype: Union[str, Phenotypes]) -> bool:
-        """
-        :param phenotype: The phenotype
-        """
-        if isinstance(phenotype, str):
-            try:
-                phenotype = infer_phenotype_from_name(phenotype)
-            except ValueError:
-                return False
-
-        if isinstance(phenotype, Phenotypes):
-            return self._state.has_phenotype_on_any_plate(phenotype)
-        elif (
-            isinstance(phenotype, CurvePhaseMetaPhenotypes)
-            and self._state.vector_meta_phenotypes is not None
-        ):
-            return any(
-                phenotype in plate for plate in
-                self._state.vector_meta_phenotypes
-                if plate is not None
-            )
-        return False
+    def __contains__(
+        self,
+        phenotype: Union[str, Phenotypes, CurvePhaseMetaPhenotypes],
+    ) -> bool:
+        return self._state.has_phenotype(phenotype)
 
     @property
     def state(self) -> PhenotyperState:
@@ -655,7 +635,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         """
         selection = self.meta_data.find(query, column=column)
         return StrainSelector(
-            self,
+            self._state,
+            self._settings,
             tuple(
                 (list(zip(*s)) if plates is None or i in plates else tuple())
                 for i, s in enumerate(selection)
@@ -682,7 +663,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             self._logger.debug("Phenotype extraction iteration")
             yield x
 
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
 
     def wipe_extracted_phenotypes(self, keep_filter: bool = False):
         """ This clears all extracted phenotypes but keeps the log2_curve data
@@ -745,7 +726,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         for _ in self._calculate_phenotypes():
             pass
 
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         self._logger.info("Phenotypes extracted")
 
     @property
@@ -1549,149 +1530,13 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             Phenotyper.get_reference_median:
                 Produces reference values for plates.
         """
-
-        if phenotype not in self:
-
-            raise ValueError(
-                "'{0}' has not been extracted, please re-run 'extract_phenotypes()' to include it.".format(  # noqa: E501
-                    phenotype.name,
-                ),
-            )
-
-        if 'normalized' in kwargs:
-            self._logger.warning(
-                "Deprecation warning: Use phenotyper.NormState enums instead",
-            )
-            norm_state = (
-                NormState.NormalizedRelative if kwargs['normalized']
-                else NormState.Absolute
-            )
-
-        if not PhenotypeDataType.Trusted(phenotype):
-            self._logger.warning(
-                "The phenotype '{0}' has not been fully tested and verified!".format(  # noqa: E501
-                    phenotype.name,
-                ),
-            )
-
-        self._init_remove_filter_and_undo_actions()
-
-        if norm_state is NormState.NormalizedRelative:
-            return self._get_norm_phenotype(phenotype, filtered)
-
-        elif norm_state is NormState.Absolute:
-            return self._get_abs_phenotype(phenotype, filtered)
-
-        else:
-            normed_plates = self._get_norm_phenotype(phenotype, filtered)
-            if norm_state is NormState.NormalizedAbsoluteBatched:
-                reference_values = self.get_reference_median(phenotype)
-            return tuple(
-                (
-                    None if ref_val is None or plate is None
-                    else ref_val * np.power(2, plate)
-                )
-                for ref_val, plate in zip(reference_values, normed_plates)
-            )
-
-    def _get_norm_phenotype(self, phenotype, filtered):
-        if (
-            self._state.normalized_phenotypes is None
-            or not self._state.has_normalized_phenotype(phenotype)
-        ):
-
-            if self._state.normalized_phenotypes is None:
-                self._logger.warning("No phenotypes have been normalized")
-            else:
-                self._logger.warning(
-                    "Phenotypes {0} not included in normalized phenotypes".format(  # noqa: E501
-                        phenotype,
-                    ),
-                )
-            return [None for _ in self._state.phenotype_filter]
-
-        if filtered:
-            return [
-                None if (
-                    p is None
-                    or phenotype not in self._state.phenotype_filter[id_plate]
-                ) else FilterArray(
-                    p[phenotype],
-                    self._state.phenotype_filter[id_plate][phenotype],
-                )
-                for id_plate, p in enumerate(self._state.normalized_phenotypes)
-            ]
-
-        else:
-            return [
-                None if p is None else p[phenotype]
-                for _, p in enumerate(self._state.normalized_phenotypes)
-            ]
-
-    def _get_abs_phenotype(self, phenotype, filtered):
-
-        if isinstance(phenotype, Phenotypes):
-            data = self._restructure_growth_phenotype(phenotype)
-        else:
-            data = self._get_phenotype_data(phenotype)
-
-        if filtered:
-
-            return [
-                None
-                if (
-                    p is None
-                    or phenotype not in self._state.phenotype_filter[id_plate]
-                )
-                else FilterArray(
-                    p,
-                    self._state.phenotype_filter[id_plate][phenotype],
-                )
-                for id_plate, p in enumerate(data)
-                ]
-        else:
-            return data
-
-    def _get_phenotype_data(self, phenotype):
-        if (
-            isinstance(phenotype, CurvePhaseMetaPhenotypes)
-            and self._state.vector_meta_phenotypes is not None
-        ):
-            return [
-                None if p is None else p[phenotype]
-                for p in self._stae.vector_meta_phenotypes
-            ]
-        return [None for _ in self._state.enumerate_plates]
-
-    def _restructure_growth_phenotype(self, phenotype):
-        def _plate_type_converter_vector(plate):
-            out = plate.copy()
-            if out.dtype == np.floating and out.shape[-1] == 1:
-                return out.reshape(out.shape[:2])
-
-            return out
-
-        def _plate_type_converter_scalar(plate):
-            dtype = type(plate[0, 0])
-            out = np.zeros(plate.shape, dtype=dtype)
-
-            if issubclass(type(out.dtype), np.floating):
-                out *= np.nan
-
-            out[...] = plate
-            return out
-
-        def _plate_type_converter(plate):
-            if plate.ndim == 3:
-                return _plate_type_converter_vector(plate)
-            else:
-                return _plate_type_converter_scalar(plate)
-
-        return [
-            None if (p is None or phenotype not in self)
-            else _plate_type_converter(p[phenotype])
-            for p in self._state.phenotypes
-        ]
+        return self._state.get_phenotype(
+            phenotype,
+            filtered=filtered,
+            norm_state=norm_state,
+            reference_values=reference_values,
+            **kwargs,
+        )
 
     @property
     def analysed_phenotypes(self):
@@ -1948,7 +1793,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         else:
             self._state.phenotypes = self._convert_phenotype_to_current(data)
             allowed = True
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         self._init_default_offsets()
         return allowed
 
@@ -1969,7 +1814,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         else:
             self._state.vector_phenotypes = data
             allowed = True
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         self._init_default_offsets()
         return allowed
 
@@ -1981,7 +1826,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             self._state.vector_meta_phenotypes = data
             allowed = True
 
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         self._init_default_offsets()
         return allowed
 
@@ -2001,7 +1846,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         else:
             self._logger.warning("Not a proper undo history")
 
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         return allowed
 
     def _set_phenotype_filter(self, data):
@@ -2022,7 +1867,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 self._convert_to_current_phenotype_filter(data)
             )
             allowed = True
-        self._init_remove_filter_and_undo_actions()
+        self._state.init_remove_filter_and_undo_actions(self._settings)
         return allowed
 
     def _set_meta_data(self, data):
@@ -2169,156 +2014,6 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def _init_default_offsets(self):
         if (not self._state.has_reference_surface_positions()):
             self.set_control_surface_offsets(Offsets.LowerRight)
-
-    def _init_plate_filter(
-        self,
-        plate_index,
-        phenotype,
-        phenotype_data,
-        growth_filter,
-    ):
-        self._state.phenotype_filter[plate_index][phenotype] = np.zeros(
-            self._state.raw_growth_data[plate_index].shape[:2],
-            dtype=np.int8,
-        )
-
-        if phenotype_data is not None:
-            self._state.phenotype_filter[plate_index][phenotype][
-                np.where(np.isfinite(phenotype_data) == False)  # noqa: E712
-            ] = Filter.UndecidedProblem.value
-
-            self._state.phenotype_filter[plate_index][phenotype][
-                growth_filter
-            ] = Filter.NoGrowth.value
-
-        if self._state.phenotype_filter_undo[plate_index]:
-            self._logger.warning(
-                "Undo cleared for plate {0} because of rewriting, better solution not yet implemented.".format(  # noqa: E501
-                    plate_index + 1
-                ),
-            )
-
-    def _init_remove_filter_and_undo_actions(self):
-        if self._state.phenotypes is None:
-            self._state.phenotype_filter = None
-            self._state.phenotype_filter_undo = None
-            return
-
-        if not self._state.has_phenotype_filter():
-            self._logger.warning(
-                "Filter doesn't match number of plates. Rewriting...",
-            )
-            self._state.phenotype_filter = np.array(
-                [{} for _ in self._state.phenotypes],
-                dtype=np.object,
-            )
-            self._state.phenotype_filter_undo = tuple(
-                deque() for _ in self._state.phenotypes
-            )
-
-        elif not self._state.has_phenotype_filter_undo():
-            self._logger.warning(
-                "Undo doesn't match number of plates. Rewriting...",
-            )
-            self._state.phenotype_filter_undo = tuple(
-                deque() for _ in self._state.phenotypes
-            )
-
-        if (
-            Phenotypes.Monotonicity in self
-            and Phenotypes.ExperimentPopulationDoublings in self
-        ):
-            growth_filter = [
-                (
-                    (
-                        plate[Phenotypes.Monotonicity]
-                        < self._settings.no_growth_monotonicity_threshold
-                    )
-                    | (
-                        np.isfinite(plate[Phenotypes.Monotonicity])
-                        == np.False_
-                    )
-                )
-                & (
-                    (
-                        plate[Phenotypes.ExperimentPopulationDoublings]
-                        < self._settings.no_growth_pop_doublings_threshold
-                    )
-                    | (
-                        np.isfinite(
-                            plate[Phenotypes.ExperimentPopulationDoublings],
-                        )
-                        == np.False_
-                    )
-                )
-                for plate in self._state.phenotypes
-            ]
-        elif Phenotypes.Monotonicity in self:
-            growth_filter = [
-                (
-                    (
-                        plate[Phenotypes.Monotonicity]
-                        < self._settings.no_growth_monotonicity_threshold
-                    )
-                    | (
-                        np.isfinite(plate[Phenotypes.Monotonicity])
-                        == np.False_
-                    )
-                )
-                for plate in self._state.phenotypes
-            ]
-        elif Phenotypes.ExperimentPopulationDoublings in self:
-            growth_filter = [
-                (
-                    (
-                        plate[Phenotypes.ExperimentPopulationDoublings]
-                        < self._settings.no_growth_pop_doublings_threshold
-                    )
-                    | (
-                        np.isfinite(
-                            plate[Phenotypes.ExperimentPopulationDoublings],
-                        )
-                        == np.False_
-                    )
-                )
-                for plate in self._state.phenotypes
-            ]
-        else:
-            growth_filter = [[] for _ in self._state.phenotypes]
-
-        for phenotype in self.phenotypes:
-            if phenotype not in self:
-                continue
-
-            phenotype_data = self._get_abs_phenotype(phenotype, False)
-
-            for plate_index in range(self._state.phenotypes.shape[0]):
-                if phenotype_data[plate_index] is None:
-                    continue
-
-                if phenotype not in self._state.phenotype_filter[plate_index]:
-                    self._init_plate_filter(
-                        plate_index,
-                        phenotype,
-                        phenotype_data[plate_index],
-                        growth_filter[plate_index],
-                    )
-
-                elif (
-                    self._state.phenotype_filter[plate_index][phenotype].shape
-                    != phenotype_data[0].shape
-                ):
-                    self._logger.warning(
-                        "The phenotype filter doesn't match plate {0} shape!".format(  # noqa: E501
-                            plate_index + 1,
-                        )
-                    )
-                    self._init_plate_filter(
-                        plate_index,
-                        phenotype,
-                        phenotype_data[plate_index],
-                        growth_filter[plate_index],
-                    )
 
     def infer_filter(self, template, *phenotypes):
         """Transfer all marks on one phenotype to other phenotypes.

@@ -1,7 +1,12 @@
 from typing import List, Sequence
+
 import numpy as np
 
-from scanomatic.data_processing.phenotyper import Phenotyper
+from scanomatic.data_processing.growth_phenotypes import Phenotypes
+from scanomatic.data_processing.pheno.state import (
+    PhenotyperSettings,
+    PhenotyperState
+)
 from scanomatic.generics.phenotype_filter import FilterArray
 
 
@@ -35,30 +40,33 @@ class StrainSelector:
         ```s1 += s2```
 
     See Also:
-        scanomatic.data_processing.phenotyper.Phenotyper.find_in_meta_data:
+        .phenotyper.Phenotyper.find_in_meta_data:
             The search method for creating subselections based on meta-data.
     """
     def __init__(
         self,
-        phenotyper: Phenotyper,
+        phenotyper_state: PhenotyperState,
+        phenotyper_settings: PhenotyperSettings,
         selection: SelectionType,
     ):
         """Create a sub-selection accessor.
 
         Args:
-            phenotyper: a `Phenotyper`
+            phenotyper: a `PhenotyperState`
             selection: a list of coordinate tuples with length equal to the
                 number of plates in `phenotyper`. The coordinate tuples should
                 be two length, with a tuple in each position (representing
                 outer and inner indices of coordinates respectively).
         """
-        self.__phenotyper = phenotyper
+        self.__phenotyper_state = phenotyper_state
+        self.__phenotyper_settings = phenotyper_settings
         self.__selection = selection
 
     def __add__(self, other: "StrainSelector") -> "StrainSelector":
-        if other.__phenotyper == self.__phenotyper:
+        if other.__phenotyper_state == self.__phenotyper_state:
             return StrainSelector(
-                self.__phenotyper,
+                self.__phenotyper_state,
+                self.__phenotyper_settings,
                 tuple(
                     StrainSelector.__joined(s1, s2)
                     for s1, s2 in zip(self.__selection, other.__selection)
@@ -69,7 +77,7 @@ class StrainSelector:
 
     def __iadd__(self, other: "StrainSelector") -> "StrainSelector":
 
-        if other.__phenotyper == self.__phenotyper:
+        if other.__phenotyper_state == self.__phenotyper_state:
             self.__selection = tuple(
                 StrainSelector.__joined(s1, s2)
                 for s1, s2 in zip(self.__selection, other.__selection)
@@ -96,35 +104,44 @@ class StrainSelector:
         )
 
     @property
+    def analysed_phenotypes(self):
+        for p in Phenotypes:
+            if (
+                self.__phenotyper_settings.phenotypes_inclusion(p)
+                and self.__phenotyper_state.has_phenotype_on_any_plate(p)
+            ):
+                yield p
+
+    @property
     def selection(self) -> SelectionType:
         return self.__selection
 
     @property
     def raw_growth_data(self):
-        return self.__filter(self.__phenotyper.raw_growth_data)
+        return self.__filter(self.__phenotyper_state.raw_growth_data)
 
     @property
     def smooth_growth_data(self):
-        return self.__filter(self.__phenotyper.smooth_growth_data)
+        return self.__filter(self.__phenotyper_state.smooth_growth_data)
 
     @property
     def phenotype_names(self):
         return [
             phenotype.name for phenotype in
-            self.__phenotyper.analysed_phenotypes
+            self.__phenotyper_state.analysed_phenotypes
         ]
 
     @property
     def phenotypes(self) -> np.ndarray:
         phenotypes = {}
-        for phenotype in self.__phenotyper.analysed_phenotypes:
+        for phenotype in self.__phenotyper_state.analysed_phenotypes:
             phenotypes[phenotype] = self.get_phenotype(phenotype)
 
         return np.array(
             tuple(
                 tuple(
                     phenotypes[p][i] for p in
-                    self.__phenotyper.analysed_phenotypes
+                    self.__phenotyper_state.analysed_phenotypes
                 ) for i, _ in enumerate(self.__selection)
             ),
         )
@@ -136,7 +153,7 @@ class StrainSelector:
 
     @property
     def meta_data(self):
-        md = self.__phenotyper.meta_data
+        md = self.__phenotyper_state.meta_data
         return [
             tuple(md.get_data_from_numpy_where(i, s) if s else None)
             for i, s in enumerate(self.__selection)
@@ -145,18 +162,18 @@ class StrainSelector:
     def get_phenotype(self, phenotype, **kwargs) -> List[FilterArray]:
         """Get the phenotypes for the sub-selection.
 
-        For more information see `.phenotyper.Phenotyper.get_phenotype`.
+        For more information see `.pheno.state.PhenotyperState.get_phenotype`.
 
         Args:
             phenotype:
                 The phenotype to get data on
             kwargs:
                 Further keyword arguments are passed along to
-                `Phenotyper.get_phenotype`
+                `PhenotyperState.get_phenotype`
 
 
         Returns: list of phenotype arrays for FilterArrays.
         """
         return self.__filter(
-            self.__phenotyper.get_phenotype(phenotype, **kwargs),
+            self.__phenotyper_state.get_phenotype(phenotype, **kwargs),
         )
