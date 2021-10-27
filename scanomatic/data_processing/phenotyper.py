@@ -9,6 +9,7 @@ from itertools import chain, product
 from typing import Callable, Optional, Union
 
 import numpy as np
+from scanomatic.data_processing.pheno.state import PhenotyperSettings
 from scipy.ndimage import median_filter
 from scipy.signal import convolve
 from scipy.stats import norm
@@ -141,9 +142,18 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         phenotypes=None,
         phenotypes_inclusion=PhenotypeDataType.Trusted,
     ):
-
         self._logger = logger.Logger("Phenotyper")
         self._paths = paths.Paths()
+        self._settings = PhenotyperSettings(
+            median_kernel_size=median_kernel_size,
+            gaussian_filter_sigma=gaussian_filter_sigma,
+            linear_regression_size=linear_regression_size,
+            phenotypes_inclusion=phenotypes_inclusion,
+            no_growth_monotonicity_threshold=no_growth_monotonocity_threshold,
+            no_growth_pop_doublings_threshold=(
+                no_growth_pop_doublings_threshold,
+            )
+        )
 
         self._raw_growth_data = raw_growth_data
         self._smooth_growth_data = None
@@ -155,7 +165,6 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
         self._times_data = None
 
-        self._phenotypes_inclusion = phenotypes_inclusion
         self._base_name = base_name
 
         self.times = times_data
@@ -166,17 +175,6 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
         self._phenotype_filter = None
         self._phenotype_filter_undo = None
-
-        assert median_kernel_size % 2 == 1, "Median kernel size must be odd"
-        self._median_kernel_size = median_kernel_size
-        self._gaussian_filter_sigma = gaussian_filter_sigma
-        self._linear_regression_size = linear_regression_size
-        self._no_growth_monotonicity_threshold = (
-            no_growth_monotonocity_threshold
-        )
-        self._no_growth_pop_doublings_threshold = (
-            no_growth_pop_doublings_threshold
-        )
 
         self._meta_data = None
 
@@ -273,7 +271,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 so that it is not normalized
         """
         if isinstance(level, PhenotypeDataType):
-            self._phenotypes_inclusion = level
+            self._settings.phenotypes_inclusion = level
         else:
             self._logger.error("Value not a PhenotypeDataType!")
 
@@ -399,11 +397,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                     if inclusion_name is None:
                         inclusion_name = 'Trusted'
 
-                    phenotyper._no_growth_monotonicity_threshold = float(
-                        no_growth_monotonicity_threshold,
+                    phenotyper._settings.no_growth_monotonicity_threshold = (
+                        float(no_growth_monotonicity_threshold)
                     )
-                    phenotyper._no_growth_pop_doublings_threshold = float(
-                        no_growth_pop_doublings_threshold,
+                    phenotyper._settings.no_growth_pop_doublings_threshold = (
+                        float(no_growth_pop_doublings_threshold)
                     )
                     phenotyper.set_phenotype_inclusion_level(
                         PhenotypeDataType[inclusion_name],
@@ -419,9 +417,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                         ),
                     )
 
-                phenotyper._median_kernel_size = int(median_filt_size)
-                phenotyper._gaussian_filter_sigma = float(gauss_sigma)
-                phenotyper._linear_regression_size = int(linear_reg_size)
+                phenotyper._settings.median_kernel_size = int(median_filt_size)
+                phenotyper._settings.gaussian_filter_sigma = float(gauss_sigma)
+                phenotyper._settings.linear_regression_size = int(
+                    linear_reg_size,
+                )
 
         phenotyper.set('smooth_growth_data', smooth_growth_data)
         phenotyper.set('phenotypes', phenotypes)
@@ -871,7 +871,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             ),
         )
 
-        median_kernel = np.ones((1, self._median_kernel_size))
+        median_kernel = np.ones((1, self._settings.median_kernel_size))
         smooth_data = []
         times = self.times
         left_filt, right_filt = get_edge_condition_timed_filter(
@@ -1045,16 +1045,16 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def _smoothen(self):
         self.set("smooth_growth_data", self._raw_growth_data.copy())
         self._logger.info("Smoothing Started")
-        median_kernel = np.ones((1, self._median_kernel_size))
+        median_kernel = np.ones((1, self._settings.median_kernel_size))
         times = self.times
 
         # This conversion is done to reflect that previous filter worked on
         # indices and expected ratio to hours is 1:3.
         gauss_kwargs = {
             'sigma': (
-                self._gaussian_filter_sigma / 3.0
-                if self._gaussian_filter_sigma == 5
-                else self._gaussian_filter_sigma
+                self._settings.gaussian_filter_sigma / 3.0
+                if self._settings.gaussian_filter_sigma == 5
+                else self._settings.gaussian_filter_sigma
             ),
         }
 
@@ -1089,7 +1089,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         self._logger.info("Smoothing Done")
 
     def _calculate_phenotypes(self):
-        if self._times_data.shape[0] - (self._linear_regression_size - 1) <= 0:
+        if (
+            self._times_data.shape[0]
+            - (self._settings.linear_regression_size - 1)
+            <= 0
+        ):
             self._logger.error(
                 "Refusing phenotype extractions since number of scans are less than used in the linear regression",  # noqa: E501
             )
@@ -1105,7 +1109,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         all_vector_phenotypes = []
         all_vector_meta_phenotypes = []
 
-        regression_size = self._linear_regression_size
+        regression_size = self._settings.linear_regression_size
         position_offset = (regression_size - 1) / 2
         phenotypes_count = self.get_number_of_phenotypes()
 
@@ -1119,7 +1123,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         )
 
         curves_in_completed_plates = 0
-        phenotypes_inclusion = self._phenotypes_inclusion
+        phenotypes_inclusion = self._settings.phenotypes_inclusion
 
         if phenotypes_inclusion is not PhenotypeDataType.Trusted:
             self._logger.warning(
@@ -1295,8 +1299,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             plate,
             shape=(
                 plate.shape[0] * plate.shape[1],
-                plate.shape[2] - (self._linear_regression_size - 1),
-                self._linear_regression_size
+                plate.shape[2] - (self._settings.linear_regression_size - 1),
+                self._settings.linear_regression_size
             ),
             strides=(
                 plate.strides[1],
@@ -1401,14 +1405,14 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     @property
     def phenotypes(self):
-        return tuple(p for p in self._phenotypes_inclusion())
+        return tuple(p for p in self._settings.phenotypes_inclusion())
 
     @property
     def phenotypes_that_normalize(self):
         return tuple(
             v for v in
             set(self._normalizable_phenotypes.intersection(
-                self._phenotypes_inclusion(),
+                self._settings.phenotypes_inclusion(),
             ))
         )
 
@@ -1490,7 +1494,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
 
         for phenotype in self._normalizable_phenotypes:
-            if self._phenotypes_inclusion(phenotype) is False:
+            if self._settings.phenotypes_inclusion(phenotype) is False:
                 self._logger.info(
                     "Because {0} has not been extracted it is skipped".format(
                         phenotype,
@@ -1745,7 +1749,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def analysed_phenotypes(self):
         for p in Phenotypes:
             if (
-                self._phenotypes_inclusion(p)
+                self._settings.phenotypes_inclusion(p)
                 and self._phenotypes is not None
                 and any(
                     p in plate
@@ -1791,8 +1795,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         return np.lib.stride_tricks.as_strided(
             self._times_data,
             shape=(
-                self._times_data.shape[0] - (self._linear_regression_size - 1),
-                self._linear_regression_size,
+                self._times_data.shape[0]
+                - (self._settings.linear_regression_size - 1),
+                self._settings.linear_regression_size,
             ),
             strides=(
                 self._times_data.strides[0],
@@ -2294,7 +2299,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 (
                     (
                         plate[Phenotypes.Monotonicity]
-                        < self._no_growth_monotonicity_threshold
+                        < self._settings.no_growth_monotonicity_threshold
                     )
                     | (
                         np.isfinite(plate[Phenotypes.Monotonicity])
@@ -2304,7 +2309,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 & (
                     (
                         plate[Phenotypes.ExperimentPopulationDoublings]
-                        < self._no_growth_pop_doublings_threshold
+                        < self._settings.no_growth_pop_doublings_threshold
                     )
                     | (
                         np.isfinite(
@@ -2320,7 +2325,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 (
                     (
                         plate[Phenotypes.Monotonicity]
-                        < self._no_growth_monotonicity_threshold
+                        < self._settings.no_growth_monotonicity_threshold
                     )
                     | (
                         np.isfinite(plate[Phenotypes.Monotonicity])
@@ -2334,7 +2339,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 (
                     (
                         plate[Phenotypes.ExperimentPopulationDoublings]
-                        < self._no_growth_pop_doublings_threshold
+                        < self._settings.no_growth_pop_doublings_threshold
                     )
                     | (
                         np.isfinite(
@@ -2594,7 +2599,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         if phenotype is None:
             for phenotype in Phenotypes:
                 if (
-                    self._phenotypes_inclusion(phenotype)
+                    self._settings.phenotypes_inclusion(phenotype)
                     and phenotype in self._phenotype_filter[plate]
                 ):
                     self._phenotype_filter[plate][phenotype][
@@ -2899,18 +2904,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             or not os.path.isfile(p)
             or self._do_ask_overwrite(p)
         ):
-            np.save(
-                p,
-                [
-                    self._median_kernel_size,
-                    self._gaussian_filter_sigma,
-                    self._linear_regression_size,
-                    None if self._phenotypes_inclusion is None
-                    else self._phenotypes_inclusion.name,
-                    self._no_growth_monotonicity_threshold,
-                    self._no_growth_pop_doublings_threshold,
-                ]
-            )
+            np.save(p, self._settings.serialized())
 
         self._logger.info("State saved to '{0}'".format(dir_path))
 
@@ -3035,17 +3029,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             os.path.join(dir_path, self._paths.phenotypes_extraction_params),
         )
         save_functions.append(np.save)
-        data.append(
-            [
-                self._median_kernel_size,
-                self._gaussian_filter_sigma,
-                self._linear_regression_size,
-                None if self._phenotypes_inclusion is None
-                else self._phenotypes_inclusion.name,
-                self._no_growth_monotonicity_threshold,
-                self._no_growth_pop_doublings_threshold
-            ]
-        )
+        data.append(self._settings.serialized())
 
         zip_stream = zipit(save_functions, data, zip_paths)
         if target:

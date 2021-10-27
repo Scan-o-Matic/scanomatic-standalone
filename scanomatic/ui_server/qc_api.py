@@ -21,7 +21,10 @@ from scanomatic.data_processing.phenotypes import (
     get_sort_order,
     infer_phenotype_from_name
 )
-from scanomatic.data_processing.project import get_project_dates, path_has_saved_project_state
+from scanomatic.data_processing.project import (
+    get_project_dates,
+    path_has_saved_project_state
+)
 from scanomatic.generics.phenotype_filter import Filter
 from scanomatic.io.app_config import Config
 from scanomatic.io.paths import Paths

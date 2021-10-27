@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Optional, Union
 
 import numpy as np
-from scanomatic.data_processing.phenotyper import Phenotyper
 from scipy import signal
 from scipy.ndimage import binary_closing, generic_filter, label
 
@@ -212,7 +211,7 @@ def segment(
 
 
 def get_data_needed_for_segmentation(
-    phenotyper_object: Phenotyper,
+    phenotyper_object,
     plate: int,
     pos: tuple[int, ...],
     thresholds: ThresholdsDict,
