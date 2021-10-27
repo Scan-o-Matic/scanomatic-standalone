@@ -65,7 +65,7 @@ Scan-o-Matic"""
 SOM_MAIL_BODY_SCAN_ERROR = (
     """This is an automated email, please don't reply!
 
-The project '{project_name}' on ''"""
+The project '{project_name}' on '"""
     + AppConfig().computer_human_name +
     """' reports an error while scanning.
 Please hurry to correct this so that the project won't be spoiled.
