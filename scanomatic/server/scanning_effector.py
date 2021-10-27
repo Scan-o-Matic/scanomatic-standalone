@@ -882,8 +882,8 @@ class ScannerEffector(proc_effector.ProcessEffector):
     def _do_request_project_compilation(self) -> SCAN_STEP:
         """Requests compile project if there was a fixture given.
 
-                If it is the first request of compilation, the COMPILE_ACTION
-                is set to initiate from the setup-method.
+        If it is the first request of compilation, the COMPILE_ACTION
+        is set to initiate from the setup-method.
         """
         if (
             self._scanning_job.fixture
