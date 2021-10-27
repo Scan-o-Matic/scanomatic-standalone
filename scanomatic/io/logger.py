@@ -293,7 +293,7 @@ class Logger:
                 output.writelines(msg)
 
             elif not self._suppressPrints:
-                print((self._decorate(lvl) + str(msg)))
+                print(self._decorate(lvl) + str(msg))
 
     def set_output_target(
         self,

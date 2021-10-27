@@ -480,7 +480,7 @@ def get_valid_parameters(
     def get_gauss_probability(height, position, width, data):
         return height * np.exp(-(data - position) ** 2 / (2 * width ** 2))
 
-    print(("*** Got center {0} and spacing {1}".format(center, spacing)))
+    print("*** Got center {0} and spacing {1}".format(center, spacing))
 
     spacing = np.array(spacing, dtype=np.float)
     expected_spacing = np.array(expected_spacing, dtype=np.float)

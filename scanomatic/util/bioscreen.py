@@ -88,7 +88,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
         time = np.frompyfunc(f, 1, 1)(data[:, 0])
 
     except IndexError:
-        print(("Failed parsing data {0}".format(data)))
+        print("Failed parsing data {0}".format(data))
         raise
 
     column_start = max(1, data.shape[1] - 200)
