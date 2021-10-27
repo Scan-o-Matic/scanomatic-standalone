@@ -3,7 +3,6 @@ from typing import Optional, Sequence, Tuple, Union
 
 import scanomatic
 import scanomatic.generics.model as model
-from scanomatic.generics.decorators import class_property
 from scanomatic.generics.enums import MinorMajorStepEnum
 from scanomatic.models.compile_project_model import CompileInstructionsModel
 
@@ -22,7 +21,8 @@ class SCAN_CYCLE(MinorMajorStepEnum):
     VerifyDiskspace = 42
     RequestProjectCompilation = 50
 
-    @class_property
+    @classmethod
+    @property
     def default(cls) -> "SCAN_CYCLE":
         return cls.Unknown
 

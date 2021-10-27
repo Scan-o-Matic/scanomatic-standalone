@@ -2,7 +2,6 @@ from enum import Enum
 
 import numpy as np
 
-import scanomatic.generics.decorators as decorators
 import scanomatic.generics.model as model
 from scanomatic.generics.enums import CycleEnum
 
@@ -34,7 +33,8 @@ class JOB_TYPE(CycleEnum):
                 return member
         return cls.default
 
-    @decorators.class_property
+    @classmethod
+    @property
     def default(cls) -> "JOB_TYPE":
         return cls.Unknown
 

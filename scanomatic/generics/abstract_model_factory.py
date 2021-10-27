@@ -151,21 +151,23 @@ class AbstractModelFactory:
     def __new__(cls, *args):
         raise Exception("This class is static, can't be instantiated")
 
-    class __metaclass__(type):
-        @property
-        def logger(cls) -> Logger:
-            if cls._LOGGER is None:
-                cls._LOGGER = Logger(cls.__name__)
+    @classmethod
+    @property
+    def logger(cls) -> Logger:
+        if cls._LOGGER is None:
+            cls._LOGGER = Logger(cls.__name__)
 
-            return cls._LOGGER
+        return cls._LOGGER
 
-        @property
-        def serializer(cls) -> "Serializer":
-            return Serializer(cls)
+    @classmethod
+    @property
+    def serializer(cls) -> "Serializer":
+        return Serializer(cls)
 
-        @property
-        def default_model(cls) -> Model:
-            return cls.MODEL()
+    @classmethod
+    @property
+    def default_model(cls) -> Model:
+        return cls.MODEL()
 
     @classmethod
     def get_sub_factory(cls, model):

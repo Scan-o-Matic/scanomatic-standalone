@@ -11,67 +11,6 @@ class UnknownLock(KeyError):
     pass
 
 
-class _ClassPropertyDescriptor(property):
-    def __init__(self, get_function, set_function=None):
-        self._get_function = get_function
-        self._set_function = set_function
-
-    def _get_docs(self):
-        return self._get_function.__doc__
-
-    __doc__ = property(_get_docs)
-
-    def __get__(self, obj, cls=None):
-        if cls is None:
-            cls = type(obj)
-        ret = self._get_function.__get__(obj, cls)()
-        ret.__doc__ = self._get_function.__doc__
-        return ret
-
-    def __set__(self, obj, value):
-        if not self._set_function:
-            raise AttributeError("Read-only class property")
-        type_ = type(obj)
-        return self._set_function.__get__(obj, type_)(value)
-
-    def setter(self, func):
-        if not isinstance(func, (classmethod, staticmethod)):
-            func = classmethod(func)
-        self._set_function = func
-        return self
-
-
-def class_property(func):
-    """Class property decorator
-
-    To implement a class property:
-
-    class Test(object):
-
-        @class_property
-        def foo(self):
-            return "bar"
-
-    To make class property writable:
-
-    class Test2(object):
-
-        _HIDDEN = "bar"
-
-        @class_property
-        def foo(cls):
-            return cls._HIDDEN
-
-        @foo.setter
-        def foo(self, value):
-            cls._HIDDEN = value
-    """
-    if not isinstance(func, (classmethod, staticmethod)):
-        return _ClassPropertyDescriptor(classmethod(func))
-    else:
-        return _ClassPropertyDescriptor(func)
-
-
 def _get_id_tuple(f, args, kwargs, mark=object()):
     ids = [id(f)]
     for arg in args:

@@ -2,11 +2,11 @@ from enum import Enum
 from math import floor
 from typing import Generator
 
-from .decorators import class_property
 
 
 class DefaultEnum(Enum):
-    @class_property
+    @classmethod
+    @property
     def default(cls):
         return list(cls.__members__.values())[0]
 
