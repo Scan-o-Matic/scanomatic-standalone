@@ -18,6 +18,37 @@ from scanomatic.generics.maths import mid50_mean
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
 
 
+class NormState(Enum):
+    """Spatial bias normalisation state in data
+
+    Attributes:
+        NormState.Absolute:
+            Data is as produced by phenotype extraction.
+            This includes spatial 2D bias
+        NormState.NormalizedRelative:
+            Data is log_2 normalized relative values or
+            strain coefficients. This relates to the LSC values
+            in Warringer (2003) but there are slight differences.
+        NormState.NormalizedAbsoluteBatched:
+            This is a plate-wise recalculation of absolute values
+            based on the `NormState.NormalizedRelative` values and
+            the median `NormState.Absolute` value of the reference
+            positions.
+            *Note that this reintroduces plate-wise batch effects,
+            so it is only recommended if all experiments for a given
+            environment were done on a single plate*
+        NormState.NormalizedAbsoluteNonBatched:
+            This is a global recalculation of absolute values
+            based on the `NormState.NormalizedRelative` values and
+            a supplied mean of all comparable plate-median reference position
+            `NormState.Absolute` values.
+    """
+    Absolute = 0
+    NormalizedRelative = 1
+    NormalizedAbsoluteBatched = 2
+    NormalizedAbsoluteNonBatched = 3
+
+
 class Offsets(Enum):
     """Subplate offsets with orientation
     (`scanomatic.data_processing.phenotyper.Phenotyper` data)

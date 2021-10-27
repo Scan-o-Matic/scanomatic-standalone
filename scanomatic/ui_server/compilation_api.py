@@ -4,7 +4,7 @@ from itertools import chain
 
 from flask import jsonify
 
-from scanomatic.data_processing import phenotyper
+from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.io import image_loading
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import CompileInstructionsModel
@@ -43,7 +43,7 @@ def add_routes(app):
 
         path = convert_url_to_path(project)
 
-        is_project = phenotyper.path_has_saved_project_state(path)
+        is_project = path_has_saved_project_state(path)
 
         if not is_project:
             return jsonify(

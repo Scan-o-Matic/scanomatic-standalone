@@ -6,7 +6,7 @@ import scanomatic.image_analysis.analysis_image as analysis_image
 import scanomatic.io.first_pass_results as first_pass_results
 import scanomatic.io.image_data as image_data
 import scanomatic.io.rpc_client as rpc_client
-from scanomatic.data_processing.phenotyper import remove_state_from_path
+from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import AnalysisModel

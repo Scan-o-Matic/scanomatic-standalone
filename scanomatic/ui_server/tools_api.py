@@ -4,8 +4,8 @@ from itertools import chain, product
 from urllib.parse import unquote
 
 from flask import jsonify, request
+from scanomatic.data_processing.project import path_has_saved_project_state
 
-from scanomatic.data_processing.phenotyper import path_has_saved_project_state
 from scanomatic.io.app_config import Config
 from scanomatic.io.logger import Logger, parse_log_file
 from scanomatic.io.paths import Paths

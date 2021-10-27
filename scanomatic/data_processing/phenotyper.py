@@ -1,5 +1,4 @@
 import csv
-import glob
 import os
 import pickle as pickle
 import zipfile
@@ -17,6 +16,12 @@ from scipy.stats import norm
 import scanomatic.io.image_data as image_data
 import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
+from scanomatic.data_processing.convolution import (
+    EdgeCondition,
+    filter_edge_condition,
+    get_edge_condition_timed_filter,
+    merge_convolve
+)
 from scanomatic.data_processing.growth_phenotypes import (
     Phenotypes,
     get_chapman_richards_4parameter_extended_curve,
@@ -24,6 +29,7 @@ from scanomatic.data_processing.growth_phenotypes import (
     get_preprocessed_data_for_phenotypes
 )
 from scanomatic.data_processing.norm import (
+    NormState,
     Offsets,
     get_normalized_data,
     get_reference_positions,
@@ -54,26 +60,6 @@ from . import mock_numpy_interface
 
 # TODO: Something is wrong with phase features again
 
-_logger = logger.Logger("Phenotyper")
-
-
-def time_based_gaussian_weighted_mean(data, time, sigma=1):
-    center = (time.size - time.size % 2) / 2
-    delta_time = np.abs(time - time[center])
-    kernel = norm.pdf(delta_time, loc=0, scale=sigma)
-    finite = np.isfinite(data)
-    if not finite.any() or not finite[center]:
-        return np.nan
-    kernel /= kernel[finite].sum()
-    return (data[finite] * kernel[finite]).sum()
-
-
-class EdgeCondition(Enum):
-    Reflect = 0
-    Symmetric = 1
-    Nearest = 2
-    Valid = 3
-
 
 class NormalizationMethod(Enum):
     """Methods for calculating normalized values
@@ -102,343 +88,11 @@ class NormalizationMethod(Enum):
     Difference = 3
 
 
-def edge_condition(arr, mode=EdgeCondition.Reflect, kernel_size=3):
-    if not kernel_size % 2 == 1:
-        raise ValueError("Only odd-size kernels supported")
-
-    origin = (kernel_size - 1) / 2
-    idx = 0
-
-    # First edge:
-    if mode is EdgeCondition.Symmetric:
-        while idx < origin:
-            yield np.hstack((arr[:origin - idx][::-1], arr[:idx + 1 + origin]))
-            idx += 1
-
-    elif mode is EdgeCondition.Nearest:
-        while idx < origin:
-            yield np.hstack((
-                tuple(arr[0] for _ in range(origin - idx)),
-                arr[:idx + 1 + origin],
-            ))
-            idx += 1
-
-    elif mode is EdgeCondition.Reflect:
-        while idx < origin:
-            yield np.hstack((
-                arr[1: origin - idx + 1][::-1],
-                arr[:idx + 1 + origin],
-            ))
-            idx += 1
-    elif mode is EdgeCondition.Valid:
-        pass
-
-    # Valid range
-    while arr.size - idx > origin:
-        yield arr[idx - origin: idx + origin + 1]
-        idx += 1
-
-    # Second edge
-    if mode is EdgeCondition.Symmetric:
-        while idx < arr.size:
-            yield np.hstack((
-                arr[idx - origin:],
-                arr[arr.size - idx - origin - 1:][::-1],
-            ))
-            idx += 1
-
-    elif mode is EdgeCondition.Nearest:
-        while idx < arr.size:
-            yield np.hstack((
-                arr[idx - origin:],
-                tuple(
-                    arr[-1] for _ in range(-1*(arr.size - idx - origin - 1))
-                ),
-            ))
-            idx += 1
-
-    elif mode is EdgeCondition.Reflect:
-        while idx < arr.size:
-            yield np.hstack((
-                arr[idx - origin:],
-                arr[arr.size - idx - origin - 2: -1][::-1],
-            ))
-            idx += 1
-    elif mode is EdgeCondition.Valid:
-        pass
-
-
-def get_edge_condition_timed_filter(times, half_window, edge_condition):
-    left = times < (times[0] + half_window)
-    right = times > (times[-1] - half_window)
-
-    if edge_condition is EdgeCondition.Symmetric:
-        return left, right
-    else:
-        left[0] = False
-        right[-1] = False
-        return left, right
-
-
-def filter_edge_condition(
-    y,
-    left_filt,
-    right_filt,
-    mode,
-    extrapolate_values=False,
-    logger=None,
-):
-
-    if mode is EdgeCondition.Valid:
-        return y
-    elif mode is EdgeCondition.Symmetric or mode is EdgeCondition.Reflect:
-        return np.hstack((
-            y[0]
-            - y[left_filt][::-1] if extrapolate_values else y[left_filt][::-1],
-            y,
-            y[-1]
-            + (
-                y[right_filt][::-1] if extrapolate_values
-                else y[right_filt][::-1]
-            ),
-        ))
-
-    elif mode is EdgeCondition.Nearest:
-        return np.hstack((
-            [y[0]] * left_filt.sum(),
-            y,
-            y[-1] * right_filt.sum(),
-        ))
-    else:
-        if logger is not None:
-            logger.warning(
-                "Unsupported edge condition {0}, will use `Valid`".format(
-                    edge_condition.name
-                ),
-            )
-        return y
-
-
-def merge_convolve(
-    arr1,
-    arr2,
-    edge_condition_mode=EdgeCondition.Reflect,
-    kernel_size=5,
-    func=time_based_gaussian_weighted_mean,
-    func_kwargs=None,
-):
-    if not func_kwargs:
-        func_kwargs = {}
-
-    return tuple(func(v1, v2, **func_kwargs) for v1, v2 in zip(
-        edge_condition(
-            arr1,
-            mode=edge_condition_mode,
-            kernel_size=kernel_size,
-        ),
-        edge_condition(
-            arr2,
-            mode=edge_condition_mode,
-            kernel_size=kernel_size,
-        ),
-    ))
-
-
-def get_phenotype(
-    name: str,
-) -> Union[Phenotypes, CurvePhaseMetaPhenotypes, VectorPhenotypes]:
-    try:
-        return Phenotypes[name]
-    except KeyError:
-        pass
-    try:
-        return CurvePhaseMetaPhenotypes[name]
-    except KeyError:
-        pass
-    try:
-        return VectorPhenotypes[name]
-    except KeyError:
-        pass
-    raise KeyError("Unknown phenotype {0}".format(name))
-
-
-def path_has_saved_project_state(
-    directory_path,
-    require_phenotypes=True,
-):
-    if not directory_path:
-        return False
-
-    _p = paths.Paths()
-
-    if require_phenotypes:
-        try:
-            unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.phenotypes_raw_npy),
-            )
-        except IOError:
-            return False
-
-    try:
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path,  _p.phenotypes_input_data),
-        )
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotype_times),
-        )
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotypes_input_smooth),
-        )
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotypes_extraction_params),
-        )
-    except IOError:
-        return False
-    return True
-
-
-def get_project_dates(directory_path):
-    def most_recent(stat_result):
-        return max(
-            stat_result.st_mtime,
-            stat_result.st_atime,
-            stat_result.st_ctime,
-        )
-
-    analysis_date = None
-    _p = paths.Paths()
-    image_data_files = glob.glob(os.path.join(
-        directory_path,
-        _p.image_analysis_img_data.format("*"),
-    ))
-    if image_data_files:
-        analysis_date = max(most_recent(os.stat(p)) for p in image_data_files)
-    try:
-        phenotype_date = most_recent(os.stat(os.path.join(
-            directory_path,
-            _p.phenotypes_raw_npy,
-        )))
-    except OSError:
-        phenotype_date = None
-
-    state_date = phenotype_date
-
-    for path in (
-        _p.phenotypes_input_data,
-        _p.phenotype_times,
-        _p.phenotypes_input_smooth,
-        _p.phenotypes_extraction_params,
-        _p.phenotypes_filter,
-        _p.phenotypes_filter_undo,
-        _p.phenotypes_meta_data,
-        _p.normalized_phenotypes,
-        _p.vector_phenotypes_raw,
-        _p.vector_meta_phenotypes_raw,
-        _p.phenotypes_reference_offsets,
-    ):
-        try:
-            state_date = max(
-                state_date,
-                most_recent(os.stat(os.path.join(directory_path, path))),
-            )
-        except OSError:
-            pass
-
-    return analysis_date, phenotype_date, state_date
-
-
-def remove_state_from_path(directory_path):
-    _p = paths.Paths()
-    n = 0
-
-    for path in (
-        _p.phenotypes_input_data,
-        _p.phenotype_times,
-        _p.phenotypes_input_smooth,
-        _p.phenotypes_extraction_params,
-        _p.phenotypes_filter,
-        _p.phenotypes_filter_undo,
-        _p.phenotypes_meta_data,
-        _p.normalized_phenotypes,
-        _p.vector_phenotypes_raw,
-        _p.vector_meta_phenotypes_raw,
-        _p.phenotypes_reference_offsets,
-    ):
-        file_path = os.path.join(directory_path, path)
-        try:
-            os.remove(file_path)
-        except (IOError, OSError):
-            pass
-        else:
-            n += 1
-
-    if n:
-        _logger.info(f"Removed {n} pre-existing phenotype state files")
-
-
 class Smoothing(Enum):
     Keep = 0
     MedianGauss = 1
     Polynomial = 2
     PolynomialWeightedMulti = 3
-
-
-class SaveData(Enum):
-    """Types of data that can be exported to csv.
-
-    Attributes:
-        SaveData.ScalarPhenotypesRaw: The non-normalized scalar-value
-            phenotypes.
-        SaveData.ScalarPhenotypesNormalized: The normalized scalar-value
-            phenotypes.
-        SaveData.VectorPhenotypesRaw: The non-normalized phenotype vectors.
-        SaveData.VectorPhenotypesNormalized: The normalized phenotype vectors.
-
-    See Also:
-        scanomatic.data_processing.phenotypes.PhenotypeDataType:
-            Classification of phenotypes.
-        Phenotyper.save_phenotypes: Exporting phenotypes to csv.
-    """
-    ScalarPhenotypesRaw = 0
-    ScalarPhenotypesNormalized = 1
-    VectorPhenotypesRaw = 10
-    VectorPhenotypesNormalized = 11
-
-
-class NormState(Enum):
-    """Spatial bias normalisation state in data
-
-    Attributes:
-        NormState.Absolute:
-            Data is as produced by phenotype extraction.
-            This includes spatial 2D bias
-        NormState.NormalizedRelative:
-            Data is log_2 normalized relative values or
-            strain coefficients. This relates to the LSC values
-            in Warringer (2003) but there are slight differences.
-        NormState.NormalizedAbsoluteBatched:
-            This is a plate-wise recalculation of absolute values
-            based on the `NormState.NormalizedRelative` values and
-            the median `NormState.Absolute` value of the reference
-            positions.
-            *Note that this reintroduces plate-wise batch effects,
-            so it is only recommended if all experiments for a given
-            environment were done on a single plate*
-        NormState.NormalizedAbsoluteNonBatched:
-            This is a global recalculation of absolute values
-            based on the `NormState.NormalizedRelative` values and
-            a supplied mean of all comparable plate-median reference position
-            `NormState.Absolute` values.
-    """
-    Absolute = 0
-    NormalizedRelative = 1
-    NormalizedAbsoluteBatched = 2
-    NormalizedAbsoluteNonBatched = 3
 
 
 # TODO: Phenotypes should possibly not be indexed based on enum value either

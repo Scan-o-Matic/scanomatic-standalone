@@ -12,6 +12,8 @@ from scanomatic.data_processing import phenotyper
 from scanomatic.data_processing.calibration import (
     get_polynomial_coefficients_from_ccc
 )
+from scanomatic.data_processing.norm import NormState
+from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.grayscale import getGrayscale, getGrayscales
 from scanomatic.image_analysis.grid_cell import GridCell
@@ -200,7 +202,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 phenotypes_normed={
                     pheno.name: [p.tojson() for p in state.get_phenotype(
                         pheno,
-                        norm_state=phenotyper.NormState.NormalizedRelative,
+                        norm_state=NormState.NormalizedRelative,
                     )] for pheno in state.phenotypes_that_normalize
                 },
                 curve_phases=json_data(curve_segments))
@@ -1083,7 +1085,7 @@ def add_routes(app, rpc_client, is_debug_mode):
 
             json_abort(400, reason='Invalid project')
 
-        is_project_analysis = phenotyper.path_has_saved_project_state(path)
+        is_project_analysis = path_has_saved_project_state(path)
 
         if not os.path.isfile(path) or not path.endswith(".log"):
 

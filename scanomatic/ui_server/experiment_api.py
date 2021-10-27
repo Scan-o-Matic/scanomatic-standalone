@@ -3,7 +3,7 @@ import os
 from flask import jsonify, request
 from flask_restful import Api
 
-from scanomatic.data_processing import phenotyper
+from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config
 from scanomatic.io.logger import Logger
 from scanomatic.models.compile_project_model import COMPILE_ACTION
@@ -86,7 +86,7 @@ def add_routes(app, rpc_client):
         else:
             return json_abort(400, reason="No such file")
 
-        phenotyper.remove_state_from_path(output)
+        remove_state_from_path(output)
         preprocess = data_object.get("bioscreen_preprocess", None)
 
         try:

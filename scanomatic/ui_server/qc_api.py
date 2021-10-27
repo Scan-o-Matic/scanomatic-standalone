@@ -1,25 +1,27 @@
 import os
 import re
 import time
-from typing import Any, Dict, Tuple
 import uuid
 from datetime import datetime
 from enum import Enum
 from glob import glob
 from itertools import chain, product
 from subprocess import call
+from typing import Any, Dict, Tuple
 
 from dateutil import tz
 from flask import jsonify, request, send_from_directory
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.data_processing import phenotyper
-from scanomatic.data_processing.norm import Offsets, infer_offset
+from scanomatic.data_processing.norm import NormState, Offsets, infer_offset
 from scanomatic.data_processing.phenotypes import (
     PhenotypeDataType,
+    get_phenotype,
     get_sort_order,
     infer_phenotype_from_name
 )
+from scanomatic.data_processing.project import get_project_dates, path_has_saved_project_state
 from scanomatic.generics.phenotype_filter import Filter
 from scanomatic.io.app_config import Config
 from scanomatic.io.paths import Paths
@@ -259,7 +261,7 @@ def add_routes(app):
             zone = tz.gettz()
 
         path = convert_url_to_path(project)
-        is_project = phenotyper.path_has_saved_project_state(path)
+        is_project = path_has_saved_project_state(path)
 
         feature_logs = tuple(chain((
             (
@@ -279,7 +281,7 @@ def add_routes(app):
                 analysis_date,
                 extraction_date,
                 change_date,
-            ) = phenotyper.get_project_dates(path)
+            ) = get_project_dates(path)
         else:
 
             return jsonify(**json_response(
@@ -378,7 +380,7 @@ def add_routes(app):
                         f"/api/results/export/phenotypes/{norm_state.name}",
                         path,
                     )
-                    for norm_state in phenotyper.NormState
+                    for norm_state in NormState
                 ] if is_project else None,
                 **get_search_results(path, "/api/results/browse")
             ),
@@ -387,7 +389,7 @@ def add_routes(app):
     @app.route("/api/results/lock/add/<path:project>")
     def lock_project(project=""):
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(success=False, reason="Not a project")
         name = get_project_name(path)
         lock_key = request.values.get("lock_key")
@@ -407,7 +409,7 @@ def add_routes(app):
     @app.route("/api/results/lock/remove/<path:project>")
     def unlock_project(project=""):
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(
                 success=False,
                 is_project=False,
@@ -435,7 +437,7 @@ def add_routes(app):
     @app.route("/api/results/meta_data/add/<path:project>", methods=["POST"])
     def add_meta_data(project=None):
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(
@@ -518,7 +520,7 @@ def add_routes(app):
         base_url = "/api/results/meta_data/column_names"
         path = convert_url_to_path(project)
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
 
             return jsonify(**json_response(
                 ["urls"],
@@ -560,7 +562,7 @@ def add_routes(app):
         base_url = "/api/results/meta_data/get"
         path = convert_url_to_path(project)
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
 
             return jsonify(**json_response(
                 ["urls"],
@@ -605,7 +607,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
         base_url = "/api/results/pinning"
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -640,7 +642,7 @@ def add_routes(app):
         base_url = "/api/results/gridding"
         path = convert_url_to_path(project)
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -683,7 +685,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
         base_url = "/api/results/phenotype_names"
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -736,7 +738,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
         base_url = "/api/results/phenotype_normalizable/remove"
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -794,7 +796,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
         base_url = "/api/results/phenotype_normalizable/add"
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -857,7 +859,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
         base_url = "/api/results/phenotype_normalizable/names"
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, base_url)),
@@ -900,7 +902,7 @@ def add_routes(app):
     @app.route("/api/results/quality_index/<path:project>")
     def get_quality_index(project=None, plate=None):
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(
                 success=True,
                 is_project=False,
@@ -952,7 +954,7 @@ def add_routes(app):
     ):
         base_url = "/api/results/normalized_phenotype"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(
@@ -997,7 +999,7 @@ def add_routes(app):
                 dict(phenotypes=phenotypes, urls=urls, **response),
             ))
 
-        phenotype_enum = phenotyper.get_phenotype(phenotype)
+        phenotype_enum = get_phenotype(phenotype)
         is_segmentation_based = state.is_segmentation_based_phenotype(
             phenotype_enum,
         )
@@ -1068,7 +1070,7 @@ def add_routes(app):
     @app.route("/api/results/phenotype/<phenotype>/<path:project>")
     def get_phenotype_data(phenotype=None, project=None, plate=None):
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(
@@ -1114,7 +1116,7 @@ def add_routes(app):
                 dict(phenotypes=phenotypes, urls=urls, **response),
             ))
 
-        phenotype_enum = phenotyper.get_phenotype(phenotype)
+        phenotype_enum = get_phenotype(phenotype)
         is_segmentation_based = state.is_segmentation_based_phenotype(
             phenotype_enum,
         )
@@ -1230,7 +1232,7 @@ def add_routes(app):
         """
         url_root = "/api/results/curve_mark/undo"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1324,7 +1326,7 @@ def add_routes(app):
         """
         url_root = "/api/results/curve_mark/set"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1485,7 +1487,7 @@ def add_routes(app):
         url_root = "/api/results/curves"
         path = convert_url_to_path(project)
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
 
             return jsonify(**json_response(
                 ["urls"],
@@ -1596,7 +1598,7 @@ def add_routes(app):
     ):
         url_root = "/api/results/movie/make"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1680,17 +1682,17 @@ def add_routes(app):
 
     @app.route("/api/results/normalize")
     @app.route("/api/results/normalize/<path:project>")
-    def _do_normalize(project):
+    def _do_normalize(project: str):
         """Preform normalization
 
         Arga:
 
-            project: str, url-formatted path to the project.
+            project: url-formatted path to the project.
 
         """
         url_root = "/api/results/normalize"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1734,12 +1736,12 @@ def add_routes(app):
         "/api/results/normalize/reference/set/<int:plate>/<offset>/<path:project>",  # noqa: E501
     )
     @app.route("/api/results/normalize/reference/set/<offset>/<path:project>")
-    def _set_normalization_offset(project, offset, plate=None):
+    def _set_normalization_offset(project: str, offset, plate=None):
         """Sets a normalization offset
 
         Arga:
 
-            project: str, url-formatted path to the project.
+            project: url-formatted path to the project.
             offset: One of the four offset names
             plate: Optional, if supplied only apply to a
                 specific plate, else apply to all plates.
@@ -1747,7 +1749,7 @@ def add_routes(app):
         """
         url_root = "/api/results/normalize/reference/set"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1822,7 +1824,7 @@ def add_routes(app):
         """
         url_root = "/api/results/normalize/reference/get"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1858,18 +1860,15 @@ def add_routes(app):
         )
 
     @app.route("/api/results/has_normalized/<path:project>")
-    def _get_has_been_normed(project):
+    def _get_has_been_normed(project: str):
         """If the project has normalized data.
 
         Arga:
-
-            project: str, url-formatted path to the project.
-
-
+            project: url-formatted path to the project.
         """
         url_root = "/api/results/has_normalized"
         path = convert_url_to_path(project)
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(is_project=False, **get_search_results(path, url_root)),
@@ -1891,11 +1890,11 @@ def add_routes(app):
         return jsonify(has_normalized=state.has_normalized_data, **response)
 
     @app.route("/api/results/export/phenotypes/<save_data>/<path:project>")
-    def export_phenotypes(project, save_data=""):
+    def export_phenotypes(project: str, save_data=""):
         url_root = "/api/results/export/phenotypes"
         path = convert_url_to_path(project)
 
-        if not phenotyper.path_has_saved_project_state(path):
+        if not path_has_saved_project_state(path):
             return jsonify(**json_response(
                 ["urls"],
                 dict(
@@ -1922,14 +1921,14 @@ def add_routes(app):
             return jsonify(**response)
 
         try:
-            save_data = phenotyper.NormState[save_data]
+            save_data = NormState[save_data]
         except KeyError:
             return jsonify(**json_response(
                 ['urls'],
                 dict(
                     urls=[
                         f"{url_root}/{sd.name}/{project}"
-                        for sd in phenotyper.NormState
+                        for sd in NormState
                     ],
                     reason=f"SaveData-type {save_data} not known"
                 ),

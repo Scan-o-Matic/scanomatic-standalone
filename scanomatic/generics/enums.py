@@ -3,7 +3,6 @@ from math import floor
 from typing import Generator
 
 
-
 class DefaultEnum(Enum):
     @classmethod
     @property

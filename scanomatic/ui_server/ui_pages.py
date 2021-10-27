@@ -7,7 +7,7 @@ from flask import (
     send_from_directory
 )
 
-from scanomatic.data_processing import phenotyper
+from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.io.app_config import Config
 from scanomatic.io.paths import Paths
 
@@ -110,7 +110,7 @@ def add_routes(app):
         if not os.path.isfile(path):
             abort(404)
 
-        is_project_analysis = phenotyper.path_has_saved_project_state(path)
+        is_project_analysis = path_has_saved_project_state(path)
         include_levels = 3 if is_project_analysis else 2
 
         return serve_log_as_html(

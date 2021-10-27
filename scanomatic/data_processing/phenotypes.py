@@ -222,3 +222,21 @@ def get_sort_order(phenotype):
     if phenotype in (Phenotypes.ExperimentGrowthYield,):
         return -1
     return 1
+
+
+def get_phenotype(
+    name: str,
+) -> Union[Phenotypes, CurvePhaseMetaPhenotypes, VectorPhenotypes]:
+    try:
+        return Phenotypes[name]
+    except KeyError:
+        pass
+    try:
+        return CurvePhaseMetaPhenotypes[name]
+    except KeyError:
+        pass
+    try:
+        return VectorPhenotypes[name]
+    except KeyError:
+        pass
+    raise KeyError("Unknown phenotype {0}".format(name))
