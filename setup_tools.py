@@ -33,17 +33,19 @@ _logger = MiniLogger()
 
 home_dir = os.path.expanduser("~")
 
-defaltPermission = 0o644
+defaultPermission = 0o644
 installPath = ".scan-o-matic"
 defaultSourceBase = "data"
 
 data_files = [
-    ('config', {'calibration.polynomials': False,
-                'calibration.data': False,
-                'grayscales.cfg': False,
-                'rpc.config': False,
-                'scanners.sane.json': False,
-                'scan-o-matic.desktop': True}),
+    ('config', {
+        'calibration.polynomials': False,
+        'calibration.data': False,
+        'grayscales.cfg': False,
+        'rpc.config': False,
+        'scanners.sane.json': False,
+        'scan-o-matic.desktop': True,
+    }),
     (os.path.join('config', 'fixtures'), {}),
     ('logs', {}),
     ('locks', {}),
@@ -182,7 +184,6 @@ def install_data_files(
     if not cur_dir:
         cur_dir = os.path.curdir
 
-    # buff_size = 65536
     replacement = r'ver={0}'.format(".".join(
         (str(v) for v in source.parse_version(
             source.get_source_information(
@@ -256,7 +257,7 @@ def install_data_files(
                 with open(target_path, 'wb') as fh:
                     fh.write(b.read())
 
-                os.chmod(target_path, defaltPermission)
+                os.chmod(target_path, defaultPermission)
 
 
 def linux_launcher_install():
