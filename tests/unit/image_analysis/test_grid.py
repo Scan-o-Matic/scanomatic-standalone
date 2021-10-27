@@ -132,8 +132,8 @@ class TestGetGrid:
             coord_components = draft_grid[dim]
             assert (coord_components > d_spacing / 2.0).all()
             assert (
-                coord_components <
-                easy_plate.shape[dim] - d_spacing / 2.0
+                coord_components
+                < easy_plate.shape[dim] - d_spacing / 2.0
             ).all()
 
     def test_getting_expecting_wrong_spacings_fails(self, easy_plate):
