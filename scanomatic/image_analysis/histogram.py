@@ -97,7 +97,6 @@ def otsu(histogram=None, labels=None, counts=None):
 
     muT = muT / sumT
     mu2T = mu2T / sumT
-    # S2T = mu2T-muT**2
 
     critValue = -1.0
     threshold = -1
