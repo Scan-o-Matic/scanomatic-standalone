@@ -197,7 +197,7 @@ class Server:
         if self._jobs.running:
 
             self.logger.warning(
-                "Jobs will be abandoned, can't wait for ever..",
+                "Jobs will be abandoned, can't wait for ever...",
             )
 
     def _get_job_id(self):
