@@ -9,7 +9,7 @@ from selenium import webdriver
 def docker_compose_file(pytestconfig):
     return [
         pytestconfig.rootdir.join('docker-compose.yml'),
-        str(Path(__file__).parent / 'docker-compose.override.yml'),
+        Path(__file__).parent / 'docker-compose.override.yml',
     ]
 
 
