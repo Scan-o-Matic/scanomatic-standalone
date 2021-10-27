@@ -41,7 +41,7 @@ def build_test_phenotyper():
     ]]], ndmin=4)
 
     phenotyper_object = Phenotyper(y_data, x_data)
-    phenotyper_object._smooth_growth_data = y_data
+    phenotyper_object.state.smooth_growth_data = y_data
 
     return phenotyper_object
 

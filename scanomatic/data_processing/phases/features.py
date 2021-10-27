@@ -12,6 +12,7 @@ from scanomatic.data_processing.phases.segmentation import (
     CurvePhases,
     is_detected_non_linear
 )
+from scanomatic.data_processing.phenotyper import Phenotyper
 from scanomatic.io.logger import Logger
 
 _l = Logger("Curve Phase Meta Phenotyping")
@@ -703,7 +704,7 @@ class PhaseSide(Enum):
     Right = 2
 
 
-def get_phase_phenotypes_aligned(phenotypes, plate):
+def get_phase_phenotypes_aligned(phenotypes: Phenotyper, plate):
     # TODO: 1. Make own module
     # TODO: 2. Support multiple plates and files, for this the global end_time
     # should be used
@@ -921,7 +922,7 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
             ) / float(end - start)
 
     end_time = phenotypes.times.max()
-    plate_data = phenotypes._vector_phenotypes[plate][
+    plate_data = phenotypes.state.vector_phenotypes[plate][
         VectorPhenotypes.PhasesPhenotypes
     ]
     filt = phenotypes.get_curve_qc_filter(plate)
