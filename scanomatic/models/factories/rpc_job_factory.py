@@ -1,4 +1,3 @@
-
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
