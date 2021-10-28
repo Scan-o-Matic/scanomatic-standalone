@@ -1,8 +1,9 @@
+import itertools
 
 import numpy as np
 import pytest
+
 from scanomatic.data_processing import phenotyper
-import itertools
 
 
 @pytest.fixture(scope='function')

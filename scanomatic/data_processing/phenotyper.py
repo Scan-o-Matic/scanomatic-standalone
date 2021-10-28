@@ -735,7 +735,10 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     @property
     def has_normalized_data(self) -> bool:
-        return self._state.has_normalized_data()
+        return (
+            self._normalizable_phenotypes is not None
+            and self._state.has_normalized_data()
+        )
 
     def _poly_smoothen_raw_growth(self, power=3, time_delta=5.1):
         assert power > 1, "Power must be 2 or greater"
@@ -1462,7 +1465,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 self._state.reference_surface_positions,
                 method=norm_method,
             )):
-                self._.state.normalized_phenotypes[id_plate][phenotype] = plate
+                self._state.normalized_phenotypes[id_plate][phenotype] = plate
 
     @property
     def number_of_curves(self):
@@ -1505,7 +1508,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         """Getting phenotype data
 
         Args:
-            phenotype:
+            phenotype:/
                 The phenotype, either a `.growth_phenotypes.Phenotypes`
                 or a `.curve_phase_phenotypes.CurvePhasePhenotypes`
             filtered:
@@ -1531,6 +1534,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 Produces reference values for plates.
         """
         return self._state.get_phenotype(
+            self._settings,
             phenotype,
             filtered=filtered,
             norm_state=norm_state,

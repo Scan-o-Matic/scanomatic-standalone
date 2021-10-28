@@ -175,5 +175,9 @@ class StrainSelector:
         Returns: list of phenotype arrays for FilterArrays.
         """
         return self.__filter(
-            self.__phenotyper_state.get_phenotype(phenotype, **kwargs),
+            self.__phenotyper_state.get_phenotype(
+                self.__phenotyper_settings,
+                phenotype,
+                **kwargs,
+            ),
         )
