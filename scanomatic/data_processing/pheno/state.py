@@ -547,6 +547,6 @@ class PhenotyperState:
         if self._state.phenotype_filter_undo[plate_index]:
             _logger.warning(
                 "Undo cleared for plate {0} because of rewriting, better solution not yet implemented.".format(  # noqa: E501
-                    plate_index + 1
+                    plate_index + 1,
                 ),
             )

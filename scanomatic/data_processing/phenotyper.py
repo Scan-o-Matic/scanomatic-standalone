@@ -151,7 +151,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             no_growth_monotonicity_threshold=no_growth_monotonocity_threshold,
             no_growth_pop_doublings_threshold=(
                 no_growth_pop_doublings_threshold,
-            )
+            ),
         )
         self._state = PhenotyperState(
             phenotypes=phenotypes,
@@ -1226,7 +1226,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             shape=(
                 plate.shape[0] * plate.shape[1],
                 plate.shape[2] - (self._settings.linear_regression_size - 1),
-                self._settings.linear_regression_size
+                self._settings.linear_regression_size,
             ),
             strides=(
                 plate.strides[1],
@@ -2436,7 +2436,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             self._settings,
             self._state,
             dir_path,
-            ask_if_overwrite=ask_if_overwrite
+            ask_if_overwrite=ask_if_overwrite,
         )
 
     def save_state_to_zip(
