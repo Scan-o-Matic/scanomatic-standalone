@@ -80,10 +80,10 @@ class PhenotyperState:
                 yield plate.shape[:2]
 
     def get_plate_shape(self, plate: int) -> Optional[tuple[int, int]]:
-        plate = self.raw_growth_data[plate]
-        if plate is None:
+        plate_arr = self.raw_growth_data[plate]
+        if plate_arr is None:
             return None
-        return plate.shape[:2]
+        return plate_arr.shape[:2]
 
     def has_reference_surface_positions(self) -> bool:
         return (
