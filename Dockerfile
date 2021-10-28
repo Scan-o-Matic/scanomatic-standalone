@@ -10,7 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime \
     && apt-get install -y tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt -y install usbutils software-properties-common
+RUN apt-get -y install usbutils software-properties-common
 # net-tools & iputils-ping are used in the xml-writer which should be removed soon
 RUN apt-get -y install net-tools iputils-ping
 RUN apt-get -y install libsane sane-utils libsane-common
