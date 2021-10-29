@@ -4,6 +4,7 @@ from collections import deque
 from enum import Enum
 from io import StringIO
 from itertools import chain, product
+from logging import Logger
 from typing import Any, Callable, Optional, Union
 
 import numpy as np
@@ -12,7 +13,6 @@ from scipy.signal import convolve
 from scipy.stats import norm
 
 import scanomatic.io.image_data as image_data
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 from scanomatic.data_processing.convolution import (
     EdgeCondition,
@@ -140,7 +140,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         phenotypes=None,
         phenotypes_inclusion=PhenotypeDataType.Trusted,
     ):
-        self._logger = logger.Logger("Phenotyper")
+        self._logger = Logger("Phenotyper")
         self._paths = paths.Paths()
         self._settings = PhenotyperSettings(
             median_kernel_size=median_kernel_size,

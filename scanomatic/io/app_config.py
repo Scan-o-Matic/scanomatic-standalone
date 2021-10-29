@@ -1,6 +1,7 @@
 import os
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
+from logging import Logger
 from typing import Dict, Optional, Sequence, Union
 
 import scanomatic.models.scanning_model as scanning_model
@@ -19,7 +20,7 @@ from scanomatic.models.settings_models import (
     VersionChangesModel
 )
 
-from . import logger, paths, power_manager
+from . import paths, power_manager
 
 
 class Config(SingeltonOneInit):
@@ -28,7 +29,7 @@ class Config(SingeltonOneInit):
 
     def __one_init__(self):
         self._paths = paths.Paths()
-        self._logger = logger.Logger("Application Config")
+        self._logger = Logger("Application Config")
         # TODO: Extend functionality to toggle to remote connect
         self._use_local_rpc_settings = True
         self._minMaxModels = {

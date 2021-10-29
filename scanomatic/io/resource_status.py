@@ -1,16 +1,18 @@
+from logging import Logger
+
 import psutil
 
-from . import app_config, logger
+from . import app_config
 
 
 class Resource_Status:
-    _LOGGER = logger.Logger("Hardware Status")
+    _LOGGER = Logger("Hardware Status")
     _APP_CONFIG = app_config.Config()
     _passes = 0
 
     @classmethod
     def loggingLevel(cls, val):
-        cls._LOGGER.level = val
+        cls._LOGGER.setLevel(val)
 
     @staticmethod
     def currentPasses():

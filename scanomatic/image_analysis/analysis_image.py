@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 from subprocess import call
 from threading import Thread
 from time import sleep
@@ -7,7 +8,6 @@ from typing import Dict
 import numpy as np
 
 from scanomatic.io.first_pass_results import CompilationResults
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import (
     IMAGE_ROTATIONS,

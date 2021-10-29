@@ -3,6 +3,7 @@ import time
 
 import scanomatic.data_processing.phenotyper as phenotyper
 import scanomatic.io.image_data as image_data
+from scanomatic.io.logger import set_logging_target
 import scanomatic.io.paths as paths
 import scanomatic.models.factories.features_factory as feature_factory
 from scanomatic.io.app_config import Config as AppConfig
@@ -75,11 +76,7 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
             self._feature_job.analysis_directory,
             paths.Paths().phenotypes_extraction_log
         )
-        self._logger.set_output_target(
-            log_path,
-            catch_stdout=True,
-            catch_stderr=True,
-        )
+        set_logging_target(self._logger, log_path)
         self._log_file_path = log_path
 
         self._logger.surpress_prints = False

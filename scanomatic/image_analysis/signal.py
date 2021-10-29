@@ -1,9 +1,9 @@
+from logging import Logger
+
 import numpy as np
 from scipy import ndimage, signal
 
-import scanomatic.io.logger as logger
-
-_logger = logger.Logger("Resource Signal")
+_logger = Logger("Resource Signal")
 
 
 def get_higher_second_half_order_according_to_first(first, *others):

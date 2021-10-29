@@ -3,13 +3,13 @@ Part of the analysis work-flow that holds the grid-cell object (A tile in a
 grid-array with a potential blob at the center).
 """
 import os
+from logging import Logger
 from typing import Dict
 
 import numpy as np
 
 import scanomatic.image_analysis.grid_cell_extra as grid_cell_extra
 from scanomatic.generics.maths import mid50_mean as iqr_mean
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (

@@ -1,16 +1,16 @@
 import json
 import os
 import tempfile
-from typing import Any, Dict, Optional, Tuple
 import zipfile
 from io import StringIO
+from logging import Logger
 from subprocess import PIPE, Popen, call
+from typing import Any, Dict, Optional, Tuple
 
 import requests
 
 from scanomatic import get_version
 
-from .logger import Logger
 from .paths import Paths
 
 _logger = Logger("Source Checker")

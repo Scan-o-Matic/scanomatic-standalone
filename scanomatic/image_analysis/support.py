@@ -1,14 +1,14 @@
 import os
 import sys
 import time
+from logging import Logger
 
 import numpy as np
 from PIL import Image
 
 import scanomatic.io.app_config as app_config
-import scanomatic.io.logger as logger
 
-_logger = logger.Logger("Resource Analysis Support")
+_logger = Logger("Resource Analysis Support")
 
 
 def save_image_as_png(from_path, **kwargs):
@@ -175,29 +175,6 @@ def print_progress_bar(fraction=0.0, size=40, start_time=None):
         print(" ETA: {0}".format(time.asctime(time.localtime(eta))), end=' ')
 
     sys.stdout.flush()
-
-
-def custom_traceback(excType, excValue, traceback):
-    """Custom traceback function"""
-
-    # TODO: This is no good!
-
-    run_file_path = (
-        "(sorry couldn't find the name,"
-        " but it is the analysis.run of your project)"
-    )
-
-    _logger.critical(
-        "Uncaught exception -- An error in the code was"
-        " encountered.\n"
-        "The analysis needs to be re-run when the problem is fixed.\n"
-        "If you are lucky, the problem may be solved by recompiling"
-        " a new .analysis file for "
-        "the project.\nIn any a way, please send "
-        "the file {0} to martin.zackrisson@gu.se".format(run_file_path),
-        exc_info=(excType, excValue, traceback),
-    )
-    sys.exit(1)
 
 
 def get_finds_fixture(name, directory=None):

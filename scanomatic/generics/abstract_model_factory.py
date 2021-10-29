@@ -2,17 +2,17 @@ import copy
 import os
 import pickle
 import types
-from typing import Dict, Generator, Union
 import warnings
 from collections import defaultdict
 from configparser import ConfigParser, NoSectionError
 from enum import Enum
+from logging import Logger
 from numbers import Real
 from types import GeneratorType
+from typing import Dict, Generator, Union
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.generics.model import Model
-from scanomatic.io.logger import Logger
 
 
 class UnserializationError(ValueError):

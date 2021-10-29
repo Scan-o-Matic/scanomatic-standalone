@@ -1,9 +1,9 @@
 import configparser
+from logging import Logger
 
 import numpy as np
 
 import scanomatic.io.paths as paths
-from scanomatic.io.logger import Logger
 
 _GRAYSCALE_PATH = paths.Paths().analysis_grayscales
 _GRAYSCALE_CONFIGS = configparser.ConfigParser()

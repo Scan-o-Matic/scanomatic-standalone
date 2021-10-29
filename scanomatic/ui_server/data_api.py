@@ -3,6 +3,7 @@ import os
 import shutil
 from configparser import Error as ConfigError
 from enum import Enum
+from logging import Logger
 from typing import Mapping, Sequence
 
 import numpy as np
@@ -21,7 +22,6 @@ from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.image_grayscale import get_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.io.fixtures import Fixtures
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (

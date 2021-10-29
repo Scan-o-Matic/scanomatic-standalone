@@ -3,21 +3,22 @@ import glob
 import io
 import os
 import re
-from typing import List, Sequence, Tuple
 import zipfile
 from io import IOBase, StringIO
 from itertools import chain
+from logging import Logger
+from typing import List, Sequence, Tuple
 from urllib.parse import quote, unquote
-from PIL import Image
 
 import numpy as np
 from flask import jsonify, render_template, send_file
+from PIL import Image
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.image_grayscale import is_valid_grayscale
 from scanomatic.io.app_config import Config
-from scanomatic.io.logger import Logger, parse_log_file
+from scanomatic.io.logger import parse_log_file
 from scanomatic.io.paths import Paths
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.fixture_models import (

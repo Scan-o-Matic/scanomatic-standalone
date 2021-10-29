@@ -1,4 +1,5 @@
 from enum import Enum
+from logging import Logger
 
 import numpy as np
 
@@ -12,9 +13,8 @@ from scanomatic.data_processing.phases.segmentation import (
     CurvePhases,
     is_detected_non_linear
 )
-from scanomatic.io.logger import Logger
 
-_l = Logger("Curve Phase Meta Phenotyping")
+_logger = Logger("Curve Phase Meta Phenotyping")
 
 
 class CurvePhaseMetaPhenotypes(Enum):
@@ -340,7 +340,7 @@ def _py_get_flanking_angle_relation(phases, major_impulse_index):
     if phases[major_impulse_index][
         VectorPhenotypes.PhasesClassifications.value
     ] is not CurvePhases.Impulse:
-        _l.error("Got index {0} as Impulse but is {1} in {2}".format(
+        _logger.error("Got index {0} as Impulse but is {1} in {2}".format(
             major_impulse_index,
             phases[major_impulse_index][
                 VectorPhenotypes.PhasesClassifications.value
@@ -632,7 +632,7 @@ def extract_phenotypes(plate, meta_phenotype, phenotypes):
         return _np_get_flanking_angle_relation(plate, indices).astype(np.float)
 
     else:
-        _l.error(f"Not implemented phenotype extraction: {meta_phenotype}")
+        _logger.error(f"Not implemented phenotype extraction: {meta_phenotype}")
         return np.ones_like(plate) * np.nan
 
 

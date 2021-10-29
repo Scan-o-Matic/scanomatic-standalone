@@ -1,6 +1,7 @@
 import re
 from collections import namedtuple
 from enum import Enum
+from logging import Logger
 from typing import Any, Callable, Dict, Union
 from uuid import uuid1
 
@@ -29,7 +30,6 @@ from scanomatic.io.ccc_data import (
     validate_polynomial_format
 )
 from scanomatic.io.fixtures import Fixtures
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 
 __CCC = {}

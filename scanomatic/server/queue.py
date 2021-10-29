@@ -1,5 +1,6 @@
+from logging import Logger
+
 import scanomatic.generics.decorators as decorators
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -16,7 +17,7 @@ class Queue(SingeltonOneInit):
 
     def __one_init__(self, jobs: Jobs):
         self._paths = paths.Paths()
-        self._logger = logger.Logger("Job Queue")
+        self._logger = Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
         self._queue = list(RPC_Job_Model_Factory.serializer.load(
             self._paths.rpc_queue,

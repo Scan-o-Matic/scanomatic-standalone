@@ -5,9 +5,9 @@ import re
 import time
 from enum import Enum
 from itertools import chain
+from logging import Logger
 from subprocess import PIPE, Popen
 
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 
 _logger = Logger("SANE module")

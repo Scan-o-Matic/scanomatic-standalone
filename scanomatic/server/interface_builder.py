@@ -2,14 +2,14 @@ import os
 import socket
 import sys
 from functools import wraps
+from logging import Logger
 from time import sleep
 from typing import Dict, Optional, Tuple, Union
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 
 import scanomatic.generics.decorators as decorators
-from scanomatic.generics.model import Model
-import scanomatic.io.logger as logger
 import scanomatic.models.rpc_job_models as rpc_job_models
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.app_config import Config
 from scanomatic.io.rpc_client import sanitize_communication
@@ -55,7 +55,7 @@ def _verify_admin(f):
 
 
 def _report_invalid(
-    logger: logger.Logger,
+    logger: Logger,
     factory: AbstractModelFactory,
     model: Model,
     title,
@@ -70,7 +70,7 @@ class InterfaceBuilder(SingeltonOneInit):
 
     def __one_init__(self):
 
-        self.logger = logger.Logger("Server Manager")
+        self.logger = Logger("Server Manager")
         self._start_som_server()
         self._start_rpc_server()
 

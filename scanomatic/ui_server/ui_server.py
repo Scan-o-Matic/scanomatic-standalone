@@ -1,6 +1,7 @@
 import os
 import time
 import webbrowser
+from logging import Logger
 from socket import error
 from threading import Thread, Timer
 
@@ -10,7 +11,7 @@ from flask_cors import CORS
 
 from scanomatic.io.app_config import Config
 from scanomatic.io.backup import backup_file
-from scanomatic.io.logger import LOG_RECYCLE_TIME, Logger
+from scanomatic.io.logger import LOG_RECYCLE_TIME
 from scanomatic.io.paths import Paths
 from scanomatic.io.rpc_client import get_client
 from scanomatic.io.scanstore import ScanStore
@@ -36,16 +37,8 @@ _DEBUG_MODE = None
 
 
 def init_logging():
-
-    _LOGGER.pause()
     backup_file(Paths().log_ui_server)
-    _LOGGER.set_output_target(
-        Paths().log_ui_server,
-        catch_stdout=_DEBUG_MODE is False,
-        catch_stderr=_DEBUG_MODE is False,
-    )
     _LOGGER.surpress_prints = _DEBUG_MODE is False
-    _LOGGER.resume()
 
 
 def launch_server(host, port, debug):

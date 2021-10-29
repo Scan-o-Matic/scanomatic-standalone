@@ -1,11 +1,11 @@
 import os
+from logging import Logger
 
 from flask import jsonify, request
 from flask_restful import Api
 
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config
-from scanomatic.io.logger import Logger
 from scanomatic.models.compile_project_model import COMPILE_ACTION
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.compile_project_factory import (
@@ -18,7 +18,7 @@ from scanomatic.util import bioscreen
 from .general import json_abort
 from .resources import ScanCollection
 
-_LOGGER = Logger("Experiment/Project API")
+_logger = Logger("Experiment/Project API")
 
 
 def add_routes(app, rpc_client):
@@ -26,7 +26,7 @@ def add_routes(app, rpc_client):
     @app.route("/api/project/feature_extract", methods=['post'])
     def _feature_extract_api():
         data_object = request.get_json(silent=True, force=True)
-        _LOGGER.info("Features json {}".format(data_object))
+        _logger.info("Features json {}".format(data_object))
 
         path = data_object.get("analysis_directory")
         path = os.path.abspath(path.replace(
@@ -35,7 +35,7 @@ def add_routes(app, rpc_client):
         ))
         try_keep_qc = bool(
             data_object.get("keep_qc", True))
-        _LOGGER.info(
+        _logger.info(
             "Attempting to extract features in '{0}'".format(path),
         )
         model = FeaturesFactory.create(
@@ -80,7 +80,7 @@ def add_routes(app, rpc_client):
             try:
                 os.makedirs(output)
             except OSError:
-                _LOGGER.info(
+                _logger.info(
                     f"Analysis folder {output} exists, so will overwrite files if needed",  # noqa: E501
                 )
         else:
@@ -148,7 +148,7 @@ def add_routes(app, rpc_client):
     def _analysis_api():
 
         data_object = request.get_json()
-        _LOGGER.info("Analysis json {}".format(data_object))
+        _logger.info("Analysis json {}".format(data_object))
 
         path_compilation = data_object.get("compilation", '')
         path_compilation = os.path.abspath(path_compilation.replace(
@@ -170,7 +170,7 @@ def add_routes(app, rpc_client):
                 ),
             )
 
-        _LOGGER.info(
+        _logger.info(
             "Attempting to analyse '{0}' (instructions '{1}')".format(
                 path_compilation,
                 path_compile_instructions,
@@ -188,7 +188,7 @@ def add_routes(app, rpc_client):
             )),
             chain=bool(data_object.get('chain', True)))
 
-        _LOGGER.info(
+        _logger.info(
             f"Created  job model {AnalysisModelFactory.to_dict(model)}",
         )
 
@@ -221,13 +221,13 @@ def add_routes(app, rpc_client):
 
             model.plate_image_inclusion = plate_image_inclusion
 
-        _LOGGER.info(
+        _logger.info(
             "Status `rpc_client.online`{} `rpc_client.local`{}".format(
                 rpc_client.online,
                 rpc_client.local
             )
         )
-        _LOGGER.info(f"Validate model {AnalysisModelFactory.validate(model)}")
+        _logger.info(f"Validate model {AnalysisModelFactory.validate(model)}")
         success = (
             AnalysisModelFactory.validate(model)
             and rpc_client.create_analysis_job(
@@ -251,7 +251,7 @@ def add_routes(app, rpc_client):
     def _experiment_api():
 
         data_object = request.get_json(silent=True, force=True)
-        _LOGGER.info("Experiment json {}".format(data_object))
+        _logger.info("Experiment json {}".format(data_object))
         project_name = os.path.basename(
             os.path.abspath(data_object.get("project_path")),
         )
@@ -319,7 +319,7 @@ def add_routes(app, rpc_client):
     def _compile_api():
 
         data_object = request.get_json(silent=True, force=True)
-        _LOGGER.info(f"Compile json {data_object}")
+        _logger.info(f"Compile json {data_object}")
 
         if not rpc_client.online:
             return json_abort(
@@ -341,7 +341,7 @@ def add_routes(app, rpc_client):
         chain_steps = bool(data_object.get('chain', True))
         images = data_object.get('images', [])
 
-        _LOGGER.info(
+        _logger.info(
             "Attempting to compile on path {0}, as {1} fixture{2} (Chaining: {3}), images {4}".format(  # noqa: E501
                 path,
                 'local' if fixture_is_local else 'global',
@@ -372,7 +372,7 @@ def add_routes(app, rpc_client):
                 if os.path.basename(p['path']) in images
             ]
 
-            _LOGGER.info(
+            _logger.info(
                 "Manual selection of images, {0} included of {1} requested compared to {2} in folder.".format(  # noqa: E501
                     len(dict_model['images']),
                     len(images),
@@ -387,7 +387,7 @@ def add_routes(app, rpc_client):
                     "with the images in the specified folder",
                 )
         else:
-            _LOGGER.info(
+            _logger.info(
                 "Using all {0} images in folder for compilation".format(
                     n_images_in_folder,
                 ),

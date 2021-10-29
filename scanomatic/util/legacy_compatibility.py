@@ -1,13 +1,12 @@
 __author__ = 'martin'
-
-import os
 import glob
+import os
 import re
+from logging import Logger
 
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 
-_logger = logger.Logger("Legacy compatibility")
+_logger = Logger("Legacy compatibility")
 
 
 def patch_image_file_names_by_interval(path, interval=20.0):

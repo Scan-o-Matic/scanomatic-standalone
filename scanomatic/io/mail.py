@@ -2,15 +2,15 @@ import smtplib
 import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from logging import Logger
 from struct import unpack
 from typing import Optional, Sequence, Union
 
 import requests
 
-import scanomatic.io.logger as logger
 from scanomatic.io.app_config import Config as AppConfig
 
-_logger = logger.Logger("Mailer")
+_logger = Logger("Mailer")
 
 _IP: Optional[str] = None
 

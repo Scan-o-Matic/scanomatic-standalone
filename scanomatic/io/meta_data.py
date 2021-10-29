@@ -1,4 +1,5 @@
 import csv
+from logging import Logger
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -10,14 +11,13 @@ except ImportError:
     _PANDAS = False
     pd = None
 
-import scanomatic.io.logger as logger
 
 
 class DataLoader:
     _SUFFIXES = []
 
     def __init__(self, path):
-        self._logger = logger.Logger("MetaDataLoader")
+        self._logger = Logger("MetaDataLoader")
         self._path = path
         self._sheet = -1
         self._entries = []
@@ -187,7 +187,7 @@ class MetaData2:
 
     def __init__(self, plate_shapes, *paths):
 
-        self._logger = logger.Logger("MetaData")
+        self._logger = Logger("MetaData")
         self._plate_shapes = plate_shapes
 
         self._data = tuple(

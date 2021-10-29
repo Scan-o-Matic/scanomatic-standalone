@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 from multiprocessing import Process
 from threading import Thread
 from time import sleep
@@ -7,7 +8,6 @@ from typing import Dict
 import psutil
 import setproctitle
 
-import scanomatic.io.logger as logger
 from scanomatic.server.proc_effector import (
     ChildPipeEffector,
     ParentPipeEffector,
@@ -20,7 +20,7 @@ class Fake:
 
         self._job = job
         self._parent_pipe = ParentPipeEffector(parent_pipe)
-        self._logger = logger.Logger("Fake Process {0}".format(job.id))
+        self._logger = Logger("Fake Process {0}".format(job.id))
         self._logger.info("Running ({0}) with pid {1}".format(
             self.is_alive(), job.pid))
 
@@ -64,7 +64,7 @@ class RpcJob(Process, Fake):
         self._job_effector = job_effector
         self._parent_pipe = ParentPipeEffector(parent_pipe)
         self._childPipe = child_pipe
-        self._logger = logger.Logger("Job {0} Process".format(job.id))
+        self._logger = Logger("Job {0} Process".format(job.id))
         self.abandoned = False
 
     def run(self):
@@ -75,10 +75,10 @@ class RpcJob(Process, Fake):
                 pipe_effector.poll()
                 sleep(0.07)
 
-            _l.info("Will not recieve any more communications")
+            _logger.info("Will not recieve any more communications")
 
         job_running = True
-        _l = logger.Logger("RPC Job {0} (proc-side)".format(self._job.id))
+        _logger = Logger("RPC Job {0} (proc-side)".format(self._job.id))
 
         pipe_effector = ChildPipeEffector(
             self._childPipe, self._job_effector(self._job))
@@ -89,11 +89,11 @@ class RpcJob(Process, Fake):
         t = Thread(target=_communicator)
         t.start()
 
-        _l.info("Communications thread started")
+        _logger.info("Communications thread started")
 
         effector_iterator = pipe_effector.procEffector
 
-        _l.info("Starting main loop")
+        _logger.info("Starting main loop")
 
         while t.is_alive() and job_running:
 
@@ -105,7 +105,7 @@ class RpcJob(Process, Fake):
 
                 except StopIteration:
 
-                    _l.info("Next returned stop iteration, job is done.")
+                    _logger.info("Next returned stop iteration, job is done.")
                     job_running = False
                     # pipe_effector.keepAlive = False
 
@@ -116,10 +116,10 @@ class RpcJob(Process, Fake):
                 sleep(0.05)
 
             else:
-                _l.info("Job doesn't want to be kept alive")
+                _logger.info("Job doesn't want to be kept alive")
                 sleep(0.29)
 
         if t.is_alive():
             pipe_effector.sendStatus(pipe_effector.procEffector.status())
         t.join(timeout=1)
-        _l.info("Job completed")
+        _logger.info("Job completed")

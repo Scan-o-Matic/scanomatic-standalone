@@ -1,5 +1,6 @@
 import os
 import time
+from scanomatic.io.logger import set_logging_target
 
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.image_analysis import first_pass
@@ -88,11 +89,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
         log_path = Paths().get_project_compile_log_path_from_compile_model(
             self._compile_job,
         )
-        self._logger.set_output_target(
-            log_path,
-            catch_stdout=True,
-            catch_stderr=True,
-        )
+        set_logging_target(self._logger, log_path)
         self._logger.surpress_prints = True
         self._log_file_path = log_path
 

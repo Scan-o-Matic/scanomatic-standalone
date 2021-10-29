@@ -1,12 +1,12 @@
 import os
 import socket
 import time
+from logging import Logger
 from subprocess import Popen
 from threading import Thread
 from typing import Dict, Optional
 
 import scanomatic.generics.decorators as decorators
-import scanomatic.io.logger as logger
 import scanomatic.io.rpc_client as rpc_client
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.io import mail
@@ -19,7 +19,7 @@ class _PipeEffector:
 
     def __init__(self, pipe, loggerName="Pipe effector"):
 
-        self._logger = logger.Logger(loggerName)
+        self._logger = Logger(loggerName)
 
         # The actual communications object
         self._pipe = pipe
@@ -292,7 +292,7 @@ class ProcessEffector(object):
 
         self._job = job
         self._job_label = job.id
-        self._logger = logger.Logger(logger_name)
+        self._logger = Logger(logger_name)
         self._fail_vunerable_calls = tuple()
 
         self._specific_statuses = {}

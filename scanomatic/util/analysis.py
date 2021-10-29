@@ -1,14 +1,16 @@
 import glob
 import os
+from logging import Logger
+
 import numpy as np
-from scanomatic.io.paths import Paths
+
+from scanomatic.generics.purge_importing import ExpiringModule
 from scanomatic.image_analysis.image_basics import load_image_to_numpy
-from scanomatic.io.logger import Logger
+from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
 from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory,
+    CompileImageAnalysisFactory
 )
-from scanomatic.generics.purge_importing import ExpiringModule
 
 _logger = Logger("Analysis Utils")
 

@@ -1,5 +1,6 @@
 import time
 from enum import Enum
+from logging import Logger
 from threading import Thread
 from typing import Dict, Union
 
@@ -8,7 +9,6 @@ import psutil
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.app_config as app_config
 import scanomatic.io.fixtures as fixtures
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.power_manager import InvalidInit, PowerManagerNull
@@ -30,7 +30,7 @@ class STATE(Enum):
 class ScannerPowerManager(SingeltonOneInit):
     def __one_init__(self):
 
-        self._logger = logger.Logger("Scanner Manager")
+        self._logger = Logger("Scanner Manager")
         self._conf = app_config.Config()
         self._paths = paths.Paths()
         self._fixtures = fixtures.Fixtures()

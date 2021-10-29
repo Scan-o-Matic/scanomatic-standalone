@@ -1,20 +1,13 @@
 """Resource module for handling basic images operations."""
+from logging import Logger
+
 import numpy as np
 from PIL import Image
 from scipy.ndimage import zoom
 
-import scanomatic.io.logger as logger
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 
-#
-# GLOBALS
-#
-
-_logger = logger.Logger("Basic Image Utils")
-
-#
-# FUNCTIONS
-#
+_logger = Logger("Basic Image Utils")
 
 
 def scale_16bit_to_8bit_range(data):
@@ -82,7 +75,7 @@ class Image_Transpose:
 
     def __init__(self, sourceValues=None, targetValues=None, polyCoeffs=None):
 
-        self._logger = logger.Logger("Image Transpose")
+        self._logger = Logger("Image Transpose")
         self._source = sourceValues
         self._target = targetValues
         self._polyCoeffs = polyCoeffs

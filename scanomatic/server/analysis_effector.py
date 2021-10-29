@@ -5,6 +5,7 @@ from typing import Optional
 import scanomatic.image_analysis.analysis_image as analysis_image
 import scanomatic.io.first_pass_results as first_pass_results
 import scanomatic.io.image_data as image_data
+from scanomatic.io.logger import set_logging_target
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
@@ -61,7 +62,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
     TYPE = JOB_TYPE.Analysis
 
     def __init__(self, job: RPCjobModel):
-        # sys.excepthook = support.custom_traceback
 
         super(AnalysisEffector, self).__init__(
             job,
@@ -320,12 +320,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 self._analysis_job.output_directory,
                 Paths().analysis_run_log,
             )
-            self._logger.set_output_target(
-                log_path,
-                catch_stdout=True,
-                catch_stderr=True,
-                buffering=0,
-            )
+            set_logging_target(self._logger, log_path)
             self._logger.surpress_prints = False
             self._log_file_path = log_path
 

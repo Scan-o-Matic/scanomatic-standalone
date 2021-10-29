@@ -8,21 +8,13 @@ __version__ = "0.9991"
 __maintainer__ = "Martin Zackrisson"
 __email__ = "martin.zackrisson@gu.se"
 __status__ = "Development"
-
-
-#
-# DEPENDENCIES
-#
+import os
+import sys
+from logging import Logger
 
 import psutil
-import sys
-import os
 import setproctitle
-#
-# INTERNAL DEPENDENCIES
-#
 
-import scanomatic.io.logger as logger
 import scanomatic.server.interface_builder as interface_builder
 
 if __name__ == "__main__":
@@ -51,7 +43,7 @@ if __name__ == "__main__":
             if (name.startswith(basename) and
                     os.getpid() != pid):
 
-                logger.Logger("Scan-o-Matic server launcher").critical(
+                Logger("Scan-o-Matic server launcher").critical(
                     "There is already a Scan-o-Matic server running, " +
                     "request refused!",
                 )

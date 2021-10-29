@@ -1,11 +1,11 @@
 import os
+from logging import Logger
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import convolve2d
 
-import scanomatic.io.logger as logger
 from scanomatic.generics.maths import mid50_mean as iqr_mean
 from scanomatic.io.paths import Paths
 
@@ -28,7 +28,7 @@ NEW_GS_ALG_SPIKES_FRACTION = 0.8
 NEW_SAFETY_PADDING = 0.2
 DEBUG_DETECTION = False
 
-_logger = logger.Logger("Analyze Grayscale")
+_logger = Logger("Analyze Grayscale")
 
 
 def get_ortho_trimmed_slice(im, grayscale):

@@ -1,12 +1,11 @@
 import itertools
 import time
-import traceback
+from logging import Logger
 from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 
 from scanomatic.io.fixtures import FixtureSettings
-from scanomatic.io.logger import Logger
 from scanomatic.models.factories.fixture_factories import FixturePlateFactory
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
@@ -443,11 +442,7 @@ class FixtureImage:
                 current_model.grayscale,
             )[1]
         except TypeError:
-            self._logger.error(
-                "Grayscale detection failed due to: \n{0}".format(
-                    traceback.format_exc(),
-                ),
-            )
+            self._logger.exception("Grayscale detection failed")
             current_model.grayscale.values = None
 
         if current_model.grayscale.values is None:

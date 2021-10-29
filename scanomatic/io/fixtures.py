@@ -1,8 +1,8 @@
 import configparser
 import os
+from logging import Logger
 from typing import Dict, Optional, Tuple
 
-from scanomatic.io.logger import Logger
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
 

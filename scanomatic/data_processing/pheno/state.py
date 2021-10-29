@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import dataclass, field
+from logging import Logger
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -18,7 +19,6 @@ from scanomatic.data_processing.phenotypes import (
     infer_phenotype_from_name
 )
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
-from scanomatic.io.logger import Logger
 from scanomatic.io.meta_data import MetaData2
 
 _logger = Logger("Phenotyper State")

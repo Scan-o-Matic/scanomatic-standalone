@@ -2,9 +2,8 @@ import datetime
 import multiprocessing
 import time
 from inspect import ismethod
+from logging import Logger
 from threading import Thread
-
-import scanomatic.io.logger as logger
 
 
 class UnknownLock(KeyError):
@@ -34,7 +33,7 @@ def memoize(f):
     return memoized
 
 
-_TIME_LOGGER = logger.Logger("Time It")
+_TIME_LOGGER = Logger("Time It")
 
 
 def timeit(f):
@@ -126,7 +125,7 @@ def type_lock(f):
         try:
             result = f(self, *args, **kwargs)
         except Exception as e:
-            logger.Logger("Type Lock").critical(
+            Logger("Type Lock").critical(
                 "Something failed attempting to call {0} with '{1}' as args and '{2}' as kwargs".format(  # noqa: E501
                     f,
                     args,

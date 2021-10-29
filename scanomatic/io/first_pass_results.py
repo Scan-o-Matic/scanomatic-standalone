@@ -1,9 +1,9 @@
 import os
 from enum import Enum
 from glob import glob
+from logging import Logger
 from typing import Optional, Sequence
 
-from scanomatic.io.logger import Logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
     CompileImageAnalysisModel,

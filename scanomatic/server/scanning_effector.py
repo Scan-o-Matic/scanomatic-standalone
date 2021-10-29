@@ -1,6 +1,7 @@
 import os
 import time
 from threading import Thread
+from scanomatic.io.logger import set_logging_target
 
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.io import paths, sane, scanner_manager
@@ -231,7 +232,6 @@ class ScannerEffector(proc_effector.ProcessEffector):
     WAIT_FOR_NEXT_SCAN = 1.0
 
     def __init__(self, job):
-        # sys.excepthook = support.custom_traceback
         super(ScannerEffector, self).__init__(
             job,
             logger_name="Scanner Effector",
@@ -298,11 +298,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
                     file_path,
                 ),
             )
-            self._logger.set_output_target(
-                file_path,
-                catch_stdout=True,
-                catch_stderr=True
-            )
+            set_logging_target(self._logger, file_path)
             self._log_file_path = file_path
             self._logger.surpress_prints = False
 

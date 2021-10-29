@@ -2,15 +2,14 @@ import os
 import re
 import time
 import types
-from typing import Optional, Union
 import urllib.error
 import urllib.parse
 import urllib.request
 from enum import Enum
+from logging import Logger
 from subprocess import PIPE, Popen
+from typing import Optional, Union
 from urllib.parse import urlencode
-
-from . import logger
 
 # FURTHER LAN-specific dependenies further down
 
@@ -93,7 +92,7 @@ class PowerManagerNull:
         self._power_mode = power_mode
         self._socket = socket
         self.name = name
-        self._logger = logger.Logger("Power Manager {0}".format(name))
+        self._logger = Logger("Power Manager {0}".format(name))
 
     @property
     def socket(self):

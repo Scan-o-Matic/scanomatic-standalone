@@ -1,13 +1,14 @@
 import glob
 import os
 from itertools import chain, product
+from logging import Logger
 from urllib.parse import unquote
 
 from flask import jsonify, request
-from scanomatic.data_processing.project import path_has_saved_project_state
 
+from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.io.app_config import Config
-from scanomatic.io.logger import Logger, parse_log_file
+from scanomatic.io.logger import parse_log_file
 from scanomatic.io.paths import Paths
 from scanomatic.ui_server.general import safe_directory_name
 

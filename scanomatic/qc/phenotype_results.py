@@ -1,6 +1,7 @@
 import re
 from functools import wraps
 from itertools import chain, product
+from logging import Logger
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -30,7 +31,6 @@ from scanomatic.data_processing.phases.segmentation import (
     get_linear_non_flat_extension_per_position
 )
 from scanomatic.data_processing.phenotyper import Phenotyper
-from scanomatic.io.logger import Logger
 from scanomatic.io.movie_writer import MovieWriter
 
 _logger = Logger("Phenotype Results QC")

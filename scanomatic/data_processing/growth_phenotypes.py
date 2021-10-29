@@ -1,11 +1,10 @@
 from enum import Enum
+from logging import Logger
 from typing import Any, Sequence
 
 import numpy as np
 from scipy.optimize import leastsq
 from scipy.stats import linregress
-
-from scanomatic.io.logger import Logger
 
 _logger = Logger("Growth Phenotypes")
 

@@ -1,14 +1,14 @@
+from logging import Logger
 from time import sleep
 from xmlrpc.server import SimpleXMLRPCServer
 
 import scanomatic.generics.decorators as decorators
-import scanomatic.io.logger as logger
 
 
 class Stoppable_RPC_Server(object):
 
     def __init__(self, *args, **kwargs):
-        self.logger = logger.Logger("RPC Server")
+        self.logger = Logger("RPC Server")
         self.logger.info(
             f"Starting server with {args} and {kwargs}",
         )

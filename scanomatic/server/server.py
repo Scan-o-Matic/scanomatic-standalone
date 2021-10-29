@@ -1,16 +1,17 @@
 import hashlib
 import time
+from logging import Logger
 from math import trunc
 from typing import Any, Dict
 
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.app_config as app_config
-import scanomatic.io.logger as logger
 import scanomatic.io.scanner_manager as scanner_manager
 import scanomatic.models.rpc_job_models as rpc_job_models
 import scanomatic.server.jobs as jobs
 import scanomatic.server.queue as queue
 from scanomatic.io.backup import backup_file
+from scanomatic.io.logger import LOG_RECYCLE_TIME, set_logging_target
 from scanomatic.io.paths import Paths
 from scanomatic.io.resource_status import Resource_Status
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
@@ -21,7 +22,7 @@ class Server:
 
         config = app_config.Config()
 
-        self.logger = logger.Logger("Server")
+        self.logger = Logger("Server")
         self._cycle_log_time = 0
         self._init_logging()
 
@@ -38,14 +39,12 @@ class Server:
 
     @property
     def _is_time_to_cycle_log(self) -> float:
-        return time.time() - self._cycle_log_time > logger.LOG_RECYCLE_TIME
+        return time.time() - self._cycle_log_time > LOG_RECYCLE_TIME
 
     def _init_logging(self):
 
         backup_file(Paths().log_server)
-        self.logger.set_output_target(
-            Paths().log_server,
-            catch_stdout=True, catch_stderr=True)
+        set_logging_target(self.logger, Paths().log_server)
         self.logger.surpress_prints = True
         self._cycle_log_time = time.time()
 

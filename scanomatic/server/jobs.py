@@ -1,7 +1,7 @@
+from logging import Logger
 from multiprocessing import Pipe
 from typing import Dict, List, Union
 
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
 import scanomatic.server.analysis_effector as analysis_effector
@@ -17,7 +17,7 @@ from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 class Jobs(SingeltonOneInit):
     def __one_init__(self):
 
-        self._logger = logger.Logger("Jobs Handler")
+        self._logger = Logger("Jobs Handler")
         self._paths = paths.Paths()
         self._scanner_manager = scanner_manager.ScannerPowerManager()
         self._jobs: Dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}

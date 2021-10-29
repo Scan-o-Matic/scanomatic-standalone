@@ -1,11 +1,11 @@
-import os
 import glob
+import os
+from logging import Logger
 
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 
-_logger = logger.Logger("Projects util")
+_logger = Logger("Projects util")
 _paths = paths.Paths()
 
 

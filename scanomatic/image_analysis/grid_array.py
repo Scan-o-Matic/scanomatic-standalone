@@ -1,9 +1,9 @@
 import os
+from logging import Logger
 from typing import Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-import scanomatic.io.logger as logger
 import scanomatic.io.paths as paths
 from scanomatic.image_analysis.grayscale import getGrayscale
 from scanomatic.io.pickler import unpickle_with_unpickler
@@ -120,7 +120,7 @@ def _get_grid_to_im_axis_mapping(pm, im) -> Tuple[int, int]:
 
 
 class GridCellSizes:
-    _LOGGER = logger.Logger("Grid Cell Sizes")
+    _LOGGER = Logger("Grid Cell Sizes")
     _APPROXIMATE_GRID_CELL_SIZES = {
         (8, 12): (212, 212),
         (16, 24): (106, 106),
@@ -161,7 +161,7 @@ class GridCellSizes:
 
 
 class GridArray:
-    _LOGGER = logger.Logger("Grid Array")
+    _LOGGER = Logger("Grid Array")
 
     def __init__(self, image_identifier, pinning, analysis_model):
         self._paths = paths.Paths()

@@ -1,11 +1,12 @@
+from logging import Logger
 from typing import Any, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-import scanomatic.io.logger as logger
 from scanomatic.io.meta_data import MetaData2
 
-_L = logger.Logger("Strain Handler Module")
+_logger = Logger("Strain Handler Module")
 
 _PLATE_STRING = "Plate {0}"
 
@@ -55,7 +56,7 @@ def loadCSV2Numpy(
 
         if isinstance(measure, str):
             fs.close()
-            _L.error(
+            _logger.error(
                 "{0}: Could not find {1} among headers {2}".format(
                     path,
                     measure,
@@ -79,12 +80,12 @@ def loadCSV2Numpy(
             if rowLength == 0:
                 rowLength = len(rowList)
         except ValueError:
-            _L.info("{0}: Not data row, could be headers {1}".format(
+            _logger.info("{0}: Not data row, could be headers {1}".format(
                 path,
                 rowList,
             ))
         except IndexError:
-            _L.info("{0}: Unexpeded length of row {1}".format(
+            _logger.info("{0}: Unexpeded length of row {1}".format(
                 path,
                 rowList,
             ))
@@ -122,7 +123,7 @@ def loadCSV2Numpy(
                 for k, v in pMeasures.items():
                     plate[k][...] = v
             except Exception:
-                _L.critical(
+                _logger.critical(
                     "{0}: Unexpected data for shape {1}, plate {2} pos {3}: {4}".format(  # noqa: E501
                          path,
                          plate.shape,
