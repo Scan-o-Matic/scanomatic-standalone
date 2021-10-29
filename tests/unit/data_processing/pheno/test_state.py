@@ -693,7 +693,7 @@ class TestPhenotyperState:
             )
         )
 
-    def test_remove_filter_and_undo_actions_clears_filter_if_no_phenotypes(
+    def test_init_remove_filter_and_undo_actions_clears_filter_if_no_phenotypes(  # noqa: E501
         self,
         state: PhenotyperState,
     ):
@@ -710,14 +710,17 @@ class TestPhenotyperState:
             ),
         )
 
-    def test_remove_filter_and_undo_no_filter(self, state: PhenotyperState):
+    def test_init_remove_filter_and_undo_no_filter(
+        self,
+        state: PhenotyperState,
+    ):
         state.phenotype_filter = None
         state.init_remove_filter_and_undo_actions(
             PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
         )
         assert_state_none_fields(state, tuple())
 
-    def test_remove_filter_and_undo_no_undo(self, state: PhenotyperState):
+    def test_init_remove_filter_and_undo_no_undo(self, state: PhenotyperState):
         state.phenotype_filter_undo = None
         state.init_remove_filter_and_undo_actions(
             PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
