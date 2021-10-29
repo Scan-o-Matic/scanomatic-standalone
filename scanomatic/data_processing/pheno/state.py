@@ -6,7 +6,11 @@ import numpy as np
 import numpy.typing as npt
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
-from scanomatic.data_processing.norm import NormState, Offsets
+from scanomatic.data_processing.norm import (
+    NormState,
+    Offsets,
+    get_reference_positions
+)
 from scanomatic.data_processing.phases.analysis import CurvePhasePhenotypes
 from scanomatic.data_processing.phases.features import CurvePhaseMetaPhenotypes
 from scanomatic.data_processing.phenotypes import (
@@ -23,6 +27,7 @@ PlateByPhenotypeArrays = npt.NDArray[Optional[dict[Phenotypes, npt.NDArray]]]
 PlateByCurveMetaPhenotypeArrays = npt.NDArray[
     Optional[dict[CurvePhaseMetaPhenotypes, npt.NDArray]]
 ]
+
 
 @dataclass
 class PhenotyperSettings:
@@ -283,7 +288,15 @@ class PhenotyperState:
         else:
             normed_plates = self._get_norm_phenotype(phenotype, filtered)
             if norm_state is NormState.NormalizedAbsoluteBatched:
-                reference_values = self.get_reference_median(phenotype)
+                reference_values = self.get_reference_median(
+                    settings,
+                    phenotype,
+                )
+            if reference_values is None:
+                _logger.error(
+                    f"Can't produce {norm_state.name} values for {phenotype.name} without supplied reference values",  # noqa: E501
+                )
+                return [None for _ in normed_plates]
             return tuple(
                 (
                     None if ref_val is None or plate is None
@@ -328,8 +341,11 @@ class PhenotyperState:
                 return _plate_type_converter_scalar(plate)
 
         return [
-            None if (plate_arr is None or not self.has_phenotype(phenotype))
-            else _plate_type_converter(plate_arr[phenotype])
+            None if (
+                plate_arr is None
+                or phenotype not in plate_arr
+                or plate_arr[phenotype].size == 0
+            ) else _plate_type_converter(plate_arr[phenotype])
             for plate_arr in self.phenotypes
         ]
 
@@ -390,6 +406,25 @@ class PhenotyperState:
                 for _, p in enumerate(self.normalized_phenotypes)
             ]
 
+    def get_reference_median(
+        self,
+        settings: PhenotyperSettings,
+        phenotype: Union[Phenotypes, CurvePhasePhenotypes],
+    ) -> tuple[float, ...]:
+        """ Getting reference position medians per plate."""
+        plates = self.get_phenotype(
+            settings,
+            phenotype,
+            filtered=False,
+        )
+        return tuple(
+            np.ma.median(np.ma.masked_invalid(
+                get_reference_positions([plate], [offset]),
+            )) if plate is not None else None
+            for plate, offset in
+            zip(plates, self.reference_surface_positions)
+        )
+
     def wipe_extracted_phenotypes(self, keep_filter: bool = False) -> None:
         """ This clears all extracted phenotypes but keeps the log2_curve data
 
@@ -403,7 +438,7 @@ class PhenotyperState:
 
         if self.vector_phenotypes is not None:
             _logger.info("Removing previous vector phenotypes")
-        self._vector_phenotypes = None
+        self.vector_phenotypes = None
 
         if self.vector_meta_phenotypes is not None:
             _logger.info("Removing previous vector meta phenotypes")

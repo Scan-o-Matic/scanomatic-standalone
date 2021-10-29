@@ -30,7 +30,6 @@ from scanomatic.data_processing.norm import (
     NormState,
     Offsets,
     get_normalized_data,
-    get_reference_positions,
     norm_by_diff,
     norm_by_log2_diff,
     norm_by_log2_diff_corr_scaled,
@@ -1489,13 +1488,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         Args:
             phenotype: The phenotype of interest.
         """
-        plates = self.get_phenotype(phenotype, filtered=False)
-        return tuple(
-            np.ma.median(np.ma.masked_invalid(
-                get_reference_positions([plate], [offset]),
-            )) for plate, offset in
-            zip(plates, self._state.reference_surface_positions)
-        )
+        return self._state.get_reference_median(self._settings, phenotype)
 
     def get_phenotype(
         self,

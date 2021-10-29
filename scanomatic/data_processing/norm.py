@@ -180,7 +180,6 @@ def get_control_position_filtered_arrays(
         fill_value:
             Value to fill non control positions with
     """
-
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
     else:
@@ -204,8 +203,12 @@ def get_control_position_filtered_arrays(
         plate_offset = offsets[id_plate]
         filt = np.tile(
             plate_offset,
-            [a / b for a, b in zip(new_plate.shape, plate_offset.shape)],
+            [
+                int(np.ceil(a / b))
+                for a, b in zip(new_plate.shape, plate_offset.shape)
+            ],
         )
+        filt = filt[:new_plate.shape[0], :new_plate.shape[1]]
         new_plate[filt == False] = fill_value  # noqa: E712
 
     return np.array(out)
@@ -571,7 +574,9 @@ def apply_outlier_filter(
             return item[kernel_center]
 
     if median_filter_size is not None:
-        kernel_center = (np.prod(median_filter_size) - 1) / 2
+        kernel_center = np.round(
+            (np.prod(median_filter_size) - 1) / 2
+        ).astype(np.int16)
         assert np.array(
             [v % 2 == 1 for v in median_filter_size],
         ).all(), "nanFillSize can only have odd values"

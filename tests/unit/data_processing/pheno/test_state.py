@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -12,6 +13,28 @@ from scanomatic.data_processing.pheno.state import (
 )
 from scanomatic.data_processing.phenotypes import PhenotypeDataType
 from scanomatic.generics.phenotype_filter import FilterArray
+from scanomatic.io.meta_data import MetaData2
+
+
+def check_none(
+    key: str,
+    value: Optional[Any],
+    expect_none: bool,
+) -> Optional[str]:
+    if (value is None) is expect_none:
+        return None
+    return f"{key} expected {value} to {'' if value else 'not'} equal None"
+
+
+def assert_state_none_fields(
+    state: PhenotyperState,
+    none_fields: tuple[str, ...],
+):
+    errors = []
+    for key, value in asdict(state).items():
+        if err := check_none(key, value, key in none_fields):
+            errors.append(err)
+    assert errors == []
 
 
 class TestPhenotyperSettings:
@@ -46,7 +69,23 @@ class TestPhenotyperSettings:
             3.0,
         ]
 
+
 class TestPhenotyperState:
+    @pytest.fixture
+    def state(self):
+        return PhenotyperState(
+            np.array([]),
+            np.array([]),
+            normalized_phenotypes=np.ndarray([]),
+            meta_data=MetaData2(tuple()),
+            phenotype_filter=np.array([]),
+            phenotype_filter_undo=tuple(),
+            smooth_growth_data=np.ndarray([]),
+            times_data=np.ndarray([]),
+            vector_meta_phenotypes=np.array([]),
+            vector_phenotypes=np.array([]),
+        )
+
     @pytest.mark.parametrize("raw_growth_data,expect", (
         (np.ones((1, 10)), [Offsets.UpperRight()]),
         (np.arange(2), [Offsets.LowerRight(), Offsets.LowerRight()]),
@@ -239,7 +278,7 @@ class TestPhenotyperState:
         self,
         phenotypes: Optional[np.ndarray],
         vector_meta_phenotypes: Optional[np.ndarray],
-        phenotype: Union[str,Phenotypes, CurvePhaseMetaPhenotypes],
+        phenotype: Union[str, Phenotypes, CurvePhaseMetaPhenotypes],
         expect: bool,
     ):
         assert PhenotyperState(
@@ -331,7 +370,11 @@ class TestPhenotyperState:
         (
             np.array([
                 None,
-                {Phenotypes.ColonySize48h: np.array([[0, 0], [1, 0]], dtype=int)},
+                {
+                    Phenotypes.ColonySize48h: (
+                        np.array([[0, 0], [1, 0]], dtype=int)
+                    ),
+                },
             ]),
             1,
             True,
@@ -363,7 +406,11 @@ class TestPhenotyperState:
         (
             np.array([
                 {Phenotypes.ColonySize48h: np.zeros((4, 4), dtype=int)},
-                {Phenotypes.ColonySize48h: np.array([[0, 0], [1, 0]], dtype=int)},
+                {
+                    Phenotypes.ColonySize48h: (
+                        np.array([[0, 0], [1, 0]], dtype=int)
+                    ),
+                },
             ]),
             True,
         ),
@@ -419,14 +466,16 @@ class TestPhenotyperState:
             )
 
     @pytest.mark.parametrize(
-        "phenotypes,vector_meta_phenotypes,phenotype_filter,settings,"
-        "phenotype,filtered,norm_state,reference_values,kwargs,expect",
+        "phenotypes,vector_meta_phenotypes,normalized_phenotypes,"
+        "phenotype_filter,settings,phenotype,filtered,norm_state,"
+        "reference_values,kwargs,expect",
         (
-            (
+            (  # Unfiltered
                 np.array([
                     None,
                     {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3)},
                 ]),
+                None,
                 None,
                 np.array([
                     None,
@@ -438,7 +487,117 @@ class TestPhenotyperState:
                 NormState.Absolute,
                 None,
                 {},
-                [],
+                [None, np.arange(6).reshape(2, 3)],
+            ),
+            (  # Filtered
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3)},
+                ]),
+                None,
+                None,
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3) < 2},
+                ]),
+                PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+                Phenotypes.ColonySize48h,
+                True,
+                NormState.Absolute,
+                None,
+                {},
+                [
+                    None,
+                    FilterArray(
+                        np.arange(6).reshape(2, 3),
+                        np.arange(6).reshape(2, 3) < 2,
+                    ),
+                ],
+            ),
+            (  # NormalizedRelative (though norm not exists)
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3)},
+                ]),
+                None,
+                None,
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3) < 2},
+                ]),
+                PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+                Phenotypes.ColonySize48h,
+                True,
+                NormState.NormalizedRelative,
+                None,
+                {},
+                [None, None],
+            ),
+            (  # NormalizedAbsoluteBatched (though norm not exists)
+                np.array([
+                    None,
+                    {
+                        Phenotypes.ColonySize48h:
+                            np.arange(6).reshape(2, 3).astype(np.float)
+                    },
+                ]),
+                None,
+                None,
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3) < 2},
+                ]),
+                PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+                Phenotypes.ColonySize48h,
+                True,
+                NormState.NormalizedAbsoluteBatched,
+                None,
+                {},
+                [None, None],
+            ),
+            (  # NormalizedAbsoluteNonBatched (though norm not exists)
+                np.array([
+                    None,
+                    {
+                        Phenotypes.ColonySize48h:
+                            np.arange(6).reshape(2, 3).astype(np.float)
+                    },
+                ]),
+                None,
+                None,
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3) < 2},
+                ]),
+                PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+                Phenotypes.ColonySize48h,
+                True,
+                NormState.NormalizedAbsoluteNonBatched,
+                [10, 11],
+                {},
+                [None, None],
+            ),
+            (  # kwarg overriding normstate to be Absolute
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3)},
+                ]),
+                None,
+                None,
+                np.array([
+                    None,
+                    {Phenotypes.ColonySize48h: np.arange(6).reshape(2, 3) < 2},
+                ]),
+                PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+                Phenotypes.ColonySize48h,
+                False,
+                NormState.NormalizedAbsoluteNonBatched,
+                None,
+                {'normalized': False},
+                [
+                    None,
+                    np.arange(6).reshape(2, 3),
+                ],
             ),
         ),
     )
@@ -446,6 +605,7 @@ class TestPhenotyperState:
         self,
         phenotypes: Optional[np.ndarray],
         vector_meta_phenotypes: Optional[np.ndarray],
+        normalized_phenotypes: Optional[np.ndarray],
         phenotype_filter: Optional[np.ndarray],
         settings: PhenotyperSettings,
         phenotype: Union[Phenotypes, CurvePhaseMetaPhenotypes],
@@ -455,19 +615,111 @@ class TestPhenotyperState:
         kwargs: dict[str, Any],
         expect: list[Optional[Union[FilterArray, np.ndarray]]],
     ):
-        np.testing.assert_equal(
-            PhenotyperState(
-                phenotypes,
-                np.arange(2),
-                vector_meta_phenotypes=vector_meta_phenotypes,
-                phenotype_filter=phenotype_filter,
-            ).get_phenotype(
-                settings,
-                phenotype,
-                filtered,
-                norm_state,
-                reference_values,
-                **kwargs,
-            ),
-            expect,
+        actual = PhenotyperState(
+            phenotypes,
+            np.arange(2),
+            vector_meta_phenotypes=vector_meta_phenotypes,
+            normalized_phenotypes=normalized_phenotypes,
+            phenotype_filter=phenotype_filter,
+        ).get_phenotype(
+            settings,
+            phenotype,
+            filtered,
+            norm_state,
+            reference_values,
+            **kwargs,
         )
+        errors = []
+        for i, (actual_plate, expect_plate) in enumerate(zip(actual, expect)):
+            if actual_plate is None and expect_plate is None:
+                continue
+            if isinstance(actual_plate, FilterArray):
+                if actual_plate.equals(expect_plate):
+                    continue
+                errors.append(
+                    f"Index {i} mismatch {actual_plate} != {expect_plate}",
+                )
+            elif isinstance(expect_plate, FilterArray):
+                if not expect_plate.equals(actual_plate):
+                    continue
+                errors.append(
+                    f"Index {i} mismatch {actual_plate} != {expect_plate}",
+                )
+            else:
+                try:
+                    np.testing.assert_equal(actual_plate, expect_plate)
+                except AssertionError:
+                    errors.append(
+                        f"Index {i} mismatch {actual_plate} != {expect_plate}",
+                    )
+        assert errors == []
+
+    def test_get_reference_median(self):
+        plate = np.random.standard_normal((10, 10))
+        plate[1::2, 1::2] += 11
+        assert PhenotyperState(
+            np.array([
+                None,
+                {},
+                {Phenotypes.ColonySize48h: np.array([])},
+                {Phenotypes.ColonySize48h: plate},
+            ]),
+            np.zeros((4, 10, 10)),
+        ).get_reference_median(
+            PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+            Phenotypes.ColonySize48h,
+        ) == (None, None, None, pytest.approx(11, abs=1.))
+
+    @pytest.mark.parametrize("keep_filter,expect_filters_none", (
+        (False, True),
+        (True, False),
+    ))
+    def test_wipe_extracted_phenotypes(
+        self,
+        keep_filter: bool,
+        expect_filters_none: bool,
+        state: PhenotyperState,
+    ):
+        state.wipe_extracted_phenotypes(keep_filter)
+        assert_state_none_fields(
+            state,
+            (
+                    'phenotypes',
+                    'vector_phenotypes',
+                    'vector_meta_phenotypes',
+            ) + (
+                ('phenotype_filter', 'phenotype_filter_undo') if
+                expect_filters_none else tuple()
+            )
+        )
+
+    def test_remove_filter_and_undo_actions_clears_filter_if_no_phenotypes(
+        self,
+        state: PhenotyperState,
+    ):
+        state.phenotypes = None
+        state.init_remove_filter_and_undo_actions(
+            PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+        )
+        assert_state_none_fields(
+            state,
+            (
+                'phenotypes',
+                'phenotype_filter',
+                'phenotype_filter_undo',
+            ),
+        )
+
+    def test_remove_filter_and_undo_no_filter(self, state: PhenotyperState):
+        state.phenotype_filter = None
+        state.init_remove_filter_and_undo_actions(
+            PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+        )
+        assert_state_none_fields(state, tuple())
+
+    def test_remove_filter_and_undo_no_undo(self, state: PhenotyperState):
+        state.phenotype_filter_undo = None
+        state.init_remove_filter_and_undo_actions(
+            PhenotyperSettings(1, 2, 3, PhenotypeDataType.Trusted, 4, 5),
+        )
+        assert_state_none_fields(state, tuple())

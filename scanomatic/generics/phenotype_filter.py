@@ -102,3 +102,25 @@ class FilterArray:
             self.__dict__["__numpy_data"],
             mask=self.mask,
         )[item]
+
+    def __str__(self):
+        data = self.__dict__['__numpy_data']
+        filter = self.__dict__['__numpy_filter']
+        return f"<FilterArray data={data} ({data.dtype}) filter={filter} ({data.dtype})>"  # noqa: E501
+
+    def equals(self, o: object) -> bool:
+        if isinstance(o, FilterArray):
+            return (
+                (
+                    self.__dict__['__numpy_data']
+                    == o.__dict__['__numpy_data']
+                ).all()
+                and (
+                    self.__dict__['__numpy_filter']
+                    == o.__dict__['__numpy_filter']
+                ).all()
+            )
+        return (
+            np.ma.MaskedArray(self.__dict__["__numpy_data"], mask=self.mask)
+            == o
+        ).all()
