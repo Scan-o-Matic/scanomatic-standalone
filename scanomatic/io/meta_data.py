@@ -12,7 +12,6 @@ except ImportError:
     pd = None
 
 
-
 class DataLoader:
     _SUFFIXES = []
 

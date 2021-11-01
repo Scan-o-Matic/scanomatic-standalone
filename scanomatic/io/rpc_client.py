@@ -1,5 +1,4 @@
 import enum
-import logging
 import socket
 import xmlrpc.client
 from logging import Logger
