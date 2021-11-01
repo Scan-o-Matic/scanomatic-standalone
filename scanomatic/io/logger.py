@@ -1,43 +1,36 @@
-import re
-from typing import Optional, Union
 import logging
-from scanomatic.io.paths import Paths
+import re
+from os import makedirs
+from pathlib import Path
+from typing import Optional, Union
 
 _FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(msg)s'
 _DATEFMT = '%Y-%m-%d %H:%M:%S'
 _FORMATTER = logging.Formatter(fmt=_FORMAT, datefmt=_DATEFMT)
 _HANDLERS: dict[str, Union[logging.FileHandler, logging.StreamHandler]] = {}
-"""
-_USERS: defaultdict[
-    logging.FileHandler,
-    list[logging.Logger],
-] = defaultdict(list)
-"""
+_LOG_PARSING_EXPRESSION = re.compile(
+    r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)",  # noqa: E501
+)
 
 logging.basicConfig(
-    Paths().log_ui_server,
     encoding='utf-8',
     level=logging.INFO,
     datefmt=_DATEFMT,
     format=_FORMAT
 )
 
-LOG_RECYCLE_TIME = 60 * 60 * 24
-LOG_PARSING_EXPRESSION = re.compile(
-    r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)",  # noqa: E501
-)
-
 
 def get_file_handler(file_path: str) -> logging.FileHandler:
     if file_path in _HANDLERS:
         return _HANDLERS[file_path]
+    makedirs(Path(file_path).parent, exist_ok=True)
     handler = logging.FileHandler(
         file_path,
         mode='w',
         encoding='utf-8',
     )
     handler.setFormatter(_FORMATTER)
-    _HANDLERS[file_path]
+    _HANDLERS[file_path] = handler
     return handler
 
 
@@ -46,30 +39,7 @@ def get_logger(name: str, file_path: Optional[str] = None) -> logging.Logger:
     if file_path is not None:
         handler = get_file_handler(file_path)
         logger.addHandler(handler)
-        # _USERS[handler].append(logger)
     return logger
-
-
-def set_logging_target(logger: logging.Logger, path: str):
-    """
-    while logger.handlers:
-        logger.removeHandler(logger.handlers[0])
-    handler = logging.FileHandler(path, encoding='utf-8')
-    logger.addHandler(handler)
-    """
-    raise ValueError("Those loggers should be using get_logger...")
-
-
-class XLogger:
-    _LOGFORMAT = "%Y-%m-%d %H:%M:%S -- {lvl}\t**{name}** "
-
-    @property
-    def surpress_prints(self) -> bool:
-        return self._suppressPrints
-
-    @surpress_prints.setter
-    def surpress_prints(self, value: bool):
-        self._suppressPrints = value
 
 
 def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
@@ -79,7 +49,7 @@ def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
             fh.seek(seek)
 
         n = 0
-        pattern = LOG_PARSING_EXPRESSION
+        pattern = _LOG_PARSING_EXPRESSION
 
         records = []
         tell = fh.tell()

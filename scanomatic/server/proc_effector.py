@@ -7,6 +7,7 @@ from threading import Thread
 from typing import Dict, Optional
 
 import scanomatic.generics.decorators as decorators
+from scanomatic.io.logger import get_logger
 import scanomatic.io.rpc_client as rpc_client
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.io import mail
@@ -280,7 +281,7 @@ class ChildPipeEffector(_PipeEffector):
         self.send('status', **status)
 
 
-class ProcessEffector(object):
+class ProcessEffector:
 
     TYPE = rpc_job_models.JOB_TYPE.Unknown
 
@@ -288,11 +289,16 @@ class ProcessEffector(object):
         self,
         job: rpc_job_models.RPCjobModel,
         logger_name: str = "Process Effector",
+        logging_target: Optional[str] = None,
     ):
 
         self._job = job
         self._job_label = job.id
-        self._logger = Logger(logger_name)
+        self._logger = (
+            get_logger(logger_name, logging_target)
+            if logging_target is not None
+            else Logger(logger_name)
+        )
         self._fail_vunerable_calls = tuple()
 
         self._specific_statuses = {}
