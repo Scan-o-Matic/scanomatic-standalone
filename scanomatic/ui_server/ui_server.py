@@ -56,7 +56,7 @@ def launch_server(host, port, debug):
 
     _URL = f"http://{host}:{port}"
     _LOGGER.info(
-        "Requested to launch UI-server at {_URL} being debug={debug}",
+        f"Requested to launch UI-server at {_URL} being debug={debug}",
     )
 
     add_resource_routes(app, rpc_client)

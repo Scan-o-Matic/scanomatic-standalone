@@ -765,7 +765,7 @@ class LinkerConfigParser(ConfigParser):
         return (
             self._nonzero
             if hasattr(self, '_nonzero')
-            else len(self.sections())
+            else len(self.sections()) > 0
         )
 
 
@@ -928,7 +928,7 @@ class Serializer:
         with SerializationHelper.get_config(None) as conf:
             return SerializationHelper.save_config(conf, path)
 
-    def load(self, path):
+    def load(self, path) -> tuple:
         with SerializationHelper.get_config(path) as conf:
             if conf:
                 return tuple(self._unserialize(conf))
