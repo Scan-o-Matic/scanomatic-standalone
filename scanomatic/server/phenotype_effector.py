@@ -34,7 +34,7 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
         self._feature_job: FeaturesModel = job.content_model
         logging_target = os.path.join(
             self._feature_job.analysis_directory,
-            paths.Paths().phenotypes_extraction_log
+            paths.Paths().phenotypes_extraction_log,
         )
         super(PhenotypeExtractionEffector, self).__init__(
             job,
