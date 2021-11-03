@@ -16,3 +16,9 @@ uuid
 setproctitle
 psutil
 chardet
+types-requests
+types-mock
+types-chardet
+types-python-dateutil
+types-pillow
+types-psutil

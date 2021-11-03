@@ -63,7 +63,7 @@ class MovieWriter:
             with (
                 ExpiringModule('matplotlib', run_code="mod.use('Agg')"),
                 ExpiringModule('matplotlib.pyplot') as plt,
-                ExpiringModule('matplotlib.animation') as anim
+                ExpiringModule('matplotlib.animation') as anim,
             ):
                 writers = [
                     a for a in anim.writers.list() if not a.endswith("_file")
@@ -86,7 +86,7 @@ class MovieWriter:
                     metadata={
                         'title': self._title,
                         'artist': self._artist,
-                        'comment': self._comment
+                        'comment': self._comment,
                     },
                 )
                 fig = self._fig
