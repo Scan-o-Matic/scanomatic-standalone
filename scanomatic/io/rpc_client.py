@@ -44,7 +44,7 @@ def get_client(host=None, port=None, admin=False, log_level=None):
     if host is None:
         host = appCfg.rpc_server.host
 
-    cp = _ClientProxy(host, port, log_level=None)
+    cp = _ClientProxy(host, port, log_level=log_level)
     if admin:
 
         cp.userID = appCfg.rpc_server.admin
