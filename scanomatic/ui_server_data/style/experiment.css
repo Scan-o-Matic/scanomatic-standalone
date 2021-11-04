@@ -8,7 +8,7 @@
 */
 
 tr {
-    margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .eventable td {
@@ -16,17 +16,17 @@ tr {
 }
 
 .head-col {
-    vertical-align: top;
+  vertical-align: top;
 }
 
 .block {
-    display: inline-block;
-    vertical-align: center;
+  display: inline-block;
+  vertical-align: center;
 }
 
 option {
-    padding: 3px;
-    margin-right: 3px;
+  padding: 3px;
+  margin-right: 3px;
 }
 
 #cont h1 {
@@ -36,19 +36,19 @@ option {
 }
 
 textarea {
-    width: 80%;
-    min-height: 75px;
+  width: 80%;
+  min-height: 75px;
 }
 
 .section {
-    margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 #pinnings div {
-    display: inline-block;
-    padding: 6px;
+  display: inline-block;
+  padding: 6px;
 }
 
 .plate-description {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
