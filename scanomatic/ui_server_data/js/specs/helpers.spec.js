@@ -53,7 +53,7 @@ describe('UploadImage', () => {
 
   it('should reject if GetMarkers rejects', (done) => {
     API.GetMarkers
-      .and.callFake(() => Promise.reject(new Error('Whoopsie')));
+      .and.callFake(() => Promise.reject('Whoopsie'));
     uploadImage(...args).catch((reason) => {
       expect(reason).toEqual('Whoopsie');
       done();
@@ -76,7 +76,7 @@ describe('UploadImage', () => {
 
   it('should reject if GetImageId rejects', (done) => {
     API.GetImageId
-      .and.callFake(() => Promise.reject(new Error('Whoopsie')));
+      .and.callFake(() => Promise.reject('Whoopsie'));
     uploadImage(...args).catch((reason) => {
       expect(reason).toEqual('Whoopsie');
       done();
@@ -104,7 +104,7 @@ describe('UploadImage', () => {
 
   it('should reject if SetCccImageData rejects', (done) => {
     API.SetCccImageData
-      .and.callFake(() => Promise.reject(new Error('Whoopsie')));
+      .and.callFake(() => Promise.reject('Whoopsie'));
     uploadImage(...args).catch((reason) => {
       expect(reason).toEqual('Whoopsie');
       done();
@@ -128,7 +128,7 @@ describe('UploadImage', () => {
 
   it('should reject if SetCccImageSlice rejects', (done) => {
     API.SetCccImageSlice
-      .and.callFake(() => Promise.reject(new Error('Whoopsie')));
+      .and.callFake(() => Promise.reject('Whoopsie'));
     uploadImage(...args).catch((reason) => {
       expect(reason).toEqual('Whoopsie');
       done();
@@ -152,7 +152,7 @@ describe('UploadImage', () => {
 
   it('should reject if SetGrayScaleImageAnalysis rejects', (done) => {
     API.SetGrayScaleImageAnalysis
-      .and.callFake(() => Promise.reject(new Error('Whoopsie')));
+      .and.callFake(() => Promise.reject('Whoopsie'));
     uploadImage(...args).catch((reason) => {
       expect(reason).toEqual('Whoopsie');
       done();

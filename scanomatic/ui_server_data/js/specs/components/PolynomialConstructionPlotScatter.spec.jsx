@@ -34,7 +34,7 @@ describe('<PolynomialResultsPlotScatter />', () => {
     const wrapper = shallow(<PolynomialResultsPlotScatter {...props} />);
     expect(wrapper.find('p').exists()).toBeTruthy();
     expect(wrapper.find('p').text())
-      .toEqual(`Correlation: y = ${slope.toFixed(2)}x + ${intercept.toFixed(0)} (standard error ${stderr})`);
+      .toEqual(`Correlation: y = ${slope.toFixed(2)}x + ${intercept.toFixed(0)}  (standard error ${stderr})`);
   });
 
   it('plots the data', () => {

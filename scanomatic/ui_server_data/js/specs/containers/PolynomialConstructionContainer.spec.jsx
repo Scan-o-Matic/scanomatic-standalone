@@ -159,7 +159,7 @@ describe('<PolynomialConstructionContainer />', () => {
   it('should set error', (done) => {
     const wrapper = shallow(<PolynomialConstructionContainer {...props} />);
     const poly = wrapper.find('PolynomialConstruction');
-    const promise = Promise.reject(new Error('foo'));
+    const promise = Promise.reject('foo');
     API.SetNewCalibrationPolynomial.and.returnValue(promise);
     poly.prop('onConstruction')()
       .then(() => {
