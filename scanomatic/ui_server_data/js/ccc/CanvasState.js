@@ -3,10 +3,6 @@ export default function CanvasState(canvas) {
   this.width = canvas.width;
   this.height = canvas.height;
   this.ctx = canvas.getContext('2d');
-  let stylePaddingLeft;
-  let stylePaddingTop;
-  let styleBorderLeft;
-  let styleBorderTop;
   if (document.defaultView && document.defaultView.getComputedStyle) {
     this.stylePaddingLeft = parseInt(
       document.defaultView.getComputedStyle(canvas, null).paddingLeft,
@@ -45,7 +41,7 @@ export default function CanvasState(canvas) {
     const mouse = this.getMouse(e);
     const mx = mouse.x;
     const my = mouse.y;
-    const shapes = this.shapes;
+    const { shapes } = this;
     const l = shapes.length;
     for (let i = l - 1; i >= 0; i -= 1) {
       if (shapes[i].contains(mx, my)) {
@@ -73,7 +69,7 @@ export default function CanvasState(canvas) {
       this.needsRender = true; // Something's dragging so we must redraw
     }
   }, true);
-  canvas.addEventListener('mouseup', (e) => {
+  canvas.addEventListener('mouseup', () => {
     this.dragging = false;
   }, true);
 
@@ -83,27 +79,32 @@ export default function CanvasState(canvas) {
   setInterval(() => { this.draw(); }, this.interval);
 }
 
-CanvasState.prototype.addShape = function (Blob) {
+CanvasState.prototype.addShape = (Blob) => {
   this.shapes.push(Blob);
   this.needsRender = true;
 };
 
-CanvasState.prototype.clear = function () {
+CanvasState.prototype.clear = () => {
   this.ctx.clearRect(0, 0, this.width, this.height);
 };
 
-CanvasState.prototype.draw = function () {
+CanvasState.prototype.draw = () => {
   if (this.needsRender) {
-    const ctx = this.ctx;
-    const shapes = this.shapes;
+    const { ctx } = this;
+    const { shapes } = this;
     this.clear();
 
     const l = shapes.length;
     for (let i = 0; i < l; i += 1) {
       const Blob = shapes[i];
-      if (Blob.x > this.width || Blob.y > this.height ||
-                Blob.x + Blob.w < 0 || Blob.y + Blob.h < 0) continue;
-      shapes[i].draw(ctx);
+      if (!(
+        Blob.x > this.width
+        || Blob.y > this.height
+        || Blob.x + Blob.w < 0
+        || Blob.y + Blob.h < 0
+      )) {
+        shapes[i].draw(ctx);
+      }
     }
 
     if (this.selection != null) {
@@ -117,25 +118,23 @@ CanvasState.prototype.draw = function () {
   }
 };
 
-CanvasState.prototype.getMouse = function (e) {
-  let element = this.canvas;
+CanvasState.prototype.getMouse = (e) => {
+  const element = this.canvas;
   let offsetX = 0;
   let offsetY = 0;
-  let mx;
-  let my;
 
   if (element.offsetParent !== undefined) {
     do {
       offsetX += element.offsetLeft;
       offsetY += element.offsetTop;
-    } while ((element = element.offsetParent));
+    } while ((element === element.offsetParent));
   }
 
   offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
   offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
 
-  mx = e.pageX - offsetX;
-  my = e.pageY - offsetY;
+  const mx = e.pageX - offsetX;
+  const my = e.pageY - offsetY;
 
   return { x: mx, y: my };
 };

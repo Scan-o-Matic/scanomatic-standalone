@@ -1,6 +1,5 @@
 import * as API from './api';
 
-
 export class RGBColor {
   constructor(r, g, b) {
     this.r = r;
@@ -13,13 +12,11 @@ export class RGBColor {
   }
 }
 
-
 export const featureColors = {
   blob: new RGBColor(253, 231, 35),
   background: new RGBColor(32, 144, 140),
   neither: new RGBColor(68, 1, 84),
 };
-
 
 export const valueFormatter = (value, fixed = 0) => {
   if (value === 0) {
@@ -30,11 +27,10 @@ export const valueFormatter = (value, fixed = 0) => {
   return `${number} x 10^${exponent.toFixed(0)}`;
 };
 
-
 export function getDataUrlfromUrl(src, callback) {
   const img = new Image();
   img.crossOrigin = 'Anonymous';
-  img.onload = function () {
+  img.onload = () => {
     const canvas = document.createElement('CANVAS');
     const ctx = canvas.getContext('2d');
     canvas.height = this.height;
@@ -50,6 +46,31 @@ export function getDataUrlfromUrl(src, callback) {
   }
 }
 
+export function getLinearMapping(data) {
+  const colorScheme = ['white', 'grey', 'black'];
+  const intensityMin = data.imageMin;
+  const intensityMax = data.imageMax;
+  const intensityMean = (intensityMax + intensityMin) / 2;
+
+  const cs = d3.scale.linear()
+    .domain([intensityMin, intensityMean, intensityMax])
+    .range([colorScheme[2], colorScheme[1], colorScheme[0]]);
+
+  return cs;
+}
+
+export function hexToRgb(hex) {
+  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  const hexFull = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexFull);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : null;
+}
 
 export function createCanvasImage(data, canvas) {
   const cs = getLinearMapping(data);
@@ -145,13 +166,12 @@ export function getMarkerData(cvPlot) {
     const r = imgdata.data[i + 0];
     const g = imgdata.data[i + 1];
     const b = imgdata.data[i + 2];
-    const a = imgdata.data[i + 3];
-    const pixelRgbA = `${r},${g},${b}`;
+    const pixelRGB = `${r},${g},${b}`;
 
-    if (pixelRgbA === '255,0,0') {
+    if (pixelRGB === '255,0,0') {
       blob[imageRow][imageCol] = true;
       background[imageRow][imageCol] = false;
-    } else if (pixelRgbA === '0,0,0') {
+    } else if (pixelRGB === '0,0,0') {
       blob[imageRow][imageCol] = false;
       background[imageRow][imageCol] = true;
     }
@@ -160,40 +180,11 @@ export function getMarkerData(cvPlot) {
   return x;
 }
 
-export function hexToRgb(hex) {
-  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-  } : null;
-}
-
-export function getLinearMapping(data) {
-  const colorScheme = ['white', 'grey', 'black'];
-  const intensityMin = data.imageMin;
-  const intensityMax = data.imageMax;
-  const intensityMean = (intensityMax + intensityMin) / 2;
-
-  const cs = d3.scale.linear()
-    .domain([intensityMin, intensityMean, intensityMax])
-    .range([colorScheme[2], colorScheme[1], colorScheme[0]]);
-
-  return cs;
-}
-
 export function loadImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => {
-      console.log(`Could not load ${url}`);
-      return reject();
-    };
+    image.onerror = () => reject();
     image.src = url;
   });
 }

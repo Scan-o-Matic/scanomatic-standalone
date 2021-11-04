@@ -73,18 +73,7 @@ export function GetPinningFormats() {
     )));
 }
 
-export function GetPinningFormatsv2(successCallback, errorCallback) {
-  const path = GetPinningFormatsPath;
-
-  $.ajax({
-    url: path,
-    type: 'GET',
-    success: successCallback,
-    error: errorCallback,
-  });
-}
-
-export function InitiateCCC(species, reference, successCallback, errorCallback) {
+export function InitiateCCC(species, reference) {
   const formData = new FormData();
   formData.append('species', species);
   formData.append('reference', reference);
@@ -119,7 +108,7 @@ export function SetGrayScaleImageAnalysis(cccId, imageId, accessToken) {
   return API.postFormData(path, formData);
 }
 
-export function GetGrayScaleAnalysis(grayScaleName, imageData, successCallback, errorCallback) {
+export function GetGrayScaleAnalysis(grayScaleName, imageData) {
   const path = GetGrayScaleAnalysisPath + grayScaleName;
   const formData = new FormData();
   formData.append('image', imageData);
@@ -158,7 +147,15 @@ export function SetGridding(cccId, imageId, plate, pinningFormat, offSet, access
 }
 
 export function SetColonyDetection(
-  cccId, imageId, plate, accessToken, row, col, successCallback, errorCallback) {
+  cccId,
+  imageId,
+  plate,
+  accessToken,
+  row,
+  col,
+  successCallback,
+  errorCallback,
+) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/detect/colony/${col}/${row}`;
 
   const formData = new FormData();
@@ -175,7 +172,18 @@ export function SetColonyDetection(
   });
 }
 
-export function SetColonyCompression(cccId, imageId, plate, accessToken, colony, cellCount, row, col, successCallback, errorCallback) {
+export function SetColonyCompression(
+  cccId,
+  imageId,
+  plate,
+  accessToken,
+  colony,
+  cellCount,
+  row,
+  col,
+  successCallback,
+  errorCallback,
+) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/compress/colony/${col}/${row}`;
 
   const data = {
@@ -191,8 +199,8 @@ export function SetColonyCompression(cccId, imageId, plate, accessToken, colony,
     data: JSON.stringify(data),
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
-    success(data) {
-      successCallback(data);
+    success(payload) {
+      successCallback(payload);
     },
     error: jqXHR => errorCallback(JSON.parse(jqXHR.responseText)),
   });
