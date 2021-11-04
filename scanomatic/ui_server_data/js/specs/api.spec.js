@@ -397,7 +397,7 @@ describe('API', () => {
         .toEqual('T0K3N');
     });
 
-    it('should return a promise that resolves on success', () => {
+    it('should return a promise that resolves on success', (done) => {
       API.SetCccImageSlice(...args).then((value) => {
         expect(value).toEqual({ foo: 'bar' });
         done();
@@ -407,7 +407,7 @@ describe('API', () => {
       });
     });
 
-    it('should return a promise that rejects on error', () => {
+    it('should return a promise that rejects on error', (done) => {
       API.SetCccImageSlice(...args).catch((reason) => {
         expect(reason).toEqual('(+_+)');
         done();
