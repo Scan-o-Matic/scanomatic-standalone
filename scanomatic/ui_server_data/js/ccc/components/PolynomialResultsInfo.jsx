@@ -36,7 +36,7 @@ PolynomialResultsInfo.propTypes = {
 export function PolynomialEquation({ coefficients }) {
   let poly = [];
   const polyPower = coefficients.length - 1;
-  coefficients.map((coeff, position) => {
+  coefficients.forEach((coeff, position) => {
     if (coeff !== 0) {
       const power = polyPower - position;
       const x = power === 0 ? null : <span className="variable">x</span>;
@@ -71,7 +71,7 @@ PolynomialEquation.propTypes = {
 
 export function numberAsScientific(value) {
   const exponent = Math.floor(Math.log10(Math.abs(value)));
-  const coefficient = value / Math.pow(10, exponent);
+  const coefficient = value * (10 ** -exponent);
   return { exponent, coefficient };
 }
 

@@ -41,12 +41,12 @@ PlateStatusLabel.propTypes = {
   now: PropTypes.number,
   max: PropTypes.number,
   step: PropTypes.oneOf(STEPS).isRequired,
-}
+};
 
 export default function PlateEditor(props) {
   let title = 'Step 2: Gridding';
   if (props.step === 'colony-detection') {
-    title = 'Step 3: Colony Detection'
+    title = 'Step 3: Colony Detection';
   }
   const { nCols, nRows } = props.cccMetadata.pinningFormat;
   const now = (nCols * props.selectedColony.row) + props.selectedColony.col;

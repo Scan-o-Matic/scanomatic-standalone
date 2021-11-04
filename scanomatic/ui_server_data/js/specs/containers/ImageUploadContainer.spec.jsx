@@ -9,9 +9,6 @@ import FakePromise from '../helpers/FakePromise';
 
 
 describe('<ImageUploadContainer />', () => {
-  const fixture = 'MyFixture';
-  const cccId = 'CCC0';
-  const token = 'T0K3N';
   const imageId = 'IMG0';
   const onFinish = jasmine.createSpy('onFinish');
   const props = { cccMetadata, onFinish };

@@ -80,7 +80,8 @@ export default class PlateEditorContainer extends React.Component {
       this.setState({ step: 'colony-detection' });
     } else if (this.state.step === 'colony-detection') {
       this.setState({ step: 'done' });
-      this.props.onFinish && this.props.onFinish();
+      const { onFinish } = this.props;
+      if (onFinish != null) onFinish();
     }
   }
 
@@ -92,7 +93,8 @@ export default class PlateEditorContainer extends React.Component {
     } else if (row < nRows - 1) {
       this.setState({ selectedColony: { row: row + 1, col: 0 } });
     } else {
-      this.props.onFinish && this.props.onFinish();
+      const { onFinish } = this.props;
+      if (onFinish != null) onFinish();
     }
   }
 
@@ -129,4 +131,8 @@ PlateEditorContainer.propTypes = {
   imageName: PropTypes.string.isRequired,
   onFinish: PropTypes.func,
   plateId: PropTypes.number.isRequired,
+};
+
+PlateEditorContainer.defaultProps = {
+  onFinish: null,
 };

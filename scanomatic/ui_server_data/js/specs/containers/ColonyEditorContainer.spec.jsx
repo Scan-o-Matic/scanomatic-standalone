@@ -131,8 +131,11 @@ describe('</ColonyEditorContainer />', () => {
     });
 
     it('should call the onFinish callback on success', () => {
-      API.SetColonyCompression.and
-        .callFake((ccc, image, plateId, accessToken, row, col, data, cellCount, onSuccess) => {
+      API.SetColonyCompression
+        .and.callFake((
+          ccc, image, plateId, accessToken, row, col, data, cellCount,
+          onSuccess,
+        ) => {
           onSuccess();
         });
       const wrapper = mount(<ColonyEditorContainer {...props} />);
@@ -142,8 +145,11 @@ describe('</ColonyEditorContainer />', () => {
     });
 
     it('should show an alert on error', () => {
-      API.SetColonyCompression.and
-        .callFake((ccc, image, plateId, accessToken, row, col, data, cellCount, onSuccess, onError) => {
+      API.SetColonyCompression
+        .and.callFake((
+          ccc, image, plateId, accessToken, row, col, data, cellCount,
+          onSuccess, onError,
+        ) => {
           onError({ reason: 'Whoops' });
         });
       spyOn(window, 'alert');

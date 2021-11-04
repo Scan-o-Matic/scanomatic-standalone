@@ -2,7 +2,7 @@
   "scripts": {
     "test": "BABEL_ENV=test karma start --single-run",
     "build": "webpack",
-    "lint": "eslint scanomatic/ui_server_data/js/ccc scanomatic/ui_server_data/js/specs"
+    "lint": "eslint --ext mjs,jsx,js scanomatic/ui_server_data/js/ccc scanomatic/ui_server_data/js/specs"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

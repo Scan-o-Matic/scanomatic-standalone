@@ -59,11 +59,12 @@ export default class Plate extends React.Component {
       <canvas
         width={this.props.image.width * SCALE}
         height={this.props.image.height * SCALE}
-        ref={canvas => this.canvas = canvas}
+        ref={(canvas) => {
+          this.canvas = canvas;
+        }}
       />
     );
   }
-
 }
 
 Plate.propTypes = {

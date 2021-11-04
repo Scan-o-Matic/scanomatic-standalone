@@ -10,11 +10,11 @@ export default class Gridding extends React.Component {
   }
 
   handleColOffsetChange(event) {
-    this.props.onColOffsetChange(parseInt(event.target.value));
+    this.props.onColOffsetChange(parseInt(event.target.value, 10));
   }
 
   handleRowOffsetChange(event) {
-    this.props.onRowOffsetChange(parseInt(event.target.value));
+    this.props.onRowOffsetChange(parseInt(event.target.value, 10));
   }
 
   render() {
