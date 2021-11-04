@@ -41,10 +41,8 @@ export default class ColonyEditor extends React.Component {
 
 
   render() {
-    const cellCountValue =
-            this.props.cellCount == null ? '' : this.props.cellCount;
-    const cellCountFormGroupClass =
-            `form-group${this.props.cellCountError ? ' has-error' : ''}`;
+    const cellCountValue = this.props.cellCount == null ? '' : this.props.cellCount;
+    const cellCountFormGroupClass = `form-group${this.props.cellCountError ? ' has-error' : ''}`;
     return (
       <div>
         <div><span>Colony Image</span></div>

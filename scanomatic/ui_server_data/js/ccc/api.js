@@ -147,14 +147,8 @@ export function SetGridding(cccId, imageId, plate, pinningFormat, offSet, access
 }
 
 export function SetColonyDetection(
-  cccId,
-  imageId,
-  plate,
-  accessToken,
-  row,
-  col,
-  successCallback,
-  errorCallback,
+  cccId, imageId, plate, accessToken, row, col,
+  successCallback, errorCallback,
 ) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/detect/colony/${col}/${row}`;
 
@@ -173,16 +167,8 @@ export function SetColonyDetection(
 }
 
 export function SetColonyCompression(
-  cccId,
-  imageId,
-  plate,
-  accessToken,
-  colony,
-  cellCount,
-  row,
-  col,
-  successCallback,
-  errorCallback,
+  cccId, imageId, plate, accessToken, colony, cellCount, row, col,
+  successCallback, errorCallback,
 ) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/compress/colony/${col}/${row}`;
 
