@@ -74,6 +74,7 @@ export default class ColonyEditorContainer extends React.Component {
     SetColonyCompression(
       ccc, image, plateId, accessToken, colonyData, cellCount, row, col,
       () => this.handleSkip(),
+      // eslint-disable-next-line no-alert
       (data) => { alert(`Set Colony compression Error: ${data.reason}`); },
     );
   }

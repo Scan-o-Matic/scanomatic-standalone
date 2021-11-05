@@ -7,6 +7,9 @@ const SELECTED_COLONY_MARKER_COLOR = '#c82124';
 const SELECTED_COLONY_MARKER_STROKE_WIDTH = 5;
 const SCALE = 0.2;
 
+/* eslint no-param-reassign:
+  ["error", { "props": true, "ignorePropertyModificationsFor": ["context"] }]
+*/
 export function drawCircle(context, x, y, radius, lineWidth = 1, strokeStyle = 'black') {
   context.beginPath();
   context.strokeStyle = strokeStyle;

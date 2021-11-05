@@ -35,6 +35,7 @@ export default class ImageUploadContainer extends React.Component {
 
   handleUploadError(reason) {
     this.setState({ image: null, progress: null });
+    // eslint-disable-next-line no-alert
     alert(`An error occured while uploading the image: ${reason}`);
   }
 
