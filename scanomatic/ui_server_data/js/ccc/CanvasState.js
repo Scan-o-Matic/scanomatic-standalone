@@ -79,16 +79,16 @@ export default function CanvasState(canvas) {
   setInterval(() => { this.draw(); }, this.interval);
 }
 
-CanvasState.prototype.addShape = (Blob) => {
+CanvasState.prototype.addShape = function addShape(Blob) {
   this.shapes.push(Blob);
   this.needsRender = true;
 };
 
-CanvasState.prototype.clear = () => {
+CanvasState.prototype.clear = function clear() {
   this.ctx.clearRect(0, 0, this.width, this.height);
 };
 
-CanvasState.prototype.draw = () => {
+CanvasState.prototype.draw = function draw() {
   if (this.needsRender) {
     const { ctx } = this;
     const { shapes } = this;
@@ -118,7 +118,7 @@ CanvasState.prototype.draw = () => {
   }
 };
 
-CanvasState.prototype.getMouse = (e) => {
+CanvasState.prototype.getMouse = function getMouse(e) {
   const element = this.canvas;
   let offsetX = 0;
   let offsetY = 0;
