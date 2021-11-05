@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import CCCPropTypes from '../prop-types';
+
 export default class ImageUpload extends React.Component {
   constructor(props) {
     super(props);
@@ -44,11 +46,7 @@ export default class ImageUpload extends React.Component {
 
 ImageUpload.propTypes = {
   onImageChange: PropTypes.func.isRequired,
-  progress: PropTypes.shape({
-    now: PropTypes.number.isRequired,
-    max: PropTypes.number.isRequired,
-    text: PropTypes.string.isRequired,
-  }),
+  progress: CCCPropTypes.progressShape,
 };
 
 ImageUpload.defaultProps = {

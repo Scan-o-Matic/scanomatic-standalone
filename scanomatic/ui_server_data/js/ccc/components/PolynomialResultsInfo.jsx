@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import CCCPropTypes from '../prop-types';
 
 
 export default function PolynomialResultsInfo({ polynomial }) {
@@ -27,10 +28,7 @@ export default function PolynomialResultsInfo({ polynomial }) {
 }
 
 PolynomialResultsInfo.propTypes = {
-  polynomial: PropTypes.shape({
-    coefficients: PropTypes.array.isRequired,
-    colonies: PropTypes.number.isRequired,
-  }),
+  polynomial: CCCPropTypes.polynomialShape,
 };
 
 PolynomialResultsInfo.defaultProps = {
@@ -70,7 +68,7 @@ export function PolynomialEquation({ coefficients }) {
 }
 
 PolynomialEquation.propTypes = {
-  coefficients: PropTypes.array.isRequired,
+  coefficients: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 export function numberAsScientific(value) {

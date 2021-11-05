@@ -7,7 +7,6 @@ import PolynomialResultsInfo, { PolynomialEquation, ScientificNotation, numberAs
 describe('<PolynomialResultsInfo />', () => {
   const props = {
     polynomial: {
-      power: 4,
       coefficients: [1, 0, 0, 1, 0],
       colonies: 96,
     },

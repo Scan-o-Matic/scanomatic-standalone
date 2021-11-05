@@ -4,6 +4,7 @@ import React from 'react';
 import Plate from '../components/Plate';
 import { GetSliceImageURL } from '../api';
 import { loadImage } from '../helpers';
+import CCCPropTypes from '../prop-types';
 
 export default class PlateContainer extends React.Component {
   constructor(props) {
@@ -36,8 +37,8 @@ PlateContainer.propTypes = {
   cccId: PropTypes.string.isRequired,
   imageId: PropTypes.string.isRequired,
   plateId: PropTypes.number.isRequired,
-  grid: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))),
-  selectedColony: PropTypes.shape({ row: PropTypes.number, col: PropTypes.number }),
+  grid: CCCPropTypes.gridShape,
+  selectedColony: CCCPropTypes.selectedColonyShape,
 };
 
 PlateContainer.defaultProps = {

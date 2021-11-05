@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 
 import c3 from 'c3';
 import 'c3/c3.min.css';
 import { valueFormatter } from '../helpers.js';
+import CCCPropTypes from '../prop-types';
 
 
 export default class PolynomialResultsPlotScatter extends React.Component {
@@ -108,13 +108,6 @@ export default class PolynomialResultsPlotScatter extends React.Component {
 }
 
 PolynomialResultsPlotScatter.propTypes = {
-  resultsData: PropTypes.shape({
-    calculated: PropTypes.array.isRequired,
-    independentMeasurements: PropTypes.array.isRequired,
-  }).isRequired,
-  correlation: PropTypes.shape({
-    slope: PropTypes.number.isRequired,
-    intercept: PropTypes.number.isRequired,
-    stderr: PropTypes.number.isRequired,
-  }).isRequired,
+  resultsData: CCCPropTypes.resultsDataShape.isRequired,
+  correlation: CCCPropTypes.correlationShape.isRequired,
 };

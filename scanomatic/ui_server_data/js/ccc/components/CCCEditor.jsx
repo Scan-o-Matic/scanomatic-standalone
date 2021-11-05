@@ -41,11 +41,7 @@ export default function CCCEditor(props) {
 
 CCCEditor.propTypes = {
   cccMetadata: CCCPropTypes.cccMetadata.isRequired,
-  plates: PropTypes.arrayOf(PropTypes.shape({
-    imageId: PropTypes.string.isRequired,
-    imageName: PropTypes.string.isRequired,
-    plateId: PropTypes.number.isRequired,
-  })).isRequired,
+  plates: PropTypes.arrayOf(CCCPropTypes.plateShape).isRequired,
   currentPlate: PropTypes.number,
   onFinalizeCCC: PropTypes.func.isRequired,
   onFinishPlate: PropTypes.func.isRequired,

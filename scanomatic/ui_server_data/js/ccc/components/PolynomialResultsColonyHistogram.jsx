@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 
 import c3 from 'c3';
 import 'c3/c3.min.css';
 
 import { valueFormatter } from '../helpers.js';
+import CCCPropTypes from '../prop-types';
 
 const labelFormatter = value => value.toFixed(0);
 
@@ -112,12 +112,4 @@ export default class PolynomialResultsColonyHistogram extends React.Component {
   }
 }
 
-PolynomialResultsColonyHistogram.propTypes = {
-  colonyIdx: PropTypes.number.isRequired,
-  pixelValues: PropTypes.arrayOf(PropTypes.number).isRequired,
-  pixelCounts: PropTypes.arrayOf(PropTypes.number).isRequired,
-  independentMeasurement: PropTypes.number.isRequired,
-  maxCount: PropTypes.number.isRequired,
-  maxPixelValue: PropTypes.number.isRequired,
-  minPixelValue: PropTypes.number.isRequired,
-};
+PolynomialResultsColonyHistogram.propTypes = CCCPropTypes.colonyShape;

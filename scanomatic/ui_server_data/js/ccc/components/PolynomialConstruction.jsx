@@ -5,7 +5,7 @@ import PolynomialResultsInfo from './PolynomialResultsInfo';
 import PolynomialConstructionError from './PolynomialConstructionError';
 import PolynomialResultsPlotScatter from './PolynomialResultsPlotScatter';
 import PolynomialResultsColonyHistograms from './PolynomialResultsColonyHistograms';
-
+import CCCPropTypes from '../prop-types';
 
 export default function PolynomialConstruction(props) {
   let error = null;
@@ -90,34 +90,17 @@ PolynomialConstruction.propTypes = {
   onClearError: PropTypes.func.isRequired,
   onDegreeOfPolynomialChange: PropTypes.func.isRequired,
   onFinalizeCCC: PropTypes.func.isRequired,
-  polynomial: PropTypes.shape({
-    coefficients: PropTypes.array.isRequired,
-    colonies: PropTypes.number.isRequired,
-  }),
-  resultsData: PropTypes.shape({
-    calculated: PropTypes.array.isRequired,
-    independentMeasurements: PropTypes.array.isRequired,
-  }),
-  correlation: PropTypes.shape({
-    slope: PropTypes.number.isRequired,
-    intercept: PropTypes.number.isRequired,
-    stderr: PropTypes.number.isRequired,
-  }),
-  colonies: PropTypes.shape({
-    pixelValues: PropTypes.array.isRequired,
-    pixelCounts: PropTypes.array.isRequired,
-    independentMeasurements: PropTypes.array.isRequired,
-    maxCount: PropTypes.number.isRequired,
-    maxPixelValue: PropTypes.number.isRequired,
-    minPixelValue: PropTypes.number.isRequired,
-  }),
+  polynomial: CCCPropTypes.polynomialShape,
+  resultsData: CCCPropTypes.resultsDataShape,
+  correlation: CCCPropTypes.correlationShape,
+  colonies: CCCPropTypes.coloniesShape,
   error: PropTypes.string,
 };
 
 PolynomialConstruction.defaultProps = {
-  polynomial: null,
-  resultsData: null,
-  correlation: null,
-  colonies: null,
-  error: null,
+  polynomial: undefined,
+  resultsData: undefined,
+  correlation: undefined,
+  colonies: undefined,
+  error: undefined,
 };

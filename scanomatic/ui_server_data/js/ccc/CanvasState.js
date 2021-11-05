@@ -54,7 +54,7 @@ export default function CanvasState(canvas) {
         return;
       }
     }
-    // havent returned means we have failed to select anything.
+    // Haven't returned means we have failed to select anything.
     // If there was an object selected, we deselect it
     if (this.selection) {
       this.selection = null;

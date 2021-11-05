@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import CCCPropTypes from '../prop-types';
+
 const COLONY_OUTLINE_RADIUS = 30;
 const SELECTED_COLONY_MARKER_RADIUS = 40;
 const SELECTED_COLONY_MARKER_COLOR = '#c82124';
@@ -72,8 +74,8 @@ export default class Plate extends React.Component {
 
 Plate.propTypes = {
   image: PropTypes.instanceOf(Image).isRequired,
-  grid: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))),
-  selectedColony: PropTypes.shape({ row: PropTypes.number, col: PropTypes.number }),
+  grid: CCCPropTypes.gridShape,
+  selectedColony: CCCPropTypes.selectedColonyShape,
 };
 
 Plate.defaultProps = {

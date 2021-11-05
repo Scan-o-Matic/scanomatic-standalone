@@ -7,9 +7,7 @@ import PlateContainer from '../containers/PlateContainer';
 import Gridding from './Gridding';
 import CCCPropTypes from '../prop-types';
 
-
 const STEPS = ['pre-processing', 'gridding', 'colony-detection', 'done'];
-
 
 export function PlateStatusLabel({
   step, griddingError, now, max,
@@ -149,15 +147,12 @@ PlateEditor.propTypes = {
   imageName: PropTypes.string.isRequired,
   plateId: PropTypes.number.isRequired,
   step: PropTypes.oneOf(STEPS).isRequired,
-  grid: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))),
+  grid: CCCPropTypes.gridShape,
   griddingLoading: PropTypes.bool,
   griddingError: PropTypes.string,
   onClickNext: PropTypes.func,
   onColonyFinish: PropTypes.func,
-  selectedColony: PropTypes.shape({
-    row: PropTypes.number,
-    col: PropTypes.number,
-  }),
+  selectedColony: CCCPropTypes.selectedColonyShape,
   rowOffset: PropTypes.number.isRequired,
   colOffset: PropTypes.number.isRequired,
   onRowOffsetChange: PropTypes.func,

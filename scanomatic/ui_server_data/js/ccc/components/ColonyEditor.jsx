@@ -3,6 +3,7 @@ import React from 'react';
 
 import ColonyFeatures from './ColonyFeatures';
 import ColonyImage from './ColonyImage';
+import CCCPropTypes from '../prop-types';
 
 export default class ColonyEditor extends React.Component {
   constructor(props) {
@@ -92,7 +93,7 @@ export default class ColonyEditor extends React.Component {
 }
 
 ColonyEditor.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: CCCPropTypes.colonyDataShape.isRequired,
   cellCount: PropTypes.number,
   cellCountError: PropTypes.bool,
   onCellCountChange: PropTypes.func,
@@ -100,7 +101,6 @@ ColonyEditor.propTypes = {
   onSkip: PropTypes.func,
   onUpdate: PropTypes.func,
 };
-
 
 ColonyEditor.defaultProps = {
   cellCount: undefined,

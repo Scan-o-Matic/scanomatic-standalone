@@ -4,6 +4,7 @@ import React from 'react';
 import { createCanvasImage, getMarkerData } from '../helpers';
 import CanvasState from '../CanvasState';
 import Blob from '../Blob';
+import CCCPropTypes from '../prop-types';
 
 export default class ColonyImage extends React.Component {
   constructor(props) {
@@ -112,7 +113,7 @@ export default class ColonyImage extends React.Component {
 }
 
 ColonyImage.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: CCCPropTypes.colonyDataShape.isRequired,
   draw: PropTypes.bool,
   onUpdate: PropTypes.func,
 };
