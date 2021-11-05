@@ -33,6 +33,10 @@ PolynomialResultsInfo.propTypes = {
   }),
 };
 
+PolynomialResultsInfo.defaultProps = {
+  polynomial: undefined,
+};
+
 export function PolynomialEquation({ coefficients }) {
   let poly = [];
   const polyPower = coefficients.length - 1;

@@ -96,7 +96,6 @@ ColonyEditor.propTypes = {
   cellCount: PropTypes.number,
   cellCountError: PropTypes.bool,
   onCellCountChange: PropTypes.func,
-  onFix: PropTypes.func,
   onSet: PropTypes.func,
   onSkip: PropTypes.func,
   onUpdate: PropTypes.func,
@@ -104,5 +103,10 @@ ColonyEditor.propTypes = {
 
 
 ColonyEditor.defaultProps = {
-  onUpdate: null,
+  cellCount: undefined,
+  cellCountError: undefined,
+  onCellCountChange: undefined,
+  onSet: undefined,
+  onSkip: undefined,
+  onUpdate: undefined,
 };

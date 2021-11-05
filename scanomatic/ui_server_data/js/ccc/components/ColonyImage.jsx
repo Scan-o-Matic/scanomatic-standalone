@@ -110,8 +110,14 @@ export default class ColonyImage extends React.Component {
     );
   }
 }
+
 ColonyImage.propTypes = {
   data: PropTypes.object.isRequired,
   draw: PropTypes.bool,
   onUpdate: PropTypes.func,
+};
+
+ColonyImage.defaultProps = {
+  draw: undefined,
+  onUpdate: undefined,
 };

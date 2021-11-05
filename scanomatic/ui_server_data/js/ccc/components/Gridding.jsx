@@ -82,3 +82,11 @@ Gridding.propTypes = {
   onRowOffsetChange: PropTypes.func,
   onColOffsetChange: PropTypes.func,
 };
+
+Gridding.defaultProps = {
+  error: undefined,
+  loading: undefined,
+  onRegrid: undefined,
+  onRowOffsetChange: undefined,
+  onColOffsetChange: undefined,
+};

@@ -134,5 +134,6 @@ PlateEditorContainer.propTypes = {
 };
 
 PlateEditorContainer.defaultProps = {
-  onFinish: null,
+  onFinish: undefined,
+  collapse: undefined,
 };

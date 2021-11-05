@@ -43,6 +43,12 @@ PlateStatusLabel.propTypes = {
   step: PropTypes.oneOf(STEPS).isRequired,
 };
 
+PlateStatusLabel.defaultProps = {
+  griddingError: undefined,
+  now: undefined,
+  max: undefined,
+};
+
 export default function PlateEditor(props) {
   let title = 'Step 2: Gridding';
   if (props.step === 'colony-detection') {
@@ -115,7 +121,8 @@ export default function PlateEditor(props) {
             </button>
             }
             {props.step === 'colony-detection' &&
-            <button className="btn btn-success"
+            <button
+              className="btn btn-success"
               onClick={props.onClickNext}
             >
               Done
@@ -157,4 +164,17 @@ PlateEditor.propTypes = {
   onColOffsetChange: PropTypes.func,
   onRegrid: PropTypes.func,
   collapse: PropTypes.bool,
+};
+
+PlateEditor.defaultProps = {
+  grid: undefined,
+  griddingLoading: undefined,
+  griddingError: undefined,
+  onClickNext: undefined,
+  onColonyFinish: undefined,
+  selectedColony: undefined,
+  onRowOffsetChange: undefined,
+  onColOffsetChange: undefined,
+  onRegrid: undefined,
+  collapse: undefined,
 };

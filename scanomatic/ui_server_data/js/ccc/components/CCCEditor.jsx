@@ -51,3 +51,7 @@ CCCEditor.propTypes = {
   onFinishPlate: PropTypes.func.isRequired,
   onFinishUpload: PropTypes.func.isRequired,
 };
+
+CCCEditor.defaultProps = {
+  currentPlate: undefined,
+};

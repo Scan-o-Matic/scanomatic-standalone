@@ -41,7 +41,6 @@ export default class ImageUploadContainer extends React.Component {
   render() {
     return (
       <ImageUpload
-        image={this.state.image}
         progress={this.state.progress}
         onImageChange={this.handleImageChange}
       />

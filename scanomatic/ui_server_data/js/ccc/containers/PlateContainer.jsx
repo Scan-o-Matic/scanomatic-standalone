@@ -39,3 +39,8 @@ PlateContainer.propTypes = {
   grid: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))),
   selectedColony: PropTypes.shape({ row: PropTypes.number, col: PropTypes.number }),
 };
+
+PlateContainer.defaultProps = {
+  grid: undefined,
+  selectedColony: undefined,
+};

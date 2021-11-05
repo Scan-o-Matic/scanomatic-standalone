@@ -44,10 +44,13 @@ export default class ImageUpload extends React.Component {
 
 ImageUpload.propTypes = {
   onImageChange: PropTypes.func.isRequired,
-  image: PropTypes.instanceOf(File),
   progress: PropTypes.shape({
     now: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
     text: PropTypes.string.isRequired,
   }),
+};
+
+ImageUpload.defaultProps = {
+  progress: undefined,
 };

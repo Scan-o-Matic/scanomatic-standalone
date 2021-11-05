@@ -112,5 +112,5 @@ ColonyEditorContainer.propTypes = {
 };
 
 ColonyEditorContainer.defaultProps = {
-  onFinish: null,
+  onFinish: undefined,
 };
