@@ -33,16 +33,6 @@ const resultsDataShape = PropTypes.shape({
   independentMeasurements: PropTypes.arrayOf(PropTypes.number).isRequired,
 });
 
-const colonyShape = PropTypes.shape({
-  colonyIdx: PropTypes.number.isRequired,
-  pixelValues: PropTypes.arrayOf(PropTypes.number).isRequired,
-  pixelCounts: PropTypes.arrayOf(PropTypes.number).isRequired,
-  independentMeasurements: PropTypes.number.isRequired,
-  maxCount: PropTypes.number.isRequired,
-  maxPixelValue: PropTypes.number.isRequired,
-  minPixelValue: PropTypes.number.isRequired,
-});
-
 const coloniesShape = PropTypes.shape({
   pixelValues: arrayOf2D(PropTypes.number).isRequired,
   pixelCounts: arrayOf2D(PropTypes.number).isRequired,
@@ -85,7 +75,6 @@ export default {
   plateShape,
   polynomialShape,
   resultsDataShape,
-  colonyShape,
   coloniesShape,
   colonyDataShape,
   correlationShape,

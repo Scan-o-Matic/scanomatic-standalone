@@ -8,7 +8,6 @@ import { valueFormatter } from '../helpers.js';
 
 const labelFormatter = value => value.toFixed(0);
 
-
 export default class PolynomialResultsColonyHistogram extends React.Component {
   constructor(props) {
     super(props);
