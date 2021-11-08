@@ -1,6 +1,6 @@
 from enum import Enum
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import norm  # type: ignore
 
 
 class EdgeCondition(Enum):

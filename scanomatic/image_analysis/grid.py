@@ -243,8 +243,8 @@ def get_heatmap(data, votes, weights, sigma):
         int(np.ceil(x_data.max()) + 1),
     ))
 
-    x_votes = np.round(x_votes).astype(np.int)
-    y_votes = np.round(y_votes).astype(np.int)
+    x_votes = np.round(x_votes).astype(int)
+    y_votes = np.round(y_votes).astype(int)
 
     flat_votes_xy = y_votes * heatmap.shape[1] + x_votes
 

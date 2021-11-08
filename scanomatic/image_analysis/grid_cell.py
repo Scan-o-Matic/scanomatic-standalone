@@ -72,13 +72,13 @@ class GridCell:
             0,
             flipped_long_axis_position,
             self.position[1]
-        ].astype(np.int)
+        ].astype(int)
         self.xy2 = grid_cell_corners[
             :,
             1,
             flipped_long_axis_position,
             self.position[1]
-        ].astype(np.int)
+        ].astype(int)
 
     def set_new_data_source_space(
         self,

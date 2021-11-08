@@ -1066,7 +1066,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             )
 
         gc_compartment.grid_array = image.astype(np.float64)
-        gc_compartment.filter_array = filt.astype(np.int)
+        gc_compartment.filter_array = filt.astype(int)
 
         gc_compartment.do_analysis()
 

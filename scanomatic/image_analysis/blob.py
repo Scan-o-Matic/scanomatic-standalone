@@ -7,7 +7,7 @@ from scipy.ndimage import (  # type: ignore
     gaussian_filter,
     median_filter
 )
-from skimage import filters as ski_filter
+from skimage import filters as ski_filter  # type: ignore
 
 
 class AnalysisRecipeAbstraction:

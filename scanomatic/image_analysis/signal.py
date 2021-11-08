@@ -607,17 +607,17 @@ def get_closest_signal_pair(s1, s2, s1_value=-1, s2_value=1):
 def get_signal_spikes(down_slopes, up_slopes):
     """Returns where valleys are in a signal based on down and up slopes"""
     # combined_signal = (
-    #     down_slopes.astype(np.int) * -1 + up_slopes.astype(np.int)
+    #     down_slopes.astype(int) * -1 + up_slopes.astype(int)
     # )
 
     # Edge-detect so that signal start is >0 and signal end <0
     kernel = np.array([-1, 1])
     d_down = np.round(
         signal.fftconvolve(down_slopes, kernel, mode='same'),
-    ).astype(np.int)
+    ).astype(int)
     d_up = np.round(
         signal.fftconvolve(up_slopes, kernel, mode='same'),
-    ).astype(np.int)
+    ).astype(int)
 
     s1, s2 = get_closest_signal_pair(d_up, d_down, s1_value=-1, s2_value=1)
     return (s1 + s2) / 2.0  # (s1 + s2) / 2.0
@@ -672,7 +672,7 @@ def get_offset_quality(s, offset, expected_spikes, wl, raw_signal):
         np.r_[(Y - X), np.ones(ideal_signal.size - X.size) * (0.5 * wl)],
     )
 
-    X_val = raw_signal[X.astype(np.int)]
+    X_val = raw_signal[X.astype(int)]
     dV = 3 * np.abs(new_signal_val - np.median(X_val))
     dV[new_signal_val > np.median(X_val) * 0.8] *= 0.25
     q = -0.1 * dXY * dV
@@ -766,7 +766,7 @@ def _get_candidate_validation(s, s_error, expected_spikes, raw_signal):
     # goodness1 = np.c_[goodness1l, goodness1r].mean(1)
 
     # Get goodness of values
-    candidate_vals = raw_signal[s.astype(np.int)]
+    candidate_vals = raw_signal[s.astype(int)]
     m_c_val = np.median(candidate_vals)
     goodness2 = candidate_vals - m_c_val
     goodness2[goodness2 > 0] *= 0.5

@@ -159,7 +159,7 @@ def _get_phase_id(plate, *phases):
             pass
         return -1
 
-    return np.frompyfunc(f, 1, 1)(plate).astype(np.int)
+    return np.frompyfunc(f, 1, 1)(plate).astype(int)
 
 
 def _phase_finder(phase_vector, phase):

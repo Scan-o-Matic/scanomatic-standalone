@@ -2178,7 +2178,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 self._state.phenotype_filter,
             ):
                 if phenotype not in plate:
-                    plate.update({phenotype: np.zeros(shape, dtype=np.int)})
+                    plate.update({phenotype: np.zeros(shape, dtype=int)})
             previous_state = False
 
         if isinstance(previous_state, np.ndarray):

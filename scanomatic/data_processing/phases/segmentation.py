@@ -287,7 +287,7 @@ def get_data_needed_for_segmentation(
 
     model.phases = np.ones_like(
         model.log2_curve,
-    ).astype(np.int) * CurvePhases.Undetermined.value
+    ).astype(int) * CurvePhases.Undetermined.value
 
     # Determine second derivative signs
     model.d2yd2t_signs = np.sign(model.d2yd2t.filled(0))
@@ -980,7 +980,7 @@ def get_linear_non_flat_extension_per_position(model, thresholds):
     if isinstance(filt, np.ma.masked_array):
         filt = filt.filled(False)
 
-    extension_lengths = np.zeros_like(filt, dtype=np.int)
+    extension_lengths = np.zeros_like(filt, dtype=int)
     extension_borders = {}
 
     for loc in range(extension_lengths.size):

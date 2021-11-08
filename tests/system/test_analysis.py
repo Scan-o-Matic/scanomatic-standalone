@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def cleanup_rpc(scanomatic):
     # Nothing before
     yield
