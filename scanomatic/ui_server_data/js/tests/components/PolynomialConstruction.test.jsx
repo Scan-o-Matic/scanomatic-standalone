@@ -34,6 +34,7 @@ describe('<PolynomialConstruction />', () => {
       minPixelValue: 1,
       maxPixelValue: 5.5,
       maxCount: 100,
+      independentMeasurements: [4, 5, 6],
     },
     error: 'No no no!',
   };

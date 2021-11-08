@@ -1,6 +1,6 @@
-const webpackConfig = require('./webpack.config')
+const webpackConfig = require('./webpack.config');
 
-module.exports = function(config) {
+module.exports = (config) => {
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: 'scanomatic/ui_server_data/',
@@ -11,25 +11,25 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-        "js/external/jquery.js",
-        "js/external/d3.js",
-        "js/external/jquery.modal.js",
-        "js/external/jquery.treetable.js",
-        "js/external/jquery-ui.js",
-        { pattern: 'js/specs/**/*.spec.@(js|jsx)', watched: false },
+      'js/external/jquery.js',
+      'js/external/d3.js',
+      'js/external/jquery.modal.js',
+      'js/external/jquery.treetable.js',
+      'js/external/jquery-ui.js',
+      { pattern: 'js/tests/**/*.test.@(js|jsx)', watched: false },
     ],
 
     // list of files to exclude
     exclude: [
-        'js/image.js',
-        '**/*.swp',
-        "js/ccc.js",
+      'js/image.js',
+      '**/*.swp',
+      'js/ccc.js',
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-        'js/specs/**/*.spec.@(js|jsx)': ['webpack'],
+      'js/tests/**/*.test.@(js|jsx)': ['webpack'],
     },
 
     // test results reporter to use
@@ -38,15 +38,15 @@ module.exports = function(config) {
     reporters: ['mocha', 'coverage'],
 
     mochaReporter: {
-        ignoreSkipped: true,
+      ignoreSkipped: true,
     },
 
     coverageReporter: {
-        dir: 'coverage',
-        reporters: [
-            { type: 'html', subdir: 'report-html' },
-            { type: 'lcov', subdir: 'report-lcov' },
-        ],
+      dir: 'coverage',
+      reporters: [
+        { type: 'html', subdir: 'report-html' },
+        { type: 'lcov', subdir: 'report-lcov' },
+      ],
     },
 
     // web server port
@@ -56,7 +56,9 @@ module.exports = function(config) {
     colors: true,
 
     // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    // possible values:
+    //   config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN
+    //   || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
     // enable / disable watching file and executing tests whenever any file changes
@@ -77,5 +79,5 @@ module.exports = function(config) {
     concurrency: Infinity,
 
     webpack: webpackConfig,
-  })
-}
+  });
+};

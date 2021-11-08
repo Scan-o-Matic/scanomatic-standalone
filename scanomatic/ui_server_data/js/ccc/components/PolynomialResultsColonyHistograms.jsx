@@ -12,7 +12,7 @@ const PolynomialResultsColonyHistograms = (props) => {
   for (let i = 0; i < pixelValues.length; i += 1) {
     colonies.push((
       <PolynomialResultsColonyHistogram
-        independentMeasurement={independentMeasurements[i]}
+        independentMeasurements={independentMeasurements[i]}
         pixelValues={pixelValues[i]}
         pixelCounts={pixelCounts[i]}
         maxCount={maxCount}

@@ -20,10 +20,8 @@ export default class PolynomialConstructionContainer extends React.Component {
     };
 
     this.handleConstruction = this.handleConstruction.bind(this);
-    this.handleConstructionResults = this.handleConstructionResults
-      .bind(this);
-    this.handleConstructionResultsError =
-            this.handleConstructionResultsError.bind(this);
+    this.handleConstructionResults = this.handleConstructionResults.bind(this);
+    this.handleConstructionResultsError = this.handleConstructionResultsError.bind(this);
     this.handleClearError = this.handleClearError.bind(this);
     this.handleDegreeOfPolynomialChange = this.handleDegreeOfPolynomialChange.bind(this);
   }

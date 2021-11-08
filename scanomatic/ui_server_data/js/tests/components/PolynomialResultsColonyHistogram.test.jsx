@@ -9,7 +9,7 @@ describe('<PolynomialResultsPlotScatter />', () => {
     colonyIdx: 5,
     pixelValues: [2.4, 5.3, 12.2],
     pixelCounts: [3, 15, 5],
-    independentMeasurement: 424242,
+    independentMeasurements: 424242,
     maxPixelValue: 14,
     minPixelValue: 1.2,
     maxCount: 2003,
