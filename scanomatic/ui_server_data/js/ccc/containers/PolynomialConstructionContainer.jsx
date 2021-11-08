@@ -62,7 +62,7 @@ export default class PolynomialConstructionContainer extends React.Component {
   }
 
   handleConstructionResultsError(reason) {
-    this.setState({ error: reason });
+    this.setState({ error: reason.message == null ? reason : reason.message });
   }
 
   handleClearError() {

@@ -163,7 +163,7 @@ describe('<PolynomialConstructionContainer />', () => {
     API.SetNewCalibrationPolynomial.and.returnValue(promise);
     poly.prop('onConstruction')()
       .then(() => {
-        expect(wrapper.state('error').message).toEqual('foo');
+        expect(wrapper.state('error')).toEqual('foo');
         done();
       });
   });
