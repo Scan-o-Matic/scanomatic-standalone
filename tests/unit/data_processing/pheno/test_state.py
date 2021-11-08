@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from typing import Any, Optional, Union
+from typing import Any, List, Dict, Optional, Union, Tuple
 
 import numpy as np
 import pytest
@@ -28,7 +28,7 @@ def check_none(
 
 def assert_state_none_fields(
     state: PhenotyperState,
-    none_fields: tuple[str, ...],
+    none_fields: Tuple[str, ...],
 ):
     errors = []
     for key, value in asdict(state).items():
@@ -93,7 +93,7 @@ class TestPhenotyperState:
     def test_init_makes_reference_surface_positions_when_not_matching(
         self,
         raw_growth_data: np.ndarray,
-        expect: list[Offsets],
+        expect: List[Offsets],
     ):
         np.testing.assert_equal(
             PhenotyperState(
@@ -121,7 +121,7 @@ class TestPhenotyperState:
     def test_get_plate_shapes(
         self,
         plate: int,
-        shape: Optional[tuple[int, int]],
+        shape: Optional[Tuple[int, int]],
     ):
         assert PhenotyperState(
             None,
@@ -538,7 +538,7 @@ class TestPhenotyperState:
                     None,
                     {
                         Phenotypes.ColonySize48h:
-                            np.arange(6).reshape(2, 3).astype(np.float)
+                            np.arange(6).reshape(2, 3).astype(float)
                     },
                 ]),
                 None,
@@ -560,7 +560,7 @@ class TestPhenotyperState:
                     None,
                     {
                         Phenotypes.ColonySize48h:
-                            np.arange(6).reshape(2, 3).astype(np.float)
+                            np.arange(6).reshape(2, 3).astype(float)
                     },
                 ]),
                 None,
@@ -611,9 +611,9 @@ class TestPhenotyperState:
         phenotype: Union[Phenotypes, CurvePhaseMetaPhenotypes],
         filtered: bool,
         norm_state: NormState,
-        reference_values: Optional[tuple[float, ...]],
-        kwargs: dict[str, Any],
-        expect: list[Optional[Union[FilterArray, np.ndarray]]],
+        reference_values: Optional[Tuple[float, ...]],
+        kwargs: Dict[str, Any],
+        expect: List[Optional[Union[FilterArray, np.ndarray]]],
     ):
         actual = PhenotyperState(
             phenotypes,

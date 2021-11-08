@@ -5,12 +5,12 @@ from enum import Enum
 from io import StringIO
 from itertools import chain, product
 from logging import Logger
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, List, Optional, Union, Tuple
 
 import numpy as np
-from scipy.ndimage import median_filter
-from scipy.signal import convolve
-from scipy.stats import norm
+from scipy.ndimage import median_filter  # type: ignore
+from scipy.signal import convolve  # type: ignore
+from scipy.stats import norm  # type: ignore
 
 import scanomatic.io.image_data as image_data
 import scanomatic.io.paths as paths
@@ -1069,7 +1069,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
 
             phenotypes = {
-                p: np.zeros(plate.shape[:2], dtype=np.float) * np.nan
+                p: np.zeros(plate.shape[:2], dtype=float) * np.nan
                 for p in Phenotypes if phenotypes_inclusion(p)}
 
             plate_size = np.prod(plate.shape[:2])
@@ -1203,7 +1203,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 )
 
                 vector_meta_phenotypes[phenotype] = phenotype_data.astype(
-                    np.float,
+                    float,
                 )
 
             self._logger.info("Plate {0} Done".format(id_plate + 1))
@@ -1482,7 +1482,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def generation_times(self):
         return self.get_phenotype(Phenotypes.GenerationTime)
 
-    def get_reference_median(self, phenotype) -> tuple[float, ...]:
+    def get_reference_median(self, phenotype) -> Tuple[float, ...]:
         """ Getting reference position medians per plate.
 
         Args:
@@ -1495,9 +1495,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         phenotype: Union[Phenotypes, CurvePhasePhenotypes],
         filtered: bool = True,
         norm_state: NormState = NormState.Absolute,
-        reference_values: Optional[tuple[float, ...]] = None,
+        reference_values: Optional[Tuple[float, ...]] = None,
         **kwargs,
-    ) -> list[Optional[Union[FilterArray, np.ndarray]]]:
+    ) -> List[Optional[Union[FilterArray, np.ndarray]]]:
         """Getting phenotype data
 
         Args:
@@ -1557,7 +1557,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         ), "Invalid time series {0}".format(value)
 
         if isinstance(value, np.ndarray) is False:
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=float)
 
         diffs = np.diff(value)
         diffs = np.round(diffs / np.median(diffs)).astype(int)
@@ -1606,12 +1606,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def get_chapman_richards_data(
         self,
         plate: int,
-        position: tuple[int, ...],
-    ) -> tuple[
+        position: Tuple[int, ...],
+    ) -> Tuple[
         np.ndarray,
-        Optional[tuple[Optional[float], Optional[float]]],
-        Optional[tuple[np.ndarray, np.ndarray]],
-        Optional[tuple],
+        Optional[Tuple[Optional[float], Optional[float]]],
+        Optional[Tuple[np.ndarray, np.ndarray]],
+        Optional[Tuple],
     ]:
         """Get the chapman ritchard model information
 
@@ -2449,10 +2449,10 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     def for_each_call(
         self,
-        extra_keyword_args: Union[tuple[dict, ...], dict] = tuple(),
+        extra_keyword_args: Union[Tuple[dict, ...], dict] = tuple(),
         start_plate: Optional[int] = None,
-        start_pos: Optional[tuple[int, int]] = None,
-        funcs: tuple[Callable] = tuple(),
+        start_pos: Optional[Tuple[int, int]] = None,
+        funcs: Tuple[Callable] = tuple(),
     ):
         """For each log2_curve, the supplied functions are called.
 

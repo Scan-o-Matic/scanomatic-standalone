@@ -6,8 +6,8 @@ from typing import Any, Callable, Dict, Union
 from uuid import uuid1
 
 import numpy as np
-from scipy.optimize import leastsq
-from scipy.stats import linregress
+from scipy.optimize import leastsq  # type: ignore
+from scipy.stats import linregress  # type: ignore
 
 from scanomatic.generics.maths import mid50_mean
 from scanomatic.image_analysis.first_pass_image import FixtureImage
@@ -635,7 +635,7 @@ def _collect_all_included_data(ccc):
 
 
 def get_calibration_optimization_function(degree=5):
-    coeffs = np.zeros((degree + 1,), np.float)
+    coeffs = np.zeros((degree + 1,), float)
 
     def poly(data_store, *guess):
         coeffs[:-1] = np.exp(guess)
@@ -671,7 +671,7 @@ def poly_as_text(poly) -> str:
 def calculate_polynomial(data_store, degree=5):
     fit_function = get_calibration_optimization_function(degree)
 
-    p0 = np.zeros((degree,), np.float)
+    p0 = np.zeros((degree,), float)
     if degree == 5:
         # This is a known solution for a specific set of Sc data
         # it is hopefully a good startingpoint
@@ -759,7 +759,7 @@ def construct_polynomial(identifier, power) -> Union[bool, Dict[str, Any]]:
     }
 
 
-def get_all_colony_data(identifier) -> dict[str, Any]:
+def get_all_colony_data(identifier) -> Dict[str, Any]:
     ccc = __CCC[identifier]
     data_store = _collect_all_included_data(ccc)
     if data_store.source_values:

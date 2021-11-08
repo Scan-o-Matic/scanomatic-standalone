@@ -2,9 +2,9 @@ import operator
 from itertools import product
 
 import numpy as np
-import scipy.cluster.hierarchy as sch
-from matplotlib import pyplot as plt
-from scipy.signal import gaussian
+import scipy.cluster.hierarchy as sch  # type: ignore
+from matplotlib import pyplot as plt  # type: ignore
+from scipy.signal import gaussian  # type: ignore
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
 
@@ -20,7 +20,7 @@ def get_plate_phenotype_in_array(
     except AttributeError:
         vector_length = 1
 
-    arr = np.zeros(data.shape + (vector_length,), dtype=np.float)
+    arr = np.zeros(data.shape + (vector_length,), dtype=float)
     for coord in product(*tuple(
         range(dim_length) for dim_length in data.shape
     )):

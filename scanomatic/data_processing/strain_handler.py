@@ -1,7 +1,7 @@
 from logging import Logger
-from typing import Any, Union
+from typing import Any, List, Union, Tuple
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 
 from scanomatic.io.meta_data import MetaData2
@@ -15,7 +15,7 @@ def loadCSV2Numpy(
     path: str,
     measure: Union[str, int, slice] = -1,
     delim: str = '\t',
-    dtype=np.float,
+    dtype=float,
 ):
     """Loads a csv-file produced by QC as a numpy array of plates.
 
@@ -115,7 +115,7 @@ def loadCSV2Numpy(
                 dtype=dtype,
             )
 
-            if dtype == np.float:
+            if dtype == float:
                 plate *= np.nan
 
             data.append(plate)
@@ -200,7 +200,7 @@ def filterUniquesOnPlate(
     return {k: v for k, v in list(uniqueDict.items()) if k[-1] == plate}
 
 
-def splitStrainsPerPlates(strainDict: dict) -> list[dict]:
+def splitStrainsPerPlates(strainDict: dict) -> List[dict]:
     """If `forcePlatewise` was `True`, this will make an ordered list with
     each plate's info in a separate item.
 
@@ -303,7 +303,7 @@ def generalStatsOnStrains(
     return _stats
 
 
-def getArray(strainStatsDict: dict, key: str) -> tuple[list[Any], np.ndarray]:
+def getArray(strainStatsDict: dict, key: str) -> Tuple[List[Any], np.ndarray]:
     """Produces an array of the stats-measure over all strains.
 
     Args:

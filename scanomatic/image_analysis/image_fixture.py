@@ -3,8 +3,8 @@ from logging import Logger
 from typing import Tuple
 
 import numpy as np
-from scipy.ndimage import center_of_mass
-from scipy.signal import fftconvolve
+from scipy.ndimage import center_of_mass  # type: ignore
+from scipy.signal import fftconvolve  # type: ignore
 
 from . import image_basics
 from .image_basics import load_image_to_numpy

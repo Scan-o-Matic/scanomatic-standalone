@@ -3,16 +3,16 @@ from functools import wraps
 from itertools import chain, product
 from logging import Logger
 
-import matplotlib
-import matplotlib.pyplot as plt
+import matplotlib  # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
-import pandas as pd
-import scipy.cluster.hierarchy as sch
+import pandas as pd  # type: ignore
+import scipy.cluster.hierarchy as sch  # type: ignore
 from matplotlib import patches as mpatches
-from matplotlib.font_manager import FontProperties
-from matplotlib.lines import Line2D
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.ndimage import label
+from matplotlib.font_manager import FontProperties  # type: ignore
+from matplotlib.lines import Line2D  # type: ignore
+from mpl_toolkits.axes_grid1 import make_axes_locatable  # type: ignore
+from scipy.ndimage import label  # type: ignore
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
 from scanomatic.data_processing.phases.features import (
@@ -610,7 +610,7 @@ def plot_plate_heatmap(
         plate_data = phenotypes.get_phenotype(
             measure,
             normalized=normalized,
-        )[plate_index].astype(np.float)
+        )[plate_index].astype(float)
     except ValueError:
         _logger.error(
             f"The phenotype {measure} is not scalar and thus can't be displayed as a heatmap",  # noqa: E501
@@ -1150,7 +1150,7 @@ def load_phenotype_results_into_plates(
 
         plates[plateIndex] = np.zeros(
             (plate.Row.max() + 1, plate.Column.max() + 1),
-            dtype=np.float,
+            dtype=float,
         ) * np.nan
 
         for _, dataRow in plate.iterrows():

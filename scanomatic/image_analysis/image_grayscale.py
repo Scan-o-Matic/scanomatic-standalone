@@ -3,8 +3,8 @@ from logging import Logger
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import convolve2d
+from scipy.ndimage import gaussian_filter1d  # type: ignore
+from scipy.signal import convolve2d  # type: ignore
 
 from scanomatic.generics.maths import mid50_mean as iqr_mean
 from scanomatic.io.paths import Paths

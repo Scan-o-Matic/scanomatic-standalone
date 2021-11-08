@@ -252,7 +252,7 @@ def get_project_name(project_path):
 def strip_empty_exits(exits, data):
     """
         :param exits : Exit keys
-        :type exits : list[str]
+        :type exits : List[str]
 
         :param data : Data dict
         :type data : dict

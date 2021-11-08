@@ -3,7 +3,7 @@ from logging import Logger
 
 import numpy as np
 from PIL import Image
-from scipy.ndimage import zoom
+from scipy.ndimage import zoom  # type: ignore
 
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 

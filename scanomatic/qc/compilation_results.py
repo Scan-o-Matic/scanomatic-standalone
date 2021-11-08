@@ -3,7 +3,7 @@ import os
 import re
 
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt  # type: ignore
 
 from scanomatic.io.movie_writer import MovieWriter
 from scanomatic.models.factories.compile_project_factory import (
@@ -153,7 +153,7 @@ def animate_marker_positions(
     for idx in range(len(images)):
         ax = fig.add_subplot(len(images), 1, idx + 1)
         images[idx] = ax.imshow(
-            np.zeros((slice_size, slice_size), dtype=np.float),
+            np.zeros((slice_size, slice_size), dtype=float),
             cmap=plt.cm.gray,
             vmin=0,
             vmax=255
@@ -162,7 +162,7 @@ def animate_marker_positions(
         ax.axhline(half_slice_size, color='c')
 
     def make_cutout(img, pos_y, pos_x):
-        cutout = np.zeros((slice_size, slice_size), dtype=np.float) * np.nan
+        cutout = np.zeros((slice_size, slice_size), dtype=float) * np.nan
         cutout[
             abs(min(pos_x - half_slice_size, 0)):
             min(cutout.shape[0], img.shape[0] - pos_x),

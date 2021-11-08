@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import Literal, Optional, Sequence
+from typing import Literal, Optional, Sequence, Tuple
 
 import numpy as np
-from scipy.interpolate import griddata
-from scipy.ndimage import (
+from scipy.interpolate import griddata  # type: ignore
+from scipy.ndimage import (  # type: ignore
     convolve,
     gaussian_filter,
     generic_filter,
@@ -11,7 +11,7 @@ from scipy.ndimage import (
     median_filter,
     sobel
 )
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr  # type: ignore
 
 from scanomatic.data_processing.data_bridge import Data_Bridge
 from scanomatic.generics.maths import mid50_mean
@@ -73,7 +73,7 @@ class Offsets(Enum):
                 [self is Offsets.UpperLeft, self is Offsets.UpperRight],
                 [self is Offsets.LowerLeft, self is Offsets.LowerRight],
             ],
-            dtype=np.bool,
+            dtype=bool,
         )
 
 
@@ -541,7 +541,7 @@ def get_normalisation_surface(
 
 def apply_outlier_filter(
     data: np.ndarray,
-    median_filter_size: Optional[tuple[int, ...]] = (3, 3),
+    median_filter_size: Optional[Tuple[int, ...]] = (3, 3),
     measure: Optional[int] = None,
     k: float = 2.0,
     p: int = 10,
@@ -812,7 +812,7 @@ def ipv_residue(scaling_params, ipv, gt):
             for id_p in range(gt.shape[0])
             if gt[id_p].size > 0
         ],
-        dtype=np.float
+        dtype=float,
     )
 
     return np.hstack([p[np.isfinite(p)].ravel() for p in ret])

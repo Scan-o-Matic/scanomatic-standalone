@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List, Sequence, Tuple
 
 import numpy as np
 
@@ -14,7 +14,7 @@ def scan(plate_meta_data, column, value_function):
     return value_function(plate_meta_data[column])
 
 
-SelectionType = Sequence[tuple[int, ...]]
+SelectionType = Sequence[Tuple[int, ...]]
 
 
 class StrainSelector:

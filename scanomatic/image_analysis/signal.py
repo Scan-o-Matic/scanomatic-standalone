@@ -1,7 +1,7 @@
 from logging import Logger
 
 import numpy as np
-from scipy import ndimage, signal
+from scipy import ndimage, signal  # type: ignore
 
 _logger = Logger("Resource Signal")
 
@@ -72,7 +72,7 @@ def get_signal_edges(
     nan_edges = np.isnan(edges)
     fin_edges = np.isfinite(edges)
     if fin_edges.any() and nan_edges.any():
-        edge_ordinals = np.arange(edges.size, dtype=np.float) + 1
+        edge_ordinals = np.arange(edges.size, dtype=float) + 1
         edges[nan_edges] = np.interp(
             edge_ordinals[nan_edges],
             edge_ordinals[fin_edges],
@@ -777,7 +777,7 @@ def _get_candidate_validation(s, s_error, expected_spikes, raw_signal):
     g_order = goodness.argsort()
 
     # Validated positions
-    s_val = np.zeros(s.size, dtype=np.bool)
+    s_val = np.zeros(s.size, dtype=bool)
 
     # Validate positions
     tmp_2_slice = np.array((0, -1))

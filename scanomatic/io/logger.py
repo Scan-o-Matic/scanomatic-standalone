@@ -2,12 +2,12 @@ import logging
 import re
 from os import makedirs
 from pathlib import Path
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 _FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(msg)s'
 _DATEFMT = '%Y-%m-%d %H:%M:%S'
 _FORMATTER = logging.Formatter(fmt=_FORMAT, datefmt=_DATEFMT)
-_HANDLERS: dict[str, Union[logging.FileHandler, logging.StreamHandler]] = {}
+_HANDLERS: Dict[str, Union[logging.FileHandler, logging.StreamHandler]] = {}
 _LOG_PARSING_EXPRESSION = re.compile(
     r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)",  # noqa: E501
 )

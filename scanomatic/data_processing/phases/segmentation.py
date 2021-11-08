@@ -1,10 +1,13 @@
 import operator
 from enum import Enum
-from typing import Optional, Union
+from typing import Dict, Optional, Union, Tuple
 
 import numpy as np
-from scipy import signal
-from scipy.ndimage import binary_closing, generic_filter, label
+from scipy import signal  # type: ignore
+from scipy.ndimage import (  # type: ignore
+    binary_closing, generic_filter, label,
+)
+
 
 from scanomatic.models.phases_models import SegmentationModel
 
@@ -101,7 +104,7 @@ class PhaseEdge(Enum):
     Intelligent = 2
 
 
-ThresholdsDict = dict[Thresholds, Union[int, float]]
+ThresholdsDict = Dict[Thresholds, Union[int, float]]
 DEFAULT_THRESHOLDS: ThresholdsDict = {
     Thresholds.LinearModelExtension: 0.05,
     Thresholds.PhaseMinimumLength: 3,
@@ -213,7 +216,7 @@ def segment(
 def get_data_needed_for_segmentation(
     phenotyper_object,
     plate: int,
-    pos: tuple[int, ...],
+    pos: Tuple[int, ...],
     thresholds: ThresholdsDict,
     model: Optional[SegmentationModel] = None,
 ) -> SegmentationModel:

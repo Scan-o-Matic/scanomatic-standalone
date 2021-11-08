@@ -139,7 +139,7 @@ def filter_plate_on_phase_id(plate, phases_id, measure):
         except (KeyError, TypeError):
             return np.nan
 
-    return np.frompyfunc(f, 2, 1)(plate, phases_id).astype(np.float)
+    return np.frompyfunc(f, 2, 1)(plate, phases_id).astype(float)
 
 
 def _get_phase_id(plate, *phases):
@@ -629,7 +629,7 @@ def extract_phenotypes(plate, meta_phenotype, phenotypes):
 
     elif meta_phenotype == CurvePhaseMetaPhenotypes.MajorImpulseFlankAsymmetry:
         indices = _np_ma_get_major_impulse_indices(plate)
-        return _np_get_flanking_angle_relation(plate, indices).astype(np.float)
+        return _np_get_flanking_angle_relation(plate, indices).astype(float)
 
     else:
         _logger.error(f"Not implemented phenotype extraction: {meta_phenotype}")
@@ -934,7 +934,7 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
     coords = coords[filt == np.False_]
 
     major_idx = np.ma.masked_invalid(
-        _np_ma_get_major_impulse_indices(plate_data).astype(np.float),
+        _np_ma_get_major_impulse_indices(plate_data).astype(float),
     )
 
     plate_data = plate_data[major_idx.mask == np.False_]

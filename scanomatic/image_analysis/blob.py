@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from scipy.ndimage import (
+from scipy.ndimage import (  # type: ignore
     binary_dilation,
     binary_erosion,
     gaussian_filter,

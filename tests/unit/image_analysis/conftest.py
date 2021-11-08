@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-import pytest  # type: ignore
+import pytest
 from PIL import Image
 
 TESTDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testdata')

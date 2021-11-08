@@ -157,7 +157,7 @@ def validateFromData(name, source, target):
     # For all non-zero values, the check the sign
     derivativeSigns = (
         derivativeValues[derivativeValues.nonzero()] > 0
-    ).astype(np.bool)
+    ).astype(bool)
     # If either all are True OR if None are, the method returns True
     return derivativeSigns.all() or derivativeSigns.sum() == 0
 

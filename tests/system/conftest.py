@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pytest  # type: ignore
+import pytest
 import requests
 from selenium import webdriver
 

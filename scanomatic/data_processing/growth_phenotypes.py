@@ -1,10 +1,10 @@
 from enum import Enum
 from logging import Logger
-from typing import Any, Sequence
+from typing import Any, Dict, Sequence
 
 import numpy as np
-from scipy.optimize import leastsq
-from scipy.stats import linregress
+from scipy.optimize import leastsq  # type: ignore
+from scipy.stats import linregress  # type: ignore
 
 _logger = Logger("Growth Phenotypes")
 
@@ -44,7 +44,7 @@ def get_preprocessed_data_for_phenotypes(
     times_strided,
     index_for_48h,
     position_offset,
-) -> dict[str, Any]:
+) -> Dict[str, Any]:
     curve_logged = np.log2(curve)
     derivative_values_log2, derivative_errors = get_derivative(
         curve_strided,
@@ -250,7 +250,7 @@ def get_chapman_richards_4parameter_extended_curve(
 def get_fit_r_square(
     x_data,
     y_data,
-    p0=np.array([1.64, -0.1, -2.46, 0.1, 15.18], dtype=np.float),
+    p0=np.array([1.64, -0.1, -2.46, 0.1, 15.18], dtype=float),
 ):
     """x_data and y_data must be 1D, y_data must be log2"""
 

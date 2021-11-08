@@ -2,7 +2,7 @@ import itertools
 from enum import Enum
 
 import numpy as np
-from scipy.signal import gaussian
+from scipy.signal import gaussian  # type: ignore
 
 
 class PositionOffset(Enum):
@@ -28,7 +28,7 @@ def get_distance_matrix(measure: np.ndarray = gaussian(7, 1)) -> np.ndarray:
 def get_reference_position_selector(
     offset: PositionOffset = PositionOffset.LowerRight,
 ) -> np.ndarray:
-    selector = np.zeros((2, 2), dtype=np.bool)
+    selector = np.zeros((2, 2), dtype=bool)
     selector[offset.value] = True
     return selector
 
@@ -154,7 +154,7 @@ def remove_positions_by_offset_and_flatten(
         (plate.shape[0] * plate.shape[1] * 3 / 4, plate.shape[2]),
         dtype=plate.dtype,
     )
-    if out.dtype == np.float:
+    if out.dtype == float:
         out *= np.nan
 
     i = 0

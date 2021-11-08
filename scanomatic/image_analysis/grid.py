@@ -1,6 +1,6 @@
 import numpy as np
-from scipy import ndimage
-from skimage import filters as ski_filter
+from scipy import ndimage  # type: ignore
+from skimage import filters as ski_filter  # type: ignore
 
 
 def get_adaptive_threshold(
@@ -27,7 +27,7 @@ def get_adaptive_threshold(
         segmented_image[im.shape[0] * 3 / 4, im.shape[1] * 3 / 4] = 1
         segmented_image[im.shape[0] / 2, im.shape[1] / 2] = 1
     else:
-        p = 1 - np.float(segments) / im.size
+        p = 1 - float(segments) / im.size
         segmented_image = (np.random.random(im.shape) > p).astype(np.uint8)
 
     labled, labels = _get_sectioned_image(segmented_image)
@@ -310,7 +310,7 @@ def get_grid_spacings(x_data, y_data, expected_dx, expected_dy, leeway=0.1):
 def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
 
     shape = np.array(ideal_grid.shape[1:])
-    update_allowed = np.ones(shape, dtype=np.bool)
+    update_allowed = np.ones(shape, dtype=bool)
 
     rings = shape / 2
 
@@ -412,7 +412,7 @@ def build_grid_from_center(
 ):
     grid0 = (
         (
-            (np.mgrid[0: grid_shape[0], 0: grid_shape[1]]).astype(np.float)
+            (np.mgrid[0: grid_shape[0], 0: grid_shape[1]]).astype(float)
             - np.array(grid_shape).reshape((2, 1, 1)) / 2.0
         ) + 0.5
     ) * np.array((dx, dy)).reshape((2, 1, 1))
@@ -482,8 +482,8 @@ def get_valid_parameters(
 
     print("*** Got center {0} and spacing {1}".format(center, spacing))
 
-    spacing = np.array(spacing, dtype=np.float)
-    expected_spacing = np.array(expected_spacing, dtype=np.float)
+    spacing = np.array(spacing, dtype=float)
+    expected_spacing = np.array(expected_spacing, dtype=float)
 
     p_spacing = get_gauss_probability(
         1.0,
@@ -494,8 +494,8 @@ def get_valid_parameters(
     adjust_spacing = p_spacing < t
     spacing[adjust_spacing] = expected_spacing[adjust_spacing]
 
-    center = np.array(center, dtype=np.float)
-    expected_center = np.array(expected_center, dtype=np.float)
+    center = np.array(center, dtype=float)
+    expected_center = np.array(expected_center, dtype=float)
     sigma_center = 0.5 * spacing.mean()
     p_center = get_gauss_probability(
         1.0,

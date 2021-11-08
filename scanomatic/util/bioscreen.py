@@ -75,7 +75,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
         raise ValueError("No data")
 
     try:
-        time = data[:, 0].astype(np.float) / time_scale
+        time = data[:, 0].astype(float) / time_scale
     except ValueError:
         def f(v):
             return sum(
@@ -96,7 +96,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
     headers = all_data[0][column_start:]
 
     try:
-        data = data[:, column_start:].astype(np.float)
+        data = data[:, column_start:].astype(float)
     except ValueError:
         try:
             data = np.array(
@@ -104,7 +104,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
                     [val if val else None for val in row[column_start:]]
                     for row in data
                 ],
-                dtype=np.float,
+                dtype=float,
             )
         except ValueError:
             print(
@@ -112,7 +112,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
             )
             raise
 
-    return headers, time.astype(np.float), data
+    return headers, time.astype(float), data
 
 
 def csv_loader(path):

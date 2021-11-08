@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any, Dict, Tuple
 
 import numpy as np
-from scipy.ndimage import (
+from scipy.ndimage import (  # type: ignore
     binary_erosion,
     center_of_mass,
     gaussian_filter,
@@ -60,7 +60,7 @@ def get_round_kernel(radius=6.0, outline=False):
 
     round_kernel = np.zeros(
         ((radius + 1) * 2 + 1, (radius + 1) * 2 + 1),
-        dtype=np.bool
+        dtype=bool
     )
     center_offset = radius + 1
     y, x = np.ogrid[-radius: radius, -radius: radius]
@@ -173,7 +173,7 @@ class CellItem:
                             in the center."""
 
         self.grid_array = grid_array.copy()
-        self.filter_array = np.zeros(grid_array.shape, dtype=np.bool)
+        self.filter_array = np.zeros(grid_array.shape, dtype=bool)
 
         self._identifier = identifier
         self._compartment_type = identifier[-1]
@@ -197,7 +197,7 @@ class CellItem:
         if self.grid_array.shape != self.filter_array.shape:
             self.filter_array = np.zeros(
                 self.grid_array.shape,
-                dtype=np.bool,
+                dtype=bool,
             )
 
     def do_analysis(self):
@@ -543,7 +543,7 @@ class Blob(CellItem):
 
             self.trash_array = np.zeros(
                 self.filter_array.shape,
-                dtype=np.bool,
+                dtype=bool,
             )
 
         if detect_type is None:
@@ -563,7 +563,7 @@ class Blob(CellItem):
         if self.trash_array is None:
             self.trash_array = np.zeros(
                 self.filter_array.shape,
-                dtype=np.bool,
+                dtype=bool,
             )
 
         if self.old_filter is not None:

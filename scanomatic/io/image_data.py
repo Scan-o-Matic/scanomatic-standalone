@@ -127,13 +127,13 @@ class ImageData(object):
                 analysis_model.output_directory,
             )
         else:
-            current_data = np.array([], dtype=np.float)
+            current_data = np.array([], dtype=float)
 
         if not (image_model.image.index < current_data.size):
             current_data = np.r_[
                 current_data,
                 [None] * (1 + image_model.image.index - current_data.size)
-            ].astype(np.float)
+            ].astype(float)
 
         current_data[image_model.image.index] = (
             image_model.image.time_stamp / _SECONDS_PER_HOUR
@@ -159,7 +159,7 @@ class ImageData(object):
             return unpickle_with_unpickler(np.load, path)
         else:
             ImageData._LOGGER.warning("Times data file not found")
-            return np.array([], dtype=np.float)
+            return np.array([], dtype=float)
 
     @staticmethod
     def read_image(path):
