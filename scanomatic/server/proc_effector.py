@@ -178,7 +178,7 @@ class _PipeEffector:
         ):
             try:
                 self._pipe.send((callName, args, kwargs))
-            except Exception as err:
+            except Exception:
                 self._logger.exception(
                     f"Failed to send {(callName, args, kwargs)}",
                 )

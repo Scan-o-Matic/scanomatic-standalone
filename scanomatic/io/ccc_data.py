@@ -170,7 +170,7 @@ def validate_polynomial_format(polynomial):
             raise ValueError(
                 "Invalid polynomial representation: {}".format(polynomial)
             )
-    except (KeyError, TypeError) as err:
+    except (KeyError, TypeError):
         message = "Validation of polynomial representation failed"
         _logger.exception(message)
         raise ValueError(message)
