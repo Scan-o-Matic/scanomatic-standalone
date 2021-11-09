@@ -103,9 +103,47 @@ jobs:
             python3.9 -m pip install --upgrade pip
             pip install tox
 
-        - name: Test non-system-tests
+        - name: Run unit tests
           run: |
-            tox -e py39
+            tox -e unit
+
+    backend-test-integration:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.9
+
+        - name: Install General Dependencies
+          run: |
+            python3.9 -m pip install --upgrade pip
+            pip install tox
+
+        - name: Run integration tests
+          run: |
+            tox -e integration
+
+    backend-test-system:
+        runs-on: ubuntu-18.04
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.9
+
+        - name: Install General Dependencies
+          run: |
+            python3.9 -m pip install --upgrade pip
+            pip install tox
+
+        - name: Run system tests
+          run: |
+            tox -e system
 
     docker-build:
         runs-on: ubuntu-18.04
