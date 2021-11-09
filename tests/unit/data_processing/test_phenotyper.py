@@ -25,10 +25,14 @@ class TestSettingData:
         'phenotypes', 'normalized_phenotypes', 'vector_phenotypes',
         'vector_meta_phenotypes', 'smooth_growth_data'
     ), (
-        None, np.array(None), np.array([]), np.array([None, None]),
-        np.array([None, np.array([None])]),
+        None,
+        np.array(None),
+        np.array([]),
+        np.array([None, None]),
+        np.array([None, np.array([None])], dtype=object),
         np.array([[None, None], [None, None]]),
-        np.array([{0: np.array([[None]])}]), np.zeros((10, 10), dtype=int),
+        np.array([{0: np.array([[None]])}]),
+        np.zeros((10, 10), dtype=int),
     )))
     def test_rejects_empty_data(self, empty_phenotyper, key, data):
         assert not empty_phenotyper.set(key, data)

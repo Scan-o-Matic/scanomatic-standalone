@@ -470,7 +470,7 @@ class PhenotyperState:
             )
             self.phenotype_filter = np.array(
                 [{} for _ in self.phenotypes],
-                dtype=np.object,
+                dtype=object,
             )
             self.phenotype_filter_undo = tuple(
                 deque() for _ in self.phenotypes

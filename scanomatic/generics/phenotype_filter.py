@@ -87,7 +87,7 @@ class FilterArray:
         else:
             val = self.data
         filt = np.isnan(val)
-        val = val.astype(np.object)
+        val = val.astype(object)
         val[filt] = None
         return val.tolist()
 

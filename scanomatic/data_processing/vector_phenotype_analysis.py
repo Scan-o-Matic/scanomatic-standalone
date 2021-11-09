@@ -63,7 +63,7 @@ def _ensure_indata(f):
         data = args[0]
         phenotype = kwargs.get('phenotype', Phenotypes.GrowthVelocityVector)
 
-        if data.dtype is np.object:
+        if data.dtype is object:
             data = get_plate_phenotype_in_array(data, phenotype=phenotype)
 
         while data.ndim > 2:

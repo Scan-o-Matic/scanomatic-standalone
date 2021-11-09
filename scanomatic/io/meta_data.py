@@ -190,7 +190,7 @@ class MetaData2:
         self._plate_shapes = plate_shapes
 
         self._data = tuple(
-            None if shape is None else np.empty(shape, dtype=np.object)
+            None if shape is None else np.empty(shape, dtype=object)
             for shape in plate_shapes
         )
 

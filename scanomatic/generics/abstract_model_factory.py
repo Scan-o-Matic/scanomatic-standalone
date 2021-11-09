@@ -834,7 +834,7 @@ class Serializer:
                 if 'r' in filehandle.mode:
                     fh_pos = filehandle.tell()
                     filehandle.seek(0)
-                    conf.readfp(filehandle)
+                    conf.read_file(filehandle)
                     if as_if_appending:
                         filehandle.seek(0, 2)
                     else:
@@ -1317,7 +1317,7 @@ class SerializationHelper:
         if isinstance(path, str):
             try:
                 with open(path, 'r') as fh:
-                    conf.readfp(fh)
+                    conf.read_file(fh)
             except IOError:
                 pass
 

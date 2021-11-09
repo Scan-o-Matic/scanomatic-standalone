@@ -1140,7 +1140,7 @@ def load_phenotype_results_into_plates(
     data = pd.read_csv(file_name, sep='\t')
     plates = np.array(
         [None for _ in range(data.Plate.max() + 1)],
-        dtype=np.object,
+        dtype=object,
     )
 
     for plateIndex in data.Plate.unique():

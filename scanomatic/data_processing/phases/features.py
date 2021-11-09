@@ -686,7 +686,7 @@ def get_variance_decomposition_by_phase(
 def _get_index_array(shape):
     m = np.mgrid[:shape[0], :shape[1]]
     length = list(zip(*(v.ravel() for v in m)))
-    a2 = np.empty(m.shape[1:], dtype=np.object)
+    a2 = np.empty(m.shape[1:], dtype=object)
     a2.ravel()[:] = length
     return a2
 

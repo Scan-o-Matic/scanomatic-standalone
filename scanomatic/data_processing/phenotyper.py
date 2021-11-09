@@ -1079,7 +1079,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             ))
 
             vector_phenotypes = {
-                p: np.zeros(plate.shape[:2], dtype=np.object) * np.nan
+                p: np.zeros(plate.shape[:2], dtype=object) * np.nan
                 for p in VectorPhenotypes if phenotypes_inclusion(p)
             }
             vector_meta_phenotypes = {}
@@ -1402,7 +1402,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         if self._state.normalized_phenotypes is None:
             self._state.normalized_phenotypes = np.array(
                 [{} for _ in self._state.enumerate_plates],
-                dtype=np.object,
+                dtype=object,
             )
 
         norm_method = norm_by_log2_diff

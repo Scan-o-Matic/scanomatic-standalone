@@ -68,7 +68,7 @@ def _parse_data(data, mode, time_scale, start_row=0):
         data[i][:mode] for i in data
         if _get_row_is_possible_at_length(data[i], mode) and i >= start_row
     )
-    data = np.array(all_data[1:], dtype=np.object)
+    data = np.array(all_data[1:], dtype=object)
 
     if data.size == 0:
         print("No data to parse")

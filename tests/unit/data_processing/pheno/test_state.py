@@ -451,7 +451,7 @@ class TestPhenotyperState:
                 np.zeros((1, 2, 3)),
                 np.zeros((2, 3, 4)),
                 np.zeros((3, 4, 5)),
-            ]),
+            ], dtype=object),
             False,
         ),
         (
@@ -478,7 +478,11 @@ class TestPhenotyperState:
     ):
         assert PhenotyperState(
             None,
-            np.array([None, np.ones((2, 3, 4)), np.ones((3, 4, 5))]),
+            np.array([
+                None,
+                np.ones((2, 3, 4)),
+                np.ones((3, 4, 5)),
+            ], dtype=object),
             smooth_growth_data=smooth_growth_data,
         ).has_smooth_growth_data() is expect
 
