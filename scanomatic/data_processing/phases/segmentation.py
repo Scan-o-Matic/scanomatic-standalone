@@ -1046,7 +1046,10 @@ def get_barad_dur_towers(extension_lengths, filt, thresholds):
     arange = np.arange(filt.size)
     in_out_filt = np.zeros_like(filt)
     for left, right in zip(lefts, rights):
-        in_out_filt = in_out_filt | ((arange >= left) & (arange <= right))
+        in_out_filt = in_out_filt | (
+            (arange >= left if left is not None else 0)
+            & (arange <= right)
+        )
 
     out_in_filt = (~ in_out_filt) & filt
     in_out_filt &= filt

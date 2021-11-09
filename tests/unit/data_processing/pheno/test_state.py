@@ -113,7 +113,12 @@ class TestPhenotyperState:
         assert tuple(
             PhenotyperState(
                 None,
-                np.array([None, np.ones((12, 24, 33)), None, np.ones((42, 9))]),
+                np.array([
+                    None,
+                    np.ones((12, 24, 33)),
+                    None,
+                    np.ones((42, 9)),
+                ], dtype=object),
             ).plate_shapes
         ) == (None, (12, 24), None, (42, 9))
 
@@ -125,7 +130,12 @@ class TestPhenotyperState:
     ):
         assert PhenotyperState(
             None,
-            np.array([None, np.ones((12, 24, 33)), None, np.ones((42, 9))]),
+            np.array([
+                None,
+                np.ones((12, 24, 33)),
+                None,
+                np.ones((42, 9))
+            ], dtype=object),
         ).get_plate_shape(plate) == shape
 
     @pytest.mark.parametrize("raw_growth_data,phenotypes,expect", (
@@ -192,8 +202,8 @@ class TestPhenotyperState:
 
     @pytest.mark.parametrize("phenotypes,plate,expect", (
         (None, 42, False),
-        (np.array([None, np.arange(3)]), 0, False),
-        (np.array([None, np.arange(3)]), 1, True),
+        (np.array([None, np.arange(3)], dtype=object), 0, False),
+        (np.array([None, np.arange(3)], dtype=object), 1, True),
     ))
     def test_has_phenotypes_for_plate(
         self,
@@ -428,7 +438,14 @@ class TestPhenotyperState:
 
     @pytest.mark.parametrize("smooth_growth_data,expect", (
         (None, False),
-        (np.array([None, np.zeros((2, 3, 4)), np.zeros((3, 4, 5))]), True),
+        (
+            np.array([
+                None,
+                np.zeros((2, 3, 4)),
+                np.zeros((3, 4, 5)),
+            ], dtype=object),
+            True,
+        ),
         (
             np.array([
                 np.zeros((1, 2, 3)),
@@ -442,10 +459,17 @@ class TestPhenotyperState:
                 np.zeros((1, 2, 3)),
                 np.zeros((2, 3, 4)),
                 None,
-            ]),
+            ], dtype=object),
             False,
         ),
-        (np.array([None, np.zeros((2, 3, 4)), np.zeros((2, 2, 2))]), False),
+        (
+            np.array([
+                None,
+                np.zeros((2, 3, 4)),
+                np.zeros((2, 2, 2)),
+            ], dtype=object),
+            False,
+        ),
     ))
     def test_has_smooth_growth_data(
         self,

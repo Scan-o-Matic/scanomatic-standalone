@@ -3,7 +3,7 @@ import json
 import os
 from datetime import timedelta
 from hashlib import sha256
-from io import StringIO
+from io import BytesIO
 from types import MethodType
 
 import pytest
@@ -118,8 +118,8 @@ class TestPostScan:
             'project': 'my/project',
             'scan_index': 3,
             'timedelta': 60,
-            'image': (StringIO('I am an image'), 'image.tiff'),
-            'digest': sha256('I am an image').hexdigest(),
+            'image': (BytesIO(b'I am an image'), 'image.tiff'),
+            'digest': sha256(b'I am an image').hexdigest(),
         }
 
     @pytest.fixture
@@ -134,7 +134,7 @@ class TestPostScan:
         assert project == 'my/project'
         assert scan.index == 3
         assert scan.timedelta == timedelta(seconds=60)
-        assert scan.image.read() == 'I am an image'
+        assert scan.image.read() == b'I am an image'
 
     @pytest.mark.parametrize('key, value', [
         ('project', ''),
@@ -148,7 +148,7 @@ class TestPostScan:
         ('image', 'zzz'),
         ('digest', 1234),
         ('digest', 'zzzz'),
-        ('image', (StringIO('I am an image'), 'image.xls')),
+        ('image', (BytesIO(b'I am an image'), 'image.xls')),
     ])
     def test_invalid_data(self, client, url, data, key, value):
         data[key] = value
