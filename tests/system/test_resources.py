@@ -45,7 +45,7 @@ class TestCommonResources:
             'menu.png',
             'yeastOK.png',
             'yeastNOK.png',
-            'scan-o-matic_2.png',
+            'scan-o-matic_3.png',
         ):
             r = requests.get(scanomatic + '/images/{}'.format(im_file))
             r.raise_for_status()
