@@ -1,0 +1,10 @@
+.tox
+**/tests
+**/__pycache__
+.mypy_cache
+.pytest_cache
+htmlcov
+**/node_modules
+.vscode
+.eslintcache
+.coverage
