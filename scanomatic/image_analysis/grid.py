@@ -312,7 +312,7 @@ def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
     shape = np.array(ideal_grid.shape[1:])
     update_allowed = np.ones(shape, dtype=bool)
 
-    rings = shape / 2
+    rings = int(shape / 2)
 
     def _look_replace(array_view, filt):
         ideal_xs = array_view[0].ravel()
@@ -369,7 +369,7 @@ def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
                 update_allowed[distance_dim2_upper_slice[1:]]
             ] -= distance_dim2_upper
 
-    for ring in range(rings.max()):
+    for ring in range(int(rings.max())):
         if (rings[0] - ring - 1) > 0:
             shape_dim1_lower = rings[0] - ring - 1
             shape_dim1_upper = rings[0] + ring + 1

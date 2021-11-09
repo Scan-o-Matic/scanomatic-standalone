@@ -1288,7 +1288,7 @@ class SerializationHelper:
 
         elif isinstance(dtype, types.FunctionType):
             try:
-                return dtype(enforce=pickle.loads(serialized_obj))
+                return dtype(enforce=pickle.loads(serialized_obj.encode()))
             except (pickle.PickleError, EOFError):
                 return None
 

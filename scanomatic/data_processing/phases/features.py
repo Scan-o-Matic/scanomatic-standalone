@@ -147,7 +147,7 @@ def _get_phase_id(plate, *phases):
 
     def f(v):
         try:
-            v = zip(*v)[0]
+            v = tuple(zip(*v))[0]
             i = 0
             for id_phase, phase in enumerate(v):
                 if i < length:

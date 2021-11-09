@@ -834,10 +834,10 @@ class Blob(CellItem):
 
         if qualities:
 
-            quality_order = zip(*sorted(
+            quality_order = tuple(zip(*sorted(
                 iter(qualities.items()),
                 key=operator.itemgetter(1),
-            ))[0][::-1]
+            )))[0][::-1]
             best_quality_label = quality_order[0]
 
             self.filter_array = label_array == best_quality_label

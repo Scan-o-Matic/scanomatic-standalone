@@ -260,7 +260,7 @@ def get_data_needed_for_segmentation(
         gauss,
         mode='valid',
     )
-    d_offset = (model.times.size - dydt.size) / 2
+    d_offset = int((model.times.size - dydt.size) / 2)
     model.dydt = np.ma.masked_invalid(np.hstack((
         [dydt[0] for _ in range(d_offset)],
         dydt,
@@ -278,7 +278,7 @@ def get_data_needed_for_segmentation(
     d2yd2t = signal.convolve(dydt, [1., 0., -1.], mode='valid')
     d2yd2t = signal.convolve(d2yd2t, gauss, mode='valid')
 
-    d2_offset = (model.times.size - d2yd2t.size) / 2
+    d2_offset = int((model.times.size - d2yd2t.size) / 2)
     model.d2yd2t = np.ma.masked_invalid(np.hstack((
         [d2yd2t[0] for _ in range(d2_offset)],
         d2yd2t,

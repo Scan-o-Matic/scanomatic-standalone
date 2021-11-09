@@ -227,7 +227,7 @@ class ScanningModelFactory(AbstractModelFactory):
             not model.project_name
             or len(model.project_name) != len(tuple(
                 c for c in model.project_name
-                if c in string.letters + string.digits + "_"
+                if c in string.ascii_letters + string.digits + "_"
             ))
         ):
             return model.FIELD_TYPES.project_name

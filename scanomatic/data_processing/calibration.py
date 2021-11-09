@@ -217,12 +217,8 @@ def has_valid_polynomial(ccc):
     try:
         validate_polynomial_format(poly)
     except ValueError as err:
-        _logger.error(
-            "Checking that CCC has valid polynomial failed with {}".format(
-                err.message
-            ),
-        )
-        raise ActivationError(err.message)
+        _logger.exception("Checking that CCC has valid polynomial failed")
+        raise ActivationError(err)
 
 
 @_validate_ccc_edit_request

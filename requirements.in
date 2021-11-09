@@ -22,3 +22,4 @@ types-chardet
 types-python-dateutil
 types-pillow
 types-psutil
+openpyxl
