@@ -92,10 +92,9 @@ class Fixtures(object):
         self._fixtures: Optional[Dict[str, FixtureSettings]] = None
         self.update()
 
-    def __getitem__(self, fixture: str) -> FixtureSettings:
+    def __getitem__(self, fixture: str) -> Optional[FixtureSettings]:
         if fixture in self:
             return self._fixtures[fixture]
-
         return None
 
     def __contains__(self, name: str) -> bool:
@@ -127,7 +126,7 @@ class Fixtures(object):
     def fill_model(self, model):
         fixture_name = model['fixture']
         if fixture_name in self:
-            fixture = self[fixture_name]
+            fixture: FixtureSettings = self[fixture_name]
             model['im-original-scale'] = fixture.model.scale
             model['fixture-file'] = fixture.path
 

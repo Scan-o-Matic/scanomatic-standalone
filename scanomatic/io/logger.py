@@ -2,18 +2,17 @@ import logging
 import re
 from os import makedirs
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Sequence
 
 _FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(msg)s'
 _DATEFMT = '%Y-%m-%d %H:%M:%S'
 _FORMATTER = logging.Formatter(fmt=_FORMAT, datefmt=_DATEFMT)
-_HANDLERS: Dict[str, Union[logging.FileHandler, logging.StreamHandler]] = {}
+_HANDLERS: Dict[str, logging.FileHandler] = {}
 _LOG_PARSING_EXPRESSION = re.compile(
     r"(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2}:\d{1,2}) -- (\w+)\t\*{2}([^\*]+)\*{2}(.*)",  # noqa: E501
 )
 
 logging.basicConfig(
-    encoding='utf-8',
     level=logging.INFO,
     datefmt=_DATEFMT,
     format=_FORMAT
@@ -54,7 +53,7 @@ def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
         records = []
         tell = fh.tell()
         garbage = []
-        record = {}
+        record: Dict[str, str] = {}
         eof = False
         while n < max_records or max_records < 0:
 
@@ -77,7 +76,7 @@ def parse_log_file(path, seek=0, max_records=-1, filter_status=None):
                 ):
                     records.append(record)
                     n += 1
-                groups = match.groups()
+                groups: Sequence[str] = match.groups()
                 record = {
                     'date': groups[0],
                     'time': groups[1],

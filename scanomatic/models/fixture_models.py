@@ -22,7 +22,7 @@ class GrayScaleAreaModel(model.Model):
         y2: int = 0,
     ):
         self.name: str = name
-        self.values: str = values
+        self.values: Sequence = values
         self.width: float = width
         self.section_length: float = section_length
         self.x1: int = x1

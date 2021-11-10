@@ -74,10 +74,11 @@ class FixtureFactory(AbstractModelFactory):
 
         def get_index_from_name(name) -> int:
             peoples_index_offset = 1
-            return (
-                int(re.search(plate_index_pattern, name).group())
-                - peoples_index_offset
-            )
+            plate_index = re.search(plate_index_pattern, name)
+            if plate_index is None:
+                raise ValueError(f"Could not find index from name '{name}'")
+
+            return int(plate_index) - peoples_index_offset
 
         for (old_name, new_name) in [
             ("grayscale_indices", "grayscale_targets"),

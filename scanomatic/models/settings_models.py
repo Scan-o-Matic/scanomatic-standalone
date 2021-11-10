@@ -141,10 +141,10 @@ class ApplicationSettingsModel(model.Model):
         if power_manager is not None:
             self.scanner_names: Sequence[str] = [
                 self.scanner_name_pattern.format(i + 1) for i
-                in range(self.power_manager.number_of_sockets)
+                in range(power_manager.number_of_sockets)
             ]
         else:
-            self.scanner_names: Sequence[str] = []
+            self.scanner_names = []
 
         self.scan_program: str = scan_program
         self.scan_program_version_flag: str = scan_program_version_flag

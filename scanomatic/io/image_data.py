@@ -29,6 +29,8 @@ class ImageData(object):
         image_model: CompileImageAnalysisModel,
         features,
     ):
+        if image_model.image is None:
+            raise ValueError("Need an image to write!")
         return ImageData._write_image(
             analysis_model.output_directory,
             image_model.image.index,
@@ -53,7 +55,7 @@ class ImageData(object):
 
         if features is None:
             ImageData._LOGGER.warning(f"Image {image_index} had no data")
-            return
+            return False
 
         number_of_plates = features.shape[0]
         plates = [None] * number_of_plates
@@ -121,6 +123,9 @@ class ImageData(object):
         overwrite,
     ):
         global _SECONDS_PER_HOUR
+        image = image_model.image
+        if image is None:
+            raise ValueError("Need an image to write times!")
 
         if not overwrite:
             current_data = ImageData.read_times(
@@ -129,15 +134,13 @@ class ImageData(object):
         else:
             current_data = np.array([], dtype=float)
 
-        if not (image_model.image.index < current_data.size):
+        if not (image.index < current_data.size):
             current_data = np.r_[
                 current_data,
-                [None] * (1 + image_model.image.index - current_data.size)
+                [None] * (1 + image.index - current_data.size)
             ].astype(float)
 
-        current_data[image_model.image.index] = (
-            image_model.image.time_stamp / _SECONDS_PER_HOUR
-        )
+        current_data[image.index] = image.time_stamp / _SECONDS_PER_HOUR
         np.save(
             os.path.join(*ImageData.directory_path_to_data_path_tuple(
                 analysis_model.output_directory,

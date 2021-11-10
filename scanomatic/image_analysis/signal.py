@@ -8,8 +8,11 @@ _logger = Logger("Resource Signal")
 
 def get_higher_second_half_order_according_to_first(first, *others):
     if (
-        len(first)
-        and np.mean(first[:len(first)/2]) > np.mean(first[len(first)/2:])
+        len(first) > 0
+        and (
+            np.mean(first[:len(first) // 2])
+            > np.mean(first[len(first) // 2:])
+        )
     ):
         first = first[::-1]
         others = tuple(other[::-1] for other in others)
@@ -412,11 +415,12 @@ def get_center_of_spikes(spikes):
 
     for pos in range(up_spikes.size):
         if t_zone:
+            assert isinstance(t_low, int)
             if up_spikes[pos] is False or pos == up_spikes.size - 1:
                 if pos == up_spikes.size - 1:
                     pos += 1
                 up_spikes[t_low: pos] = False
-                up_spikes[t_low + (t_low - pos) / 2] = True
+                up_spikes[t_low + (t_low - pos) // 2] = True
                 t_zone = False
         else:
             if up_spikes[pos] is True:

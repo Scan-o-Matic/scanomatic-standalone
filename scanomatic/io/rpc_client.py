@@ -90,7 +90,7 @@ class _ClientProxy(object):
                     )
                 )
 
-        elif key in self._allowedMethods():
+        elif key in self._allowedMethods() and self._client is not None:
             m = self._userIDdecorator(getattr(self._client, key))
             m.__doc__ = (
                 self._client.system.methodHelp(key) +

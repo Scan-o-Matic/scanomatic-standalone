@@ -303,7 +303,7 @@ def save_ccc(data) -> bool:
     except os.error:
         pass
 
-    with open(Paths().ccc_file_pattern.format(identifier), 'wb') as fh:
+    with open(Paths().ccc_file_pattern.format(identifier), 'w') as fh:
         json.dump(_encode_dict(data), fh)
 
     return True

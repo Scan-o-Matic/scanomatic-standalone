@@ -3,6 +3,7 @@ import http.client
 from collections import namedtuple
 from hashlib import sha256
 from io import StringIO
+from typing import Dict, Union
 
 import pytest
 import requests
@@ -17,9 +18,14 @@ def image():
 
 
 def get_number_of_images(scanomatic, project):
+    params: Dict[str, Union[str, int]] = {
+        'suffix': '.tiff',
+        'isDirectory': 0,
+        'checkHasAnalysis': 0,
+    }
     response = requests.get(
         scanomatic + '/api/tools/path/root/{}/'.format(project),
-        params={'suffix': '.tiff', 'isDirectory': 0, 'checkHasAnalysis': 0},
+        params=params,
     )
     suggestions = fnmatch.filter(response.json()['suggestions'], '*.tiff')
     return len(suggestions)

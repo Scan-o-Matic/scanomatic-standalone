@@ -2,6 +2,7 @@ import os
 import sys
 import time
 from logging import Logger
+from typing import List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
@@ -125,7 +126,7 @@ def get_pinning_matrices(query, sep=':'):
     }
 
     plate_strings = query.split(sep)
-    plates = len(plate_strings) * [None]
+    plates: List[Optional[Tuple[int, int]]] = len(plate_strings) * [None]
 
     for i, p in enumerate(plate_strings):
 
@@ -162,14 +163,13 @@ def print_progress_bar(fraction=0.0, size=40, start_time=None):
     perc_l = len(perc_str)
 
     prog_str = (
-        prog_str[:prog_l / 2 - perc_l / 2]
+        prog_str[:prog_l // 2 - perc_l // 2]
         + perc_str
-        + prog_str[prog_l / 2 + perc_l:]
+        + prog_str[prog_l // 2 + perc_l:]
     )
     print("\r{0}".format(prog_str), end=' ')
 
     if start_time is not None:
-
         elapsed = time.time() - start_time
         eta = elapsed / fraction + start_time
         print(" ETA: {0}".format(time.asctime(time.localtime(eta))), end=' ')
@@ -262,7 +262,8 @@ class Watch_Graph:
         np.save("{0}.npy".format(self._path), self._data)
 
     def _save_image(self):
-
+        if self._bigIM is None:
+            raise ValueError("Trying to save image before building it")
         img = Image.fromarray(
             np.clip(
                 self._bigIM / self._bigIM.max() * 255,
@@ -286,17 +287,19 @@ class Watch_Graph:
         np.save(self._path + "HistBins.npy", self._histogramBins)
 
     def _build_image(self):
-
+        data = self._data
+        if data is None:
+            raise ValueError("Cannot build image without data!")
         padding = 2
-        vPadding = np.zeros((self._data.shape[self.IM_HEIGHT], padding))
+        vPadding = np.zeros((data.shape[self.IM_HEIGHT], padding))
         hPadding = np.zeros((
             padding,
-            2 * self._data.shape[self.IM_WIDTH] + padding,
+            2 * data.shape[self.IM_WIDTH] + padding,
         ))
 
-        for imageIndex in range(self._data.shape[self.IMAGES]):
-            A = self._data[imageIndex][0]
-            B = self._data[imageIndex][1]
+        for imageIndex in range(data.shape[self.IMAGES]):
+            A = data[imageIndex][0]
+            B = data[imageIndex][1]
 
             if A.max() > 0:
                 A = A / float(A.max()) * 255

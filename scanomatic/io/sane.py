@@ -7,6 +7,7 @@ from enum import Enum
 from itertools import chain
 from logging import Logger
 from subprocess import PIPE, Popen
+from typing import Any, Dict, Optional
 
 from scanomatic.io.paths import Paths
 
@@ -286,7 +287,7 @@ class SaneBase(object):
             self._logger.info("Updated scanner model to {0}".format(model))
 
     @classmethod
-    def _get_model(cls, model, logger):
+    def _get_model(cls, model: str, logger) -> Optional[str]:
         model = model.upper()
 
         if model not in SaneBase._SETTINGS_REPOSITORY:
@@ -308,7 +309,7 @@ class SaneBase(object):
         return model
 
     @classmethod
-    def _get_mode(cls, scan_mode, model, logger) -> SCAN_MODES:
+    def _get_mode(cls, scan_mode, model, logger) -> Optional[SCAN_MODES]:
         if not model:
             return None
 
@@ -403,7 +404,11 @@ class SaneBase(object):
         default_word = SaneBase._SETTINGS_REPOSITORY[self._model][
             SCANNER_DATA.DefaultTransparencyWord
         ]
-        if self._scan_mode.is_tpu() and not self._verified_settings:
+        if (
+            self._scan_mode is not None
+            and self._scan_mode.is_tpu()
+            and not self._verified_settings
+        ):
             self._scan_settings[SCAN_FLAGS.Source] = (
                 self._name_for_transparency_mode
                 if self._name_for_transparency_mode else default_word
@@ -488,7 +493,7 @@ class SaneBase(object):
                 self._update_mode_source()
                 self._verified_settings = True
                 return True
-            elif self._scan_mode.is_tpu():
+            elif self._scan_mode is not None and self._scan_mode.is_tpu():
                 time.sleep(0.5)
             else:
                 self._verified_settings = True
@@ -525,7 +530,9 @@ class SaneBase(object):
                 try:
                     with open(filename, 'w') as im:
                         if scanner:
-                            preprend_settings = {SCAN_FLAGS.Device: scanner}
+                            preprend_settings: Optional[
+                                Dict[SCAN_FLAGS, Any]
+                            ] = {SCAN_FLAGS.Device: scanner}
                         else:
                             preprend_settings = None
 

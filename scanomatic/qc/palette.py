@@ -2,7 +2,7 @@ import random
 from itertools import permutations
 
 try:
-    from matplotlib import colors as mplColors
+    from matplotlib import colors as mplColors  # type: ignore
     MATPLOTLIB = True
 except ImportError:
     MATPLOTLIB = False

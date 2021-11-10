@@ -144,6 +144,8 @@ class ExcelLoader(DataLoader):
             self._load_sheet(doc.parse(n, header=None).fillna(value=''))
 
     def _load_sheet(self, df: pd.DataFrame):
+        if self._data is None:
+            raise AttributeError("ExcelLoader not properly initialized")
         self._data.append(df)
         self._entries.append(df.shape[0])
         self._columns.append(df.shape[1])
@@ -342,24 +344,24 @@ class MetaData2:
         self._loading_offset[-1] = (outer, inner)
 
     def _has_matching_headers(self, headers):
-        if self._headers[self._loading_plate] is None:
+        loading_plate = self._headers[self._loading_plate]
+        if loading_plate is None:
             return True
-        elif len(self._headers[self._loading_plate]) != len(headers):
+        elif len(loading_plate) != len(headers):
             return False
-        elif all(h is None for h in self._headers[self._loading_plate]):
+        elif all(h is None for h in loading_plate):
             return True
         else:
             return all(
-                a == b for a, b in
-                zip(self._headers[self._loading_plate], headers)
+                a == b for a, b in zip(loading_plate, headers)
             )
 
     def _update_headers_if_needed(self, headers):
+        loading_plate = self._headers[self._loading_plate]
         if (
-            self._headers[self._loading_plate] is None or
-            all(h is None for h in self._headers[self._loading_plate])
+            loading_plate is None
+            or all(h is None for h in loading_plate)
         ):
-
             self._headers[self._loading_plate] = headers
 
     def _update_meta_data(self, loader):
@@ -374,7 +376,6 @@ class MetaData2:
             :rtype : iter
         """
         def coord_lister(outer, inner, max_outer, max_inner):
-
             yield outer, inner
             inner += factor
             if inner >= max_inner:
@@ -382,12 +383,13 @@ class MetaData2:
                 outer += factor
                 if outer >= max_outer:
                     outer %= max_outer
-
+        data_loading_plate: np.ndarray = self._data[self._loading_plate]
+        loading_plate: np.ndarray = self._plate_shapes[self._loading_plate]
         factor = np.log2(
-            self._data[self._loading_plate].size /
+            data_loading_plate.size /
             (
                 loader.rows - loader.sheet_is_valid_with_headers(
-                    np.prod(self._plate_shapes[self._loading_plate]),
+                    np.prod(loading_plate),
                 )
             )
         )
@@ -398,8 +400,8 @@ class MetaData2:
         elif factor == 0:
             # Full plate
             return zip(*np.unravel_index(
-                np.arange(self._data[self._loading_plate].size),
-                self._plate_shapes[self._loading_plate],
+                np.arange(data_loading_plate.size),
+                loading_plate,
             ))
 
         else:
@@ -420,7 +422,7 @@ class MetaData2:
             )
 
             factor = 2 ** len(self._loading_offset)
-            max_outer, max_inner = self._plate_shapes[self._loading_plate]
+            max_outer, max_inner = loading_plate
 
             return coord_lister(outer, inner, max_outer, max_inner)
 

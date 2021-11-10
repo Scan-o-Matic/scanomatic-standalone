@@ -119,17 +119,15 @@ def get_active_branch(path) -> Optional[str]:
         branch = _manual_git_branch_test()
     else:
         branch = "master"
-        for line in o.split("\n"):
-            if line.startswith("*"):
-                branch = line.strip("* ")
+        for line in o.split(b"\n"):
+            if line.startswith(b"*"):
+                branch = line.strip(b"* ").encode()
                 break
-
     return branch
 
 
 @_git_root_navigator
 def git_pull(path):
-
     # TODO: Needs smart handling of pull to not lock etc.
     """
     try:

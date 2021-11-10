@@ -25,10 +25,12 @@ class FeaturesFactory(AbstractModelFactory):
 
         analysis_directory = model.analysis_directory.rstrip("/")
         if (
-            os.path.abspath(analysis_directory) == analysis_directory and
-            os.path.isdir(model.analysis_directory)
+            os.path.abspath(analysis_directory) == analysis_directory
+            and os.path.isdir(model.analysis_directory)
         ):
             return True
+        if model.FIELD_TYPES is None:
+            raise ValueError("Model not initialized properly")
         return model.FIELD_TYPES.analysis_directory
 
     @classmethod

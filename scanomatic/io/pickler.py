@@ -1,6 +1,7 @@
-from pickle import UnpicklingError, Unpickler, load
-from io import StringIO
 import os
+from pickle import UnpicklingError, Unpickler, load
+from io import BytesIO
+from typing import IO
 
 
 def unpickle(path: str):
@@ -18,7 +19,7 @@ def unpickles(data: str):
         raise ImportError
     except (ImportError, UnpicklingError):
         version_compatibility = _RefactoringPhases()
-        io_buffer = SafeStringIO(data, version_compatibility)
+        io_buffer = SafeBytesIO(data, version_compatibility)
         version_compatibility.io = io_buffer
         return Unpickler(io_buffer).load()
 
@@ -49,7 +50,6 @@ def unpickle_with_unpickler(unpickler, path, *args, **kwargs):
 
     Returns: Unpickled object
     """
-
     return unpickler(safe_load(path), *args, **kwargs)
 
 
@@ -64,12 +64,12 @@ class _RefactoringPhases:
         Args:
             line (str): A pickled line
         """
+        if not isinstance(self.io, IO):
+            raise AttributeError("Attribute 'io' not initialized properly")
         if self._next is None:
-
             if line.endswith(
                 "scanomatic.data_processing.curve_phase_phenotypes",
             ):
-
                 tell = self.io.tell()
                 _next = self.io.readline()
                 self.io.seek(tell)
@@ -94,7 +94,6 @@ class _RefactoringPhases:
                         line[:-49]
                         + "scanomatic.data_processing.phases.features"
                     )
-
             return line
         else:
             ret = self._next
@@ -102,30 +101,9 @@ class _RefactoringPhases:
             return ret
 
 
-class SafeFileObject:
-    def __init__(self, name, *validation_functions):
-        self._file = open(name, mode='rb')
-        self._validation_functions = validation_functions
-
-    def readline(self):
-        line = self._file.readline(self).rstrip("\r\n")
-        for validation_func in self._validation_functions:
-            line = validation_func(line)
-        return line
-
-    def readlines(self):
-        def yielder():
-            size = os.fstat(self.fileno()).st_size
-            while size != self.tell():
-                yield self.readline()
-
-        return [line for line in yielder()]
-
-
 class SafeProxyFileObject(object):
 
     def __init__(self, name, *validation_functions):
-
         self.__dict__["__file"] = open(name, mode='rb')
         self.__dict__["__validation_functions"] = validation_functions
 
@@ -133,42 +111,33 @@ class SafeProxyFileObject(object):
         line = self.__dict__['__file'].readline().rstrip("\r\n")
         for validation_func in self.__dict__['__validation_functions']:
             line = validation_func(line)
-
         return line + "\n"
 
     def readlines(self):
-
         def yielder():
             size = os.fstat(self.fileno()).st_size
             while size != self.tell():
                 yield self.readline()
-
         return [line for line in yielder()]
 
     def __getattr__(self, item):
-
         return getattr(self.__dict__['__file'], item)
 
 
-class SafeStringIO(StringIO):
+class SafeBytesIO(BytesIO):
 
     def __init__(self, data, *validation_functions):
-
-        StringIO.__init__(self, data)
+        super(SafeBytesIO, self).__init__(data)
         self._validation_functions = validation_functions
 
     def readline(self):
 
-        line = StringIO.readline(self).rstrip("\r\n")
         for validation_func in self._validation_functions:
-            line = validation_func(line)
+            line: bytes = validation_func(line)
         return line
 
     def readlines(self):
-
         def yielder():
-
             while self.len != self.pos:
                 yield self.readline()
-
         return [line for line in yielder()]

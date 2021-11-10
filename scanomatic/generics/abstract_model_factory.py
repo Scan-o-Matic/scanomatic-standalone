@@ -9,7 +9,7 @@ from enum import Enum
 from logging import Logger
 from numbers import Real
 from types import GeneratorType
-from typing import Dict, Generator, Union
+from typing import Any, Dict, Generator, Optional, Union
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.generics.model import Model
@@ -144,9 +144,9 @@ class AbstractModelFactory:
     MODEL = Model
 
     _LOGGER = None
-    _SUB_FACTORIES = dict()
+    _SUB_FACTORIES: Dict[Model, "AbstractModelFactory"] = dict()
     STORE_SECTION_HEAD = ""
-    STORE_SECTION_SERIALIZERS = dict()
+    STORE_SECTION_SERIALIZERS: Dict[str, Any] = dict()
 
     def __new__(cls, *args):
         raise Exception("This class is static, can't be instantiated")
@@ -170,7 +170,7 @@ class AbstractModelFactory:
         return cls.MODEL()
 
     @classmethod
-    def get_sub_factory(cls, model):
+    def get_sub_factory(cls, model: Model):
         model_type = type(model)
         if model_type not in cls._SUB_FACTORIES:
             cls.logger.warning(
@@ -634,7 +634,7 @@ class _SectionsLink:
         return _SectionsLink._LINKS[model]
 
     @staticmethod
-    def clear_links(config_parser) -> "LinkerConfigParser":
+    def clear_links(config_parser) -> None:
         for link in _SectionsLink._CONFIGS[config_parser.id]:
             for m, l in list(_SectionsLink._LINKS.items()):
                 if link is l:
@@ -653,7 +653,7 @@ class _SectionsLink:
         return model in _SectionsLink._LINKS
 
     @property
-    def config_parser(self) -> ConfigParser:
+    def config_parser(self) -> Optional[ConfigParser]:
         try:
             return next(
                 (
@@ -701,7 +701,7 @@ class _SectionsLink:
         section_name: str,
     ):
         section = "{0}{1}"
-        enumerator = ''
+        enumerator: Optional[int] = None
         my_section = section_name
         sections = set(
             s.section if hasattr(s, 'section') else s
@@ -711,10 +711,10 @@ class _SectionsLink:
         while my_section in sections:
             my_section = section.format(
                 section_name,
-                " #{0}".format(enumerator) if enumerator else enumerator
+                " #{0}".format(enumerator) if enumerator is not None else ''
             )
             if my_section in sections:
-                if enumerator:
+                if enumerator is not None:
                     enumerator += 1
                 else:
                     enumerator = 2
