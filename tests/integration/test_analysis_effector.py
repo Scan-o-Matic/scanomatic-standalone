@@ -31,6 +31,7 @@ def proj1_analysis(proj1, tmpdir):
         chain=False,
     )
     assert AnalysisModelFactory.validate(analysis_model)
+    analysis_model.output_directory = str(workdir.join('analysis'))
     job = RPC_Job_Model_Factory.create(id='135', content_model=analysis_model)
     assert RPC_Job_Model_Factory.validate(job)
     return namedtuple('proj1_analysis', 'job, workdir')(job, workdir)
