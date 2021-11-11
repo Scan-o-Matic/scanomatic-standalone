@@ -575,7 +575,7 @@ class Blob(CellItem):
 
             sqrt_of_oldsum = self.old_filter.sum() ** 0.5
 
-            if blob_diff / float(sqrt_of_oldsum) > max_change_threshold:
+            if blob_diff / sqrt_of_oldsum > max_change_threshold:
 
                 bad_diff = False
 
@@ -650,7 +650,7 @@ class Blob(CellItem):
 
                     blob_diff = diff_filter.sum()
 
-                    if blob_diff / float(sqrt_of_oldsum) > max_change_threshold:
+                    if blob_diff / sqrt_of_oldsum > max_change_threshold:
 
                         bad_diff = True
 

@@ -300,7 +300,7 @@ def plot_phase_correlation_dendrogram(
 
     f.legend(
         [
-            proxy_line(cmap(i / float(len(phase_labels))))
+            proxy_line(cmap(i / len(phase_labels)))
             for i in range(len(phase_labels))
         ],
         ["" for _ in range(len(phase_labels))],
@@ -318,7 +318,7 @@ def plot_phase_correlation_dendrogram(
 
     f.legend(
         [
-            proxy_line(cmap(p.value / float(len(CurvePhases))))
+            proxy_line(cmap(p.value / len(CurvePhases)))
             for p in CurvePhases
         ],
         [re.sub(r'([a-z])([A-Z])', r'\1 \2', p.name) for p in CurvePhases],
@@ -339,7 +339,7 @@ def plot_phase_correlation_dendrogram(
 
     f.legend(
         [
-            proxy_line(cmap(p.value / float(len(CurvePhasePhenotypes))))
+            proxy_line(cmap(p.value / len(CurvePhasePhenotypes)))
             for p in CurvePhasePhenotypes
         ],
         [
@@ -1406,7 +1406,7 @@ def plot_phase_segmentation_in_steps(
 
     legend_space = 2
     cols = int(np.ceil(np.sqrt(plots + legend_space)))
-    rows = int(np.ceil(float(plots + legend_space) / cols))
+    rows = int(np.ceil((plots + legend_space) / cols))
 
     for i in range(plots):
         ax = f.add_subplot(rows, cols, i + 1)

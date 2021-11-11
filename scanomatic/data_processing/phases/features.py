@@ -921,7 +921,7 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
         else:
             return min(
                 (abs(v) for v in (phase_anchor - end, phase_anchor - start))
-            ) / float(end - start)
+            ) / (end - start)
 
     end_time = phenotypes.times.max()
     plate_data = phenotypes.state.vector_phenotypes[plate][

@@ -47,7 +47,7 @@ def get(N: int, **kwargs):
 
         summary = sum([v ** 2 for v in kwargs['base'][:3]]) ** 0.5
         cV = [v / summary for v in kwargs['base'][:3]]
-        maxV = float(max(cV))
+        maxV = max(cV)
         cV = [v / maxV for v in cV]
         n = 0
 

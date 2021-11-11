@@ -342,7 +342,7 @@ def get_true_signal(
         ideal_peaks = (np.arange(n) + start_peak) * frequency + offset
 
         for pos in range(n):
-            distances = (m_array - float(ideal_peaks[pos])) ** 2
+            distances = (m_array - ideal_peaks[pos]) ** 2
             closest = distances.argmin()
 
             if (
@@ -395,7 +395,7 @@ def get_true_signal(
 
     for pos in range(len(ideal_signal)):
         best_measure = float(
-            m_array[((m_array - float(ideal_signal[pos])) ** 2).argmin()],
+            m_array[((m_array - ideal_signal[pos]) ** 2).argmin()],
         )
         if (ideal_signal - best_measure).argmin() == pos:
             if (ideal_signal[pos] - best_measure) ** 2 < quality_threshold:

@@ -86,9 +86,9 @@ class FixtureImage:
             if len(self._img.shape) > 2:
                 self._img = self._img[:, :, 0]
 
-    def load_other_size(self, path=None, conversion_factor=1.0):
+    def load_other_size(self, path=None, conversion_factor: float = 1.0):
 
-        self._conversion_factor = float(conversion_factor)
+        self._conversion_factor = conversion_factor
 
         if path is None:
             path = self._path

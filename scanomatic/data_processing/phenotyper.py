@@ -2046,7 +2046,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
         filt = np.array(filt.values())
         return (
-            (np.sum(filt, axis=0) / float(filt.shape[0]) > threshold)
+            (np.sum(filt, axis=0) / filt.shape[0] > threshold)
             | np.any(
                 (filt == Filter.NoGrowth.value) | (filt == Filter.Empty.value),
                 axis=0,

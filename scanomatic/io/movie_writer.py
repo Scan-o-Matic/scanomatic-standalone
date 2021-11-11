@@ -111,7 +111,7 @@ class MovieWriter:
                             print(
                                 "Frame {0} (Movie length = {1:.2f}s, Processing for {2:.2f}s".format(  # noqa: E501
                                     frame + 1,
-                                    frame / float(self._fps),
+                                    frame / self._fps,
                                     time.time() - start_time,
                                 )
                             )

@@ -27,7 +27,7 @@ def get_adaptive_threshold(
         segmented_image[im.shape[0] * 3 / 4, im.shape[1] * 3 / 4] = 1
         segmented_image[im.shape[0] / 2, im.shape[1] / 2] = 1
     else:
-        p = 1 - float(segments) / im.size
+        p = 1 - segments / im.size
         segmented_image = (np.random.random(im.shape) > p).astype(np.uint8)
 
     labled, labels = _get_sectioned_image(segmented_image)
@@ -140,7 +140,7 @@ _DEVIATION_FROM_SQUARE_TOLERANCE = 0.25
 def is_almost_square(feature_slice):
     global _DEVIATION_FROM_SQUARE_TOLERANCE
     return (
-        abs(1 - float(feature_slice.shape[0]) / feature_slice.shape[1])
+        abs(1 - feature_slice.shape[0] / feature_slice.shape[1])
         > _DEVIATION_FROM_SQUARE_TOLERANCE
     )
 
@@ -542,8 +542,7 @@ def get_grid(
     del adaptive_threshold
 
     if expected_spacing is None:
-        expected_spacing = tuple(
-            float(a) / b for a, b in zip(im.shape, grid_shape))
+        expected_spacing = tuple(a / b for a, b in zip(im.shape, grid_shape))
 
     get_segments_by_size(
         im_filtered,

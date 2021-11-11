@@ -65,7 +65,7 @@ def Quick_Scale_To_im(
             return -1
 
     if scale is None:
-        scale = target_dpi / float(source_dpi)
+        scale = target_dpi / source_dpi
 
     small_im = zoom(im, scale, order=1)
     return small_im

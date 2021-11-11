@@ -33,13 +33,13 @@ _logger = Logger("Analyze Grayscale")
 
 def get_ortho_trimmed_slice(im, grayscale):
     half_width = grayscale['width'] / 2
-    im_scaled = im / float(im.max()) - 0.5
+    im_scaled = im / im.max() - 0.5
     kernel = np.array(grayscale['targets']).repeat(grayscale['length'])
     kernel = kernel.reshape((kernel.size, 1))
     if kernel.size > im.shape[0]:
         return np.array([])
 
-    kernel_scaled = kernel / float(kernel.max()) - 0.5
+    kernel_scaled = kernel / kernel.max() - 0.5
     detection = np.abs(convolve2d(im_scaled, kernel_scaled, mode="valid"))
     peak = gaussian_filter1d(np.max(detection, axis=0), half_width).argmax()
 
@@ -98,7 +98,7 @@ def get_para_trimmed_slice(
     placement_accuracy = 0
     in_section = False
     section_start = 0
-    length = float(grayscale['sections'] * grayscale['length'])
+    length = grayscale['sections'] * grayscale['length']
 
     for i, val in enumerate(permissible_positions):
         if in_section and not val:
@@ -254,7 +254,7 @@ def detect_grayscale(im_trimmed, grayscale):
         )
 
     # FOUND GS-SEGMENT DIFFERENCE TO EXPECTED SIZE
-    expected_strip_size = float(grayscale['length'] * grayscale['sections'])
+    expected_strip_size = grayscale['length'] * grayscale['sections']
 
     gs_l_diff = abs(1 - para_signal_trimmed_im.size / expected_strip_size)
 
@@ -281,7 +281,7 @@ def detect_grayscale(im_trimmed, grayscale):
         # THEN THE SECTIONING PROBABLY IS A GOOD ESTIMATE FOR THE GS
         # IF SPIKES MATCHES MOST OF THE EXPECTED EDGES
         if ((np.isfinite(deltas).sum() - np.isnan(deltas[0]) -
-                np.isnan(deltas[-1])) / float(grayscale['sections']) >
+                np.isnan(deltas[-1])) / grayscale['sections'] >
                 NEW_GS_ALG_SPIKES_FRACTION):
 
             if DEBUG_DETECTION:

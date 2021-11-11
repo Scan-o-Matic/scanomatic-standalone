@@ -122,7 +122,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if total > 0 and self._current_image_model:
             return (
                 total - self.current_image_index + initiation_weight
-            ) / float(total + initiation_weight)
+            ) / (total + initiation_weight)
 
         return 0.0
 

@@ -302,7 +302,7 @@ class Watch_Graph:
             B = data[imageIndex][1]
 
             if A.max() > 0:
-                A = A / float(A.max()) * 255
+                A = A / A.max() * 255
 
             curImage = np.c_[A, vPadding, (B * 255).astype(int)]
 

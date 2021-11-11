@@ -100,10 +100,10 @@ def loadCSV2Numpy(
     step = measure.step is None and 1 or measure.step
 
     if np.sign(start) == np.sign(stop):
-        measures = abs(int(np.ceil((stop - start) / float(step))))
+        measures = abs(int(np.ceil((stop - start) / step)))
     else:
         measures = abs(int(np.ceil(
-            (stop - (rowLength + start)) / float(step),
+            (stop - (rowLength + start)) / step,
         )))
 
     for plateI in range(nPlate):

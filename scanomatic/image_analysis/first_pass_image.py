@@ -27,7 +27,7 @@ def get_image_scale(im):
     if im is not None:
 
         scale_d1, scale_d2 = [
-            im.shape[i] / float(FixtureImage.EXPECTED_IM_SIZE[i])
+            im.shape[i] / FixtureImage.EXPECTED_IM_SIZE[i]
             for i in range(2)
         ]
         if abs(scale_d1 - scale_d2) < small_error:
@@ -96,7 +96,7 @@ class FixtureImage:
 
     def get_dpi_factor_to_target(self, target_scale):
 
-        return target_scale / float(self._original_dpi)
+        return target_scale / self._original_dpi
 
     @staticmethod
     def coordinate_to_original_dpi(coordinate, as_ints=False, scale=1.0):
@@ -150,7 +150,7 @@ class FixtureImage:
 
     def guess_dpi(self):
         dpi = (
-            (a / float(b)) * self.EXPECTED_IM_DPI
+            (a / b) * self.EXPECTED_IM_DPI
             for a, b in zip(self.im.shape, self.EXPECTED_IM_SIZE)
         )
         if dpi:

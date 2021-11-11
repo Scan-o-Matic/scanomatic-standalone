@@ -807,7 +807,7 @@ def classify_non_linear_segment_type(
         # based on the location of the steepest slope
         steepest_loc = np.abs(model.dydt[filt]).argmax()
         test_edge = (
-            PhaseEdge.Left if steepest_loc / float(filt.sum()) < 0.5
+            PhaseEdge.Left if steepest_loc / filt.sum() < 0.5
             else PhaseEdge.Right
         )
 

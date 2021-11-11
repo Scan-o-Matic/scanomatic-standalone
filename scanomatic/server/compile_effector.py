@@ -73,9 +73,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
     @property
     def progress(self) -> float:
         if self._compile_job.images:
-            return self._image_to_analyse / float(len(
-                self._compile_job.images,
-            ))
+            return self._image_to_analyse / len(self._compile_job.images)
         return 0
 
     def setup(self, job):

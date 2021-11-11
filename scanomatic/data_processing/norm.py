@@ -639,7 +639,7 @@ def apply_outlier_filter(
                     or z_scores[pos] > k * sigma / np.exp(
                         -(
                             np.isfinite(plate_ravel).sum()
-                            / float(plate_ravel.size)
+                            / plate_ravel.size
                         ) ** p
                     )
                 ):

@@ -379,8 +379,8 @@ def animate_example_curves(
             data[i][0][0, 0],
             marker=_marker_sequence[i],
             basey=2,
-            color=cmap(i/float(data_sets)),
-            mec=cmap(i/float(data_sets)),
+            color=cmap(i/data_sets),
+            mec=cmap(i/data_sets),
             **kwargs,
         )[0]
         curves.append(curve)
