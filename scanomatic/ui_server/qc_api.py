@@ -7,7 +7,7 @@ from enum import Enum
 from glob import glob
 from itertools import chain, product
 from subprocess import call
-from typing import Any 
+from typing import Any
 
 from dateutil import tz
 from flask import jsonify, request, send_from_directory

@@ -1,4 +1,5 @@
-from typing import Sequence 
+from typing import Sequence
+
 import numpy as np
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
