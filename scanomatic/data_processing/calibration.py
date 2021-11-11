@@ -1,8 +1,8 @@
 import re
-from collections import namedtuple
+from collections import namedtuple, Callable
 from enum import Enum
 from logging import Logger
-from typing import Any, Callable, Union
+from typing import Any, Union
 from uuid import uuid1
 
 import numpy as np

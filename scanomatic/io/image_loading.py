@@ -1,7 +1,8 @@
 import glob
 import os
 from logging import Logger
-from typing import Optional, Sequence
+from typing import Optional
+from collections import Sequence
 
 import numpy as np
 

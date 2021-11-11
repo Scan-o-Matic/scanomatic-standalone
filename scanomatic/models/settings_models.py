@@ -1,4 +1,5 @@
-from typing import Optional, Sequence
+from typing import Optional
+from collections import Sequence
 from uuid import uuid1
 
 import scanomatic.generics.model as model

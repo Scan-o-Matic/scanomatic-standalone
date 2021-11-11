@@ -1,4 +1,6 @@
-from typing import Optional, Sequence
+from typing import Optional
+from collections import Sequence
+
 from scanomatic.generics import model
 
 

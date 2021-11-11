@@ -4,7 +4,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from logging import Logger
 from struct import unpack
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
+from collections import Sequence
 
 import requests
 

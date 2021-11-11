@@ -4,7 +4,8 @@ import shutil
 from configparser import Error as ConfigError
 from enum import Enum
 from logging import Logger
-from typing import Mapping, Sequence
+from typing import Mapping
+from collections import Sequence
 
 import numpy as np
 from flask import jsonify, request, send_from_directory

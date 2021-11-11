@@ -2,7 +2,8 @@ import os
 from enum import Enum
 from glob import glob
 from logging import Logger
-from typing import Optional, Sequence
+from typing import Optional
+from collections import Sequence
 
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (

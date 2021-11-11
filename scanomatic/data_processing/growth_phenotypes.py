@@ -1,6 +1,7 @@
 from enum import Enum
 from logging import Logger
-from typing import Any, Sequence
+from typing import Any
+from collections import Sequence
 
 import numpy as np
 from scipy.optimize import leastsq  # type: ignore

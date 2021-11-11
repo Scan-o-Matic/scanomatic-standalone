@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
+from collections import Sequence
 
 import scanomatic
 import scanomatic.generics.model as model

@@ -1,6 +1,7 @@
 from enum import Enum
 from itertools import chain
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
+from collections import Sequence
 
 from scanomatic.data_processing.phases.features import (
     CurvePhaseMetaPhenotypes,

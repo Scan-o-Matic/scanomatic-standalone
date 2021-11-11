@@ -1,5 +1,6 @@
 import os
-from typing import Mapping, Sequence
+from typing import Mapping
+from collections import Sequence
 
 import scanomatic.models.analysis_model as analysis_model
 from scanomatic.data_processing.calibration import (

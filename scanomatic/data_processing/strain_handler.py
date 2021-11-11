@@ -1,5 +1,6 @@
 from logging import Logger
 from typing import Any, SupportsInt, Union
+from collections import Sequence
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
@@ -38,7 +39,11 @@ def loadCSV2Numpy(
             will be set to nan, else they will be zero of that data type
     """
 
-    def _putInData(d: dict[tuple[int, int], list], pos: SupportsInt, m):
+    def _putInData(
+        d: dict[tuple[int, int], list],
+        pos: Sequence[SupportsInt],
+        m,
+    ):
         plateI, xI, yI = list(map(int, pos))
         if plateI not in d:
             d[plateI] = {}

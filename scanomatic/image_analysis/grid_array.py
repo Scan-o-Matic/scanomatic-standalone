@@ -1,6 +1,7 @@
 import os
 from logging import Logger
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
+from collections import Sequence
 
 import numpy as np
 

@@ -1,11 +1,11 @@
 import csv
 import os
-from collections import deque
+from collections import deque, Callable
 from enum import Enum
 from io import StringIO
 from itertools import chain, product
 from logging import Logger
-from typing import Any, Callable, Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from scipy.ndimage import median_filter  # type: ignore

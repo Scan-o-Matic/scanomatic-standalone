@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Literal, Optional, Sequence
+from typing import Literal, Optional
+from collections import Sequence
 
 import numpy as np
 from scipy.interpolate import griddata  # type: ignore

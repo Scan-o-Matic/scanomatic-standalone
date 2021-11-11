@@ -126,7 +126,7 @@ def get_perfect_frequency(
 def get_perfect_frequency2(
     best_measures: SpikesArray,
     guess_frequency: float,
-    tolerance=0.15,
+    tolerance: float = 0.15,
 ) -> float:
     where_measure = np.where(best_measures == True)[0]  # noqa: E712
     if where_measure.size < 1:
