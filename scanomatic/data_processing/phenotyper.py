@@ -5,7 +5,7 @@ from enum import Enum
 from io import StringIO
 from itertools import chain, product
 from logging import Logger
-from typing import Any, Callable, List, Optional, Union, Tuple
+from typing import Any, Callable, Optional, Union
 
 import numpy as np
 from scipy.ndimage import median_filter  # type: ignore
@@ -1482,7 +1482,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def generation_times(self):
         return self.get_phenotype(Phenotypes.GenerationTime)
 
-    def get_reference_median(self, phenotype) -> Tuple[float, ...]:
+    def get_reference_median(self, phenotype) -> tuple[float, ...]:
         """ Getting reference position medians per plate.
 
         Args:
@@ -1495,9 +1495,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         phenotype: Union[Phenotypes, CurvePhasePhenotypes],
         filtered: bool = True,
         norm_state: NormState = NormState.Absolute,
-        reference_values: Optional[Tuple[float, ...]] = None,
+        reference_values: Optional[tuple[float, ...]] = None,
         **kwargs,
-    ) -> List[Optional[Union[FilterArray, np.ndarray]]]:
+    ) -> list[Optional[Union[FilterArray, np.ndarray]]]:
         """Getting phenotype data
 
         Args:
@@ -1606,12 +1606,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def get_chapman_richards_data(
         self,
         plate: int,
-        position: Tuple[int, ...],
-    ) -> Tuple[
+        position: tuple[int, ...],
+    ) -> tuple[
         np.ndarray,
-        Optional[Tuple[Optional[float], Optional[float]]],
-        Optional[Tuple[np.ndarray, np.ndarray]],
-        Optional[Tuple],
+        Optional[tuple[Optional[float], Optional[float]]],
+        Optional[tuple[np.ndarray, np.ndarray]],
+        Optional[tuple],
     ]:
         """Get the chapman ritchard model information
 
@@ -2449,10 +2449,10 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     def for_each_call(
         self,
-        extra_keyword_args: Union[Tuple[dict, ...], dict] = tuple(),
+        extra_keyword_args: Union[tuple[dict, ...], dict] = tuple(),
         start_plate: Optional[int] = None,
-        start_pos: Optional[Tuple[int, int]] = None,
-        funcs: Tuple[Callable] = tuple(),
+        start_pos: Optional[tuple[int, int]] = None,
+        funcs: tuple[Callable] = tuple(),
     ):
         """For each log2_curve, the supplied functions are called.
 

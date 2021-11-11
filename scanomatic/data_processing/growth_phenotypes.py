@@ -1,6 +1,6 @@
 from enum import Enum
 from logging import Logger
-from typing import Any, Dict, Sequence
+from typing import Any, Sequence
 
 import numpy as np
 from scipy.optimize import leastsq  # type: ignore
@@ -44,7 +44,7 @@ def get_preprocessed_data_for_phenotypes(
     times_strided,
     index_for_48h,
     position_offset,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     curve_logged = np.log2(curve)
     derivative_values_log2, derivative_errors = get_derivative(
         curve_strided,

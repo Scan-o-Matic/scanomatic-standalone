@@ -73,7 +73,7 @@ import re
 from enum import Enum
 from glob import iglob
 from logging import Logger
-from typing import Any, Dict
+from typing import Any
 from uuid import uuid1
 
 from scanomatic.io.paths import Paths
@@ -133,7 +133,7 @@ def get_empty_ccc_entry(
     ccc_id,
     species,
     reference,
-) -> Dict[CellCountCalibration, Any]:
+) -> dict[CellCountCalibration, Any]:
     return {
         CellCountCalibration.identifier: ccc_id,
         CellCountCalibration.species: species,
@@ -145,7 +145,7 @@ def get_empty_ccc_entry(
     }
 
 
-def get_polynomal_entry(power, poly_coeffs) -> Dict[CCCPolynomial, Any]:
+def get_polynomal_entry(power, poly_coeffs) -> dict[CCCPolynomial, Any]:
     return {
         CCCPolynomial.power: power,
         CCCPolynomial.coefficients: poly_coeffs,
@@ -181,7 +181,7 @@ def _get_new_image_identifier(ccc) -> str:
     return "CalibIm_{0}".format(len(ccc[CellCountCalibration.images]))
 
 
-def get_empty_image_entry(ccc) -> Dict[CCCImage, Any]:
+def get_empty_image_entry(ccc) -> dict[CCCImage, Any]:
     return {
         CCCImage.identifier: _get_new_image_identifier(ccc),
         CCCImage.plates: {},
@@ -259,7 +259,7 @@ def _decode_val(v):
         return v
 
 
-def _decode_dict(d) -> Dict:
+def _decode_dict(d) -> dict:
     return {_decode_ccc_key(k): _decode_val(v) for k, v in d.items()}
 
 

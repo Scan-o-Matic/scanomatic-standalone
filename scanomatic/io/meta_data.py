@@ -1,6 +1,6 @@
 import csv
 from logging import Logger
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -23,7 +23,7 @@ class DataLoader:
         self._row_iterators = []
         self._columns = []
         self._sheet_names = []
-        self._headers: List[Optional[str]] = []
+        self._headers: list[Optional[str]] = []
 
     def _reset(self):
 
@@ -194,7 +194,7 @@ class MetaData2:
             for shape in plate_shapes
         )
 
-        self._headers: List[Optional[Tuple[int, int]]] = [
+        self._headers: list[Optional[tuple[int, int]]] = [
             None for _ in plate_shapes
         ]
         self._loading_plate = 0
@@ -241,7 +241,7 @@ class MetaData2:
                     data.append(self(id_plate, id_outer, id_inner)[index])
         return plates
 
-    def get_header_row(self, plate: int) -> List[str]:
+    def get_header_row(self, plate: int) -> list[str]:
         """
         Args:
             plate: Plate index

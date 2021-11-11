@@ -5,7 +5,7 @@ import zipfile
 from io import StringIO
 from logging import Logger
 from subprocess import PIPE, Popen, call
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 import requests
 
@@ -29,7 +29,7 @@ def _read_source_version(base_path) -> Optional[str]:
     return None
 
 
-def _load_source_information() -> Dict[str, Any]:
+def _load_source_information() -> dict[str, Any]:
     try:
         with open(Paths().source_location_file, 'r') as fh:
             return json.load(fh)
@@ -256,7 +256,7 @@ def git_version(
     return ""
 
 
-def parse_version(version: Optional[str] = get_version()) -> Tuple[int, ...]:
+def parse_version(version: Optional[str] = get_version()) -> tuple[int, ...]:
     if version is None:
         return 0, 0
 
@@ -315,7 +315,7 @@ def installed_is_newest_version(branch=None):
         return False
 
 
-def next_subversion(branch, current=None) -> Tuple[int, ...]:
+def next_subversion(branch, current=None) -> tuple[int, ...]:
     online_version = git_version(branch=branch)
     version = parse_version(
         highest_version(
@@ -326,7 +326,7 @@ def next_subversion(branch, current=None) -> Tuple[int, ...]:
     return increase_version(version)
 
 
-def increase_version(version) -> Tuple[int, ...]:
+def increase_version(version) -> tuple[int, ...]:
     version = list(version)
     if len(version) == 2:
         version += [1]
@@ -338,7 +338,7 @@ def increase_version(version) -> Tuple[int, ...]:
     return tuple(version)
 
 
-def get_minor_release_version(current_version) -> Tuple[int, ...]:
+def get_minor_release_version(current_version) -> tuple[int, ...]:
     current_version = list(current_version[:2])
     if len(current_version) == 0:
         return [0, 1]
@@ -349,7 +349,7 @@ def get_minor_release_version(current_version) -> Tuple[int, ...]:
         return current_version
 
 
-def get_major_release_version(current_version) -> Tuple[int, ...]:
+def get_major_release_version(current_version) -> tuple[int, ...]:
     current_version = list(current_version[:1])
     if len(current_version):
         return [current_version[0] + 1]

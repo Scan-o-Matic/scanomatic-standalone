@@ -1,7 +1,7 @@
 import glob
 import os
 from logging import Logger
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence
 
 import numpy as np
 
@@ -162,7 +162,7 @@ def load_colony_images_for_animation(
     position: Sequence[int],
     project_compilation: Optional[str] = None,
     positioning: str = "one-time",
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
 
     :param analysis_directory: path to analysis directory

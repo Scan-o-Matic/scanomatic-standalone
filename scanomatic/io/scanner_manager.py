@@ -2,7 +2,7 @@ import time
 from enum import Enum
 from logging import Logger
 from threading import Thread
-from typing import Dict, Union
+from typing import Union
 
 import psutil
 
@@ -67,8 +67,8 @@ class ScannerPowerManager(SingeltonOneInit):
                 for scanner in self._scanners.values()
             )
 
-    def _initiate_scanners(self) -> Dict[int, ScannerModel]:
-        scanners: Dict[int, ScannerModel] = {}
+    def _initiate_scanners(self) -> dict[int, ScannerModel]:
+        scanners: dict[int, ScannerModel] = {}
 
         # Load saved scanner data
         for scanner in ScannerFactory.serializer.load(
@@ -96,7 +96,7 @@ class ScannerPowerManager(SingeltonOneInit):
         for power_socket in range(self._conf.number_of_scanners):
             yield power_socket + 1
 
-    def _get_power_manager(self, scanners) -> Dict[int, PowerManagerNull]:
+    def _get_power_manager(self, scanners) -> dict[int, PowerManagerNull]:
         pm = {}
         for scanner in scanners.values():
 

@@ -1,5 +1,4 @@
 from logging import Logger
-from typing import Dict
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.io.fixtures import FixtureSettings
@@ -22,7 +21,7 @@ class MarkerDetectionFailed(Exception):
 def analyse(
     compile_image_model: CompileImageModel,
     fixture_settings: FixtureSettings,
-    issues: Dict,
+    issues: dict,
 ) -> CompileImageAnalysisModel:
     compile_analysis_model = CompileImageAnalysisFactory.create(
         image=compile_image_model,

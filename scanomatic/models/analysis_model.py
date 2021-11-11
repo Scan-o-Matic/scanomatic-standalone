@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional
 
 import scanomatic
 import scanomatic.generics.model as model
@@ -53,7 +53,7 @@ class AnalysisModel(model.Model):
     def __init__(
         self, compilation: str = "",
         compile_instructions: str = "",
-        pinning_matrices: Tuple[Tuple[int, int], ...] = (
+        pinning_matrices: tuple[tuple[int, int], ...] = (
             (32, 48), (32, 48), (32, 48), (32, 48)
         ),
         use_local_fixture: bool = False,
@@ -82,7 +82,7 @@ class AnalysisModel(model.Model):
         self.cell_count_calibration_id = cell_count_calibration_id
         self.compilation: str = compilation
         self.compile_instructions: str = compile_instructions
-        self.pinning_matrices: Tuple[Tuple[int, int], ...] = pinning_matrices
+        self.pinning_matrices: tuple[tuple[int, int], ...] = pinning_matrices
         self.use_local_fixture: bool = use_local_fixture
         self.email: str = email
         self.stop_at_image: int = stop_at_image

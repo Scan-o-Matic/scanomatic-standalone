@@ -1,6 +1,5 @@
 import os
 from logging import Logger
-from typing import Tuple
 
 import numpy as np
 from scipy.ndimage import center_of_mass  # type: ignore
@@ -117,7 +116,7 @@ class FixtureImage:
         conv_img,
         coordinates=None,
         gaussian_weight_size_fraction=2.0,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """
         Use half-size to select area and give each pixel the weight of the
         convolution result of that coordinate times the 2D gaussian value

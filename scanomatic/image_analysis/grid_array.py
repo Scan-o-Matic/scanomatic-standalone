@@ -1,6 +1,6 @@
 import os
 from logging import Logger
-from typing import Dict, Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 
@@ -109,7 +109,7 @@ def _create_grid_array_identifier(
     return identifier
 
 
-def _get_grid_to_im_axis_mapping(pm, im) -> Tuple[int, int]:
+def _get_grid_to_im_axis_mapping(pm, im) -> tuple[int, int]:
     pm_max_pos = int(max(pm) == pm[1])
     im_max_pos = int(max(im.shape) == im.shape[1])
 
@@ -129,7 +129,7 @@ class GridCellSizes:
     }
 
     @staticmethod
-    def get(item: Tuple):
+    def get(item: tuple):
         if not isinstance(item, tuple):
             GridCellSizes._LOGGER.error(
                 "Grid formats can only be tuples {0}".format(type(item)),
@@ -171,7 +171,7 @@ class GridArray:
 
         self._guess_grid_cell_size = None
         self._grid_cell_size = None
-        self._grid_cells: Dict[Tuple, GridCell] = {}
+        self._grid_cells: dict[tuple, GridCell] = {}
         self._grid = None
         self._valid_grid = False
         self._grid_cell_corners = None
@@ -183,7 +183,7 @@ class GridArray:
         )
         self._first_analysis = True
 
-    def __getitem__(self, item: Tuple) -> GridCell:
+    def __getitem__(self, item: tuple) -> GridCell:
         return self._grid_cells[item]
 
     @property

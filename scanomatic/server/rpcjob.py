@@ -3,7 +3,6 @@ from logging import Logger
 from multiprocessing import Process
 from threading import Thread
 from time import sleep
-from typing import Dict
 
 import psutil
 import setproctitle
@@ -31,7 +30,7 @@ class Fake:
         return self._parent_pipe
 
     @property
-    def status(self) -> Dict:
+    def status(self) -> dict:
         s = self.pipe.status
         if 'id' not in s:
             s['id'] = self._job.id

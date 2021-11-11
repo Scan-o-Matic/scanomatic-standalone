@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from scipy.ndimage import label  # type: ignore
@@ -60,7 +60,7 @@ def number_of_phenotypes(phase: CurvePhases) -> int:
         return 3
 
 
-def get_phenotypes_tuple(phase: CurvePhases) -> Tuple[CurvePhasePhenotypes]:
+def get_phenotypes_tuple(phase: CurvePhases) -> tuple[CurvePhasePhenotypes]:
     if is_detected_linear(phase):
         return (
             CurvePhasePhenotypes.Start,
@@ -268,7 +268,7 @@ def assign_non_linear_phase_phenotypes(
             )
 
 
-def _locate_segment(filt: np.ndarray) -> Tuple[Optional[int], Optional[int]]:
+def _locate_segment(filt: np.ndarray) -> tuple[Optional[int], Optional[int]]:
     """
     Args:
         filt: a boolean array

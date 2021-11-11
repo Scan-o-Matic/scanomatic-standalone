@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from logging import Logger
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from PIL import Image
@@ -126,7 +126,7 @@ def get_pinning_matrices(query, sep=':'):
     }
 
     plate_strings = query.split(sep)
-    plates: List[Optional[Tuple[int, int]]] = len(plate_strings) * [None]
+    plates: list[Optional[tuple[int, int]]] = len(plate_strings) * [None]
 
     for i, p in enumerate(plate_strings):
 

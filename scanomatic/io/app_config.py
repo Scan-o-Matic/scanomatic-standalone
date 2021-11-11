@@ -2,7 +2,7 @@ import os
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
-from typing import Dict, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 import scanomatic.models.scanning_model as scanning_model
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -34,28 +34,28 @@ class Config(SingeltonOneInit):
         self._use_local_rpc_settings = True
         self._minMaxModels = {
             scanning_model.ScanningModel: {
-                "min": dict(
-                    time_between_scans=7.0,
-                    number_of_scans=1,
-                    project_name=None,
-                    directory_containing_project=None,
-                    description=None,
-                    email=None,
-                    pinning_formats=None,
-                    fixture=None,
-                    scanner=1,
-                ),
-                "max": dict(
-                    time_between_scans=None,
-                    number_of_scans=999999,
-                    project_name=None,
-                    directory_containing_project=None,
-                    description=None,
-                    email=None,
-                    pinning_formats=None,
-                    fixture=None,
-                    scanner=1,
-                ),
+                "min": {
+                    "time_between_scans": 7.0,
+                    "number_of_scans": 1,
+                    "project_name": None,
+                    "directory_containing_project": None,
+                    "description": None,
+                    "email": None,
+                    "pinning_formats": None,
+                    "fixture": None,
+                    "scanner": 1,
+                },
+                "max": {
+                    "time_between_scans": None,
+                    "number_of_scans": 999999,
+                    "project_name": None,
+                    "directory_containing_project": None,
+                    "description": None,
+                    "email": None,
+                    "pinning_formats": None,
+                    "fixture": None,
+                    "scanner": 1,
+                },
             }
         }
         self.reload_settings()
@@ -141,11 +141,11 @@ class Config(SingeltonOneInit):
         return self._settings.scan_program_version_flag
 
     @property
-    def scanner_models(self) -> Dict[str, str]:
+    def scanner_models(self) -> dict[str, str]:
         return self._settings.scanner_models
 
     @property
-    def scanner_sockets(self) -> Dict[str, int]:
+    def scanner_sockets(self) -> dict[str, int]:
         return self._settings.scanner_sockets
 
     def model_copy(self) -> ApplicationSettingsModel:

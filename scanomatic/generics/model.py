@@ -1,6 +1,6 @@
 from enum import Enum
 from itertools import chain
-from typing import Any, Generator, Tuple
+from typing import Any, Generator
 
 
 class Model:
@@ -36,7 +36,7 @@ class Model:
 
         self._set_initialized()
 
-    def __iter__(self) -> Generator[Tuple[str, Any], None, None]:
+    def __iter__(self) -> Generator[tuple[str, Any], None, None]:
         for attr, value in self.__dict__.items():
             if not attr.startswith("_"):
                 yield attr, value

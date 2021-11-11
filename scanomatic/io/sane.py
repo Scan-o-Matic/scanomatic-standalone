@@ -7,7 +7,7 @@ from enum import Enum
 from itertools import chain
 from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from scanomatic.io.paths import Paths
 
@@ -531,7 +531,7 @@ class SaneBase(object):
                     with open(filename, 'w') as im:
                         if scanner:
                             preprend_settings: Optional[
-                                Dict[SCAN_FLAGS, Any]
+                                dict[SCAN_FLAGS, Any]
                             ] = {SCAN_FLAGS.Device: scanner}
                         else:
                             preprend_settings = None

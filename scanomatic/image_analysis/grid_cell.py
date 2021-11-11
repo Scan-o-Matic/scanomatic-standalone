@@ -4,7 +4,6 @@ grid-array with a potential blob at the center).
 """
 import os
 from logging import Logger
-from typing import Dict
 
 import numpy as np
 
@@ -39,7 +38,7 @@ class GridCell:
             index=tuple(self.position),
             data={},
         )
-        self._analysis_items: Dict[COMPARTMENTS, grid_cell_extra.CellItem] = {}
+        self._analysis_items: dict[COMPARTMENTS, grid_cell_extra.CellItem] = {}
         self._set_empty_analysis_items()
 
     def _set_empty_analysis_items(self):

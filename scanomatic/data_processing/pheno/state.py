@@ -1,7 +1,7 @@
 from collections import deque
 from dataclasses import dataclass, field
 from logging import Logger
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -23,9 +23,9 @@ from scanomatic.io.meta_data import MetaData2
 
 _logger = Logger("Phenotyper State")
 
-PlateByPhenotypeArrays = npt.NDArray[Optional[Dict[Phenotypes, npt.NDArray]]]
+PlateByPhenotypeArrays = npt.NDArray[Optional[dict[Phenotypes, npt.NDArray]]]
 PlateByCurveMetaPhenotypeArrays = npt.NDArray[
-    Optional[Dict[CurvePhaseMetaPhenotypes, npt.NDArray]]
+    Optional[dict[CurvePhaseMetaPhenotypes, npt.NDArray]]
 ]
 
 
@@ -43,7 +43,7 @@ class PhenotyperSettings:
             self.median_kernel_size % 2 == 1
         ), "Median kernel size must be odd"
 
-    def serialized(self) -> List[Union[str, int, float]]:
+    def serialized(self) -> list[Union[str, int, float]]:
         return [
             self.median_kernel_size,
             self.gaussian_filter_sigma,
@@ -67,8 +67,8 @@ class PhenotyperState:
     phenotype_filter: Optional[PlateByPhenotypeArrays] = field(
         default=None,
     )
-    phenotype_filter_undo: Optional[Tuple[deque, ...]] = field(default=None)
-    reference_surface_positions: List[Offsets] = field(default_factory=list)
+    phenotype_filter_undo: Optional[tuple[deque, ...]] = field(default=None)
+    reference_surface_positions: list[Offsets] = field(default_factory=list)
     smooth_growth_data: Optional[np.ndarray] = field(default=None)
     times_data: Optional[np.ndarray] = field(default=None)
     vector_meta_phenotypes: Optional[CurvePhaseMetaPhenotypes] = field(
@@ -95,7 +95,7 @@ class PhenotyperState:
             else:
                 yield plate.shape[:2]
 
-    def get_plate_shape(self, plate: int) -> Optional[Tuple[int, int]]:
+    def get_plate_shape(self, plate: int) -> Optional[tuple[int, int]]:
         plate_arr = self.raw_growth_data[plate]
         if plate_arr is None:
             return None
@@ -223,9 +223,9 @@ class PhenotyperState:
         phenotype: Union[Phenotypes, CurvePhasePhenotypes],
         filtered: bool = True,
         norm_state: NormState = NormState.Absolute,
-        reference_values: Optional[Tuple[float, ...]] = None,
+        reference_values: Optional[tuple[float, ...]] = None,
         **kwargs: Any,
-    ) -> List[Optional[Union[FilterArray, np.ndarray]]]:
+    ) -> list[Optional[Union[FilterArray, np.ndarray]]]:
         """Getting phenotype data
 
         Args:
@@ -410,7 +410,7 @@ class PhenotyperState:
         self,
         settings: PhenotyperSettings,
         phenotype: Union[Phenotypes, CurvePhasePhenotypes],
-    ) -> Tuple[float, ...]:
+    ) -> tuple[float, ...]:
         """ Getting reference position medians per plate."""
         plates = self.get_phenotype(
             settings,

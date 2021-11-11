@@ -1,5 +1,4 @@
-from typing import List, Sequence, Tuple
-
+from typing import Sequence 
 import numpy as np
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
@@ -14,7 +13,7 @@ def scan(plate_meta_data, column, value_function):
     return value_function(plate_meta_data[column])
 
 
-SelectionType = Sequence[Tuple[int, ...]]
+SelectionType = Sequence[tuple[int, ...]]
 
 
 class StrainSelector:
@@ -159,7 +158,7 @@ class StrainSelector:
             for i, s in enumerate(self.__selection)
         ]
 
-    def get_phenotype(self, phenotype, **kwargs) -> List[FilterArray]:
+    def get_phenotype(self, phenotype, **kwargs) -> list[FilterArray]:
         """Get the phenotypes for the sub-selection.
 
         For more information see `.pheno.state.PhenotyperState.get_phenotype`.

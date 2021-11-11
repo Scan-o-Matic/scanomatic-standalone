@@ -4,7 +4,6 @@ import time
 from inspect import ismethod
 from logging import Logger
 from threading import Thread
-from typing import Dict
 from multiprocessing.synchronize import RLock
 
 
@@ -53,7 +52,7 @@ def timeit(f):
     return timer
 
 
-_PATH_LOCK: Dict[str, RLock] = dict()
+_PATH_LOCK: dict[str, RLock] = {}
 
 
 def path_lock(f):

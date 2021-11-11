@@ -3,7 +3,6 @@ from logging import Logger
 from subprocess import call
 from threading import Thread
 from time import sleep
-from typing import Dict
 
 import numpy as np
 
@@ -26,7 +25,7 @@ from .image_grayscale import is_valid_grayscale
 
 
 def _get_init_features(
-    grid_arrays: Dict[int, grid_array.GridArray],
+    grid_arrays: dict[int, grid_array.GridArray],
 ) -> AnalysisFeatures:
     def length_needed(keys):
 
@@ -77,7 +76,7 @@ class ProjectImage:
         return self._grid_arrays[key]
 
     @property
-    def _new_grid_arrays(self) -> Dict[int, grid_array.GridArray]:
+    def _new_grid_arrays(self) -> dict[int, grid_array.GridArray]:
         grid_arrays = {}
 
         for index, pinning in enumerate(self._analysis_model.pinning_matrices):
@@ -313,11 +312,11 @@ class ProjectImage:
                     t = Thread(
                         target=self._grid_arrays[index].detect_grid,
                         args=(im,),
-                        kwargs=dict(
-                            analysis_directory=(
+                        kwargs={
+                            "analysis_directory": (
                                 self._analysis_model.output_directory
                             ),
-                        )
+                        },
                     )
                     t.start()
                     threads.add(t)

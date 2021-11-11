@@ -594,7 +594,7 @@ def get_closest_signal_pair(s1, s2, s1_value=-1, s2_value=1):
     s2_positions = np.where(s2 == s2_value)[0]
 
     # Match all
-    signals = list()
+    signals = []
     for p in s1_positions:
         tmp_diff = s2_positions - p
         tmp_diff = tmp_diff[tmp_diff > 0]
@@ -636,7 +636,7 @@ def get_signal_spikes(down_slopes, up_slopes):
 """
 def _get_closest(X, Y):
 
-    new_list = list()
+    new_list = []
     for i in ideal_signal:
         delta_i = np.abs(X - i)
         delta_reciprocal = np.abs(Y - X[delta_i.argmin()])
@@ -873,7 +873,7 @@ def get_grid_signal(raw_signal, expected_spikes):
     l = wl * expected_spikes
 
     # Evaluating all allowed offsets:
-    grid_scores = list()
+    grid_scores = []
     for offset in range(int(raw_signal.size - l)):
         grid_scores.append(
             get_offset_quality(

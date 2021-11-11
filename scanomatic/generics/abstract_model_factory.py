@@ -9,7 +9,7 @@ from enum import Enum
 from logging import Logger
 from numbers import Real
 from types import GeneratorType
-from typing import Any, Dict, Generator, Optional, Union
+from typing import Any, Generator, Optional, Union
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.generics.model import Model
@@ -144,9 +144,9 @@ class AbstractModelFactory:
     MODEL = Model
 
     _LOGGER = None
-    _SUB_FACTORIES: Dict[Model, "AbstractModelFactory"] = dict()
+    _SUB_FACTORIES: dict[Model, "AbstractModelFactory"] = {}
     STORE_SECTION_HEAD = ""
-    STORE_SECTION_SERIALIZERS: Dict[str, Any] = dict()
+    STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
 
     def __new__(cls, *args):
         raise Exception("This class is static, can't be instantiated")
@@ -481,7 +481,7 @@ class AbstractModelFactory:
                     setattr(model, attr, val)
 
     @classmethod
-    def populate_with_default_submodels(cls, obj: Union[Dict, Model]):
+    def populate_with_default_submodels(cls, obj: Union[dict, Model]):
         """Keys missing models/having None will get default instances of that
         field if possible."""
 

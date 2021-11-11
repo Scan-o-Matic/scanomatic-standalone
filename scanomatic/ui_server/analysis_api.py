@@ -36,10 +36,10 @@ def add_routes(app):
             success=True,
             is_endpoint=True,
             pinning_formats=[
-                dict(
-                    name=pinning.human_readable(),
-                    value=pinning.value,
-                )
+                {
+                    "name": pinning.human_readable(),
+                    "value": pinning.value,
+                }
                 for pinning in DefaultPinningFormats
             ]
         )

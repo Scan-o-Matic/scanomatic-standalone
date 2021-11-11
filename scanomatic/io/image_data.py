@@ -2,7 +2,7 @@ import glob
 import os
 import re
 from logging import Logger
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
@@ -176,7 +176,7 @@ class ImageData(object):
         directory_path: str,
         image_index: Union[int, str] = "*",
         times: bool = False,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         if (
             os.path.isdir(directory_path)
             and not directory_path.endswith(os.path.sep)
@@ -282,7 +282,7 @@ class ImageData(object):
     @staticmethod
     def read_image_data_and_time(
         path: str,
-    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    ) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Reads all images data files in a directory and report the
         indices used and data restructured per plate.
 

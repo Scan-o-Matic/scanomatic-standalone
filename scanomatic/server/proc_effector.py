@@ -4,7 +4,7 @@ import time
 from logging import Logger
 from subprocess import Popen
 from threading import Thread
-from typing import Dict, Optional
+from typing import Optional
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.io.logger import get_logger
@@ -26,7 +26,7 @@ class _PipeEffector:
         self._pipe = pipe
 
         # Calls this side accepts
-        self._allowedCalls = dict()
+        self._allowedCalls: dict = {}
 
         # Calls that the other side will accept according to other side
         self._allowedRemoteCalls = None
@@ -46,7 +46,7 @@ class _PipeEffector:
     def setFailVunerableCalls(self, *calls):
         self._failVunerableCalls = calls
 
-    def setAllowedCalls(self, allowedCalls):
+    def setAllowedCalls(self, allowedCalls: dict):
         """Allowed Calls must be iterable with a get item function
         that understands strings"""
         self._allowedCalls = allowedCalls
@@ -205,7 +205,7 @@ class ParentPipeEffector(_PipeEffector):
         self._allowedCalls['status'] = self._setStatus
 
     @property
-    def status(self) -> Dict:
+    def status(self) -> dict:
         return self._status
 
     def _setStatus(self, *args, **kwargs):
@@ -400,7 +400,7 @@ class ProcessEffector:
             return True
         return False
 
-    def status(self, *args, **kwargs) -> Dict:
+    def status(self, *args, **kwargs) -> dict:
         return dict(
             [
                 ('id', self._job.id),

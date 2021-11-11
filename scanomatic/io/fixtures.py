@@ -1,7 +1,7 @@
 import configparser
 import os
 from logging import Logger
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
@@ -89,7 +89,7 @@ class FixtureSettings(object):
 
 class Fixtures(object):
     def __init__(self):
-        self._fixtures: Optional[Dict[str, FixtureSettings]] = None
+        self._fixtures: Optional[dict[str, FixtureSettings]] = None
         self.update()
 
     def __getitem__(self, fixture: str) -> Optional[FixtureSettings]:
@@ -111,13 +111,13 @@ class Fixtures(object):
                 if fixture.lower().endswith(extension)
             ]
         ]
-        self._fixtures = dict()
+        self._fixtures = {}
         for f in list_fixtures:
             if f.lower() != "fixture":
                 fixture = FixtureSettings(f, directory)
                 self._fixtures[fixture.model.name] = fixture
 
-    def get_names(self) -> Tuple[str, ...]:
+    def get_names(self) -> tuple[str, ...]:
         if self._fixtures is None:
             return tuple()
 

@@ -7,7 +7,7 @@ import zipfile
 from io import IOBase, StringIO
 from itertools import chain
 from logging import Logger
-from typing import List, Sequence, Tuple
+from typing import Sequence
 from urllib.parse import quote, unquote
 
 import numpy as np
@@ -249,10 +249,10 @@ def get_project_name(project_path):
     return no_name
 
 
-def strip_empty_exits(exits, data):
+def strip_empty_exits(exits: list[str], data: dict):
     """
         :param exits : Exit keys
-        :type exits : List[str]
+        :type exits : list[str]
 
         :param data : Data dict
         :type data : dict
@@ -478,7 +478,7 @@ def usable_markers(markers, image):
 
 def split_areas_into_grayscale_and_plates(
     areas: Sequence,
-) -> Tuple[GrayScaleAreaModel, List[FixturePlateModel]]:
+) -> tuple[GrayScaleAreaModel, list[FixturePlateModel]]:
     gs = None
     plates = []
     for area in areas:

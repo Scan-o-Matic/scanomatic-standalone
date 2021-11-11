@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal, Optional, Sequence, Tuple
+from typing import Literal, Optional, Sequence
 
 import numpy as np
 from scipy.interpolate import griddata  # type: ignore
@@ -541,7 +541,7 @@ def get_normalisation_surface(
 
 def apply_outlier_filter(
     data: np.ndarray,
-    median_filter_size: Optional[Tuple[int, ...]] = (3, 3),
+    median_filter_size: Optional[tuple[int, ...]] = (3, 3),
     measure: Optional[int] = None,
     k: float = 2.0,
     p: int = 10,

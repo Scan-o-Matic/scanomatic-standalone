@@ -7,7 +7,7 @@ from enum import Enum
 from glob import glob
 from itertools import chain, product
 from subprocess import call
-from typing import Any, Dict, Tuple
+from typing import Any 
 
 from dateutil import tz
 from flask import jsonify, request, send_from_directory
@@ -164,7 +164,7 @@ def _validate_lock_key(
     key="",
     ip="",
     require_claim=True,
-) -> Tuple[LockState, Dict]:
+) -> tuple[LockState, dict]:
     if not key:
         key = ""
 
@@ -231,7 +231,7 @@ def _get_new_metadata_file_name(project_path, suffix):
 def _get_json_lock_response(
     lock_key,
     lock_state: LockState,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if lock_state is LockState.LockedByMeTemporary:
         return {"success": True, "lock_state": lock_state.name}
     else:
@@ -242,7 +242,7 @@ def _get_json_lock_response(
         }
 
 
-def merge_dicts(*dicts: Dict) -> Dict:
+def merge_dicts(*dicts: dict) -> dict:
     return {k: v for k, v in chain(*(iter(d.items()) for d in dicts))}
 
 

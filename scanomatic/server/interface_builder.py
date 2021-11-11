@@ -4,7 +4,7 @@ import sys
 from functools import wraps
 from logging import Logger
 from time import sleep
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Union
 
 import scanomatic.generics.decorators as decorators
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -649,7 +649,7 @@ class InterfaceBuilder(SingeltonOneInit):
 
             return False
 
-    def _server_get_fixtures(self, user_id=None) -> Tuple[str, ...]:
+    def _server_get_fixtures(self, user_id=None) -> tuple[str, ...]:
         """Gives the names of the fixtures known to the server.
 
         Returns
@@ -714,7 +714,7 @@ class InterfaceBuilder(SingeltonOneInit):
     def _server_create_feature_extract_job(
         self,
         user_id,
-        feature_extract_model: Dict,
+        feature_extract_model: dict,
     ) -> bool:
         """Enques a new feature extraction job.
 

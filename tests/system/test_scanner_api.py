@@ -3,7 +3,7 @@ import http.client
 from collections import namedtuple
 from hashlib import sha256
 from io import StringIO
-from typing import Dict, Union
+from typing import Union
 
 import pytest
 import requests
@@ -18,7 +18,7 @@ def image():
 
 
 def get_number_of_images(scanomatic, project):
-    params: Dict[str, Union[str, int]] = {
+    params: dict[str, Union[str, int]] = {
         'suffix': '.tiff',
         'isDirectory': 0,
         'checkHasAnalysis': 0,

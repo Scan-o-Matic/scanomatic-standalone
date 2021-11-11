@@ -1,6 +1,6 @@
 from collections import namedtuple
 from itertools import product
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import pytest
@@ -66,7 +66,7 @@ def test_get_im_slice(
     easy_plate: grid_array_module.GridArray,
     grid_cell,
     expected_type,
-    expected_shape: Optional[Tuple[int, int]],
+    expected_shape: Optional[tuple[int, int]],
 ):
     im_slice = grid_array_module._get_image_slice(easy_plate, grid_cell)
     assert isinstance(im_slice, expected_type)

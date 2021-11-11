@@ -1,6 +1,6 @@
 from logging import Logger
 from multiprocessing import Pipe
-from typing import Dict, List, Union
+from typing import Union
 
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -20,7 +20,7 @@ class Jobs(SingeltonOneInit):
         self._logger = Logger("Jobs Handler")
         self._paths = paths.Paths()
         self._scanner_manager = scanner_manager.ScannerPowerManager()
-        self._jobs: Dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}
+        self._jobs: dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}
         self._load_from_file()
         self._forcingStop = False
         self._statuses = []
@@ -77,7 +77,7 @@ class Jobs(SingeltonOneInit):
             )
 
     @property
-    def active_compile_project_jobs(self) -> List[rpc_job_models.RPCjobModel]:
+    def active_compile_project_jobs(self) -> list[rpc_job_models.RPCjobModel]:
         return [
             job for job in self.active_jobs
             if job.type is rpc_job_models.JOB_TYPE.Compile

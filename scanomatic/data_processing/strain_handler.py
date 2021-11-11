@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Any, List, Union, Tuple
+from typing import Any, SupportsInt, Union
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
@@ -38,10 +38,10 @@ def loadCSV2Numpy(
             will be set to nan, else they will be zero of that data type
     """
 
-    def _putInData(d, pos, m):
+    def _putInData(d: dict[tuple[int, int], list], pos: SupportsInt, m):
         plateI, xI, yI = list(map(int, pos))
         if plateI not in d:
-            d[plateI] = dict()
+            d[plateI] = {}
         d[plateI][(xI, yI)] = list(map(dtype, m))
 
     fs = open(path, 'r')
@@ -143,7 +143,7 @@ def uniques(
     metaData: MetaData2,
     forcePlatewise: bool = False,
     slicer=None,
-) -> dict:
+) -> dict[tuple, list[tuple[int, int, int]]]:
     """Generates a dictionary lookup for unique strains and the positions
     they occur in.
 
@@ -164,7 +164,7 @@ def uniques(
         A dictionary with unique keys and lists of positions that they
         occur on
     """
-    _uniques = dict()
+    _uniques: dict[tuple, list[tuple[int, int, int]]] = {}
     if not isinstance(slicer, slice):
         slicer = slice(slicer)
 
@@ -200,7 +200,7 @@ def filterUniquesOnPlate(
     return {k: v for k, v in list(uniqueDict.items()) if k[-1] == plate}
 
 
-def splitStrainsPerPlates(strainDict: dict) -> List[dict]:
+def splitStrainsPerPlates(strainDict: dict) -> list[dict]:
     """If `forcePlatewise` was `True`, this will make an ordered list with
     each plate's info in a separate item.
 
@@ -222,7 +222,7 @@ def getDataPerUnique(
     uniqueDict: dict,
     dataObject,
     measure=None,
-) -> dict:
+) -> dict[tuple, Any]:
     """Collects all measures for each strain
 
     Args:
@@ -242,7 +242,7 @@ def getDataPerUnique(
     if not isinstance(measure, slice):
         measure = slice(measure)
 
-    _measures = dict()
+    _measures: dict[tuple, Any] = {}
     easeMode = dataObject.ndim == 3
 
     for strain, positions in uniqueDict.items():
@@ -266,7 +266,7 @@ def generalStatsOnStrains(
     uniqueDict: dict,
     dataObject,
     measure=None,
-) -> dict:
+) -> dict[tuple, dict[str, Union[float, int]]]:
     """Collects basic stats on strains independent on plate (if not part
     of strain info). And presents their basic statistics.
 
@@ -285,7 +285,7 @@ def generalStatsOnStrains(
         Dict of dicts that hold relevant stats per strain
     """
 
-    _stats = dict()
+    _stats: dict[tuple, dict[str, Union[float, int]]] = {}
 
     for strain, vals in getDataPerUnique(
         uniqueDict,
@@ -293,17 +293,17 @@ def generalStatsOnStrains(
         measure=measure,
     ).items():
         finVals = vals[np.isfinite(vals)]
-        _stats[strain] = dict(
-            n=vals.size,
-            nans=vals.size - finVals.size,
-            mean=finVals.mean(),
-            std=finVals.std(ddof=1),
-            cv=finVals.std(ddof=1) / finVals.mean(),
-        )
+        _stats[strain] = {
+            "n": vals.size,
+            "nans": vals.size - finVals.size,
+            "mean": finVals.mean(),
+            "std": finVals.std(ddof=1),
+            "cv": finVals.std(ddof=1) / finVals.mean(),
+        }
     return _stats
 
 
-def getArray(strainStatsDict: dict, key: str) -> Tuple[List[Any], np.ndarray]:
+def getArray(strainStatsDict: dict, key: str) -> tuple[list[Any], np.ndarray]:
     """Produces an array of the stats-measure over all strains.
 
     Args:

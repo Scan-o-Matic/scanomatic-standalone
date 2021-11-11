@@ -1,7 +1,7 @@
 import hashlib
 import time
 from math import trunc
-from typing import Any, Dict
+from typing import Any
 
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.app_config as app_config
@@ -62,7 +62,7 @@ class Server:
         self._running = False
         return True
 
-    def get_server_status(self) -> Dict[str, Any]:
+    def get_server_status(self) -> dict[str, Any]:
 
         if self._server_start_time is None:
             run_time = "Not Running"

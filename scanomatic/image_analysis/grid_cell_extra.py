@@ -1,6 +1,6 @@
 import operator
 from enum import Enum
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import numpy as np
 from scipy.ndimage import (  # type: ignore
@@ -148,7 +148,7 @@ def get_array_subtraction(array_one, array_two, offset, output=None):
 
 class CellItem:
 
-    def __init__(self, identifier: Tuple[int, int, int], grid_array):
+    def __init__(self, identifier: tuple[int, int, int], grid_array):
         """Cell_Item is a super-class for Blob, Background and Cell and should
         not be accessed directly.
 
@@ -216,7 +216,7 @@ class CellItem:
 
         """
 
-        feature_data: Dict[MEASURES, Any] = self.features.data
+        feature_data: dict[MEASURES, Any] = self.features.data
         if self.filter_array is None or len(self._features_key_list) == 0:
             return
 

@@ -2,7 +2,7 @@ import re
 from collections import namedtuple
 from enum import Enum
 from logging import Logger
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Union
 from uuid import uuid1
 
 import numpy as np
@@ -350,11 +350,11 @@ def get_local_fixture_for_image(identifier, image_identifier):
     issues = {}
     fixture.set_current_areas(issues)
 
-    return dict(
-        plates=current_settings.model.plates,
-        grayscale=current_settings.model.grayscale,
-        issues=issues,
-    )
+    return {
+        "plates": current_settings.model.plates,
+        "grayscale": current_settings.model.grayscale,
+        "issues": issues,
+    }
 
 
 @_validate_ccc_edit_request
@@ -714,7 +714,7 @@ def _get_all_grid_shapes(ccc):
 
 
 @_validate_ccc_edit_request
-def construct_polynomial(identifier, power) -> Union[bool, Dict[str, Any]]:
+def construct_polynomial(identifier, power) -> Union[bool, dict[str, Any]]:
     ccc = __CCC[identifier]
     data_store = _collect_all_included_data(ccc)
     try:
@@ -756,7 +756,7 @@ def construct_polynomial(identifier, power) -> Union[bool, Dict[str, Any]]:
     }
 
 
-def get_all_colony_data(identifier) -> Dict[str, Any]:
+def get_all_colony_data(identifier) -> dict[str, Any]:
     ccc = __CCC[identifier]
     data_store = _collect_all_included_data(ccc)
     if data_store.source_values:

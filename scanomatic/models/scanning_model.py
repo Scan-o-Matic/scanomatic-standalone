@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Union
 
 import scanomatic
 import scanomatic.generics.model as model
@@ -90,7 +90,7 @@ class ScanningModel(model.Model):
         start_time: float = 0.0,
         description: str = "",
         email: str = "",
-        pinning_formats: Tuple[Tuple[int, int], ...] = tuple(),
+        pinning_formats: tuple[tuple[int, int], ...] = tuple(),
         fixture: str = "",
         scanner: int = 1,
         scanner_hardware: str = "EPSON V700",
@@ -112,7 +112,7 @@ class ScanningModel(model.Model):
         self.description: str = description
         self.plate_descriptions: Sequence = plate_descriptions
         self.email: str = email
-        self.pinning_formats: Tuple[Tuple[int, int], ...] = pinning_formats
+        self.pinning_formats: tuple[tuple[int, int], ...] = pinning_formats
         self.fixture: str = fixture
         self.scanner: int = scanner
         self.scanner_hardware: str = scanner_hardware

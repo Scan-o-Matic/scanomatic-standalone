@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy
 
@@ -18,13 +18,13 @@ class SegmentationModel(model.Model):
         log2_curve=None,
         times: Optional[numpy.ndarray] = None,
         plate: Optional[int] = None,
-        pos: Optional[Tuple[int, int]] = None,
+        pos: Optional[tuple[int, int]] = None,
     ):
 
         self.log2_curve: Optional[numpy.ndarray] = log2_curve
         self.times: Optional[numpy.ndarray] = times
         self.plate: Optional[int] = plate
-        self.pos: Optional[Tuple[int, int]] = pos
+        self.pos: Optional[tuple[int, int]] = pos
 
         self.dydt: Optional[numpy.ndarray] = dydt
         self.dydt_ranks: Optional[numpy.ndarray] = dydt_ranks

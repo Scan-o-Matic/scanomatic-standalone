@@ -1,6 +1,6 @@
 import operator
 from enum import Enum
-from typing import Dict, Optional, Union, Tuple
+from typing import Optional, Union
 
 import numpy as np
 from scipy import signal  # type: ignore
@@ -104,7 +104,7 @@ class PhaseEdge(Enum):
     Intelligent = 2
 
 
-ThresholdsDict = Dict[Thresholds, Union[int, float]]
+ThresholdsDict = dict[Thresholds, Union[int, float]]
 DEFAULT_THRESHOLDS: ThresholdsDict = {
     Thresholds.LinearModelExtension: 0.05,
     Thresholds.PhaseMinimumLength: 3,
@@ -216,7 +216,7 @@ def segment(
 def get_data_needed_for_segmentation(
     phenotyper_object,
     plate: int,
-    pos: Tuple[int, ...],
+    pos: tuple[int, ...],
     thresholds: ThresholdsDict,
     model: Optional[SegmentationModel] = None,
 ) -> SegmentationModel:

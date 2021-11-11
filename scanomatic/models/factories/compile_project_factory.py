@@ -1,7 +1,6 @@
 import glob
 import os
 import re
-from typing import Dict
 
 from scanomatic.data_processing.calibration import get_active_cccs
 from scanomatic.generics.abstract_model_factory import (
@@ -114,7 +113,7 @@ class CompileProjectFactory(AbstractModelFactory):
         is_local=None,
         compile_action=compile_project_model.COMPILE_ACTION.Initiate,
         **kwargs,
-    ) -> Dict:
+    ) -> dict:
         path = path.rstrip("/")
 
         if path != os.path.abspath(path):
