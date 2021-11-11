@@ -2,7 +2,8 @@
 *.pyo
 *.tmp_config
 *.aux
-.*.swp
+*.swp
+*.swo
 .~*
 /.tox
 /coverage.xml
@@ -36,3 +37,5 @@ data/config/rpc.admin
 geckodriver.log
 /node_modules
 /data/config/mac_address.config
+/.vscode
+*.orig
