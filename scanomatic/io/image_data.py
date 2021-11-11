@@ -2,7 +2,7 @@ import glob
 import os
 import re
 from logging import Logger
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class ImageData(object):
         analysis_model: AnalysisModel,
         image_model: CompileImageAnalysisModel,
         features,
-    ):
+    ) -> bool:
         if image_model.image is None:
             raise ValueError("Need an image to write!")
         return ImageData._write_image(
@@ -46,7 +46,7 @@ class ImageData(object):
         features,
         output_item: COMPARTMENTS,
         output_value: MEASURES,
-    ) -> Optional[bool]:
+    ) -> bool:
 
         path = os.path.join(*ImageData.directory_path_to_data_path_tuple(
             path,
@@ -118,10 +118,10 @@ class ImageData(object):
 
     @staticmethod
     def write_times(
-        analysis_model,
+        analysis_model: AnalysisModel,
         image_model: CompileImageAnalysisModel,
         overwrite,
-    ):
+    ) -> None:
         global _SECONDS_PER_HOUR
         image = image_model.image
         if image is None:
@@ -150,7 +150,7 @@ class ImageData(object):
         )
 
     @staticmethod
-    def read_times(path):
+    def read_times(path: str):
         path = os.path.join(*ImageData.directory_path_to_data_path_tuple(
             path,
             times=True,
@@ -165,7 +165,7 @@ class ImageData(object):
             return np.array([], dtype=float)
 
     @staticmethod
-    def read_image(path):
+    def read_image(path: str):
         if os.path.isfile(path):
             return unpickle_with_unpickler(np.load, path)
         else:
@@ -174,7 +174,7 @@ class ImageData(object):
     @staticmethod
     def directory_path_to_data_path_tuple(
         directory_path: str,
-        image_index="*",
+        image_index: Union[int, str] = "*",
         times: bool = False,
     ) -> Tuple[str, str]:
         if (

@@ -1,9 +1,13 @@
 from logging import Logger
+from typing import cast, Optional
 
 import numpy as np
+import numpy.typing as npt
 from scipy import ndimage, signal  # type: ignore
 
 _logger = Logger("Resource Signal")
+
+SpikesArray = npt.NDArray[np.bool_]
 
 
 def get_higher_second_half_order_according_to_first(first, *others):
@@ -90,7 +94,7 @@ def get_signal_edges(
     return edges
 
 
-def extrapolate_edges(edges, frequency, signal_length):
+def extrapolate_edges(edges, frequency: float, signal_length):
     fin_edges = np.isfinite(edges)
     where_fin_edges = np.where(fin_edges)[0]
     for i in range(where_fin_edges[0] - 1, -1, -1):
@@ -101,37 +105,42 @@ def extrapolate_edges(edges, frequency, signal_length):
     return edges
 
 
-def get_perfect_frequency(best_measures, guess_frequency, tollerance=0.15):
+def get_perfect_frequency(
+    best_measures: SpikesArray,
+    guess_frequency: float,
+    tolerance: float = 0.15,
+) -> float:
     dists = get_spike_distances(best_measures)
 
     good_measures = []
-    tollerance = (1 - tollerance, 1 + tollerance)
-    guess_frequency = float(guess_frequency)
+    tol = (1 - tolerance, 1 + tolerance)
 
     for d in dists:
-        if tollerance[0] < d / guess_frequency < tollerance[1]:
+        if tol[0] < d / guess_frequency < tol[1]:
             good_measures.append(d)
-        elif tollerance[0] < d / (2 * guess_frequency) < tollerance[1]:
+        elif tol[0] < d / (2 * guess_frequency) < tol[1]:
             good_measures.append(d / 2.0)
     return np.mean(good_measures)
 
 
-def get_perfect_frequency2(best_measures, guess_frequency, tollerance=0.15):
-
+def get_perfect_frequency2(
+    best_measures: SpikesArray,
+    guess_frequency: float,
+    tolerance=0.15,
+) -> float:
     where_measure = np.where(best_measures == True)[0]  # noqa: E712
     if where_measure.size < 1:
         return guess_frequency
 
-    toll = (1 - tollerance, 1 + tollerance)
-    guess_frequency = float(guess_frequency)
+    tol = (1 - tolerance, 1 + tolerance)
     f = where_measure[-1] - where_measure[0]
 
     f /= (np.round(f / guess_frequency))
 
-    if toll[1] > f / guess_frequency > toll[0]:
+    if tol[1] > f / guess_frequency > tol[0]:
         return f
 
-    return get_perfect_frequency(best_measures, guess_frequency, tollerance)
+    return get_perfect_frequency(best_measures, guess_frequency, tolerance)
 
 
 def get_signal_frequency(measures):
@@ -148,7 +157,7 @@ def get_signal_frequency(measures):
     return np.median(tmp_array[1:] - tmp_array[:-1])
 
 
-def get_best_offset(n, measures, frequency=None):
+def get_best_offset(n: int, measures, frequency: Optional[float] = None):
     """
     get_best_offset returns a optimal starting-offset for a hypthetical
     signal with frequency as specified by frequency-variable
@@ -196,7 +205,7 @@ def get_best_offset(n, measures, frequency=None):
 
             # IMPROVE THIS ONE...
             # n_signal_dist is peak index of the closest signal peak
-            n_signal_dist = np.round((m - offset) / float(frequency))
+            n_signal_dist = np.round((m - offset) / frequency)
 
             signal_diff = offset + frequency * n_signal_dist - m
             if abs(signal_diff) > 0:
@@ -258,7 +267,7 @@ def get_true_signal(
     n, measures,
     measures_qualities=None,
     offset=None,
-    frequency=None,
+    frequency: Optional[float] = None,
     offset_buffer_fraction=0,
 ):
     """
@@ -315,8 +324,7 @@ def get_true_signal(
         return None
 
     start_peak = 0
-    start_position_qualities = []
-    frequency = float(frequency)
+    start_position_qualities: list[float] = []
     while (
         offset_buffer_fraction * frequency
         >= offset + frequency * ((n - 1) + start_peak)
@@ -411,11 +419,11 @@ def get_center_of_spikes(spikes):
 
     up_spikes = spikes.copy()
     t_zone = False
-    t_low = None
+    t_low: Optional[int] = None
 
     for pos in range(up_spikes.size):
         if t_zone:
-            assert isinstance(t_low, int)
+            t_low = cast(int, t_low)
             if up_spikes[pos] is False or pos == up_spikes.size - 1:
                 if pos == up_spikes.size - 1:
                     pos += 1
@@ -430,7 +438,7 @@ def get_center_of_spikes(spikes):
     return up_spikes
 
 
-def get_spike_distances(spikes):
+def get_spike_distances(spikes: SpikesArray) -> npt.NDArray[np.int_]:
     spikes_where = np.where(spikes == True)[0]  # noqa: E712
     if spikes_where.size == 0:
         return np.array([])
@@ -439,44 +447,42 @@ def get_spike_distances(spikes):
 
 
 def get_best_spikes(
-    spikes,
-    frequency,
-    tollerance=0.05,
-    require_both_sides=False,
-):
+    spikes: SpikesArray,
+    frequency: float,
+    tolerance: float = 0.05,
+    require_both_sides: bool = False,
+) -> SpikesArray:
     """
     Looks through a spikes-array for spikes with expected distance to
-    their neighbours (with a tollerance) and returns these
+    their neighbours (with a tolerance) and returns these
 
     @args: spikes (numpy 1D boolean array of spikes)
 
     @args: frequency (expected frequency (float))
 
-    @args: tollerance (error tollerance (float))
+    @args: tolerance (error tolerance (float))
 
     @args: require_both_sides (boolean)
     """
     best_spikes = spikes.copy()
     spikes_dist = get_spike_distances(spikes)
 
-    frequency = float(frequency)
     accumulated_pos = 0
-    tollerance = (1 - tollerance, 1 + tollerance)
+    tol = (1 - tolerance, 1 + tolerance)
 
     for pos in range(spikes_dist.size):
 
         accumulated_pos += spikes_dist[pos]
         good_sides = (
-            tollerance[0] < spikes_dist[pos] / frequency < tollerance[1]
+            tol[0] < spikes_dist[pos] / frequency < tol[1]
         )
         good_sides += (
-            tollerance[0] < spikes_dist[pos] / (2 * frequency) < tollerance[1]
+            tol[0] < spikes_dist[pos] / (2 * frequency) < tol[1]
         )
 
         if pos + 1 < spikes_dist.size:
             good_sides += (
-                tollerance[0]
-                < spikes_dist[pos + 1] / frequency < tollerance[1]
+                tol[0] < spikes_dist[pos + 1] / frequency < tol[1]
             )
 
         if (
@@ -491,7 +497,7 @@ def get_best_spikes(
     return best_spikes
 
 
-def get_position_of_spike(spike, signal_start, frequency):
+def get_position_of_spike(spike, signal_start, frequency: float) -> float:
     """
     Gives the spike position as a float point indicating which signal it
     is relative the signal start.
@@ -504,7 +510,7 @@ def get_position_of_spike(spike, signal_start, frequency):
 
     @returns: Float point value for the closest position in the signal.
     """
-    return (spike - signal_start) / float(frequency)
+    return (spike - signal_start) / frequency
 
 
 def move_signal(signals, shifts, frequencies=None, freq_offset=1):

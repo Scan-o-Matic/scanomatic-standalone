@@ -19,7 +19,7 @@ GS_ROUGH_INTENSITY_T1 = (256 * 1 / 4)
 GS_ROUGH_INTENSITY_T2 = 125
 GS_ROUGH_INTENSITY_T3 = 170
 SPIKE_UP_T = 1.2
-SPIKE_BEST_TOLLERANCE = 0.05
+SPIKE_BEST_TOLERANCE = 0.05
 SAFETY_PADDING = 0.2
 SAFETY_COEFF = 0.5
 NEW_GS_ALG_L_DIFF_T = 0.1
@@ -432,7 +432,7 @@ def detect_grayscale(im_trimmed, grayscale):
         best_spikes = signal.get_best_spikes(
             up_spikes,
             grayscale['length'],
-            tollerance=SPIKE_BEST_TOLLERANCE,
+            tolerance=SPIKE_BEST_TOLERANCE,
             require_both_sides=False,
         )
 
