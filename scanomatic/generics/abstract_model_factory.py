@@ -1030,7 +1030,7 @@ class Serializer:
         if not self._has_section_head(model):
             raise ValueError("Need a section head for serialization")
 
-        with LinkerConfigParser(id=id(model)) as conf:
+        with LinkerConfigParser(id=id(model), allow_no_value=True) as conf:
             conf = self.serialize_into_conf(
                 model,
                 conf,
@@ -1042,12 +1042,6 @@ class Serializer:
             )
 
     def serialize_into_conf(self, model, conf, section):
-        # self._logger.info("Serializing {0} into '{1}' of {2}".format(
-        #     model,
-        #     section,
-        #     conf,
-        # ))
-
         if conf.has_section(section):
             conf.remove_section(section)
 
