@@ -1018,7 +1018,6 @@ class Serializer:
 
                 else:
                     value = SerializationHelper.unserialize(value, dtype)
-
                 model[key] = value
 
         return factory.create(**model)
@@ -1183,18 +1182,18 @@ class SerializationHelper:
             return str(obj.name)
 
         elif dtype is _SectionsLink:
-            return str(pickle.dumps(obj))
+            return pickle.dumps(obj).decode('iso-8859-1')
 
         elif dtype in (int, float, str, bool):
             return str(obj)
 
         elif isinstance(dtype, types.FunctionType):
-            return str(pickle.dumps(dtype(serialize=obj)))
+            return pickle.dumps(dtype(serialize=obj)).decode('iso-8859-1')
 
         else:
             if not isinstance(obj, dtype):
                 obj = dtype(obj)
-            return str(pickle.dumps(obj))
+            return pickle.dumps(obj).decode('iso-8859-1')
 
     @staticmethod
     def isvalidtype(o, dtype) -> bool:
@@ -1300,8 +1299,8 @@ class SerializationHelper:
 
         else:
             try:
-                return pickle.loads(serialized_obj)
-            except (pickle.PickleError, TypeError):
+                return pickle.loads(serialized_obj.encode())
+            except (pickle.PickleError, TypeError, EOFError):
                 return None
 
     @staticmethod
