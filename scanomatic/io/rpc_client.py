@@ -52,7 +52,7 @@ def get_client(host=None, port=None, admin=False, log_level=None):
     return cp
 
 
-class _ClientProxy(object):
+class _ClientProxy:
     def __init__(self, host, port, userID=None, log_level=None):
 
         self._logger = Logger("Client Proxy")

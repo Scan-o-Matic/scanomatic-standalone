@@ -18,7 +18,7 @@ from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 _SECONDS_PER_HOUR = 60.0 * 60.0
 
 
-class ImageData(object):
+class ImageData:
 
     _LOGGER = Logger("Static Image Data Class")
     _PATHS = paths.Paths()

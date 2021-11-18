@@ -7,7 +7,7 @@ class UnknownProjectError(Exception):
     pass
 
 
-class ScanStore(object):
+class ScanStore:
     def __init__(self, path):
         self._path = path
 

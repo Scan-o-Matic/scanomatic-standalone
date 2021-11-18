@@ -101,7 +101,7 @@ class _RefactoringPhases:
             return ret
 
 
-class SafeProxyFileObject(object):
+class SafeProxyFileObject:
 
     def __init__(self, name, *validation_functions):
         self.__dict__["__file"] = open(name, mode='rb')

@@ -2,7 +2,7 @@ import importlib
 import sys
 
 
-class ExpiringModule(object):
+class ExpiringModule:
     def __init__(self, module, run_code=""):
         """A module that gets deleted after use
 

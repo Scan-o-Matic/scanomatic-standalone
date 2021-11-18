@@ -20,7 +20,7 @@ from scanomatic.models.scanning_model import ScanningModel
 FIRST_PASS_SORTING = Enum("FIRST_PASS_SORTING", names=("Index", "Time"))
 
 
-class CompilationResults(object):
+class CompilationResults:
     def __init__(
         self,
         compilation_path=None,

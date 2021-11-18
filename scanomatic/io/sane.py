@@ -219,7 +219,7 @@ except IOError:
     )
 
 
-class SaneBase(object):
+class SaneBase:
 
     _TRANSPARENCY_WORDS = {"TPU", "Transparency"}
     _SETTINGS_ORDER = (

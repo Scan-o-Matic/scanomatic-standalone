@@ -9,7 +9,7 @@ from scanomatic.models.fixture_models import FixtureModel
 from .paths import Paths
 
 
-class FixtureSettings(object):
+class FixtureSettings:
 
     def __init__(self, name, dir_path=None, overwrite=False):
         self._logger = Logger("Fixture {0}".format(name))
@@ -87,7 +87,7 @@ class FixtureSettings(object):
         FixtureFactory.serializer.dump(self.model, self.path, overwrite=True)
 
 
-class Fixtures(object):
+class Fixtures:
     def __init__(self):
         self._fixtures: Optional[dict[str, FixtureSettings]] = None
         self.update()

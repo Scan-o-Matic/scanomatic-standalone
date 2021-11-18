@@ -5,7 +5,7 @@ from xmlrpc.server import SimpleXMLRPCServer
 import scanomatic.generics.decorators as decorators
 
 
-class Stoppable_RPC_Server(object):
+class Stoppable_RPC_Server:
 
     def __init__(self, *args, **kwargs):
         self.logger = Logger("RPC Server")

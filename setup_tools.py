@@ -14,7 +14,7 @@ get_version = importlib.import_module("scanomatic", package=".").get_version
 source = importlib.import_module("scanomatic.io.source", package=".")
 
 
-class MiniLogger(object):
+class MiniLogger:
 
     @staticmethod
     def info(txt):
