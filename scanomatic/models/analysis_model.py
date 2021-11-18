@@ -157,3 +157,6 @@ class AnalysisFeatures(model.Model):
         self.shape = shape
         self.index: int = index
         super(AnalysisFeatures, self).__init__()
+
+    def __hash__(self):
+        return id(self)
