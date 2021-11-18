@@ -1,5 +1,6 @@
 import re
-from collections import namedtuple, Callable
+from collections import namedtuple
+from collections.abc import Callable
 from enum import Enum
 from logging import Logger
 from typing import Any, Union

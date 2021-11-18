@@ -1,7 +1,7 @@
 import os
 from logging import Logger
 from typing import Optional, Union
-from collections import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 

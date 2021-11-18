@@ -1,6 +1,6 @@
 from logging import Logger
 from typing import Any, SupportsInt, Union
-from collections import Sequence
+from collections.abc import Sequence
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np

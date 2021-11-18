@@ -3,7 +3,7 @@ import re
 from os import makedirs
 from pathlib import Path
 from typing import Optional
-from collections import Sequence
+from collections.abc import Sequence
 
 _FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(msg)s'
 _DATEFMT = '%Y-%m-%d %H:%M:%S'

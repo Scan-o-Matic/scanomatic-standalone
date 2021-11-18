@@ -1,5 +1,5 @@
 from typing import Optional
-from collections import Sequence
+from collections.abc import Sequence
 
 from scanomatic.generics import model
 

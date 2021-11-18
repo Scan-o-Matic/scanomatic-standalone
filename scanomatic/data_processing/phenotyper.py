@@ -1,6 +1,7 @@
 import csv
 import os
-from collections import deque, Callable
+from collections import deque
+from collections.abc import Callable
 from enum import Enum
 from io import StringIO
 from itertools import chain, product

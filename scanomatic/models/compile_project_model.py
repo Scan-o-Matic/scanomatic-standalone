@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Optional
-from collections import Sequence
+from collections.abc import Sequence
 
 from scanomatic.generics.model import Model
 from scanomatic.models.fixture_models import FixtureModel
