@@ -1175,26 +1175,26 @@ class SerializationHelper:
             )
 
     @staticmethod
-    def serialize(obj, dtype):
+    def serialize(obj, dtype) -> Optional[str]:
         if obj is None:
             return None
 
         elif isinstance(dtype, type) and issubclass(dtype, Enum):
-            return obj.name
+            return str(obj.name)
 
         elif dtype is _SectionsLink:
-            return pickle.dumps(obj)
+            return str(pickle.dumps(obj))
 
         elif dtype in (int, float, str, bool):
             return str(obj)
 
         elif isinstance(dtype, types.FunctionType):
-            return pickle.dumps(dtype(serialize=obj))
+            return str(pickle.dumps(dtype(serialize=obj)))
 
         else:
             if not isinstance(obj, dtype):
                 obj = dtype(obj)
-            return pickle.dumps(obj)
+            return str(pickle.dumps(obj))
 
     @staticmethod
     def isvalidtype(o, dtype) -> bool:
