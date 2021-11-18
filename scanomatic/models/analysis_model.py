@@ -118,7 +118,7 @@ class GridModel(model.Model):
         self.gridding_offsets = gridding_offsets
         self.reference_grid_folder = reference_grid_folder
         super(GridModel, self).__init__()
-    
+
     def __hash__(self):
         return id(self)
 
