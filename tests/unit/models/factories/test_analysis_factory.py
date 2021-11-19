@@ -7,7 +7,7 @@ import pytest
 from scanomatic.data_processing.calibration import (
     get_polynomial_coefficients_from_ccc
 )
-from scanomatic.models.analysis_model import AnalysisModel
+from scanomatic.models.analysis_model import AnalysisModel, GridModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 
 
@@ -42,7 +42,13 @@ class TestAnalysisModels:
             analysis_serialized_object,
         )
         assert len(result) == 1
-        assert isinstance(result[0], AnalysisModel)
+        model = result[0]
+        assert isinstance(model, AnalysisModel)
+        # Test a few representative attributes:
+        assert model.cell_count_calibration == (
+            3.379796310880545e-05, 0.0, 0.0, 0.0, 48.99061427688507, 0.0,
+        )
+        assert isinstance(model.grid_model, GridModel)
 
     def test_can_create_using_default_ccc(self, analysis_model):
         default = get_polynomial_coefficients_from_ccc('default')
