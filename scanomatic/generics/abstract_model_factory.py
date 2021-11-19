@@ -1291,7 +1291,9 @@ class SerializationHelper:
 
         elif isinstance(dtype, types.FunctionType):
             try:
-                return dtype(enforce=pickle.loads(serialized_obj.encode()))
+                return dtype(enforce=pickle.loads(
+                    serialized_obj.encode('iso-8859-1'),
+                ))
             except (pickle.PickleError, EOFError):
                 logging.exception(
                     f"Could not parse {serialized_obj} with type {dtype}",
@@ -1312,7 +1314,7 @@ class SerializationHelper:
 
         else:
             try:
-                return pickle.loads(serialized_obj.encode())
+                return pickle.loads(serialized_obj.encode('iso-8859-1'))
             except (pickle.PickleError, TypeError, EOFError):
                 logging.exception(
                     f"Could not parse {serialized_obj} with type {dtype}",
