@@ -1,4 +1,5 @@
 import copy
+import logging
 import os
 import pickle
 import types
@@ -1178,8 +1179,8 @@ class SerializationHelper:
         if obj is None:
             return None
 
-        elif isinstance(dtype, type) and issubclass(dtype, Enum):
-            return str(obj.name)
+        elif isinstance(obj, Enum):
+            return obj.name
 
         elif dtype is _SectionsLink:
             return pickle.dumps(obj).decode('iso-8859-1')
@@ -1256,12 +1257,18 @@ class SerializationHelper:
             try:
                 return dtype[serialized_obj]
             except (KeyError, SyntaxError):
+                logging.exception(
+                    f"Could not parse {serialized_obj} with type {dtype}",
+                )
                 return None
 
         elif dtype is bool:
             try:
                 return bool(eval(serialized_obj))
             except (NameError, AttributeError, SyntaxError):
+                logging.exception(
+                    f"Could not parse {serialized_obj} with type {dtype}",
+                )
                 return False
 
         elif dtype in (int, float, str):
@@ -1277,12 +1284,18 @@ class SerializationHelper:
                     TypeError,
                     ValueError,
                 ):
+                    logging.exception(
+                        f"Could not parse {serialized_obj} with type {dtype}",
+                    )
                     return None
 
         elif isinstance(dtype, types.FunctionType):
             try:
                 return dtype(enforce=pickle.loads(serialized_obj.encode()))
             except (pickle.PickleError, EOFError):
+                logging.exception(
+                    f"Could not parse {serialized_obj} with type {dtype}",
+                )
                 return None
 
         elif isinstance(serialized_obj, types.GeneratorType):
@@ -1301,6 +1314,9 @@ class SerializationHelper:
             try:
                 return pickle.loads(serialized_obj.encode())
             except (pickle.PickleError, TypeError, EOFError):
+                logging.exception(
+                    f"Could not parse {serialized_obj} with type {dtype}",
+                )
                 return None
 
     @staticmethod
