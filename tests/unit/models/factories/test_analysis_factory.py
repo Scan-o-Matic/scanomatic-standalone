@@ -7,7 +7,7 @@ import pytest
 from scanomatic.data_processing.calibration import (
     get_polynomial_coefficients_from_ccc
 )
-from scanomatic.models.analysis_model import AnalysisModel, GridModel
+from scanomatic.models.analysis_model import MEASURES, AnalysisModel, GridModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 
 
@@ -45,6 +45,7 @@ class TestAnalysisModels:
         model = result[0]
         assert isinstance(model, AnalysisModel)
         # Test a few representative attributes:
+        assert model.image_data_output_measure is MEASURES.Sum
         assert model.cell_count_calibration == (
             3.379796310880545e-05, 0.0, 0.0, 0.0, 48.99061427688507, 0.0,
         )
