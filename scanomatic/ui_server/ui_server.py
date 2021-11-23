@@ -6,7 +6,7 @@ from threading import Thread
 
 import requests
 from flask import Flask, send_from_directory
-from flask_cors import CORS
+from flask_cors import CORS  # type: ignore
 
 from scanomatic.io.app_config import Config
 from scanomatic.io.logger import get_logger

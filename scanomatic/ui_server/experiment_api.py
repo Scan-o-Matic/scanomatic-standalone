@@ -2,7 +2,7 @@ import os
 from logging import Logger
 
 from flask import jsonify, request
-from flask_restful import Api
+from flask_restful import Api  # type: ignore
 
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config

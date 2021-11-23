@@ -3,13 +3,7 @@ from logging import Logger
 from typing import Optional
 
 import numpy as np
-
-try:
-    import pandas as pd
-    _PANDAS = True
-except ImportError:
-    _PANDAS = False
-    pd = None
+import pandas as pd  # type: ignore
 
 
 class DataLoader:

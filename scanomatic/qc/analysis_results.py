@@ -6,7 +6,7 @@ from logging import Logger
 import numpy as np
 from matplotlib import pyplot as plt  # type: ignore
 # This import is used in 3D plotting just not explicitly stupid matplotlib
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  # type: ignore
+from mpl_toolkits.mplot3d import Axes3D  # type: ignore  # noqa: F401
 
 from scanomatic.generics.maths import mid50_mean
 from scanomatic.io.image_data import ImageData

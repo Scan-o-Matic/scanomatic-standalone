@@ -3,8 +3,8 @@ from warnings import warn
 
 import pytest
 import requests
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys  # type: ignore
+from selenium.webdriver.support.ui import Select  # type: ignore
 
 
 @pytest.fixture(autouse=True)

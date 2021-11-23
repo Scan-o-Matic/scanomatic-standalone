@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 import requests
-from selenium import webdriver
+from selenium import webdriver  # type: ignore
 
 
 @pytest.fixture(scope='session')

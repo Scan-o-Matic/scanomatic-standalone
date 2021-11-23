@@ -3,7 +3,7 @@ from datetime import timedelta
 from hashlib import sha256
 
 from flask import current_app
-from flask_restful import Resource, abort, inputs, reqparse
+from flask_restful import Resource, abort, inputs, reqparse  # type: ignore
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.io.scanstore import UnknownProjectError
