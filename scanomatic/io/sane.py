@@ -7,7 +7,7 @@ from enum import Enum
 from itertools import chain
 from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Any, Optional
+from typing import Sequence, cast, Any, Optional
 
 from scanomatic.io.paths import Paths
 
@@ -25,7 +25,7 @@ def get_alive_scanners():
     stdout, _ = p.communicate()
     return re.findall(
         r'device[^\`]*.(.*libusb[^\`\']*)\' is a (.*) scanner',
-        stdout,
+        stdout.decode(),
     )
 
 
@@ -78,7 +78,7 @@ class SCAN_FLAGS(Enum):
 """These are default settings that will be overwritten from file.
 They will be deprecated in a futre version.
 """
-SETTINGS_REPOSITORY = {
+SETTINGS_REPOSITORY: dict[str, dict] = {
     "EPSON V700": {
         SCANNER_DATA.WaitBeforeScan: 0,
         SCANNER_DATA.SANEBackend: 'epson2',
@@ -342,7 +342,7 @@ class SaneBase:
             )
 
         def _select_preferred(words):
-            default_word = SaneBase._SETTINGS_REPOSITORY[self._model][
+            default_word = SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
                 SCANNER_DATA.DefaultTransparencyWord
             ]
             if (
@@ -368,7 +368,7 @@ class SaneBase:
         )
         stdout, _ = proc.communicate()
         try:
-            sources = SaneBase._SOURCE_PATTERN.findall(stdout)
+            sources: Sequence = SaneBase._SOURCE_PATTERN.findall(stdout.decode())
             self._logger.info(
                 "Sources matches are {0} for device {1}".format(
                     sources,
@@ -401,7 +401,7 @@ class SaneBase:
 
     def _update_mode_source(self):
 
-        default_word = SaneBase._SETTINGS_REPOSITORY[self._model][
+        default_word = SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
             SCANNER_DATA.DefaultTransparencyWord
         ]
         if (
@@ -426,7 +426,7 @@ class SaneBase:
 
         try:
             return copy.deepcopy(
-                SaneBase._SETTINGS_REPOSITORY[self._model][self._scan_mode],
+                SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][self._scan_mode],
             )
         except KeyError:
             self._logger.critical(
@@ -525,7 +525,7 @@ class SaneBase:
 
                 attempts += 1
                 returncode = 0
-                stderr = ""
+                stderr = b""
 
                 try:
                     with open(filename, 'w') as im:
@@ -545,11 +545,11 @@ class SaneBase:
                             ),
                         )
 
-                        if SaneBase._SETTINGS_REPOSITORY[self._model][
+                        if SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
                             SCANNER_DATA.WaitBeforeScan
                         ]:
                             time.sleep(
-                                SaneBase._SETTINGS_REPOSITORY[self._model][
+                                SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
                                     SCANNER_DATA.WaitBeforeScan
                                 ]
                             )
@@ -584,7 +584,7 @@ class SaneBase:
                         )
                         self._logger.critical(
                             "Standard error from scanimage:\n\n{0}\n\n".format(  # noqa: E501
-                                stderr,
+                                stderr.decode(),
                             ),
                         )
                         os.remove(filename)
