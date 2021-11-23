@@ -1,3 +1,5 @@
+from typing import Any, cast
+from scanomatic.generics.model import Model
 import scanomatic.models.settings_models as settings_models
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
@@ -5,11 +7,14 @@ from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 class VersionChangeFactory(AbstractModelFactory):
     MODEL = settings_models.VersionChangesModel
-    STORE_SECTION_SERIALIZERS = {}
+    STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
 
     @classmethod
     def create(cls, **settings) -> settings_models.VersionChangesModel:
-        return super(VersionChangeFactory, cls).create()
+        return cast(
+            settings_models.VersionChangesModel,
+            super(VersionChangeFactory, cls).create(),
+        )
 
 
 class PowerManagerFactory(AbstractModelFactory):
@@ -28,7 +33,10 @@ class PowerManagerFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.PowerManagerModel:
-        return super(PowerManagerFactory, cls).create(**settings)
+        return cast(
+            settings_models.PowerManagerModel,
+            super(PowerManagerFactory, cls).create(**settings),
+        )
 
 
 class RPCServerFactory(AbstractModelFactory):
@@ -42,7 +50,10 @@ class RPCServerFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.RPCServerModel:
-        return super(RPCServerFactory, cls).create(**settings)
+        return cast(
+            settings_models.RPCServerModel,
+            super(RPCServerFactory, cls).create(**settings),
+        )
 
 
 class UIServerFactory(AbstractModelFactory):
@@ -56,7 +67,10 @@ class UIServerFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.UIServerModel:
-        return super(UIServerFactory, cls).create(**settings)
+        return cast(
+            settings_models.UIServerModel,
+            super(UIServerFactory, cls).create(**settings),
+        )
 
 
 class HardwareResourceLimitsFactory(AbstractModelFactory):
@@ -72,7 +86,10 @@ class HardwareResourceLimitsFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.HardwareResourceLimitsModel:
-        return super(HardwareResourceLimitsFactory, cls).create(**settings)
+        return cast(
+            settings_models.HardwareResourceLimitsModel,
+            super(HardwareResourceLimitsFactory, cls).create(**settings),
+        )
 
 
 class MailFactory(AbstractModelFactory):
@@ -88,7 +105,10 @@ class MailFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.MailModel:
-        return super(MailFactory, cls).create(**settings)
+        return cast(
+            settings_models.MailModel,
+            super(MailFactory, cls).create(**settings),
+        )
 
 
 class PathsFactory(AbstractModelFactory):
@@ -100,7 +120,10 @@ class PathsFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> settings_models.PathsModel:
-        return super(PathsFactory, cls).create(**settings)
+        return cast(
+            settings_models.PathsModel,
+            super(PathsFactory, cls).create(**settings),
+        )
 
 
 def _scanner_model_serializer(enforce=None, serialize=None):
@@ -121,15 +144,18 @@ class ApplicationSettingsFactory(AbstractModelFactory):
     MODEL = settings_models.ApplicationSettingsModel
     STORE_SECTION_HEAD = "General settings"
 
-    _SUB_FACTORIES = {
-        settings_models.PathsModel: PathsFactory,
-        settings_models.HardwareResourceLimitsModel:
-            HardwareResourceLimitsFactory,
-        settings_models.PowerManagerModel: PowerManagerFactory,
-        settings_models.RPCServerModel: RPCServerFactory,
-        settings_models.UIServerModel: UIServerFactory,
-        settings_models.MailModel: MailFactory
-    }
+    _SUB_FACTORIES = cast(
+        dict[Model, AbstractModelFactory],
+        {
+            settings_models.PathsModel: PathsFactory,
+            settings_models.HardwareResourceLimitsModel:
+                HardwareResourceLimitsFactory,
+            settings_models.PowerManagerModel: PowerManagerFactory,
+            settings_models.RPCServerModel: RPCServerFactory,
+            settings_models.UIServerModel: UIServerFactory,
+            settings_models.MailModel: MailFactory
+        },
+    )
 
     STORE_SECTION_SERIALIZERS = {
         "power_manager": settings_models.PowerManagerModel,
@@ -151,4 +177,7 @@ class ApplicationSettingsFactory(AbstractModelFactory):
     def create(cls, **settings) -> settings_models.ApplicationSettingsModel:
         cls.populate_with_default_submodels(settings)
 
-        return super(ApplicationSettingsFactory, cls).create(**settings)
+        return cast(
+            settings_models.ApplicationSettingsModel,
+            super(ApplicationSettingsFactory, cls).create(**settings),
+        )
