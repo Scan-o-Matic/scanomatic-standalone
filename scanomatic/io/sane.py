@@ -342,7 +342,9 @@ class SaneBase:
             )
 
         def _select_preferred(words):
-            default_word = SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
+            default_word = SaneBase._SETTINGS_REPOSITORY[
+                cast(str, self._model)
+            ][
                 SCANNER_DATA.DefaultTransparencyWord
             ]
             if (
@@ -368,7 +370,9 @@ class SaneBase:
         )
         stdout, _ = proc.communicate()
         try:
-            sources: Sequence = SaneBase._SOURCE_PATTERN.findall(stdout.decode())
+            sources: Sequence = SaneBase._SOURCE_PATTERN.findall(
+                stdout.decode(),
+            )
             self._logger.info(
                 "Sources matches are {0} for device {1}".format(
                     sources,
@@ -426,7 +430,11 @@ class SaneBase:
 
         try:
             return copy.deepcopy(
-                SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][self._scan_mode],
+                SaneBase._SETTINGS_REPOSITORY[
+                    cast(str, self._model)
+                ][
+                    self._scan_mode
+                ],
             )
         except KeyError:
             self._logger.critical(
@@ -545,11 +553,15 @@ class SaneBase:
                             ),
                         )
 
-                        if SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
+                        if SaneBase._SETTINGS_REPOSITORY[
+                            cast(str, self._model)
+                        ][
                             SCANNER_DATA.WaitBeforeScan
                         ]:
                             time.sleep(
-                                SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
+                                SaneBase._SETTINGS_REPOSITORY[
+                                    cast(str, self._model)
+                                ][
                                     SCANNER_DATA.WaitBeforeScan
                                 ]
                             )
