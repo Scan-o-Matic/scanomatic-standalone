@@ -8,7 +8,7 @@ import urllib.request
 from enum import Enum
 from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Optional, Type, Union
+from typing import Optional, Type
 from urllib.parse import urlencode
 
 # FURTHER LAN-specific dependenies further down
