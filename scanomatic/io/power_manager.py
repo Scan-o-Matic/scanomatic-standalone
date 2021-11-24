@@ -8,7 +8,7 @@ import urllib.request
 from enum import Enum
 from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Optional, Union
+from typing import Optional, Type, Union
 from urllib.parse import urlencode
 
 # FURTHER LAN-specific dependenies further down
@@ -52,13 +52,7 @@ def get_enum_name_from_value(enum, value):
 
 def get_pm_class(
     pm_type: Optional[POWER_MANAGER_TYPE]
-) -> Union[
-    "PowerManagerNull",
-    "PowerManagerLan",
-    "PowerManagerUsb",
-    "PowerManagerUsbLinux",
-    "PowerManagerUsbWin"
-]:
+) -> Type["PowerManagerNull"]:
 
     if pm_type is POWER_MANAGER_TYPE.notInstalled:
         return PowerManagerNull
@@ -173,13 +167,13 @@ class PowerManagerUsb(PowerManagerNull):
 
     def _exec(self, cmd) -> bool:
         exec_err = False
-        stderr = ""
+        stderr = b""
         try:
             proc = Popen(cmd, shell=False, stdout=PIPE, stderr=PIPE)
             _, stderr = proc.communicate()
         except Exception:
             exec_err = True
-        if self._fail_error in stderr or exec_err:
+        if self._fail_error in stderr.decode() or exec_err:
             return False
 
         return True
@@ -218,9 +212,9 @@ class PowerManagerUsbLinux(PowerManagerUsb):
         )
         stdout, _ = proc.communicate()
         stdout = stdout.strip()
-        if stdout.endswith(self.ON_TEXT):
+        if stdout.endswith(self.ON_TEXT.encode()):
             return True
-        elif stdout.endswith(self.OFF_TEXT):
+        elif stdout.endswith(self.OFF_TEXT.encode()):
             return False
         self._logger.warning('USB PM, could not reach or understand PM')
         return None
@@ -256,7 +250,7 @@ class PowerManagerLan(PowerManagerNull):
     def __init__(
         self,
         socket: int,
-        host=None,
+        host: Optional[str] = None,
         password: str = "1",
         verify_name: bool = False,
         name: str = "Server 1",
@@ -299,17 +293,17 @@ class PowerManagerLan(PowerManagerNull):
                 raise InvalidInit()
 
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         return self._host
 
-    def _set_urls(self):
+    def _set_urls(self) -> None:
 
         host = self._host
 
         self._login_out_url = "http://{0}/login.html".format(host)
         self._ctrl_panel_url = "http://{0}/".format(host)
 
-    def _find_ip(self):
+    def _find_ip(self) -> Optional[str]:
         """Looks up the MAC-address supplied on the local router"""
 
         # SEARCHING FOR IP SPECIFIC DEPENDENCIES
@@ -353,7 +347,7 @@ class PowerManagerLan(PowerManagerNull):
         # FILTER LIST ON ROWS WITH SOUGHT MAC-ADDRESS
         self._logger.debug("LAN PM, Keeping those with correct MAC-addr")
         res = [
-            line for line in p.communicate()[0].split("\n")
+            line for line in p.communicate()[0].split(b"\n")
             if self._mac in line
         ]
 
@@ -361,7 +355,7 @@ class PowerManagerLan(PowerManagerNull):
             # RETURN THE IP
 
             for r in res:
-                self._host = r.split(" ", 1)[0]
+                self._host = r.split(b" ", 1)[0].decode()
                 self._set_urls()
                 if self.test_ip() is not None:
                     break
@@ -373,7 +367,11 @@ class PowerManagerLan(PowerManagerNull):
 
         return self._host
 
-    def _run_url(self, *args, **kwargs):
+    def _run_url(
+        self,
+        *args,
+        **kwargs,
+    ) -> Optional[urllib.request._UrlopenRet]:
         success = False
         connects = 0
         p = None
@@ -392,7 +390,7 @@ class PowerManagerLan(PowerManagerNull):
 
         return p
 
-    def _login(self):
+    def _login(self) -> Optional[urllib.request._UrlopenRet]:
         if self._host is None or self._host == "":
 
             self._logger.error("LAN PM, Logging in failed, no host")
@@ -407,7 +405,7 @@ class PowerManagerLan(PowerManagerNull):
                 timeout=URL_TIMEOUT,
             )
 
-    def _logout(self):
+    def _logout(self) -> Optional[urllib.request._UrlopenRet]:
         if self._host is None or self._host == "":
             self._logger.error("LAN PM, Log out failed, no host")
             return None
