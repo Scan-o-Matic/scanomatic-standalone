@@ -1,7 +1,8 @@
 import configparser
 import os
 from logging import Logger
-from typing import Optional
+from typing import Optional, cast
+from scanomatic.generics.abstract_model_factory import Serializer
 
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
@@ -27,7 +28,11 @@ class FixtureSettings:
         if overwrite:
             return FixtureFactory.create(path=self._conf_path, name=name)
         try:
-            val = FixtureFactory.serializer.load_first(self._conf_path)
+            serializer = cast(
+                Serializer,
+                FixtureFactory.serializer,
+            )
+            val = serializer.load_first(self._conf_path)
         except (IndexError, configparser.Error) as e:
             if isinstance(e, configparser.Error):
                 self._logger.error(
@@ -61,7 +66,7 @@ class FixtureSettings:
     def get_marker_path(self):
         paths = Paths()
         if self.model.orentation_mark_path:
-            marker_paths = (
+            marker_paths: tuple[str, ...] = (
                 self.model.orentation_mark_path,
                 os.path.join(
                     paths.images,
@@ -84,7 +89,11 @@ class FixtureSettings:
         return None
 
     def save(self):
-        FixtureFactory.serializer.dump(self.model, self.path, overwrite=True)
+        serializer = cast(
+            Serializer,
+            FixtureFactory.serializer,
+        )
+        serializer.dump(self.model, self.path, overwrite=True)
 
 
 class Fixtures:
@@ -94,7 +103,10 @@ class Fixtures:
 
     def __getitem__(self, fixture: str) -> Optional[FixtureSettings]:
         if fixture in self:
-            return self._fixtures[fixture]
+            return cast(
+                dict[str, FixtureSettings],
+                self._fixtures,
+            )[fixture]
         return None
 
     def __contains__(self, name: str) -> bool:
@@ -126,7 +138,10 @@ class Fixtures:
     def fill_model(self, model):
         fixture_name = model['fixture']
         if fixture_name in self:
-            fixture: FixtureSettings = self[fixture_name]
+            fixture = cast(
+                FixtureSettings,
+                self[fixture_name],
+            )
             model['im-original-scale'] = fixture.model.scale
             model['fixture-file'] = fixture.path
 
