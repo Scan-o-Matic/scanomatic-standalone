@@ -1,10 +1,12 @@
 import re
+from typing import Optional, SupportsInt, cast
 
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
     float_list_serializer,
     rename_setting
 )
+from scanomatic.generics.model import Model
 from scanomatic.models.fixture_models import (
     FixtureModel,
     FixturePlateModel,
@@ -25,7 +27,10 @@ class FixturePlateFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> FixturePlateModel:
-        return super(FixturePlateFactory, cls).create(**settings)
+        return cast(
+            FixturePlateModel,
+            super(FixturePlateFactory, cls).create(**settings),
+        )
 
 
 class GrayScaleAreaModelFactory(AbstractModelFactory):
@@ -45,16 +50,22 @@ class GrayScaleAreaModelFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> GrayScaleAreaModel:
-        return super(GrayScaleAreaModelFactory, cls).create(**settings)
+        return cast(
+            GrayScaleAreaModel,
+            super(GrayScaleAreaModelFactory, cls).create(**settings),
+        )
 
 
 class FixtureFactory(AbstractModelFactory):
     MODEL = FixtureModel
     STORE_SECTION_HEAD = ('name',)
-    _SUB_FACTORIES = {
-        FixturePlateModel: FixturePlateFactory,
-        GrayScaleAreaModel: GrayScaleAreaModelFactory
-    }
+    _SUB_FACTORIES = cast(
+        dict[Model, AbstractModelFactory],
+        {
+            FixturePlateModel: FixturePlateFactory,
+            GrayScaleAreaModel: GrayScaleAreaModelFactory
+        },
+    )
     STORE_SECTION_SERIALIZERS = {
         'grayscale': GrayScaleAreaModel,
         "orientation_marks_x": float_list_serializer,
@@ -74,7 +85,10 @@ class FixtureFactory(AbstractModelFactory):
 
         def get_index_from_name(name) -> int:
             peoples_index_offset = 1
-            plate_index = re.search(plate_index_pattern, name)
+            plate_index = cast(
+                Optional[SupportsInt],
+                re.search(plate_index_pattern, name),
+            )
             if plate_index is None:
                 raise ValueError(f"Could not find index from name '{name}'")
 
@@ -110,4 +124,7 @@ class FixtureFactory(AbstractModelFactory):
                 ))
                 del settings[plate_name]
 
-        return super(FixtureFactory, cls).create(**settings)
+        return cast(
+            FixtureModel,
+            super(FixtureFactory, cls).create(**settings),
+        )

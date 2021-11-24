@@ -146,7 +146,7 @@ class AbstractModelFactory:
 
     _LOGGER = None
     _SUB_FACTORIES: dict[Model, "AbstractModelFactory"] = {}
-    STORE_SECTION_HEAD = ""
+    STORE_SECTION_HEAD: Union[str, tuple[str]] = ""
     STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
 
     def __new__(cls, *args):
