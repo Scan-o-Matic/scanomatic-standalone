@@ -1,6 +1,5 @@
 import os
-from pickle import UnpicklingError, Unpickler, load
-from io import BytesIO
+from pickle import load
 from typing import IO
 
 
@@ -9,19 +8,6 @@ def unpickle(path: str):
     Returns: Unpickled object
     """
     return load(safe_load(path))
-
-
-def unpickles(data: str):
-    """Unpickles data safely
-    Returns: Unpickled object
-    """
-    try:
-        raise ImportError
-    except (ImportError, UnpicklingError):
-        version_compatibility = _RefactoringPhases()
-        io_buffer = SafeBytesIO(data, version_compatibility)
-        version_compatibility.io = io_buffer
-        return Unpickler(io_buffer).load()
 
 
 def safe_load(path, return_string=False):
@@ -122,22 +108,3 @@ class SafeProxyFileObject:
 
     def __getattr__(self, item):
         return getattr(self.__dict__['__file'], item)
-
-
-class SafeBytesIO(BytesIO):
-
-    def __init__(self, data, *validation_functions):
-        super(SafeBytesIO, self).__init__(data)
-        self._validation_functions = validation_functions
-
-    def readline(self):
-
-        for validation_func in self._validation_functions:
-            line: bytes = validation_func(line)
-        return line
-
-    def readlines(self):
-        def yielder():
-            while self.len != self.pos:
-                yield self.readline()
-        return [line for line in yielder()]
