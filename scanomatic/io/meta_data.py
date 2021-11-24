@@ -7,7 +7,7 @@ import pandas as pd  # type: ignore
 
 
 class DataLoader:
-    _SUFFIXES = []
+    _SUFFIXES: tuple[str, ...] = tuple()
 
     def __init__(self, path):
         self._logger = Logger("MetaDataLoader")
@@ -120,7 +120,7 @@ class DataLoader:
 
 class ExcelLoader(DataLoader):
 
-    _SUFFIXES = ['xls', 'xlsx']
+    _SUFFIXES = ('xls', 'xlsx')
 
     def __init__(self, path):
 

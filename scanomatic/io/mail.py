@@ -143,10 +143,7 @@ def mail(
     if not sender:
         sender = get_default_email()
 
-    try:
-        msg = MIMEMultipart()
-    except TypeError:
-        msg = MIMEMultipart.MIMEMultipart()
+    msg = MIMEMultipart()
 
     msg['From'] = sender
     msg['To'] = (
