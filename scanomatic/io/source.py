@@ -173,7 +173,7 @@ def download(
                     )
                 )
 
-    return os.path.join(tf, os.walk(tf).next()[1][0])
+    return os.path.join(tf, tuple(os.walk(tf))[0][1][0])
 
 
 def install(source_path, branch=None) -> bool:
