@@ -403,7 +403,7 @@ class SaneBase:
             )
             return False
 
-    def _update_mode_source(self):
+    def _update_mode_source(self) -> None:
 
         default_word = SaneBase._SETTINGS_REPOSITORY[cast(str, self._model)][
             SCANNER_DATA.DefaultTransparencyWord

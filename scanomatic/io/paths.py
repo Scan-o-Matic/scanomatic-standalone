@@ -187,17 +187,17 @@ class Paths(SingeltonOneInit):
         self.scan_log_file_pattern = "{0}.scan.log"
 
     @staticmethod
-    def _make_directory(path):
+    def _make_directory(path: str):
         if not os.path.isdir(path):
             os.makedirs(path)
 
-    def join(self, attr, *other):
+    def join(self, attr, *other) -> str:
         if hasattr(self, attr):
             return os.path.join(getattr(self, attr), *other)
         else:
             raise AttributeError("Unknown path attribute '{0}'".format(attr))
 
-    def _is_fixture_file_name(self, fixture_name) -> bool:
+    def _is_fixture_file_name(self, fixture_name: str) -> bool:
         suffix_l = len(self.fixture_conf_file_suffix)
         if (
             len(fixture_name) > suffix_l
@@ -207,7 +207,7 @@ class Paths(SingeltonOneInit):
         else:
             return False
 
-    def get_fixture_name(self, fixture_path) -> str:
+    def get_fixture_name(self, fixture_path: str) -> str:
         fixture = os.path.basename(fixture_path)
         if len(fixture) > len(self.fixture_conf_file_suffix):
             if (
@@ -240,7 +240,7 @@ class Paths(SingeltonOneInit):
         return compile_model.path
 
     @staticmethod
-    def get_project_directory_name_with_file_prefix_from_path(path) -> str:
+    def get_project_directory_name_with_file_prefix_from_path(path: str) -> str:
         if os.path.isdir(path):
             dir_name = path
         else:
@@ -252,7 +252,7 @@ class Paths(SingeltonOneInit):
 
     def get_project_compile_instructions_path_from_compile_model(
         self,
-        compile_model,
+        compile_model: CompileInstructionsModel,
     ) -> str:
         return self.get_project_compile_instructions_path_from_compilation_path(  # noqa: E501
             compile_model.path,
@@ -260,7 +260,7 @@ class Paths(SingeltonOneInit):
 
     def get_project_compile_instructions_path_from_compilation_path(
         self,
-        path,
+        path: str,
     ) -> str:
         return self.project_compilation_instructions_pattern.format(
             self.get_project_directory_name_with_file_prefix_from_path(path),
@@ -278,18 +278,18 @@ class Paths(SingeltonOneInit):
 
     def get_scan_instructions_path_from_compile_instructions_path(
         self,
-        path,
+        path: str,
     ) -> str:
         return self.scan_project_file_pattern.format(
             self.get_project_directory_name_with_file_prefix_from_path(path),
         )
 
     @staticmethod
-    def get_scanner_path_name(scanner) -> str:
+    def get_scanner_path_name(scanner: str) -> str:
         return scanner.lower().replace(" ", "_")
 
     @staticmethod
-    def get_scanner_index(scanner_path) -> Optional[int]:
+    def get_scanner_index(scanner_path: str) -> Optional[int]:
         candidates = list(map(int, re.findall(r"\d+", scanner_path)))
         if len(candidates) > 0:
             return candidates[-1]
@@ -298,11 +298,11 @@ class Paths(SingeltonOneInit):
 
     def get_fixture_path(
         self,
-        fixture_name,
-        conf_file=True,
-        own_path=None,
-        only_name=False,
-    ):
+        fixture_name: str,
+        conf_file: bool = True,
+        own_path: Optional[str] = None,
+        only_name: bool = False,
+    ) -> str:
         fixture_name = fixture_name.lower().replace(" ", "_")
         if self._is_fixture_file_name(fixture_name):
             fixture_name = fixture_name[

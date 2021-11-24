@@ -54,16 +54,16 @@ class FixtureSettings:
         ))
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self._conf_path
 
-    def update_path_to_local_copy(self, local_directory):
+    def update_path_to_local_copy(self, local_directory) -> None:
         self._conf_path = os.path.join(
             local_directory,
             Paths().experiment_local_fixturename,
         )
 
-    def get_marker_path(self):
+    def get_marker_path(self) -> Optional[str]:
         paths = Paths()
         if self.model.orentation_mark_path:
             marker_paths: tuple[str, ...] = (
@@ -88,7 +88,7 @@ class FixtureSettings:
                 )
         return None
 
-    def save(self):
+    def save(self) -> None:
         serializer = cast(
             Serializer,
             FixtureFactory.serializer,
@@ -112,7 +112,7 @@ class Fixtures:
     def __contains__(self, name: str) -> bool:
         return self._fixtures is not None and name in self._fixtures
 
-    def update(self):
+    def update(self) -> None:
         directory = Paths().fixtures
         extension = ".config"
 
@@ -135,7 +135,7 @@ class Fixtures:
 
         return tuple(sorted(self._fixtures.keys()))
 
-    def fill_model(self, model):
+    def fill_model(self, model) -> None:
         fixture_name = model['fixture']
         if fixture_name in self:
             fixture = cast(
