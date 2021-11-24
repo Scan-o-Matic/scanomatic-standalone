@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from enum import Enum
 from itertools import chain
-from typing import Any, Generator
+from typing import AbstractSet, Any, Generator
 
 
 class Model(Mapping):
@@ -137,7 +137,7 @@ class Model(Mapping):
 
         return self.__dict__[Model._INITIALIZED]
 
-    def keys(self) -> list[str]:
+    def keys(self):
         return (
             k for k in list(self.__dict__.keys())
             if not k.startswith("_") and k != "keys"
