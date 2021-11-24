@@ -187,7 +187,7 @@ class Paths(SingeltonOneInit):
         self.scan_log_file_pattern = "{0}.scan.log"
 
     @staticmethod
-    def _make_directory(path: str):
+    def _make_directory(path: str) -> None:
         if not os.path.isdir(path):
             os.makedirs(path)
 
