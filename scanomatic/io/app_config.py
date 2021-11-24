@@ -2,8 +2,9 @@ import os
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
-from typing import Optional, Union
+from typing import Optional, Union, cast
 from collections.abc import Sequence
+from scanomatic.generics.abstract_model_factory import Serializer
 
 import scanomatic.models.scanning_model as scanning_model
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -109,7 +110,7 @@ class Config(SingeltonOneInit):
         return self._settings.number_of_scanners
 
     @number_of_scanners.setter
-    def number_of_scanners(self, value: int):
+    def number_of_scanners(self, value: int) -> None:
         if isinstance(value, int) and value >= 0:
             self._settings.number_of_scanners = value
             # TODO: Should update dependent values such as
@@ -126,7 +127,7 @@ class Config(SingeltonOneInit):
         return self._settings.scanner_name_pattern
 
     @scanner_name_pattern.setter
-    def scanner_name_pattern(self, value: str):
+    def scanner_name_pattern(self, value: str) -> None:
         self._settings.scanner_name_pattern = str(value)
 
     @property
@@ -158,14 +159,18 @@ class Config(SingeltonOneInit):
 
         for s in self.scanner_names:
             if s == scanner:
-                return scanner
+                return str(scanner)
         return None
 
-    def reload_settings(self):
+    def reload_settings(self) -> None:
         if os.path.isfile(self._paths.config_main_app):
             try:
+                serializer = cast(
+                    Serializer,
+                    ApplicationSettingsFactory.serializer,
+                )
                 self._settings = (
-                    ApplicationSettingsFactory.serializer.load_first(
+                    serializer.load_first(
                         self._paths.config_main_app,
                     )
                 )
@@ -187,7 +192,7 @@ class Config(SingeltonOneInit):
             self._settings.power_manager.type,
         )
 
-    def apply_local_rpc_settings(self):
+    def apply_local_rpc_settings(self) -> None:
         rpc_conf = ConfigParser(allow_no_value=True)
         if not rpc_conf.read(self._paths.config_rpc):
             self._logger.warning(
@@ -269,20 +274,24 @@ class Config(SingeltonOneInit):
             return False
         return True
 
-    def save_current_settings(self):
+    def save_current_settings(self) -> None:
         if self.validate():
-            ApplicationSettingsFactory.serializer.purge_all(
+            serializer = cast(
+                Serializer,
+                ApplicationSettingsFactory.serializer,
+            )
+            serializer.purge_all(
                 self._paths.config_main_app,
             )
-            ApplicationSettingsFactory.serializer.dump(
+            serializer.dump(
                 self._settings,
                 self._paths.config_main_app,
             )
 
-    def get_scanner_socket(self, scanner: Union[int, str]):
-        scanner = self.get_scanner_name(scanner)
-        if scanner:
-            return self.scanner_sockes[scanner]
+    def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
+        scanner_name = self.get_scanner_name(scanner)
+        if scanner_name:
+            return self.scanner_sockets[scanner_name]
         return None
 
     def get_pm(self, socket: Optional[int]):
@@ -292,7 +301,7 @@ class Config(SingeltonOneInit):
                 f"sockets 1-{self.power_manager.number_of_sockets}" if
                 self.power_manager.number_of_sockets else "no sockets"
             ))
-            return power_manager.PowerManagerNull("None")
+            return power_manager.PowerManagerNull(0)
 
         self._logger.info(
             "Creating scanner PM for socked {0} and settings {1}".format(

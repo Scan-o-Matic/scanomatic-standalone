@@ -1,9 +1,10 @@
+from collections.abc import Mapping
 from enum import Enum
 from itertools import chain
 from typing import Any, Generator
 
 
-class Model:
+class Model(Mapping):
     _INITIALIZED = "_initialized"
     _RESERVED_WORDS = ('keys',)
     _STR_PATTERN = "<{0} {1}={2}>"
@@ -106,6 +107,9 @@ class Model:
                     break
 
         return Model._STR_PATTERN.format(classname, key, value)
+
+    def __len__(self) -> int:
+        return len(self.keys())
 
     @classmethod
     def _has_set_field_types(cls):
