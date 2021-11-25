@@ -8,7 +8,7 @@ import urllib.request
 from enum import Enum
 from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Optional, Type
+from typing import Any, Optional, Type
 from urllib.parse import urlencode
 
 # FURTHER LAN-specific dependenies further down
@@ -371,7 +371,7 @@ class PowerManagerLan(PowerManagerNull):
         self,
         *args,
         **kwargs,
-    ) -> Optional[urllib.request._UrlopenRet]:
+    ) -> Any:
         success = False
         connects = 0
         p = None
@@ -390,7 +390,7 @@ class PowerManagerLan(PowerManagerNull):
 
         return p
 
-    def _login(self) -> Optional[urllib.request._UrlopenRet]:
+    def _login(self) -> Any:
         if self._host is None or self._host == "":
 
             self._logger.error("LAN PM, Logging in failed, no host")
@@ -405,7 +405,7 @@ class PowerManagerLan(PowerManagerNull):
                 timeout=URL_TIMEOUT,
             )
 
-    def _logout(self) -> Optional[urllib.request._UrlopenRet]:
+    def _logout(self) -> Any:
         if self._host is None or self._host == "":
             self._logger.error("LAN PM, Log out failed, no host")
             return None
