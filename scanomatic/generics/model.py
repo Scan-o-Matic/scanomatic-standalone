@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from enum import Enum
 from itertools import chain
-from typing import AbstractSet, Any, Generator
+from typing import Any, Generator
 
 
 class Model(Mapping):
