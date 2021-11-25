@@ -1,6 +1,6 @@
 import csv
 from logging import Logger
-from typing import Optional
+from typing import Iterator, Optional, Union, cast
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -33,7 +33,7 @@ class DataLoader:
 
         return self._entries[self._sheet]
 
-    def get_sheet_name(self, sheet_index: int):
+    def get_sheet_name(self, sheet_index: int) -> str:
 
         return self._sheet_names[sheet_index]
 
@@ -128,7 +128,7 @@ class ExcelLoader(DataLoader):
         self._data = []
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
 
         self._data = []
         self._reset()
@@ -137,7 +137,7 @@ class ExcelLoader(DataLoader):
             self._sheet_names.append(n)
             self._load_sheet(doc.parse(n, header=None).fillna(value=''))
 
-    def _load_sheet(self, df: pd.DataFrame):
+    def _load_sheet(self, df: pd.DataFrame) -> None:
         self._data.append(df)
         self._entries.append(df.shape[0])
         self._columns.append(df.shape[1])
@@ -157,13 +157,13 @@ class CSVLoader(DataLoader):
         super(CSVLoader, self).__init__(path)
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
         self._reset()
         with open(self._path) as fh:
             raw_data = fh.readlines()
 
         dialect = csv.Sniffer().sniff(raw_data[0])
-        data = csv.reader(raw_data, dialect=dialect)
+        data = list(csv.reader(raw_data, dialect=dialect))
         self._columns.append(max(len(row) for row in data))
         self._entries.append(len(data))
         self._headers.append(None)
@@ -188,7 +188,7 @@ class MetaData2:
             for shape in plate_shapes
         )
 
-        self._headers: list[Optional[tuple[int, int]]] = [
+        self._headers: list[Optional[list[str]]] = [
             None for _ in plate_shapes
         ]
         self._loading_plate = 0
@@ -222,20 +222,23 @@ class MetaData2:
     def __setstate__(self, state):
         self.__dict__.update(state)
 
-    def get_column_index_from_all_plates(self, index):
-        plates = []
+    def get_column_index_from_all_plates(
+        self,
+        index,
+    ) -> list[list[list[list]]]:
+        plates: list[list[list[list]]] = []
         for id_plate, (outers, inners) in enumerate(self._plate_shapes):
-            plate = []
+            plate: list[list[list]] = []
             plates.append(plate)
             for id_outer in range(outers):
-                data = []
+                data: list[list] = []
                 plate.append(data)
 
                 for id_inner in range(inners):
                     data.append(self(id_plate, id_outer, id_inner)[index])
         return plates
 
-    def get_header_row(self, plate: int) -> list[str]:
+    def get_header_row(self, plate: int) -> Optional[list[str]]:
         """
         Args:
             plate: Plate index
@@ -245,7 +248,7 @@ class MetaData2:
         return self._headers[plate]
 
     @property
-    def shapes(self):
+    def shapes(self) -> list[np.ndarray]:
         return self._plate_shapes
 
     @property
@@ -264,7 +267,7 @@ class MetaData2:
 
         return None
 
-    def _load(self, *paths):
+    def _load(self, *paths) -> None:
         for path in paths:
 
             if self.loaded:
@@ -320,7 +323,7 @@ class MetaData2:
         size = np.prod(self._plate_shapes[self._loading_plate])
         return size // 4 ** len(self._loading_offset)
 
-    def _update_loading_offsets(self):
+    def _update_loading_offsets(self) -> None:
         if not self._loading_offset:
             return
         outer, inner = self._loading_offset[-1]
@@ -335,7 +338,7 @@ class MetaData2:
 
         self._loading_offset[-1] = (outer, inner)
 
-    def _has_matching_headers(self, headers):
+    def _has_matching_headers(self, headers) -> bool:
         plate_header = self._headers[self._loading_plate]
         if plate_header is None:
             return True
@@ -348,7 +351,7 @@ class MetaData2:
                 a == b for a, b in zip(plate_header, headers)
             )
 
-    def _update_headers_if_needed(self, headers):
+    def _update_headers_if_needed(self, headers) -> None:
         loading_plate = self._headers[self._loading_plate]
         if (
             loading_plate is None
@@ -356,10 +359,13 @@ class MetaData2:
         ):
             self._headers[self._loading_plate] = headers
 
-    def _update_meta_data(self, loader):
+    def _update_meta_data(self, loader) -> None:
         slotter = self._get_slotting_iter(loader)
         for meta_data in loader.get_next():
-            self._data[self._loading_plate][next(slotter)] = meta_data
+            cast(
+                tuple[np.ndarray],
+                self._data,
+            )[self._loading_plate][next(slotter)] = meta_data
 
     def _get_slotting_iter(self, loader: DataLoader):
         """
@@ -375,8 +381,14 @@ class MetaData2:
                 outer += factor
                 if outer >= max_outer:
                     outer %= max_outer
-        plate_data: np.ndarray = self._data[self._loading_plate]
-        plate_shape: np.ndarray = self._plate_shapes[self._loading_plate]
+        plate_data = cast(
+            np.ndarray,
+            self._data[self._loading_plate],
+        )
+        plate_shape = cast(
+            np.ndarray,
+            self._plate_shapes[self._loading_plate],
+        )
         factor = np.log2(
             plate_data.size /
             (
@@ -423,7 +435,11 @@ class MetaData2:
         for outer, inner in selection:
             yield self(plate, outer, inner)
 
-    def find(self, value: str, column: Optional[str] = None):
+    def find(
+        self,
+        value: str,
+        column: Optional[Union[str, int]] = None,
+    ) -> Iterator[Iterator[tuple[int, ...]]]:
         """Generate coordinate tuples for where key matches meta-data
 
         :param value : Search criteria
@@ -443,7 +459,12 @@ class MetaData2:
 
             yield self.find_on_plate(id_plate, value, column=column)
 
-    def find_on_plate(self, plate, value, column=None):
+    def find_on_plate(
+        self,
+        plate: int,
+        value: str,
+        column: Optional[Union[str, int]] = None,
+    ) -> Iterator[tuple[int, ...]]:
         if isinstance(column, str):
             column = self.get_header_index(plate, column)
 
@@ -460,7 +481,11 @@ class MetaData2:
                     yield (id_row, id_col)
 
     def get_header_index(self, plate, header) -> int:
-        for i, column_header in enumerate(self.get_header_row(plate)):
+        header_row = cast(
+            list[str],
+            self.get_header_row(plate),
+        )
+        for i, column_header in enumerate(header_row):
             if column_header.lower() == header.lower():
                 return i
         return -1
