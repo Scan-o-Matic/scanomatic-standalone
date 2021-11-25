@@ -38,18 +38,21 @@ def ip_is_local(ip: str) -> bool:
 
 
 def get_my_ip():
-    def getsockname(sock: socket.socket) -> str:
+    def get_ip_from_socket(sock: socket.socket) -> str:
         sock.connect(('8.8.8.8', 80))
-        sockname = sock.getsockname()[0]
+        ip = sock.getsockname()[0]
         sock.close()
-        return sockname
+        return ip
 
     global _IP
     if _IP:
         return _IP
 
     try:
-        _IP = getsockname(socket.socket(socket.AF_INET, socket.SOCK_DGRAM))
+        _IP = get_ip_from_socket(socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM,
+        ))
     except IndexError:
         _logger.info("Failed to get IP via socket")
 
