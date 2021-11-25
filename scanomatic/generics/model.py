@@ -109,7 +109,7 @@ class Model(Mapping):
         return Model._STR_PATTERN.format(classname, key, value)
 
     def __len__(self) -> int:
-        return len(self.keys())
+        return len(tuple(self.keys()))
 
     @classmethod
     def _has_set_field_types(cls) -> bool:
