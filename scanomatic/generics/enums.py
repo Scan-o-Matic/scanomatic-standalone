@@ -5,8 +5,7 @@ from typing import Generator
 
 class DefaultEnum(Enum):
     @classmethod
-    @property
-    def default(cls):
+    def get_default(cls):
         return list(cls.__members__.values())[0]
 
 
@@ -15,7 +14,7 @@ class IterationEnum(DefaultEnum):
     def _non_default_values(self) -> Generator["IterationEnum", None, None]:
         return (
             m for m in list(type(self).__members__.values())
-            if m is not self.default
+            if m is not self.get_default()
         )
 
 

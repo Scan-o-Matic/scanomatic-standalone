@@ -23,7 +23,9 @@ def _input_validate(f):
             if isinstance(args[0], str):
 
                 args = list(args)
-                args[0] = CompileImageAnalysisFactory.serializer.load(args[0])
+                args[0] = CompileImageAnalysisFactory.get_serializer().load(
+                    args[0],
+                )
 
         return f(*args, **kwargs)
 

@@ -81,7 +81,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
         self._logger.info("Setup called")
 
         self._compile_job = (
-            RPC_Job_Model_Factory.serializer.load_serialized_object(
+            RPC_Job_Model_Factory.get_serializer().load_serialized_object(
                 job,
             )[0].content_model
         )
@@ -109,7 +109,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             except OSError:
                 pass
 
-            CompileProjectFactory.serializer.dump(
+            CompileProjectFactory.get_serializer().dump(
                 self._compile_job,
                 self._compile_instructions_path
             )
@@ -194,7 +194,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                         self._fixture_settings,
                         issues=issues,
                     )
-                    CompileImageAnalysisFactory.serializer.dump_to_filehandle(
+                    CompileImageAnalysisFactory.get_serializer().dump_to_filehandle(  # noqa: E501
                         image_model,
                         fh,
                         as_if_appending=True,

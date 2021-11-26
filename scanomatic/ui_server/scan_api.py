@@ -32,7 +32,7 @@ def add_routes(app):
 
         path = convert_url_to_path(project)
 
-        model = ScanningModelFactory.serializer.load_first(path)
+        model = ScanningModelFactory.get_serializer().load_first(path)
         """:type model: scanomatic.models.scanning_model.ScanningModel"""
 
         if model is None:

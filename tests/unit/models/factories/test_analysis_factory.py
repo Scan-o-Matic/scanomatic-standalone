@@ -18,7 +18,7 @@ def analysis_model():
 
 @pytest.fixture(scope='function')
 def analysis_serialized_object(analysis_model):
-    return AnalysisModelFactory.serializer.serialize(analysis_model)
+    return AnalysisModelFactory.get_serializer().serialize(analysis_model)
 
 
 @pytest.fixture(scope='session')
@@ -34,11 +34,11 @@ class TestAnalysisModels:
         assert hasattr(analysis_model, 'cell_count_calibration_id')
 
     def test_model_can_serialize(self, analysis_model):
-        serial = AnalysisModelFactory.serializer.serialize(analysis_model)
+        serial = AnalysisModelFactory.get_serializer().serialize(analysis_model)
         assert len(serial) == 2
 
     def test_model_can_deserialize(self, analysis_serialized_object):
-        result = AnalysisModelFactory.serializer.load_serialized_object(
+        result = AnalysisModelFactory.get_serializer().load_serialized_object(
             analysis_serialized_object,
         )
         assert len(result) == 1
@@ -83,7 +83,7 @@ class TestAnalysisModels:
         'analysis.model.2017.12',
     ))
     def test_can_load_serialized_files_from_disk(self, basename, data_path):
-        model = AnalysisModelFactory.serializer.load_first(
+        model = AnalysisModelFactory.get_serializer().load_first(
             os.path.join(data_path, basename),
         )
         assert isinstance(model, AnalysisModel)
@@ -96,7 +96,7 @@ class TestAnalysisModels:
         basename,
         data_path,
     ):
-        model = AnalysisModelFactory.serializer.load_first(
+        model = AnalysisModelFactory.get_serializer().load_first(
             os.path.join(data_path, basename),
         )
         assert model is None
@@ -114,5 +114,5 @@ class TestAnalysisModels:
 
     def test_right_keys_match(self):
         assert AnalysisModelFactory.all_keys_valid(
-            tuple(AnalysisModelFactory.default_model.keys()),
+            tuple(AnalysisModelFactory.get_default_model().keys()),
         )

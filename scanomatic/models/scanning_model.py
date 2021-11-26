@@ -23,8 +23,7 @@ class SCAN_CYCLE(MinorMajorStepEnum):
     RequestProjectCompilation = 50
 
     @classmethod
-    @property
-    def default(cls) -> "SCAN_CYCLE":
+    def get_default(cls) -> "SCAN_CYCLE":
         return cls.Unknown
 
 

@@ -95,7 +95,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
 
         analysis_file = os.path.join(path, Paths().analysis_model_file)
-        model: AnalysisModel = AnalysisModelFactory.serializer.load_first(
+        model: AnalysisModel = AnalysisModelFactory.get_serializer().load_first(
             analysis_file,
         )
 

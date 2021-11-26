@@ -31,11 +31,10 @@ class JOB_TYPE(CycleEnum):
         for member in cls.__members__.values():
             if value == member.int_value:
                 return member
-        return cls.default
+        return cls.get_default()
 
     @classmethod
-    @property
-    def default(cls) -> "JOB_TYPE":
+    def get_default(cls) -> "JOB_TYPE":
         return cls.Unknown
 
 

@@ -61,7 +61,7 @@ def produce_grid_images(
         )
     )
 
-    compilation = CompileImageAnalysisFactory.serializer.load(compilation)
+    compilation = CompileImageAnalysisFactory.get_serializer().load(compilation)
 
     image_path = compilation[-1].image.path
     all_plates = compilation[-1].fixture.plates
