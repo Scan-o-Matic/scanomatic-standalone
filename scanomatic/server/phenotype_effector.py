@@ -58,12 +58,12 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
             self._logger.warning("Can't setup when started")
             return False
 
-        job = RPC_Job_Model_Factory.serializer.load_serialized_object(job)[0]
+        job = RPC_Job_Model_Factory.get_serializer().load_serialized_object(job)[0]
         self._feature_job = job.content_model
         self._job.content_model = self._feature_job
 
         if feature_factory.FeaturesFactory.validate(self._feature_job) is True:
-            feature_factory.FeaturesFactory.serializer.dump(
+            feature_factory.FeaturesFactory.get_serializer().dump(
                 self._feature_job,
                 os.path.join(
                     self._feature_job.analysis_directory,

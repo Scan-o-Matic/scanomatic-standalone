@@ -85,13 +85,13 @@ class CompilationResults:
                 return
 
         self._scanner_instructions = (
-            ScanningModelFactory.serializer.load_first(path)
+            ScanningModelFactory.get_serializer().load_first(path)
         )
 
     def _load_compile_instructions(self, path: str):
         try:
             self._compile_instructions = (
-                CompileProjectFactory.serializer.load_first(path)
+                CompileProjectFactory.get_serializer().load_first(path)
             )
         except IndexError:
             self._logger.error(f"Could not load path {path}")
@@ -102,7 +102,7 @@ class CompilationResults:
         path: str,
         sort_mode: FIRST_PASS_SORTING = FIRST_PASS_SORTING.Time
     ):
-        images = CompileImageAnalysisFactory.serializer.load(path)
+        images = CompileImageAnalysisFactory.get_serializer().load(path)
         self._logger.info("Loaded {0} compiled images".format(len(images)))
 
         self._reindex_plates(images)
@@ -273,7 +273,7 @@ class CompilationResults:
                     self._update_image_path_if_needed(model, directory)
                     if model is None:
                         break
-                    CompileImageAnalysisFactory.serializer.dump_to_filehandle(
+                    CompileImageAnalysisFactory.get_serializer().dump_to_filehandle(
                         model,
                         fh,
                     )
@@ -285,7 +285,7 @@ class CompilationResults:
             directory,
             Paths().project_compilation_pattern.format(new_name),
         )
-        CompileProjectFactory.serializer.dump(
+        CompileProjectFactory.get_serializer().dump(
             self._compile_instructions,
             compile_instructions,
         )
@@ -302,7 +302,7 @@ class CompilationResults:
                 directory,
                 Paths().scan_project_file_pattern.format(new_name),
             )
-            ScanningModelFactory.serializer.dump(
+            ScanningModelFactory.get_serializer().dump(
                 self._scanner_instructions,
                 scan_instructions,
             )

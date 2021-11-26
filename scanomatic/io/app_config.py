@@ -167,7 +167,7 @@ class Config(SingeltonOneInit):
             try:
                 serializer = cast(
                     Serializer,
-                    ApplicationSettingsFactory.serializer,
+                    ApplicationSettingsFactory.get_serializer(),
                 )
                 self._settings = (
                     serializer.load_first(
@@ -278,7 +278,7 @@ class Config(SingeltonOneInit):
         if self.validate():
             serializer = cast(
                 Serializer,
-                ApplicationSettingsFactory.serializer,
+                ApplicationSettingsFactory.get_serializer(),
             )
             serializer.purge_all(
                 self._paths.config_main_app,

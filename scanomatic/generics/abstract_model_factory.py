@@ -153,28 +153,25 @@ class AbstractModelFactory:
         raise Exception("This class is static, can't be instantiated")
 
     @classmethod
-    @property
-    def logger(cls) -> Logger:
+    def get_logger(cls) -> Logger:
         if cls._LOGGER is None:
             cls._LOGGER = Logger(cls.__name__)
 
         return cls._LOGGER
 
     @classmethod
-    @property
-    def serializer(cls) -> "Serializer":
+    def get_serializer(cls) -> "Serializer":
         return Serializer(cls)
 
     @classmethod
-    @property
-    def default_model(cls) -> Model:
+    def get_default_model(cls) -> Model:
         return cls.MODEL()
 
     @classmethod
     def get_sub_factory(cls, model: Model):
         model_type = type(model)
         if model_type not in cls._SUB_FACTORIES:
-            cls.logger.warning(
+            cls.get_logger().warning(
                 "Unknown subfactory for model-type {0}".format(model_type)
             )
             return AbstractModelFactory
@@ -192,7 +189,7 @@ class AbstractModelFactory:
 
     @classmethod
     def create(cls, **settings) -> Model:
-        valid_keys = tuple(cls.default_model.keys())
+        valid_keys = tuple(cls.get_default_model().keys())
 
         cls.drop_keys(settings, valid_keys)
         cls.enforce_serializer_type(
@@ -203,7 +200,7 @@ class AbstractModelFactory:
 
     @classmethod
     def all_keys_valid(cls, keys):
-        expected = set(cls.default_model.keys())
+        expected = set(cls.get_default_model().keys())
         return (
             expected.issuperset(keys)
             and len(expected.intersection(keys)) > 0
@@ -214,7 +211,7 @@ class AbstractModelFactory:
         keys = tuple(settings.keys())
         for key in keys:
             if key not in valid_keys:
-                cls.logger.warning(
+                cls.get_logger().warning(
                     "Removing key \"{0}\" from {1} creation, since not among {2}".format(  # noqa: E501
                        key,
                        cls.MODEL,
@@ -242,9 +239,9 @@ class AbstractModelFactory:
                     try:
                         return factory.create(**obj)
                     except TypeError as e:
-                        cls.logger.warning("Could not use {0} on key {1} to create sub-class".format(  # noqa: E501
-                            factory, obj
-                        ))
+                        cls.get_logger().warning(
+                            f"Could not use {factory} on key {obj} to create sub-class", # noqa: E501
+                        )
                         raise e
 
                 if index < len(factories):
@@ -266,11 +263,8 @@ class AbstractModelFactory:
                     try:
                         return dtype.create(**obj)
                     except AttributeError:
-                        cls.logger.error(
-                            "Contents mismatch between factory {0} and model data '{1}'".format(  # noqa: E501
-                                dtype,
-                                obj,
-                            ),
+                        cls.get_logger().error(
+                            f"Contents mismatch between factory {dtype} and model data '{obj}'",  # noqa: E501
                         )
                         return obj
             try:
@@ -279,7 +273,7 @@ class AbstractModelFactory:
                 try:
                     return dtype[obj]
                 except (AttributeError, KeyError, IndexError, TypeError):
-                    cls.logger.error(
+                    cls.get_logger().error(
                         "Having problems enforcing '{0}' to be type '{1}' in supplied settings '{2}'.".format(  # noqa: E501
                             obj,
                             dtype,
@@ -371,8 +365,8 @@ class AbstractModelFactory:
     @classmethod
     def copy(cls, model):
         if cls._verify_correct_model(model):
-            return cls.serializer.load_serialized_object(
-                copy.deepcopy(cls.serializer.serialize(model))
+            return cls.get_serializer().load_serialized_object(
+                copy.deepcopy(cls.get_serializer().serialize(model))
             )[0]
 
     @classmethod
@@ -493,7 +487,7 @@ class AbstractModelFactory:
             ):
                 obj[key] = cls._SUB_FACTORIES[
                     cls.STORE_SECTION_SERIALIZERS[key]
-                ].default_model
+                ].get_default_model()
 
     @classmethod
     def clamp(cls, model):
@@ -626,7 +620,7 @@ class _SectionsLink:
 
     def __init__(self, subfactory: AbstractModelFactory, submodel: Model):
         self._subfactory = subfactory
-        self._section_name = subfactory.serializer.get_section_name(submodel)
+        self._section_name = subfactory.get_serializer().get_section_name(submodel)
         self._locked_name = False
         _SectionsLink._LINKS[submodel] = self
 
@@ -730,7 +724,7 @@ class _SectionsLink:
         return config_parser.items(self._section_name)
 
     def retrieve_model(self, config_parser):
-        return self._subfactory.serializer.unserialize_section(
+        return self._subfactory.get_serializer().unserialize_section(
             config_parser,
             self._section_name,
         )
@@ -1071,7 +1065,7 @@ class Serializer:
                 ):
                     subfactory = factory.get_sub_factory(item)
                     link = _SectionsLink.set_link(subfactory, item, conf)
-                    subfactory.serializer.serialize_into_conf(
+                    subfactory.get_serializer().serialize_into_conf(
                         item,
                         conf,
                         link.section,
@@ -1109,7 +1103,7 @@ class Serializer:
                     _SectionsLink,
                 ),
             )
-            subfactory.serializer.serialize_into_conf(
+            subfactory.get_serializer().serialize_into_conf(
                 obj,
                 conf,
                 _SectionsLink.get_link(obj).section,

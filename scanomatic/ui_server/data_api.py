@@ -403,7 +403,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             Paths().experiment_local_fixturename)
 
         try:
-            fixture = FixtureFactory.serializer.load_first(path)
+            fixture = FixtureFactory.get_serializer().load_first(path)
             if fixture is None:
                 return jsonify(
                     success=False,
@@ -445,7 +445,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         elif name in rpc_client.get_fixtures():
             path = Paths().get_fixture_path(name)
             try:
-                fixture = FixtureFactory.serializer.load_first(path)
+                fixture = FixtureFactory.get_serializer().load_first(path)
                 if fixture is None:
                     return jsonify(
                         success=False,
@@ -614,7 +614,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 reason="Final compilation doesn't validate",
             )
 
-        FixtureFactory.serializer.dump(fixture_model, fixture_model.path)
+        FixtureFactory.get_serializer().dump(fixture_model, fixture_model.path)
         return jsonify(success=True)
 
     @app.route("/api/data/fixture/calculate/<fixture_name>", methods=['POST'])

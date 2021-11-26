@@ -119,7 +119,7 @@ def load_colony_image(
             analysis_directory,
             file_name=compilation_file_name,
         )
-        compilation_result = CompileImageAnalysisFactory.serializer.load(
+        compilation_result = CompileImageAnalysisFactory.get_serializer().load(
             compilation_file,
         )[time_index]
         if not experiment_directory:
@@ -192,7 +192,7 @@ def load_colony_images_for_animation(
 
     grid, grid_size = _load_grid_info(analysis_directory, position[0])
 
-    compilation_results = CompileImageAnalysisFactory.serializer.load(
+    compilation_results = CompileImageAnalysisFactory.get_serializer().load(
         project_compilation,
     )
     compilation_results = sorted(

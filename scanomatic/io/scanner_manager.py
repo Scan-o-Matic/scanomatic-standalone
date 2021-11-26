@@ -71,7 +71,7 @@ class ScannerPowerManager(SingeltonOneInit):
         scanners: dict[int, ScannerModel] = {}
 
         # Load saved scanner data
-        for scanner in ScannerFactory.serializer.load(
+        for scanner in ScannerFactory.get_serializer().load(
             self._paths.config_scanners,
         ):
 
@@ -118,7 +118,7 @@ class ScannerPowerManager(SingeltonOneInit):
 
     def _save(self, scanner_model):
 
-        ScannerFactory.serializer.dump(
+        ScannerFactory.get_serializer().dump(
             scanner_model,
             self._paths.config_scanners,
         )

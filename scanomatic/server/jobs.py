@@ -61,7 +61,7 @@ class Jobs(SingeltonOneInit):
                 self._scanner_manager.release_scanner(job.id)
             del self._jobs[job]
             self._logger.info("Job '{0}' not active/removed".format(job))
-            if not RPC_Job_Model_Factory.serializer.purge(
+            if not RPC_Job_Model_Factory.get_serializer().purge(
                 job,
                 self._paths.rpc_jobs,
             ):
@@ -118,7 +118,7 @@ class Jobs(SingeltonOneInit):
         self._forcingStop = value
 
     def _load_from_file(self):
-        jobs = RPC_Job_Model_Factory.serializer.load(self._paths.rpc_jobs)
+        jobs = RPC_Job_Model_Factory.get_serializer().load(self._paths.rpc_jobs)
         for job in jobs:
             if job and job.content_model:
                 _, parent_pipe = Pipe()
@@ -221,7 +221,7 @@ class Jobs(SingeltonOneInit):
     def _set_initialized_job(self, job_process, job):
         self._jobs[job] = job_process
         job.status = rpc_job_models.JOB_STATUS.Running
-        RPC_Job_Model_Factory.serializer.dump(job, self._paths.rpc_jobs)
+        RPC_Job_Model_Factory.get_serializer().dump(job, self._paths.rpc_jobs)
 
     def _initialize_job_process(
         self,
@@ -237,7 +237,7 @@ class Jobs(SingeltonOneInit):
 
         job_process.pipe.send(
             'setup',
-            RPC_Job_Model_Factory.serializer.serialize(job),
+            RPC_Job_Model_Factory.get_serializer().serialize(job),
         )
 
     def _add_scanner_operations_to_job(self, job_process: rpc_job.RpcJob):

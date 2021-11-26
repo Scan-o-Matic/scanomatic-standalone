@@ -28,11 +28,7 @@ class FixtureSettings:
         if overwrite:
             return FixtureFactory.create(path=self._conf_path, name=name)
         try:
-            serializer = cast(
-                Serializer,
-                FixtureFactory.serializer,
-            )
-            val = serializer.load_first(self._conf_path)
+            val = FixtureFactory.get_serializer().load_first(self._conf_path)
         except (IndexError, configparser.Error) as e:
             if isinstance(e, configparser.Error):
                 self._logger.error(
@@ -89,11 +85,7 @@ class FixtureSettings:
         return None
 
     def save(self) -> None:
-        serializer = cast(
-            Serializer,
-            FixtureFactory.serializer,
-        )
-        serializer.dump(self.model, self.path, overwrite=True)
+        FixtureFactory.get_serializer().dump(self.model, self.path, overwrite=True)
 
 
 class Fixtures:

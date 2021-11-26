@@ -239,7 +239,7 @@ def get_project_name(project_path):
     )
     if candidates:
         for candidate in candidates:
-            model = ScanningModelFactory.serializer.load_first(candidate)
+            model = ScanningModelFactory.get_serializer().load_first(candidate)
             if model:
                 return model.project_name if model.project_name else no_name
 
