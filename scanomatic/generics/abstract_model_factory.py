@@ -744,7 +744,7 @@ class _SectionsLink:
 
 class LinkerConfigParser(ConfigParser):
     def __init__(self, id, clear_links=True, *args, **kwargs):
-        super(LinkerConfigParser, self).__init__(*args, **kwargs)
+        ConfigParser.__init__(self, *args, **kwargs)
         self.id = id
         self._clear_links = clear_links
 
@@ -756,7 +756,7 @@ class LinkerConfigParser(ConfigParser):
             _SectionsLink.clear_links(self)
 
     def _read(self, fp, fpname):
-        val = super().read_file(fp, fpname)
+        val = ConfigParser._read(self, fp, fpname)
         self._nonzero = True
         return val
 
