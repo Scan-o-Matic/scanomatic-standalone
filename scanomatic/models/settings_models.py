@@ -97,8 +97,8 @@ class MailModel(model.Model):
         warn_scanning_done_minutes_before: float = 30,
     ):
 
-        self.server: str = server
-        self.user: str = user
+        self.server: Optional[str] = server
+        self.user: Optional[str] = user
         self.port: int = port
         self.password: Optional[str] = password
         self.warn_scanning_done_minutes_before: float = (
@@ -114,7 +114,7 @@ class ApplicationSettingsModel(model.Model):
         scanner_name_pattern: str = "Scanner {0}",
         scan_program: str = "scanimage",
         scan_program_version_flag: str = "-V",
-        scanner_models: Sequence[str] = tuple(),
+        scanner_models: tuple[str, ...] = tuple(),
         power_manager: Optional[PowerManagerModel] = None,
         rpc_server: Optional[RPCServerModel] = None,
         ui_server: Optional[UIServerModel] = None,

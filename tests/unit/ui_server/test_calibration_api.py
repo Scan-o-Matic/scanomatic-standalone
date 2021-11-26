@@ -1,8 +1,8 @@
 import json
 import os
 from itertools import product
+from unittest import mock
 
-import mock
 import numpy as np
 import pytest
 from flask import Flask
