@@ -197,7 +197,7 @@ class AbstractModelFactory:
             settings,
             set(valid_keys).intersection(cls.STORE_SECTION_SERIALIZERS.keys()),
         )
-        return cls.MODEL.__new__(**settings)
+        return cls.MODEL(**settings)
 
     @classmethod
     def all_keys_valid(cls, keys) -> bool:
@@ -1069,7 +1069,7 @@ class Serializer:
                 ):
                     subfactory = factory.get_sub_factory(item)
                     link = _SectionsLink.set_link(subfactory, item, conf)
-                    subfactory.serializer.serialize_into_conf(
+                    subfactory.get_serializer().serialize_into_conf(
                         item,
                         conf,
                         link.section,
@@ -1107,7 +1107,7 @@ class Serializer:
                     _SectionsLink,
                 ),
             )
-            subfactory.serializer.serialize_into_conf(
+            subfactory.get_serializer().serialize_into_conf(
                 obj,
                 conf,
                 _SectionsLink.get_link(obj).section,

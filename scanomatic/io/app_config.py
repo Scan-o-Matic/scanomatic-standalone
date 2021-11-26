@@ -2,7 +2,7 @@ import os
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
-from typing import Optional, Union, cast
+from typing import Optional, Union
 from collections.abc import Sequence
 
 import scanomatic.models.scanning_model as scanning_model
