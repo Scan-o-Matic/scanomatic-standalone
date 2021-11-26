@@ -10,7 +10,7 @@ class Model(Mapping):
     _STR_PATTERN = "<{0} {1}={2}>"
     FIELD_TYPES = None
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         content = [attribute for attribute in self]
         if content:
             fields, _ = zip(*content)
