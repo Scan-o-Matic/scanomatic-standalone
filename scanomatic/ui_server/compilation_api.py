@@ -71,7 +71,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
 
         model: CompileInstructionsModel = (
-            CompileProjectFactory.serializer.load_first(path)
+            CompileProjectFactory.get_serializer().load_first(path)
         )
 
         if model is None:

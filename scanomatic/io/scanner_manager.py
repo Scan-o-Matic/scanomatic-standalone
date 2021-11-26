@@ -71,7 +71,7 @@ class ScannerPowerManager(SingeltonOneInit):
         scanners: dict[int, ScannerModel] = {}
 
         # Load saved scanner data
-        for scanner in ScannerFactory.serializer.load(
+        for scanner in ScannerFactory.get_serializer().load(
             self._paths.config_scanners,
         ):
 
@@ -116,14 +116,14 @@ class ScannerPowerManager(SingeltonOneInit):
             )
         return pm
 
-    def _save(self, scanner_model):
+    def _save(self, scanner_model) -> None:
 
-        ScannerFactory.serializer.dump(
+        ScannerFactory.get_serializer().dump(
             scanner_model,
             self._paths.config_scanners,
         )
 
-    def _rescue(self, available_usbs, active_usbs):
+    def _rescue(self, available_usbs, active_usbs) -> None:
         self._orphan_usbs = self._orphan_usbs.union(available_usbs)
         power_statuses = self.power_statuses
 

@@ -283,7 +283,9 @@ class ScannerEffector(proc_effector.ProcessEffector):
             time_left)
 
     def setup(self, job, redirect_logging=True):
-        job = RPC_Job_Model_Factory.serializer.load_serialized_object(job)[0]
+        job = RPC_Job_Model_Factory.get_serializer().load_serialized_object(
+            job,
+        )[0]
         paths_object = paths.Paths()
         self._scanning_job.id = job.id
         self._scanning_job.computer = AppConfig().computer_human_name
@@ -339,7 +341,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
             self._scanner.get_scan_instructions_as_tuple()
         )
 
-        if ScanningModelFactory.serializer.dump(
+        if ScanningModelFactory.get_serializer().dump(
             self._scanning_job,
             scan_project_file_path,
         ):

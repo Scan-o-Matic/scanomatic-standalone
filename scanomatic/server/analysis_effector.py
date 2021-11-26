@@ -315,7 +315,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         ):
             self._filter_pinning_on_included_plates()
 
-        AnalysisModelFactory.serializer.dump(
+        AnalysisModelFactory.get_serializer().dump(
             self._original_model, os.path.join(
                 self._analysis_job.output_directory,
                 Paths().analysis_model_file,
@@ -444,7 +444,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         try:
             self._scanning_instructions = (
-                ScanningModelFactory.serializer.load_first(
+                ScanningModelFactory.get_serializer().load_first(
                     Paths().get_scan_instructions_path_from_compile_instructions_path(  # noqa: E501
                         self._analysis_job.compile_instructions,
                     )

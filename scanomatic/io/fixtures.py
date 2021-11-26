@@ -2,7 +2,6 @@ import configparser
 import os
 from logging import Logger
 from typing import Optional, cast
-from scanomatic.generics.abstract_model_factory import Serializer
 
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
@@ -28,11 +27,7 @@ class FixtureSettings:
         if overwrite:
             return FixtureFactory.create(path=self._conf_path, name=name)
         try:
-            serializer = cast(
-                Serializer,
-                FixtureFactory.serializer,
-            )
-            val = serializer.load_first(self._conf_path)
+            val = FixtureFactory.get_serializer().load_first(self._conf_path)
         except (IndexError, configparser.Error) as e:
             if isinstance(e, configparser.Error):
                 self._logger.error(
@@ -89,11 +84,11 @@ class FixtureSettings:
         return None
 
     def save(self) -> None:
-        serializer = cast(
-            Serializer,
-            FixtureFactory.serializer,
+        FixtureFactory.get_serializer().dump(
+            self.model,
+            self.path,
+            overwrite=True,
         )
-        serializer.dump(self.model, self.path, overwrite=True)
 
 
 class Fixtures:

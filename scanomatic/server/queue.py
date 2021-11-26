@@ -19,7 +19,7 @@ class Queue(SingeltonOneInit):
         self._paths = paths.Paths()
         self._logger = Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
-        self._queue = list(RPC_Job_Model_Factory.serializer.load(
+        self._queue = list(RPC_Job_Model_Factory.get_serializer().load(
             self._paths.rpc_queue,
         ))
         self._scanner_manager = ScannerPowerManager()
@@ -60,7 +60,10 @@ class Queue(SingeltonOneInit):
 
         if job:
             job.priority = priority
-            RPC_Job_Model_Factory.serializer.dump(job, self._paths.rpc_queue)
+            RPC_Job_Model_Factory.get_serializer().dump(
+                job,
+                self._paths.rpc_queue,
+            )
             return True
         return False
 
@@ -71,7 +74,7 @@ class Queue(SingeltonOneInit):
 
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
-            return RPC_Job_Model_Factory.serializer.purge(
+            return RPC_Job_Model_Factory.get_serializer().purge(
                 job,
                 self._paths.rpc_queue,
             )
@@ -94,7 +97,10 @@ class Queue(SingeltonOneInit):
         if self[job.id] is None:
             job.status = rpc_job_models.JOB_STATUS.Queued
             self._queue.append(job)
-            RPC_Job_Model_Factory.serializer.dump(job, self._paths.rpc_queue)
+            RPC_Job_Model_Factory.get_serializer().dump(
+                job,
+                self._paths.rpc_queue,
+            )
             return True
 
         return False

@@ -96,11 +96,15 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
             destination,
         ))
         os.rename(instructions, destination)
-        m = ScanningModelFactory.serializer.load_first(destination)
+        m = ScanningModelFactory.get_serializer().load_first(destination)
         m.project_name = new_name
         ScanningModelFactory.update(m, **model_updates)
         if ScanningModelFactory.validate(m):
-            ScanningModelFactory.serializer.dump(m, destination, overwrite=True)
+            ScanningModelFactory.get_serializer().dump(
+                m,
+                destination,
+                overwrite=True,
+            )
 
             _logger.info("Updated the contents of {0}".format(destination))
         else:

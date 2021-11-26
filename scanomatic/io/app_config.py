@@ -165,7 +165,7 @@ class Config(SingeltonOneInit):
         if os.path.isfile(self._paths.config_main_app):
             try:
                 self._settings = (
-                    ApplicationSettingsFactory.serializer.load_first(
+                    ApplicationSettingsFactory.get_serializer().load_first(
                         self._paths.config_main_app,
                     )
                 )
@@ -271,10 +271,10 @@ class Config(SingeltonOneInit):
 
     def save_current_settings(self):
         if self.validate():
-            ApplicationSettingsFactory.serializer.purge_all(
+            ApplicationSettingsFactory.get_serializer().purge_all(
                 self._paths.config_main_app,
             )
-            ApplicationSettingsFactory.serializer.dump(
+            ApplicationSettingsFactory.get_serializer().dump(
                 self._settings,
                 self._paths.config_main_app,
             )
