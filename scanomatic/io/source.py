@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 import zipfile
-from io import StringIO
+from io import BytesIO
 from logging import Logger
 from subprocess import PIPE, Popen, call
 from typing import Any, Optional
@@ -121,7 +121,7 @@ def get_active_branch(path) -> Optional[str]:
         branch = "master"
         for line in o.split(b"\n"):
             if line.startswith(b"*"):
-                branch = line.strip(b"* ").encode()
+                branch = line.strip(b"* ").decode()
                 break
     return branch
 
@@ -159,7 +159,7 @@ def download(
 
     tf = tempfile.mkdtemp(prefix="SoM_source")
 
-    zipdata = StringIO()
+    zipdata = BytesIO()
     zipdata.write(req.content)
 
     with zipfile.ZipFile(zipdata) as zf:
@@ -173,7 +173,7 @@ def download(
                     )
                 )
 
-    return os.path.join(tf, os.walk(tf).next()[1][0])
+    return os.path.join(tf, tuple(os.walk(tf))[0][1][0])
 
 
 def install(source_path, branch=None) -> bool:
@@ -326,32 +326,36 @@ def next_subversion(branch, current=None) -> tuple[int, ...]:
     return increase_version(version)
 
 
-def increase_version(version) -> tuple[int, ...]:
-    version = list(version)
-    if len(version) == 2:
-        version += [1]
+def increase_version(version: tuple[int, ...]) -> tuple[int, ...]:
+    new_version = list(version)
+    if len(new_version) == 2:
+        new_version += [1]
     elif len(version) == 1:
-        version += [0, 11]
+        new_version += [0, 11]
+    else:
+        new_version[-1] += 1
+
+    return tuple(new_version)
+
+
+def get_minor_release_version(
+    current_version: tuple[int, ...],
+) -> tuple[int, ...]:
+    version = list(current_version[:2])
+    if len(version) == 0:
+        return (0, 1)
+    elif len(version) == 1:
+        return tuple(version + [1])
     else:
         version[-1] += 1
+        return tuple(version)
 
-    return tuple(version)
 
-
-def get_minor_release_version(current_version) -> tuple[int, ...]:
-    current_version = list(current_version[:2])
-    if len(current_version) == 0:
-        return [0, 1]
-    elif len(current_version) == 1:
-        return current_version + [1]
+def get_major_release_version(
+    current_version: tuple[int, ...],
+) -> tuple[int]:
+    version = current_version[:1]
+    if len(version) > 0:
+        return (version[0] + 1,)
     else:
-        current_version[-1] += 1
-        return current_version
-
-
-def get_major_release_version(current_version) -> tuple[int, ...]:
-    current_version = list(current_version[:1])
-    if len(current_version):
-        return [current_version[0] + 1]
-    else:
-        return [1]
+        return (1,)

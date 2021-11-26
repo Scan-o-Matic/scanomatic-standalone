@@ -134,7 +134,7 @@ class _ClientProxy:
 
     def _allowedMethods(self):
 
-        retTup = tuple()
+        retTup: tuple[str, ...] = tuple()
 
         if not(
             self._client is None
@@ -142,8 +142,8 @@ class _ClientProxy:
         ):
 
             try:
-                retTup = (
-                    v for v in self._client.system.listMethods()
+                retTup = tuple(
+                    str(v) for v in self._client.system.listMethods()
                     if not v.startswith("system.")
                     and not (self._userID is None and v in self._adminMethods)
                 )
@@ -174,6 +174,8 @@ class _ClientProxy:
 
     @property
     def local(self) -> bool:
+        if self.host is None:
+            return False
         return "127.0.0.1" in self.host or "localhost" in self.host
 
     @property

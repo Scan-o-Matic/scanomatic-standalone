@@ -1,4 +1,5 @@
 from logging import Logger
+from typing import cast
 
 import psutil
 
@@ -11,11 +12,11 @@ class Resource_Status:
     _passes = 0
 
     @classmethod
-    def loggingLevel(cls, val):
+    def loggingLevel(cls, val: int) -> None:
         cls._LOGGER.setLevel(val)
 
     @staticmethod
-    def currentPasses():
+    def currentPasses() -> int:
         return Resource_Status._passes
 
     @staticmethod
@@ -27,7 +28,10 @@ class Resource_Status:
         (Analysis_Queue.MIN_FREE_CPU_PERCENT).
         """
 
-        cur_cpus = psutil.cpu_percent(percpu=True)
+        cur_cpus = cast(
+            list[float],
+            psutil.cpu_percent(percpu=True),
+        )
 
         free_cpus = [
             cpu < Resource_Status._APP_CONFIG.hardware_resource_limits.cpu_single_free  # noqa: E501
@@ -65,10 +69,7 @@ class Resource_Status:
         Analysis_Queue,MAX_MEM_USAGE.
         """
 
-        try:
-            memUsage = psutil.phymem_usage().percent
-        except AttributeError:
-            memUsage = psutil.virtual_memory().percent
+        memUsage = psutil.virtual_memory().percent
 
         memOK = (
             (100 - memUsage)
@@ -84,7 +85,7 @@ class Resource_Status:
         return memOK
 
     @staticmethod
-    def check_resources(consume_checks=False) -> bool:
+    def check_resources(consume_checks: bool = False) -> bool:
         """Checks if both memory and cpu are OK for poping.
 
         At least MIN_SUCCESS_PASSES is needed for both checks

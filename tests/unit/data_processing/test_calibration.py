@@ -2,8 +2,8 @@ import json
 import os
 import tempfile
 from collections import namedtuple
+from unittest import mock
 
-import mock
 import numpy as np
 import pytest
 

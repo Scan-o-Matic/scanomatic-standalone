@@ -22,4 +22,6 @@ types-chardet
 types-python-dateutil
 types-pillow
 types-psutil
+types-python-nmap
 openpyxl
+nmap

@@ -1,9 +1,10 @@
+from collections.abc import Mapping
 from enum import Enum
 from itertools import chain
 from typing import Any, Generator
 
 
-class Model:
+class Model(Mapping):
     _INITIALIZED = "_initialized"
     _RESERVED_WORDS = ('keys',)
     _STR_PATTERN = "<{0} {1}={2}>"
@@ -41,7 +42,7 @@ class Model:
             if not attr.startswith("_"):
                 yield attr, value
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr, value) -> None:
         if attr == Model._INITIALIZED:
             raise AttributeError(
                 "Can't directly set model to initialized state",
@@ -55,17 +56,17 @@ class Model:
         else:
             self.__dict__[attr] = value
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self.__dict__
 
     def __getitem__(self, item):
         return getattr(self, item)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
 
         setattr(self, key, value)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         try:
             _ = (e for e in other)
         except TypeError:
@@ -76,7 +77,7 @@ class Model:
                 return False
         return True
 
-    def __str__(self):
+    def __str__(self) -> str:
 
         classname = str(type(self)).split(".")[-1].rstrip("'>")
         value = None
@@ -107,15 +108,18 @@ class Model:
 
         return Model._STR_PATTERN.format(classname, key, value)
 
+    def __len__(self) -> int:
+        return len(tuple(self.keys()))
+
     @classmethod
-    def _has_set_field_types(cls):
+    def _has_set_field_types(cls) -> bool:
         return (
             "FIELD_TYPES" in cls.__dict__
             and cls.__dict__["FIELD_TYPES"] is not None
         )
 
     @classmethod
-    def _set_field_types(cls, names):
+    def _set_field_types(cls, names) -> None:
         if cls._has_set_field_types():
             raise AttributeError("Can't change field types")
         elif names:
@@ -123,10 +127,10 @@ class Model:
         else:
             cls.FIELD_TYPES = None
 
-    def _set_initialized(self):
+    def _set_initialized(self) -> None:
         self.__dict__[Model._INITIALIZED] = True
 
-    def _is_initialized(self):
+    def _is_initialized(self) -> bool:
 
         if Model._INITIALIZED not in self.__dict__:
             self.__dict__[Model._INITIALIZED] = False

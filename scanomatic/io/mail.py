@@ -38,15 +38,21 @@ def ip_is_local(ip: str) -> bool:
 
 
 def get_my_ip():
+    def get_ip_from_socket(sock: socket.socket) -> str:
+        sock.connect(('8.8.8.8', 80))
+        ip = sock.getsockname()[0]
+        sock.close()
+        return ip
+
     global _IP
     if _IP:
         return _IP
 
     try:
-        _IP = [
-            (s.connect(('8.8.8.8', 80)), s.getsockname()[0], s.close())
-            for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
-        ][0][1]
+        _IP = get_ip_from_socket(socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM,
+        ))
     except IndexError:
         _logger.info("Failed to get IP via socket")
 
@@ -143,10 +149,7 @@ def mail(
     if not sender:
         sender = get_default_email()
 
-    try:
-        msg = MIMEMultipart()
-    except TypeError:
-        msg = MIMEMultipart.MIMEMultipart()
+    msg = MIMEMultipart()
 
     msg['From'] = sender
     msg['To'] = (

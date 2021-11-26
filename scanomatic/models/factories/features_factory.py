@@ -1,4 +1,5 @@
 import os
+from typing import cast
 
 import scanomatic.models.features_model as features_model
 from scanomatic.generics.abstract_model_factory import (
@@ -35,4 +36,7 @@ class FeaturesFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> features_model.FeaturesModel:
-        return super(FeaturesFactory, cls).create(**settings)
+        return cast(
+            features_model.FeaturesModel,
+            super(FeaturesFactory, cls).create(**settings)
+        )
