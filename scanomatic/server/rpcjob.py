@@ -5,7 +5,7 @@ from threading import Thread
 from time import sleep
 
 import psutil
-import setproctitle
+import setproctitle  # type: ignore
 
 from scanomatic.server.proc_effector import (
     ChildPipeEffector,
