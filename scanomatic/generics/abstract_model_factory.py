@@ -146,7 +146,7 @@ class AbstractModelFactory:
     MODEL = Model
 
     _LOGGER = None
-    _SUB_FACTORIES: dict[Type[Model], "AbstractModelFactory"] = {}
+    _SUB_FACTORIES: dict[Type[Model], Type["AbstractModelFactory"]] = {}
     STORE_SECTION_HEAD: Union[str, tuple[str]] = ""
     STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
 
@@ -169,7 +169,7 @@ class AbstractModelFactory:
         return cls.MODEL()
 
     @classmethod
-    def get_sub_factory(cls, model: Model):
+    def get_sub_factory(cls, model: Model) -> Type["AbstractModelFactory"]:
         model_type = type(model)
         if model_type not in cls._SUB_FACTORIES:
             cls.get_logger().warning(
@@ -181,10 +181,9 @@ class AbstractModelFactory:
     @classmethod
     def _verify_correct_model(cls, model) -> bool:
         if not isinstance(model, cls.MODEL):
-            raise TypeError("Wrong model for factory {1} is not a {0}".format(
-                cls.MODEL,
-                model,
-            ))
+            raise TypeError(
+                f"Wrong model for factory {cls.MODEL} is not a {model}",
+            )
 
         return True
 
@@ -1219,7 +1218,7 @@ class SerializationHelper:
             else:
                 return SerializationHelper.unserialize(obj, structure[0])
         else:
-            outer_obj = -1
+            outer_obj: Any = -1
             while (
                 outer_obj is not None
                 and not SerializationHelper.isvalidtype(
@@ -1253,7 +1252,7 @@ class SerializationHelper:
 
         elif isinstance(dtype, type) and issubclass(dtype, Enum):
             try:
-                return dtype[serialized_obj]
+                return dtype[cast(str, serialized_obj)]
             except (KeyError, SyntaxError):
                 logging.exception(
                     f"Could not parse {serialized_obj} with type {dtype}",
@@ -1262,7 +1261,7 @@ class SerializationHelper:
 
         elif dtype is bool:
             try:
-                return bool(eval(serialized_obj))
+                return bool(eval(cast(str, serialized_obj)))
             except (NameError, AttributeError, SyntaxError):
                 logging.exception(
                     f"Could not parse {serialized_obj} with type {dtype}",
@@ -1274,7 +1273,9 @@ class SerializationHelper:
                 return cast(Callable, dtype)(serialized_obj)
             except (TypeError, ValueError):
                 try:
-                    return cast(Callable, dtype)(eval(serialized_obj))
+                    return cast(Callable, dtype)(
+                        eval(cast(str, serialized_obj)),
+                    )
                 except (
                     SyntaxError,
                     NameError,
@@ -1290,7 +1291,7 @@ class SerializationHelper:
         elif isinstance(dtype, types.FunctionType):
             try:
                 return dtype(enforce=pickle.loads(
-                    serialized_obj.encode('iso-8859-1'),
+                    cast(str, serialized_obj).encode('iso-8859-1'),
                 ))
             except (pickle.PickleError, EOFError):
                 logging.exception(
@@ -1312,7 +1313,9 @@ class SerializationHelper:
 
         else:
             try:
-                return pickle.loads(serialized_obj.encode('iso-8859-1'))
+                return pickle.loads(
+                    cast(str, serialized_obj).encode('iso-8859-1'),
+                )
             except (pickle.PickleError, TypeError, EOFError):
                 logging.exception(
                     f"Could not parse {serialized_obj} with type {dtype}",

@@ -71,7 +71,7 @@ class CompileImageFactory(AbstractModelFactory):
     def set_index_from_path(
         cls,
         model: compile_project_model.CompileImageModel,
-    ):
+    ) -> None:
         match = re.search(r'_(\d+)_(\d+\.\d+)\.tiff$', model.path)
         if match:
             model.index = int(match.groups()[0])
