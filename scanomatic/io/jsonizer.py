@@ -82,7 +82,7 @@ def decode_enum(obj: dict) -> Enum:
         raise JSONDecodingError(msg)
     content = obj.get(CONTENT)
     if not isinstance(content, str):
-        msg = f"'{content}' is not one of the allowed string values fro {type(e).__name__}"  # noqa: E501
+        msg = f"'{content}' is not one of the allowed string values for {type(e).__name__}"  # noqa: E501
         logging.error(msg)
         raise JSONDecodingError(msg)
     try:
@@ -111,7 +111,7 @@ def decode_array(obj: dict) -> np.ndarray:
     try:
         return np.array(content, dtype=dtype)
     except TypeError:
-        msg = "Array could not created with {dtype}"
+        msg = f"Array could not be created with {dtype}"
         logging.error(msg)
         raise JSONDecodingError(msg)
 
