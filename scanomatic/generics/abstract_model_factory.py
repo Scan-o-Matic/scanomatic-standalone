@@ -59,15 +59,12 @@ def email_serializer(enforce=None, serialize=None) -> str:
             return enforce
         elif isinstance(enforce, Sequence):
             return ', '.join(enforce)
-        return ''
 
     elif serialize is not None:
         if isinstance(serialize, str):
             return serialize
         elif isinstance(serialize, list):
             return ", ".join(serialize)
-        else:
-            return ''
 
     return ''
 
