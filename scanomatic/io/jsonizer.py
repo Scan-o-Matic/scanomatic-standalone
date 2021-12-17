@@ -1,10 +1,9 @@
 import json
 from enum import Enum, unique
 import logging
-from typing import Any, Union
+from typing import Any, Type, Union
 from collections.abc import Callable
 import numpy as np
-from numpy.core.defchararray import encode
 
 from scanomatic.generics.model import Model
 from scanomatic.models.factories.analysis_factories import (
@@ -59,18 +58,19 @@ def decode_model(obj: dict) -> Model:
             for k, v in content.items()
         })
     except (TypeError, AttributeError):
-        msg = f"Serialized model {obj[encoding]} didn't contain a dict as content: {content}"
+        msg = f"Serialized model {obj[encoding]} didn't contain a dict as content: {content}"  # noqa: E501
         logging.error(msg)
         raise JSONDecodingError(msg)
 
 
-ENUM_CLASSES: dict[str, Enum] = {
+ENUM_CLASSES: dict[str, Type[Enum]] = {
     "COMPARTMENTS": COMPARTMENTS,
     "VALUES": VALUES,
     "MEASURES": MEASURES,
     "JOB_TYPE": JOB_TYPE,
     "JOB_STATUS": JOB_STATUS,
 }
+
 
 def decode_enum(obj: dict) -> Enum:
     encoding = SOMSerializers.ENUM.encoding
@@ -81,10 +81,14 @@ def decode_enum(obj: dict) -> Enum:
         logging.error(msg)
         raise JSONDecodingError(msg)
     content = obj.get(CONTENT)
+    if not isinstance(content, str):
+        msg = f"'{content}' is not one of the allowed string values fro {type(e).__name__}"  # noqa: E501
+        logging.error(msg)
+        raise JSONDecodingError(msg)
     try:
         return e[content]
     except KeyError:
-        msg = f"'{content}' is not a recognized enum value of {type(e).__name__}"
+        msg = f"'{content}' is not a recognized enum value of {type(e).__name__}"  # noqa: E501
         logging.error(msg)
         raise JSONDecodingError(msg)
 
@@ -140,7 +144,7 @@ class SOMEncoder(json.JSONEncoder):
                 raise JSONEncodingError(msg)
             return {
                 SOMSerializers.MODEL.encoding: name,
-                CONTENT: { k: o[k] for k in o.keys() },
+                CONTENT: {k: o[k] for k in o.keys()},
             }
         elif isinstance(o, Enum):
             if name not in ENUM_CLASSES:

@@ -37,6 +37,7 @@ def test_preserves_object_array():
     assert arr[2].dtype == arr2[2].dtype
     np.testing.assert_equal(arr[2], arr2[2])
 
+
 @pytest.mark.parametrize("test_enum", (
     COMPARTMENTS.Blob,
     VALUES.Pixels,
@@ -63,7 +64,6 @@ def test_raises_on_unknown_enum_dumping():
 def test_raises_on_unkown_enum_loading(s: str):
     with pytest.raises(jsonizer.JSONDecodingError):
         jsonizer.loads(s)
-
 
 
 def test_raises_on_unknown_model_dumping():

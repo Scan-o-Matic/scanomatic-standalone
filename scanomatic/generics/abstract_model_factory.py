@@ -289,7 +289,9 @@ class AbstractModelFactory:
                 or key not in cls.STORE_SECTION_SERIALIZERS
             ):
                 if key in settings and settings[key] is not None:
-                    logging.warning(f"'{key}' ({settings[key]}) not enforced when loaded by {cls.__name__}")
+                    logging.warning(
+                        f"'{key}' ({settings[key]}) not enforced when loaded by {cls.__name__}",  # noqa: E501
+                    )
                 continue
 
             if isinstance(cls.STORE_SECTION_SERIALIZERS[key], tuple):

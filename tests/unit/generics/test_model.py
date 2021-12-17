@@ -4,6 +4,7 @@ import pytest
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.models.analysis_model import GridModel, AnalysisModel
 
+
 def test_identical_models_dont_raise():
     m = GridModel()
     assert_models_deeply_equal(m, m)

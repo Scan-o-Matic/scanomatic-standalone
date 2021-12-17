@@ -1,7 +1,7 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Generator, Sequence
 from enum import Enum
 from itertools import chain
-from typing import Any, Generator, Optional, cast
+from typing import Any
 
 
 class Model(Mapping):
@@ -119,7 +119,7 @@ class Model(Mapping):
         )
 
     @classmethod
-    def _set_field_types(cls, names) -> None:
+    def _set_field_types(cls, names: Sequence[str]) -> None:
         if cls._has_set_field_types():
             raise AttributeError("Can't change field types")
         elif names:

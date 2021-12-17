@@ -4,7 +4,9 @@ import time
 from logging import Logger
 from subprocess import Popen
 from threading import Thread
-from typing import Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
+
+import numpy as np
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.io.logger import get_logger
@@ -39,7 +41,7 @@ class _PipeEffector:
 
         # Calls that should trigger special reaction if pipe is not working
         # Reaction will depend on if server or client side
-        self._failVunerableCalls = []
+        self._failVunerableCalls: tuple[Any, ...] = tuple()
 
         self._pid = os.getpid()
 
@@ -109,13 +111,19 @@ class _PipeEffector:
 
             try:
                 if response not in (None, True, False):
-                    if (isinstance(response, dict) and
-                            request == "status"):
+                    if (
+                        isinstance(response, dict)
+                        and request == "status"
+                    ):
                         self.send(request, **response)
                         self._logger.info("Sent status response {0}".format(
                             response,
                         ))
-                    else:
+                    elif (
+                        isinstance(response, list)
+                        or isinstance(response, tuple)
+                        or isinstance(response, np.ndarray)
+                    ):
                         self.send(response[0], *response[1], **response[2])
                         self._logger.info("Sent response {0}".format(response))
 
@@ -235,7 +243,7 @@ class ChildPipeEffector(_PipeEffector):
         # Not loose calls
         super(ChildPipeEffector, self)._failSend(callName, *args, **kwargs)
 
-        if (callName in self._failVunerableCalls):
+        if callName in self._failVunerableCalls:
             rC = rpc_client.get_client(admin=True)
 
             if not rC.online:
@@ -243,7 +251,7 @@ class ChildPipeEffector(_PipeEffector):
                 Popen('scan-o-matic_server')
                 time.sleep(2)
 
-            if rC.online:
+            if rC.online and self.procEffector is not None:
                 pipe = rC.reestablishMe(
                     self.procEffector.label,
                     self.procEffector.label,
@@ -298,9 +306,9 @@ class ProcessEffector:
             if logging_target is not None
             else Logger(logger_name)
         )
-        self._fail_vunerable_calls = tuple()
+        self._fail_vunerable_calls: tuple[Any, ...] = tuple()
 
-        self._specific_statuses = {}
+        self._specific_statuses: dict[str, Any] = {}
 
         self._allowed_calls = {
             'pause': self.pause,
@@ -319,7 +327,7 @@ class ProcessEffector:
 
         self._log_file_path = None
 
-        self._messages = []
+        self._messages: list[str] = []
 
         self._iteration_index = None
         self._pid = os.getpid()
@@ -438,13 +446,13 @@ class ProcessEffector:
         self._stopping = True
 
     @decorators.type_lock
-    def get_messages(self):
+    def get_messages(self) -> list[str]:
         msgs = self._messages
         self._messages = []
         return msgs
 
     @decorators.type_lock
-    def add_message(self, msg):
+    def add_message(self, msg: str) -> None:
         self._messages.append(msg)
 
     @property
