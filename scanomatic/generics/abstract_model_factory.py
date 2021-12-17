@@ -53,7 +53,7 @@ def float_list_serializer(enforce=None, serialize=None):
         return None
 
 
-def email_serializer(enforce=None, serialize=None):
+def email_serializer(enforce=None, serialize=None) -> str:
     if enforce is not None:
         if isinstance(enforce, str):
             return enforce
@@ -67,10 +67,9 @@ def email_serializer(enforce=None, serialize=None):
         elif isinstance(serialize, list):
             return ", ".join(serialize)
         else:
-            return str(serialize)
+            return ''
 
-    else:
-        return None
+    return ''
 
 
 def _get_coordinates_and_items_to_validate(structure, obj):

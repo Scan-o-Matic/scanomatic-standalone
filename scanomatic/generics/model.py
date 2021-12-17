@@ -210,7 +210,9 @@ def assert_models_deeply_equal(a: Any, b: Any) -> None:
     elif type(a) != type(b):
         raise ValueError(f'Model not equal types: {type(a)} != {type(b)}')
 
-    assert isinstance(a, Model) and isinstance(b, Model), 'Models not models'
+    assert isinstance(a, Model) and isinstance(b, Model), (
+        f'Neither side is a model: {type(a).__name__} & {type(b).__name__}'
+    )
 
     for key in a.keys():
         a_val = a[key]
@@ -218,4 +220,4 @@ def assert_models_deeply_equal(a: Any, b: Any) -> None:
         if isinstance(a_val, Model) or isinstance(b_val, Model):
             assert_models_deeply_equal(a_val, b_val)
         if a_val != b_val:
-            raise ValueError(f'Model not equal: {a_val} != {b_val}')
+            raise ValueError(f"Model not equal on '{key}': {a_val} != {b_val}")

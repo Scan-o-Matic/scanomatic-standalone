@@ -349,7 +349,7 @@ class ProcessEffector:
                         emails.append(add)
                 else:
                     for new_mail in add:
-                        if add not in emails:
+                        if new_mail not in emails:
                             emails.append(new_mail)
                 self._job.content_model.email = sep.join(emails)
 
