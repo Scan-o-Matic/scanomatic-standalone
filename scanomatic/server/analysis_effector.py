@@ -1,3 +1,4 @@
+import errno
 import os
 import time
 from typing import Optional
@@ -19,6 +20,7 @@ from scanomatic.models.factories.fixture_factories import (
 )
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
+from scanomatic.models.scanning_model import ScanningModel
 
 from . import proc_effector
 
@@ -90,9 +92,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         self._reference_compilation_image_model = None
 
-        self._original_model = None
+        self._original_model: Optional[AnalysisModel] = None
         self._job.content_model = self._analysis_job
-        self._scanning_instructions = None
+        self._scanning_instructions: Optional[ScanningModel] = None
         self._current_image_model: Optional[CompileImageAnalysisModel] = None
         self._analysis_needs_init = True
 
@@ -107,6 +109,10 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if self._get_is_analysing_images():
             return self._first_pass_results.total_number_of_images
         return -1
+
+    @property
+    def ready_to_start(self) -> bool:
+        return self._allow_start and self.total == -1
 
     def _get_is_analysing_images(self) -> bool:
         return (
@@ -126,9 +132,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         return 0.0
 
-    def __next__(self):
+    def __next__(self) -> bool:
         if self.waiting:
-            return next(super(AnalysisEffector, self))
+            return super().__next__()
         elif not self._stopping:
             if self._analysis_needs_init:
                 return self._setup_first_iteration()
@@ -144,11 +150,14 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             raise StopIteration
 
     def _finalize_analysis(self):
-        self._logger.info(
-            "ANALYSIS, Full analysis took {0} minutes".format(
-                ((time.time() - self._start_time) / 60.0),
-            ),
-        )
+        if (self._start_time is None):
+            self._logger.warning("ANALYSIS, Analysis was never started")
+        else:
+            self._logger.info(
+                "ANALYSIS, Full analysis took {0} minutes".format(
+                    ((time.time() - self._start_time) / 60.0),
+                ),
+            )
         self._logger.info(f'Analysis completed at {str(time.time())}')
 
         if self._analysis_job.chain:
@@ -201,11 +210,13 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if (
             image_model.fixture.grayscale is None
             or image_model.fixture.grayscale.values is None
+            or image_model.image is None
         ):
 
             self._logger.error(
                 "No grayscale analysis results for '{0}' means image not included in analysis".format(  # noqa: E501
-                    image_model.image.path,
+                    '--NO IMAGE--' if image_model.image is None
+                    else image_model.image.path,
                 ),
             )
             return True
@@ -296,7 +307,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         try:
             os.makedirs(self._analysis_job.output_directory)
         except OSError as e:
-            if e.errno == os.errno.EEXIST:
+            if e.errno == errno.EEXIST:
                 self._logger.warning(
                     "Output directory exists, previous data will be wiped",
                 )
@@ -347,8 +358,12 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
     def _filter_pinning_on_included_plates(self):
 
-        included_indices = tuple(
-            p.index for p in self._first_pass_results.plates
+        included_indices = (
+            tuple()
+            if self._first_pass_results.plates is None
+            else tuple(
+                p.index for p in self._first_pass_results.plates
+            )
         )
         self._analysis_job.pinning_matrices = [
             pm for i, pm in
@@ -409,8 +424,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         remove_state_from_path(self._analysis_job.output_directory)
 
-    def setup(self, job):
-
+    def setup(self, *_):
+        assert self._analysis_job.FIELD_TYPES is not None
         if self._running:
             self.add_message("Cannot change settings while running")
             return
@@ -451,12 +466,13 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 )
             )
         except IOError:
+            pass
+
+        if not self._scanning_instructions:
             self._logger.warning(
                 "No information found about how the scanning was done,"
                 " using empty instructions instead."
             )
-
-        if not self._scanning_instructions:
             self._scanning_instructions = ScanningModelFactory.create()
 
         self.ensure_default_values_if_missing()
@@ -481,11 +497,14 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._stopping = True
 
     def ensure_default_values_if_missing(self):
+        assert self._analysis_job.FIELD_TYPES is not None
         if not self._analysis_job.image_data_output_measure:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_measure])
+                [self._analysis_job.FIELD_TYPES.image_data_output_measure],
+            )
         if not self._analysis_job.image_data_output_item:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_item])
+                [self._analysis_job.FIELD_TYPES.image_data_output_item],
+            )

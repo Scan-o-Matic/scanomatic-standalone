@@ -13,6 +13,9 @@ def proj1(pytestconfig):
     return pytestconfig.rootdir.join('tests/integration/fixtures/proj1')
 
 
+ProjInfo = namedtuple('ProjInfo', ['job', 'workdir'])
+
+
 @pytest.fixture
 def proj1_analysis(proj1, tmpdir):
     workdir = tmpdir.mkdir('proj1')
@@ -31,13 +34,21 @@ def proj1_analysis(proj1, tmpdir):
         chain=False,
     )
     assert AnalysisModelFactory.validate(analysis_model)
-    analysis_model.output_directory = str(workdir.join('analysis'))
     job = RPC_Job_Model_Factory.create(id='135', content_model=analysis_model)
     assert RPC_Job_Model_Factory.validate(job)
-    return namedtuple('proj1_analysis', 'job, workdir')(job, workdir)
+    return ProjInfo(job, workdir)
 
 
-def test_colony_sizes(proj1, proj1_analysis):
+def test_number_of_images(proj1_analysis: ProjInfo):
+    analysis_effector = AnalysisEffector(proj1_analysis.job)
+    analysis_effector.setup(proj1_analysis.job)
+    assert analysis_effector.current_image_index == -1
+    assert analysis_effector.total == -1
+    assert analysis_effector.progress == 0
+    assert analysis_effector.ready_to_start
+
+
+def test_colony_sizes(proj1, proj1_analysis: ProjInfo):
     analysis_effector = AnalysisEffector(proj1_analysis.job)
     analysis_effector.setup(proj1_analysis.job)
     for _ in analysis_effector:
@@ -49,7 +60,7 @@ def test_colony_sizes(proj1, proj1_analysis):
     numpy.testing.assert_allclose(expected, actual, rtol=.01)
 
 
-def test_grid_plate(proj1, proj1_analysis):
+def test_grid_plate(proj1, proj1_analysis: ProjInfo):
     analysis_effector = AnalysisEffector(proj1_analysis.job)
     analysis_effector.setup(proj1_analysis.job)
     for _ in analysis_effector:
@@ -62,7 +73,7 @@ def test_grid_plate(proj1, proj1_analysis):
     numpy.testing.assert_allclose(expected, actual, atol=3)
 
 
-def test_grid_size(proj1, proj1_analysis):
+def test_grid_size(proj1, proj1_analysis: ProjInfo):
     analysis_effector = AnalysisEffector(proj1_analysis.job)
     analysis_effector.setup(proj1_analysis.job)
     for _ in analysis_effector:

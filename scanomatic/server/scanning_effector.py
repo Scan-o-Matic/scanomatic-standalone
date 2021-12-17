@@ -1,6 +1,7 @@
 import os
 import time
 from threading import Thread
+from typing import Union
 
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.io import paths, sane, scanner_manager
@@ -407,9 +408,9 @@ class ScannerEffector(proc_effector.ProcessEffector):
 
         return self._scanning_effector_data.current_image
 
-    def __next__(self):
+    def __next__(self) -> Union[bool, SCAN_CYCLE]:
         if self.waiting:
-            return next(super(ScannerEffector, self))
+            return super().__next__()
         elif not self._stopping:
             try:
                 step_action = self._scan_cycle[

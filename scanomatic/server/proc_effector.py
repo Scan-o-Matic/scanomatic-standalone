@@ -462,7 +462,7 @@ class ProcessEffector:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self) -> bool:
         if not self._stopping and not self._running:
             if self._allow_start:
                 self._running = True
@@ -473,6 +473,7 @@ class ProcessEffector:
                 return True
         elif self._stopping:
             raise StopIteration
+        return True
 
     def _mail(self, title_template, message_template, data_model):
 

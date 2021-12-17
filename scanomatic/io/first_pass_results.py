@@ -3,7 +3,7 @@ from enum import Enum
 from glob import glob
 from logging import Logger
 from typing import Optional
-from collections.abc import Sequence
+from collections.abc import Sequence, Sized
 
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
@@ -204,7 +204,7 @@ class CompilationResults:
         return self._compile_instructions
 
     @property
-    def plates(self) -> Optional[Sequence]:
+    def plates(self) -> Optional[Sized]:
         res = self[-1]
         if res:
             return res.fixture.plates
