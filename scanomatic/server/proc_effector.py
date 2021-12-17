@@ -4,7 +4,7 @@ import time
 from logging import Logger
 from subprocess import Popen
 from threading import Thread
-from typing import Optional
+from typing import Optional, Sequence, Union
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.io.logger import get_logger
@@ -327,18 +327,31 @@ class ProcessEffector:
         self._start_time = None
         decorators.register_type_lock(self)
 
-    def email(self, add=None, remove=None) -> bool:
+    def email(
+        self,
+        add: Optional[Union[str, Sequence[str]]] = None,
+        remove: Optional[str] = None,
+    ) -> bool:
+        sep = ', '
+        emails: list[str] = self._job.content_model.email.split(sep)
         if add is not None:
             try:
-                self._job.content_model.email += (
-                    [add] if isinstance(add, str) else add
-                )
+                if isinstance(add, str):
+                    if add not in emails:
+                        emails.append(add)
+                else:
+                    for new_mail in add:
+                        if add not in emails:
+                            emails.append(new_mail)
+                self._job.content_model.email = sep.join(emails)
+
             except TypeError:
                 return False
             return True
         elif remove is not None:
             try:
-                self._job.content_model.email.remove(remove)
+                emails.remove(remove)
+                self._job.content_model.email = sep.join(emails)
             except (ValueError, AttributeError, TypeError):
                 return False
             return True
