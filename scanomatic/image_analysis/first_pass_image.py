@@ -38,8 +38,8 @@ def get_image_scale(im):
         return invalid_scale
 
 
-def _get_rotated_vector(x, y, rotation):
-    return x * np.cos(rotation), y * np.sin(rotation)
+# def _get_rotated_vector(x, y, rotation):
+#    return x * np.cos(rotation), y * np.sin(rotation)
 
 
 def get_local_fixture_for_image(identifier, image_identifier):
