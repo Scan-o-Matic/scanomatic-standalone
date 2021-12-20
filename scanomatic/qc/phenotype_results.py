@@ -1196,13 +1196,15 @@ def animate_plate_over_time(
         vmin = masked_plate.min()
         vmax = masked_plate.max()
 
+    if ax is None:
+        if fig is None:
+            fig = plt.figure()
+        ax = fig.gca()
+
     @MovieWriter(save_target, fps=fps, fig=fig)
-    def _animation(_ax):
+    def _animation():
 
-        if _ax is None:  # noqa: F823
-            _ax = fig.gca()
-
-        im = _ax.imshow(
+        im = ax.imshow(
             plate[..., 0],
             interpolation="nearest",
             vmin=vmin,
@@ -1212,12 +1214,12 @@ def animate_plate_over_time(
         index = 0
         while index < plate.shape[-1]:
             im.set_data(plate[..., index])
-            _ax.set_title("Time {0}".format(index))
+            ax.set_title("Time {0}".format(index))
             index += 1
 
             yield
 
-    return _animation(ax)
+    return _animation()
 
 
 @_setup_figure
