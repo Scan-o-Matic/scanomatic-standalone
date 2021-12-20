@@ -39,11 +39,6 @@ describe('<PlateEditor />', () => {
       .toContain('myimage.tiff, Plate 1');
   });
 
-  describe('pre-processing', () => {
-    xit('should render an <AnimatedProgressBar />', () => {
-    });
-  });
-
   describe('gridding', () => {
     it('should render a <PlateContainer />', () => {
       const wrapper = shallow(<PlateEditor {...props} step="gridding" />);
