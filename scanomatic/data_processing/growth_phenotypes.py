@@ -357,9 +357,9 @@ def generation_time_error(derivative_errors, index: int, **kwargs) -> float:
 
 
 def generation_time_when(
-    flat_times,
+    flat_times: np.ndarray,
     index: int,
-    linregress_extent,
+    linregress_extent: int,
     **kwargs,
 ) -> float:
     pos = index + linregress_extent
@@ -378,10 +378,10 @@ def generation_time_when(
 
 def population_size_at_generation_time(
     curve_smooth_growth_data,
-    index,
-    linregress_extent,
+    index: int,
+    linregress_extent: int,
     **kwargs,
-):
+) -> float:
     pos = index + linregress_extent
     if pos < 0:
         _logger.warning("No GT Pop Size because no finite slopes in data")
@@ -395,7 +395,12 @@ def population_size_at_generation_time(
     )
 
 
-def growth_lag(index, flat_times, derivative_values_log2, **kwargs):
+def growth_lag(
+    index: int,
+    flat_times: np.ndarray,
+    derivative_values_log2: np.ndarray,
+    **kwargs,
+) -> float:
     if index < 0:
         return np.nan
 
@@ -413,7 +418,10 @@ def growth_lag(index, flat_times, derivative_values_log2, **kwargs):
     return np.nan
 
 
-def growth_velocity_vector(derivative_values_log2, **kwargs):
+def growth_velocity_vector(
+    derivative_values_log2: np.ndarray,
+    **kwargs,
+) -> np.ndarray:
     return derivative_values_log2
 
 
