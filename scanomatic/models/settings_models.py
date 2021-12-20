@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from collections.abc import Sequence
 from uuid import uuid1
 
@@ -114,7 +114,7 @@ class ApplicationSettingsModel(model.Model):
         scanner_name_pattern: str = "Scanner {0}",
         scan_program: str = "scanimage",
         scan_program_version_flag: str = "-V",
-        scanner_models: tuple[str, ...] = tuple(),
+        scanner_models: Union[tuple[str, ...], dict[str, str]] = tuple(),
         power_manager: Optional[PowerManagerModel] = None,
         rpc_server: Optional[RPCServerModel] = None,
         ui_server: Optional[UIServerModel] = None,
@@ -124,6 +124,8 @@ class ApplicationSettingsModel(model.Model):
         computer_human_name: str = "Unnamed Computer",
         mail: Optional[MailModel] = None,
         paths: Optional[PathsModel] = None,
+        scanner_names: Optional[Sequence[str]] = None,
+        scanner_sockets: Optional[dict[str, int]] = None,
     ):
 
         self.versions: VersionChangesModel = VersionChangesModel()
@@ -139,6 +141,8 @@ class ApplicationSettingsModel(model.Model):
         self.number_of_scanners: int = number_of_scanners
         self.scanner_name_pattern: str = scanner_name_pattern
 
+        if scanner_names is not None:
+            self.scanner_names = scanner_names
         if power_manager is not None:
             self.scanner_names: Sequence[str] = [
                 self.scanner_name_pattern.format(i + 1) for i
@@ -149,17 +153,23 @@ class ApplicationSettingsModel(model.Model):
 
         self.scan_program: str = scan_program
         self.scan_program_version_flag: str = scan_program_version_flag
-        scanner_models += tuple(
-            'EPSON V700' for _ in range(
-                len(self.scanner_names) - len(scanner_models)
+        if isinstance(scanner_models, dict):
+            self.scanner_models = scanner_models
+        else:
+            scanner_models += tuple(
+                'EPSON V700' for _ in range(
+                    len(self.scanner_names) - len(scanner_models)
+                )
             )
-        )
-        self.scanner_models = {
-            name: scanner_model for name, scanner_model
-            in zip(self.scanner_names, scanner_models)
-        }
-        self.scanner_sockets = {
-            name: socket for name, socket in
-            zip(self.scanner_names, list(range(len(self.scanner_models))))
-        }
+            self.scanner_models = {
+                name: scanner_model for name, scanner_model
+                in zip(self.scanner_names, scanner_models)
+            }
+        if scanner_sockets is not None:
+            self.scanner_sockets = scanner_sockets
+        else:
+            self.scanner_sockets = {
+                name: socket for name, socket in
+                zip(self.scanner_names, list(range(len(self.scanner_models))))
+            }
         super(ApplicationSettingsModel, self).__init__()

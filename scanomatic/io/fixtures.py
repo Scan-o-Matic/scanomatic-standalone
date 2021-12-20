@@ -60,12 +60,12 @@ class FixtureSettings:
 
     def get_marker_path(self) -> Optional[str]:
         paths = Paths()
-        if self.model.orentation_mark_path:
+        if self.model.orientation_mark_path:
             marker_paths: tuple[str, ...] = (
-                self.model.orentation_mark_path,
+                self.model.orientation_mark_path,
                 os.path.join(
                     paths.images,
-                    os.path.basename(self.model.orentation_mark_path)
+                    os.path.basename(self.model.orientation_mark_path)
                 ),
                 paths.marker,
             )

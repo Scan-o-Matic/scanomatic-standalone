@@ -10,7 +10,6 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
     email_serializer,
-    rename_setting
 )
 
 
@@ -283,48 +282,6 @@ class AnalysisModelFactory(AbstractModelFactory):
         ):
             return True
         return model.FIELD_TYPES.cell_count_calibration
-
-
-class MetaDataFactory(AbstractModelFactory):
-    MODEL = analysis_model.AnalysisMetaData
-    STORE_SECTION_SERIALIZERS = {
-        "start_time": float,
-        "name": str,
-        "description": str,
-        "interval": float,
-        "images": int,
-        "uuid": str,
-        "fixture": str,
-        "scanner": str,
-        "project_id": str,
-        "scanner_layout_id": str,
-        "version": float,
-        "pinnings": list
-    }
-
-    @classmethod
-    def create(cls, **settings):
-
-        for (old_name, new_name) in [
-            ("Start Time", "start_time"),
-            ("Prefix", "name"),
-            ("Interval", "interval"),
-            ("Description", "description"),
-            ("Version", "version"),
-            ("UUID", "uuid"),
-            ("Measures", "images"),
-            ("Fixture", "fixture"),
-            ("Scanner", "scanner"),
-            ("Pinning Matrices", "pinnings"),
-            ("Project ID", "project_id"),
-            ("Scanner Layout ID", "scanner_layout_id")
-        ]:
-            rename_setting(settings, old_name, new_name)
-
-        if "Manual Gridding" in settings:
-            del settings["Manual Gridding"]
-
-        return super(MetaDataFactory, cls).create(**settings)
 
 
 class AnalysisFeaturesFactory(AbstractModelFactory):
