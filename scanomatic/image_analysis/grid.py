@@ -1,13 +1,18 @@
+from typing import Optional, Union
+from collections.abc import Callable
+
 import numpy as np
 from scipy import ndimage  # type: ignore
 from skimage import filters as ski_filter  # type: ignore
 
+from scanomatic.data_processing.convolution import FilterArray
+
 
 def get_adaptive_threshold(
     im,
-    threshold_filter=None,
-    segments=60,
-    sigma=None,
+    threshold_filter: Optional[Callable] = None,
+    segments: int = 60,
+    sigma: Optional[float] = None,
     *args,
     **kwargs,
 ):
@@ -62,7 +67,7 @@ def _get_sectioned_image(im):
     return labeled, labels
 
 
-def get_denoise_segments(im, **kwargs):
+def get_denoise_segments(im, **kwargs) -> FilterArray:
     """Filters out small segments"""
     erode_im = ndimage.binary_erosion(im, **kwargs)
     reconstruct_im = ndimage.binary_propagation(erode_im, mask=im)
@@ -75,7 +80,12 @@ def get_denoise_segments(im, **kwargs):
     return reconstruct_final
 
 
-def get_segments_by_size(im, min_size, max_size=-1, inplace=True):
+def get_segments_by_size(
+    im,
+    min_size: int,
+    max_size: int = -1,
+    inplace: bool = True,
+) -> Optional[FilterArray]:
     """Filters segments by allowed size range"""
     if inplace:
         out = im
@@ -99,10 +109,10 @@ def get_segments_by_size(im, min_size, max_size=-1, inplace=True):
 
 def get_segments_by_shape(
     im,
-    max_shape,
-    check_roundness=True,
-    inplace=True,
-):
+    max_shape: tuple[int, int],
+    check_roundness: bool = True,
+    inplace: bool = True,
+) -> Optional[FilterArray]:
     if inplace:
         out = im
     else:
@@ -137,7 +147,7 @@ def get_segments_by_shape(
 _DEVIATION_FROM_SQUARE_TOLERANCE = 0.25
 
 
-def is_almost_square(feature_slice):
+def is_almost_square(feature_slice: np.ndarray) -> bool:
     global _DEVIATION_FROM_SQUARE_TOLERANCE
     return (
         abs(1 - feature_slice.shape[0] / feature_slice.shape[1])
@@ -149,7 +159,7 @@ _DEVIATION_FROM_CIRCLE_TOLERANCE = 0.1
 _INSET_CIRCLE_IN_SQUARE_FACTOR = np.pi / 4.0
 
 
-def is_almost_round(feature_slice, blob):
+def is_almost_round(feature_slice: np.ndarray, blob) -> bool:
     global _DEVIATION_FROM_CIRCLE_TOLERANCE
     global _INSET_CIRCLE_IN_SQUARE_FACTOR
     return (
@@ -161,7 +171,12 @@ def is_almost_round(feature_slice, blob):
     )
 
 
-def get_grid_parameters(x_data, y_data, grid_shape, spacings=(54, 54)):
+def get_grid_parameters(
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    grid_shape: tuple[int, int],
+    spacings: tuple[int, int] = (54, 54),
+) -> tuple[tuple[int, int], tuple[int, int]]:
     data = (x_data, y_data)
     new_spacings = get_grid_spacings(x_data, y_data, *spacings)
     if None in new_spacings:
@@ -180,7 +195,7 @@ def get_grid_parameters(x_data, y_data, grid_shape, spacings=(54, 54)):
     return new_center, new_spacings
 
 
-def get_weights(votes, data, width=1.0):
+def get_weights(votes, data, width: float = 1.0) -> np.ndarray:
     """
     Get weights for votes. If width > 0, a Gaussian weight is assigend based
     on the distance of the vote to the mean of the data. The width of the
@@ -220,7 +235,7 @@ def get_votes(data, centers):
     return x_votes.ravel(), y_votes.ravel()
 
 
-def get_heatmap(data, votes, weights, sigma):
+def get_heatmap(data, votes, weights, sigma: float) -> np.ndarray:
     """
     Get smoothed histogram.
 
@@ -276,7 +291,10 @@ def get_heatmap(data, votes, weights, sigma):
     return heatmap
 
 
-def get_centre_candidates(grid_size, spacings):
+def get_centre_candidates(
+    grid_size: tuple[int, int],
+    spacings: tuple[int, int],
+):
     """
     Get coordinates of all possible grid centres without offset.
     """
@@ -290,11 +308,17 @@ def get_centre_candidates(grid_size, spacings):
     return grid_x.ravel() * dx, grid_y.ravel() * dy
 
 
-def get_grid_spacings(x_data, y_data, expected_dx, expected_dy, leeway=0.1):
+def get_grid_spacings(
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    expected_dx: float,
+    expected_dy: float,
+    leeway: float = 0.1,
+):
     # TODO: Remove expected values and use fourier transform to get the
     # rough frequency
 
-    def get_delta(data, expected_delta):
+    def get_delta(data: np.ndarray, expected_delta: float):
         deltas = np.abs(np.subtract.outer(data, data))
         filt = np.logical_and(
             deltas > expected_delta * (1 - leeway),
@@ -307,14 +331,19 @@ def get_grid_spacings(x_data, y_data, expected_dx, expected_dy, leeway=0.1):
     return get_delta(x_data, expected_dx), get_delta(y_data, expected_dy)
 
 
-def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
+def replace_ideal_with_observed(
+    ideal_grid: np.ndarray,
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    max_sq_dist: float,
+) -> np.ndarray:
 
     shape = np.array(ideal_grid.shape[1:])
     update_allowed = np.ones(shape, dtype=bool)
 
     rings = (shape / 2).astype(int)
 
-    def _look_replace(array_view, filt):
+    def _look_replace(array_view: np.ndarray, filt: FilterArray) -> None:
         ideal_xs = array_view[0].ravel()
         ideal_ys = array_view[1].ravel()
         distances = (
@@ -331,7 +360,7 @@ def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
                 section[0, d1, d2] = x_data[best_fit_indices[i]]
                 section[1, d1, d2] = y_data[best_fit_indices[i]]
 
-    def _push_ideal(array_view, current_ring):
+    def _push_ideal(array_view, current_ring) -> None:
 
         if (rings[0] - current_ring - 1) >= 0:
             distance_dim1_lower = (
@@ -402,14 +431,14 @@ def replace_ideal_with_observed(ideal_grid, x_data, y_data, max_sq_dist):
 
 
 def build_grid_from_center(
-    x_data,
-    y_data,
-    center,
-    dx,
-    dy,
-    grid_shape,
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    center: np.ndarray,
+    dx: float,
+    dy: float,
+    grid_shape: tuple[int, int],
     max_sq_dist=105,
-):
+) -> np.ndarray:
     grid0 = (
         (
             (np.mgrid[0: grid_shape[0], 0: grid_shape[1]]).astype(float)
@@ -459,13 +488,13 @@ def get_validated_grid(im, grid, delta_dim1, delta_dim2, adjusted_values):
 
 
 def get_valid_parameters(
-    center,
-    spacing,
-    expected_center,
-    expected_spacing,
-    sigma_spacing=0.55,
-    t=0.95,
-):
+    center: Union[tuple[float, float], np.ndarray],
+    spacing: Union[tuple[int, int], np.ndarray],
+    expected_center: Union[tuple[float, float], np.ndarray],
+    expected_spacing: Union[tuple[int, int], np.ndarray],
+    sigma_spacing: float = 0.55,
+    t: float = 0.95,
+) -> tuple[tuple[float, float], tuple[int, int], FilterArray]:
 
     """This function validates observed spacing and center and uses
     expected values when deemed unrealistic.
@@ -477,7 +506,12 @@ def get_valid_parameters(
     margin.
     """
 
-    def get_gauss_probability(height, position, width, data):
+    def get_gauss_probability(
+        height: float,
+        position: np.ndarray,
+        width: float,
+        data: np.ndarray,
+    ) -> np.ndarray:
         return height * np.exp(-(data - position) ** 2 / (2 * width ** 2))
 
     print("*** Got center {0} and spacing {1}".format(center, spacing))
@@ -516,14 +550,14 @@ def get_valid_parameters(
 
 def get_grid(
     im,
-    expected_spacing=(105, 105),
-    grid_shape=(16, 24),
-    x_data=None,
-    y_data=None,
-    expected_center=(100, 100),
-    dev_reduce_grid_data_fraction=None,
-    validate_parameters=False,
-    grid_correction=None,
+    expected_spacing: tuple[int, int] = (105, 105),
+    grid_shape: tuple[int, int] = (16, 24),
+    x_data: Optional[np.ndarray] = None,
+    y_data: Optional[np.ndarray] = None,
+    expected_center: tuple[float, float] = (100, 100),
+    dev_reduce_grid_data_fraction: Optional[float] = None,
+    validate_parameters: bool = False,
+    grid_correction: Optional[tuple[int, int]] = None,
 ):
     """Detects grid candidates and constructs a grid"""
 

@@ -1,5 +1,10 @@
 from enum import Enum
+from logging import Logger
+from typing import Any, Optional
+from collections.abc import Callable
+
 import numpy as np
+import numpy.typing as npt
 from scipy.stats import norm  # type: ignore
 
 
@@ -10,7 +15,14 @@ class EdgeCondition(Enum):
     Valid = 3
 
 
-def edge_condition(arr, mode=EdgeCondition.Reflect, kernel_size=3):
+FilterArray = npt.NDArray[np.bool_]
+
+
+def edge_condition(
+    arr: np.ndarray,
+    mode: EdgeCondition = EdgeCondition.Reflect,
+    kernel_size: int = 3,
+):
     if not kernel_size % 2 == 1:
         raise ValueError("Only odd-size kernels supported")
 
@@ -76,8 +88,12 @@ def edge_condition(arr, mode=EdgeCondition.Reflect, kernel_size=3):
         pass
 
 
-def time_based_gaussian_weighted_mean(data, time, sigma=1):
-    center = (time.size - time.size % 2) / 2
+def time_based_gaussian_weighted_mean(
+    data: np.ndarray,
+    time: np.ndarray,
+    sigma: float = 1,
+):
+    center = (time.size - time.size % 2) // 2
     delta_time = np.abs(time - time[center])
     kernel = norm.pdf(delta_time, loc=0, scale=sigma)
     finite = np.isfinite(data)
@@ -88,12 +104,12 @@ def time_based_gaussian_weighted_mean(data, time, sigma=1):
 
 
 def merge_convolve(
-    arr1,
-    arr2,
-    edge_condition_mode=EdgeCondition.Reflect,
-    kernel_size=5,
-    func=time_based_gaussian_weighted_mean,
-    func_kwargs=None,
+    arr1: np.ndarray,
+    arr2: np.ndarray,
+    edge_condition_mode: EdgeCondition = EdgeCondition.Reflect,
+    kernel_size: int = 5,
+    func: Callable = time_based_gaussian_weighted_mean,
+    func_kwargs: Optional[dict[str, Any]] = None,
 ):
     if not func_kwargs:
         func_kwargs = {}
@@ -112,7 +128,11 @@ def merge_convolve(
     ))
 
 
-def get_edge_condition_timed_filter(times, half_window, edge_condition):
+def get_edge_condition_timed_filter(
+    times: np.ndarray,
+    half_window: float,
+    edge_condition: EdgeCondition,
+):
     left = times < (times[0] + half_window)
     right = times > (times[-1] - half_window)
 
@@ -125,14 +145,13 @@ def get_edge_condition_timed_filter(times, half_window, edge_condition):
 
 
 def filter_edge_condition(
-    y,
-    left_filt,
-    right_filt,
-    mode,
-    extrapolate_values=False,
-    logger=None,
+    y: np.ndarray,
+    left_filt: FilterArray,
+    right_filt: FilterArray,
+    mode: EdgeCondition,
+    extrapolate_values: bool = False,
+    logger: Optional[Logger] = None,
 ):
-
     if mode is EdgeCondition.Valid:
         return y
     elif mode is EdgeCondition.Symmetric or mode is EdgeCondition.Reflect:

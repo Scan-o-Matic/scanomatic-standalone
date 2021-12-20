@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Literal, Optional
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 from scipy.interpolate import griddata  # type: ignore
@@ -10,7 +10,7 @@ from scipy.ndimage import (  # type: ignore
     generic_filter,
     laplace,
     median_filter,
-    sobel
+    sobel,
 )
 from scipy.stats import pearsonr  # type: ignore
 
@@ -165,8 +165,8 @@ def get_downsampled_plates(
 def get_control_position_filtered_arrays(
     data,
     offsets=None,
-    fill_value=np.nan,
-):
+    fill_value: float = np.nan,
+) -> np.ndarray:
 
     """Support method that returns array in the shape corresponding
     to the data in the DataBridge such that only the values reported
@@ -307,10 +307,10 @@ def get_center_transformed_control_positions(control_pos_coordinates, data):
 
 
 def get_control_positions_average(
-    control_pos_data_array,
-    overwrite_experiment_values=np.nan,
-    average_method=mid50_mean,
-):
+    control_pos_data_array: np.ndarray,
+    overwrite_experiment_values: float = np.nan,
+    average_method: Callable = mid50_mean,
+) -> np.ndarray:
     """Returns the average per measure of each measurement type for
     the control positions. Default is to return the mean of the
     the mid 50 values.
@@ -361,7 +361,7 @@ def get_control_positions_average(
 
 
 def get_normalisation_surface(
-    control_positions_filtered_data,
+    control_positions_filtered_data: np.ndarray,
     control_position_coordinates=None,
     norm_sequence: Sequence[str] = ('cubic', 'linear', 'nearest'),
     use_accumulated: bool = False,
@@ -369,7 +369,7 @@ def get_normalisation_surface(
     offsets=None,
     apply_median_smoothing_kernel: Optional[int] = None,
     apply_gaussian_smoothing_sigma: Optional[float] = None,
-):
+) -> np.ndarray:
     """Constructs normalisation surface using iterative runs of
     scipy.interpolate's gridddata based on sequence of supplied
     method preferences.
@@ -410,7 +410,7 @@ def get_normalisation_surface(
             Omitted if `None`.
     """
 
-    def get_stripped_invalid_points(selector):
+    def get_stripped_invalid_points(selector) -> tuple[np.ndarray, ...]:
         return tuple(map(
             np.array,
             list(
@@ -547,7 +547,7 @@ def apply_outlier_filter(
     k: float = 2.0,
     p: int = 10,
     max_iterations: int = 10,
-):
+) -> None:
     """Checks all positions in each array and filters those outside
     set boundries based upon their peak/valey properties using
     laplace and normal distribution assumptions.
@@ -666,7 +666,10 @@ def apply_outlier_filter(
                 new_nans = np.isnan(plate[..., measure]).sum()
 
 
-def apply_log2_transform(data, measures=None):
+def apply_log2_transform(
+    data: np.ndarray,
+    measures: Optional[Sequence[int]] = None,
+) -> None:
     """Log2 Transformation of dataArray values.
 
     If required, a filter for which measures to be log2-transformed as
@@ -685,7 +688,12 @@ def apply_log2_transform(data, measures=None):
         data[id_plate][..., measures] = np.log2(data[id_plate][..., measures])
 
 
-def apply_sobel_filert(data, measure=1, threshold=1, **kwargs):
+def apply_sobel_filert(
+    data: np.ndarray,
+    measure: int = 1,
+    threshold: float = 1,
+    **kwargs,
+) -> None:
     """Applies a Sobel filter to the arrays and then compares this to a
     threshold setting all positions greater than said absolute threshold to
     NaN.
@@ -711,7 +719,12 @@ def apply_sobel_filert(data, measure=1, threshold=1, **kwargs):
         data[id_plate][..., measure][filt] = np.nan
 
 
-def apply_laplace_filter(data, measure=1, threshold=1, **kwargs):
+def apply_laplace_filter(
+    data: np.ndarray,
+    measure: int = 1,
+    threshold: float = 1,
+    **kwargs,
+) -> None:
     """Applies a Laplace filter to the arrays and then compares the absolute
     values of those to a threshold, discarding those exceeding it.
 
@@ -732,7 +745,12 @@ def apply_laplace_filter(data, measure=1, threshold=1, **kwargs):
         data[id_plate][..., measure][filt] = np.nan
 
 
-def apply_gauss_smoothing(data, measure=1, sigma=3.5, **kwargs):
+def apply_gauss_smoothing(
+    data: np.ndarray,
+    measure: int = 1,
+    sigma: float = 3.5,
+    **kwargs,
+) -> None:
     """Applies a Gaussian Smoothing filter to the values of a plate (or norm
     surface).
 
@@ -755,7 +773,12 @@ def apply_gauss_smoothing(data, measure=1, sigma=3.5, **kwargs):
         )
 
 
-def apply_median_smoothing(data, measure=1, filter_shape=(3, 3), **kwargs):
+def apply_median_smoothing(
+    data: np.ndarray,
+    measure: int = 1,
+    filter_shape: tuple[int, int] = (3, 3),
+    **kwargs,
+) -> None:
     if 'mode' not in kwargs:
         kwargs['mode'] = 'nearest'
 
@@ -768,7 +791,7 @@ def apply_median_smoothing(data, measure=1, filter_shape=(3, 3), **kwargs):
         )
 
 
-def apply_sigma_filter(data, sigma=3):
+def apply_sigma_filter(data: np.ndarray, sigma: float = 3) -> None:
     """Applies a per plate global sigma filter such that those values
     exceeding the absolute sigma distance to the mean are discarded.
 
@@ -819,19 +842,36 @@ def ipv_residue(scaling_params, ipv, gt):
     return np.hstack([p[np.isfinite(p)].ravel() for p in ret])
 
 
-def norm_by_log2_diff(plate, surface, **kwargs):
+def norm_by_log2_diff(
+    plate: np.ndarray,
+    surface: np.ndarray,
+    **kwargs,
+) -> np.ndarray:
     return np.log2(plate) - np.log2(surface)
 
 
-def norm_by_diff(plate, surface, **kwargs):
+def norm_by_diff(
+    plate: np.ndarray,
+    surface: np.ndarray,
+    **kwargs,
+) -> np.ndarray:
     return plate - surface
 
 
-def norm_by_signal_to_noise(plate, surface, std, **kwargs):
+def norm_by_signal_to_noise(
+    plate: np.ndarray,
+    surface: np.ndarray,
+    std: float,
+    **kwargs,
+) -> np.ndarray:
     return (plate - surface) / std
 
 
-def norm_by_log2_diff_corr_scaled(plate, surface, **kwargs):
+def norm_by_log2_diff_corr_scaled(
+    plate: np.ndarray,
+    surface: np.ndarray,
+    **kwargs,
+) -> np.ndarray:
     plate = np.log2(plate)
     surface = np.log2(surface)
     filt = np.isfinite(plate) & np.isfinite(surface)
@@ -842,7 +882,11 @@ def norm_by_log2_diff_corr_scaled(plate, surface, **kwargs):
     )
 
 
-def get_normalized_data(data, offsets=None, method=norm_by_log2_diff):
+def get_normalized_data(
+    data: Optional[np.ndarray],
+    offsets=None,
+    method: Callable = norm_by_log2_diff,
+) -> Optional[np.ndarray]:
     if data is None:
         return None
 
@@ -869,7 +913,7 @@ def get_normalized_data(data, offsets=None, method=norm_by_log2_diff):
     return normalisation(data, surface, method=method, std=std)
 
 
-def get_reference_positions(data, offsets, outlier_filter=True):
+def get_reference_positions(data: np.ndarray, offsets, outlier_filter=True):
     surface = get_control_position_filtered_arrays(data, offsets=offsets)
     pre_surface = get_downsampled_plates(surface, offsets)
     if outlier_filter:
@@ -877,7 +921,12 @@ def get_reference_positions(data, offsets, outlier_filter=True):
     return pre_surface
 
 
-def normalisation(data, norm_surface, method=norm_by_log2_diff, std=(None,)):
+def normalisation(
+    data: np.ndarray,
+    norm_surface: np.ndarray,
+    method: Callable = norm_by_log2_diff,
+    std: tuple[Optional[float], ...] = (None,),
+):
     normed_data = []
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()

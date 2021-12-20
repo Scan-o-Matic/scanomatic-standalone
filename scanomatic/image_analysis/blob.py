@@ -9,6 +9,8 @@ from scipy.ndimage import (  # type: ignore
 )
 from skimage import filters as ski_filter  # type: ignore
 
+from scanomatic.data_processing.convolution import FilterArray
+
 
 class AnalysisRecipeAbstraction:
     """Holds an instruction and/or a list of subinstructions."""
@@ -59,7 +61,7 @@ class AnalysisRecipeEmpty(AnalysisRecipeAbstraction):
 
 
 class AnalysisThresholdOtsu(AnalysisRecipeAbstraction):
-    def __init__(self, parent, threshold_unit_adjust=0.0):
+    def __init__(self, parent, threshold_unit_adjust: float = 0.0):
         super(AnalysisThresholdOtsu, self).__init__(
             parent,
             description="Otsu Threshold",
@@ -94,7 +96,7 @@ class AnalysisRecipeErode(AnalysisRecipeAbstraction):
             description="Binary Erode",
         )
 
-    def _do(self, im, filter_array):
+    def _do(self, im, filter_array: FilterArray):
         filter_array[...] = binary_erosion(filter_array, iterations=3)
 
 
@@ -111,7 +113,7 @@ class AnalysisRecipeErodeSmall(AnalysisRecipeAbstraction):
             description="Binary Erode (small)",
         )
 
-    def _do(self, im, filter_array):
+    def _do(self, im, filter_array: FilterArray):
         binary_erosion(
             filter_array,
             origin=(1, 1),
@@ -131,7 +133,7 @@ class AnalysisRecipeDilate(AnalysisRecipeAbstraction):
         [0, 0, 1, 1, 1, 0, 0]
     ])
 
-    def __init__(self, parent, iterations=4):
+    def __init__(self, parent, iterations: int = 4):
         super(AnalysisRecipeDilate, self).__init__(
             parent,
             description="Binary Dilate",
@@ -152,7 +154,7 @@ class AnalysisRecipeGauss2(AnalysisRecipeAbstraction):
             description="Gaussian size 2",
         )
 
-    def _do(self, im, filter_array):
+    def _do(self, im, filter_array: FilterArray):
         gaussian_filter(im, 2, output=im)
 
 
@@ -163,7 +165,7 @@ class AnalysisRecipeMedianFilter(AnalysisRecipeAbstraction):
             description="Median Filter",
         )
 
-    def _do(self, im, filter_array):
+    def _do(self, im, filter_array: FilterArray):
         median_filter(
             im,
             size=(3, 3),

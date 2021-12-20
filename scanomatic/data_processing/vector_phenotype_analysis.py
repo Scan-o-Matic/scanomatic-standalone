@@ -1,10 +1,12 @@
 import operator
+from collections.abc import Callable
 from itertools import product
+from typing import Any
 
 import numpy as np
 import scipy.cluster.hierarchy as sch  # type: ignore
 from matplotlib import pyplot as plt  # type: ignore
-from scipy.signal import gaussian  # type: ignore
+from scipy.signal.windows import gaussian  # type: ignore
 
 from scanomatic.data_processing.growth_phenotypes import Phenotypes
 
@@ -32,7 +34,7 @@ def get_plate_phenotype_in_array(
     return arr
 
 
-def get_linearized_positions(data):
+def get_linearized_positions(data: np.ndarray):
     return np.lib.stride_tricks.as_strided(
         data,
         shape=(data.shape[0] * data.shape[1],) + data.shape[2:],
@@ -40,7 +42,7 @@ def get_linearized_positions(data):
     )
 
 
-def _resolve_neighbours_gauss(data):
+def _resolve_neighbours_gauss(data: np.ndarray) -> np.ndarray:
     gauss = gaussian(data.shape[0] * 2, 3)
     for coord in zip(*np.where(np.isfinite(data) == False)):  # noqa: E712
         data[coord] = np.ma.masked_invalid(
@@ -53,7 +55,7 @@ def _resolve_neighbours_gauss(data):
     return data
 
 
-def _blank_missing_data(data):
+def _blank_missing_data(data: np.ndarray) -> np.ndarray:
     data[:, np.where(np.isfinite(data).sum(axis=0) == 0)] = 0
     return data
 
@@ -79,9 +81,9 @@ def _ensure_indata(f):
 
 @_ensure_indata
 def get_pca_components(
-    data,
-    resolve_nans_method=_resolve_neighbours_gauss,
-    dims=2,
+    data: np.ndarray,
+    resolve_nans_method: Callable = _resolve_neighbours_gauss,
+    dims: int = 2,
 ):
     M = data.T.copy()
     print((np.isfinite(M) == False).sum())  # noqa: E712
@@ -96,12 +98,12 @@ def get_pca_components(
 
 @_ensure_indata
 def plot_heatmap_dendrogram_and_cluster(
-    data,
-    distance_measure='euclidean',
-    linkage_method='single',
-    distance_kwargs={},
-    dendrogram_kwargs={'no_labels': True},
-    cluster_kwargs={'criterion': 'distance', 't': 0.9},
+    data: np.ndarray,
+    distance_measure: str = 'euclidean',
+    linkage_method: str = 'single',
+    distance_kwargs: dict[str, Any] = {},
+    dendrogram_kwargs: dict[str, Any] = {'no_labels': True},
+    cluster_kwargs: dict[str, Any] = {'criterion': 'distance', 't': 0.9},
 ):
 
     print(type(data), type(distance_measure))
@@ -157,7 +159,7 @@ def plot_grouped_scatter_phenotypes(
     phenotype_x,
     phenotype_y,
     clustering,
-    marker='o',
+    marker: str = 'o',
     **kwargs,
 ):
     uniques = np.unique(clustering)

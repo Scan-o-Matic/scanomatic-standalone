@@ -1,6 +1,6 @@
 import operator
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 from scipy.ndimage import (  # type: ignore
@@ -9,6 +9,7 @@ from scipy.ndimage import (  # type: ignore
     gaussian_filter,
     label
 )
+from scanomatic.data_processing.convolution import FilterArray
 
 import scanomatic.image_analysis.blob as blob
 import scanomatic.image_analysis.histogram as histogram
@@ -20,7 +21,7 @@ from scanomatic.models.factories.analysis_factories import (
 )
 
 
-def points_in_circle(circle):
+def points_in_circle(circle: tuple[tuple[float, float], float]):
     """A generator to return all points whose indices are within given circle.
 
     Function takes two arguments:
@@ -56,7 +57,10 @@ def points_in_circle(circle):
             yield (i, j)
 
 
-def get_round_kernel(radius=6.0, outline=False):
+def get_round_kernel(
+    radius: float = 6.0,
+    outline: bool = False,
+) -> FilterArray:
 
     round_kernel = np.zeros(
         ((radius + 1) * 2 + 1, (radius + 1) * 2 + 1),
@@ -79,7 +83,12 @@ def get_round_kernel(radius=6.0, outline=False):
     return round_kernel
 
 
-def get_array_subtraction(array_one, array_two, offset, output=None):
+def get_array_subtraction(
+    array_one: np.ndarray,
+    array_two: np.ndarray,
+    offset: tuple[int, int],
+    output=None,
+) -> Optional[np.ndarray]:
     """Makes offsetted subtractions for A1 - A2 independent of sizes
 
     If output is supplied it will be fed directly into it, else,
@@ -148,7 +157,11 @@ def get_array_subtraction(array_one, array_two, offset, output=None):
 
 class CellItem:
 
-    def __init__(self, identifier: tuple[int, int, int], grid_array):
+    def __init__(
+        self,
+        identifier: tuple[int, int, int],
+        grid_array: np.ndarray,
+    ):
         """Cell_Item is a super-class for Blob, Background and Cell and should
         not be accessed directly.
 
@@ -192,7 +205,7 @@ class CellItem:
         self.features.shape = (len(self._features_key_list),)
         self.old_filter = None
 
-    def set_data_source(self, data_source):
+    def set_data_source(self, data_source) -> None:
         self.grid_array = data_source
         if self.grid_array.shape != self.filter_array.shape:
             self.filter_array = np.zeros(
@@ -279,7 +292,11 @@ class CellItem:
                 feature_data[MEASURES.Perimeter] = None
 
 
-def get_onion_values(array, array_filter, layer_size):
+def get_onion_values(
+    array: np.ndarray,
+    array_filter: FilterArray,
+    layer_size: int,
+) -> np.ndarray:
     """
     get_onion_value peals off bits of the A_filter and sums up
     what is left in A until nothing rematins in A_filter. At each
@@ -325,14 +342,14 @@ class Blob(CellItem):
 
     def __init__(
         self,
-        identifier,
-        grid_array,
-        run_detect=True,
-        threshold=None,
-        blob_detect=BlobDetectionTypes.DEFAULT,
-        image_color_logic="norm",
-        center=None,
-        radius=None,
+        identifier: tuple[int, int, int],
+        grid_array: np.ndarray,
+        run_detect: bool = True,
+        threshold: Optional[float] = None,
+        blob_detect: BlobDetectionTypes = BlobDetectionTypes.DEFAULT,
+        image_color_logic: str = "norm",
+        center: Optional[tuple[float, float]] = None,
+        radius: Optional[float] = None,
     ):
         CellItem.__init__(self, identifier, grid_array)
         self.threshold = threshold
@@ -366,7 +383,11 @@ class Blob(CellItem):
 
         self._debug_ticker = 0
 
-    def set_blob_from_shape(self, rect=None, circle=None):
+    def set_blob_from_shape(
+        self,
+        rect: Optional[tuple[tuple[int, int], tuple[int, int]]] = None,
+        circle: Optional[tuple[tuple[float, float], float]] = None,
+    ) -> None:
         """
         set_blob_from_shape serves as the purpose of allowing users to
         define their blob (that is where the colony is).
@@ -398,12 +419,17 @@ class Blob(CellItem):
                 self.grid_array.shape, dtype=int)
             """
 
-            pts_iterator = points_in_circle(circle)  # , raster)
+            pts_iterator = points_in_circle(circle)
 
             for pt in pts_iterator:
                 self.filter_array[pt] = True
 
-    def set_threshold(self, threshold=None, relative=False, im=None):
+    def set_threshold(
+        self,
+        threshold: float = None,
+        relative: bool = False,
+        im=None,
+    ) -> None:
         """
         set_threshold allows user to set the threshold manually or, if no
         argument is passed, to have it set using the histogram of the
@@ -451,7 +477,7 @@ class Blob(CellItem):
 
         return get_array_subtraction(other_img, self.grid_array, offset)
 
-    def get_ideal_circle(self, c_array=None):
+    def get_ideal_circle(self, c_array: Optional[FilterArray] = None):
         """
         get_ideal_circle is a function that extracts the ideal
         circle from an array assuming that there's only one
@@ -477,7 +503,7 @@ class Blob(CellItem):
 
         return center_of_mass_position, radius
 
-    def get_circularity(self, c_array=None):
+    def get_circularity(self, c_array: Optional[FilterArray] = None) -> float:
         """
         get_circularity uses get_ideal_circle to make an abstract model
         of the object in c_array and passes this information to
@@ -524,8 +550,13 @@ class Blob(CellItem):
 
         return diff_array.sum() / (np.sqrt(c_array.sum()) * np.pi)
 
-    def detect(self, detect_type=None, max_change_threshold=8,
-               remember_filter=True, remember_trash=False):
+    def detect(
+        self,
+        detect_type: Optional[BlobDetectionTypes] = None,
+        max_change_threshold: int = 8,
+        remember_filter: bool = True,
+        remember_trash: bool = False,
+    ) -> None:
         """
         Generic wrapper function for blob-detection that calls the
         proper detection function and evaluates the results in comparison
@@ -672,7 +703,7 @@ class Blob(CellItem):
 
                 self.old_trash = self.trash_array.copy()
 
-    def iterative_threshold_detect(self):
+    def iterative_threshold_detect(self) -> None:
 
         grid_array = gaussian_filter(self.grid_array, 2)
 
@@ -683,7 +714,12 @@ class Blob(CellItem):
             threshold *= 1.5
             self.threshold_detect(im=grid_array, threshold=threshold)
 
-    def threshold_detect(self, im=None, threshold=None, color_logic=None):
+    def threshold_detect(
+        self,
+        im=None,
+        threshold: Optional[float] = None,
+        color_logic: Optional[str] = None,
+    ) -> None:
         """
         If there is a threshold previously set, this will be used to
         detect blob by accepting everythin above threshold as the blob.
@@ -718,7 +754,7 @@ class Blob(CellItem):
 
             self.filter_array[np.where(im > self.threshold)] = True
 
-    def manual_detect(self, center, radius):
+    def manual_detect(self, center: tuple[float, float], radius: float) -> None:
 
         self.filter_array[...] = False
 
@@ -781,7 +817,7 @@ class Blob(CellItem):
             stencil[(x_stencil_slice, y_stencil_slice)]
         )
 
-    def default_detect(self):
+    def default_detect(self) -> None:
         if self.grid_array.size:
             self.BLOB_RECIPE.analyse(self.grid_array, self.filter_array)
             self.keep_best_blob()
@@ -822,7 +858,7 @@ class Blob(CellItem):
         return number_of_labels, qualities, centre_of_masses, label_array
 
     # noinspection PyTypeChecker
-    def keep_best_blob(self):
+    def keep_best_blob(self) -> None:
         """Evaluates all blobs detected and keeps the best one"""
 
         (
@@ -880,7 +916,7 @@ class Background(CellItem):
         if run_detect:
             self.detect()
 
-    def detect(self, **kwargs):
+    def detect(self, **kwargs) -> None:
         """
         detect finds the background
 
@@ -921,7 +957,7 @@ class Cell(CellItem):
             self.detect()
 
     @staticmethod
-    def detect(**kwargs):
+    def detect(**kwargs) -> None:
         """
         detect makes a filter that is true for the full area
 

@@ -49,10 +49,10 @@ def get_ortho_trimmed_slice(im, grayscale):
 def get_para_trimmed_slice(
     im_ortho_trimmed,
     grayscale,
-    kernel_part_of_segment=0.6,
-    permissibility_threshold=20,
-    acceptability_threshold=0.8,
-    padding=0.7,
+    kernel_part_of_segment: float = 0.6,
+    permissibility_threshold: float = 20,
+    acceptability_threshold: float = 0.8,
+    padding: float = 0.7,
 ):
     # Restructures the image so that local variances can be measured using a
     # kernel the scaled (default 0.7) size of the segment size
@@ -160,7 +160,11 @@ def get_para_trimmed_slice(
     return im_ortho_trimmed
 
 
-def get_grayscale(fixture, grayscale_area_model, debug=False):
+def get_grayscale(
+    fixture,
+    grayscale_area_model,
+    debug: bool = False,
+):
     im = fixture.get_grayscale_im_section(grayscale_area_model)
     if im is None:
         return None
@@ -171,7 +175,11 @@ def get_grayscale(fixture, grayscale_area_model, debug=False):
     )
 
 
-def get_grayscale_image_analysis(im, grayscale_name, debug=False):
+def get_grayscale_image_analysis(
+    im,
+    grayscale_name,
+    debug: bool = False,
+):
     global DEBUG_DETECTION
 
     gs = getGrayscale(grayscale_name)
@@ -187,7 +195,11 @@ def get_grayscale_image_analysis(im, grayscale_name, debug=False):
     return detect_grayscale(im_p, gs)
 
 
-def is_valid_grayscale(calibration_target_values, image_values, pixel_depth=8):
+def is_valid_grayscale(
+    calibration_target_values,
+    image_values,
+    pixel_depth: int = 8,
+) -> bool:
     try:
         fit = np.polyfit(image_values, calibration_target_values, 3)
     except TypeError:

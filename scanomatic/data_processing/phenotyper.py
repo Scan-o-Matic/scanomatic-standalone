@@ -131,11 +131,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         self,
         raw_growth_data,
         times_data=None,
-        median_kernel_size=5,
-        gaussian_filter_sigma=1.5,
-        linear_regression_size=5,
-        no_growth_monotonocity_threshold=0.6,
-        no_growth_pop_doublings_threshold=1.0,
+        median_kernel_size: int = 5,
+        gaussian_filter_sigma: float = 1.5,
+        linear_regression_size: int = 5,
+        no_growth_monotonocity_threshold: float = 0.6,
+        no_growth_pop_doublings_threshold: float = 1.0,
         base_name=None,
         run_extraction=False,
         phenotypes=None,
@@ -242,7 +242,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         else:
             self._logger.error("Value not a PhenotypeDataType!")
 
-    def phenotype_names(self, normed=False):
+    def phenotype_names(self, normed: bool = False):
         if normed:
             if self._state.normalized_phenotypes is None:
                 return []
@@ -589,7 +589,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         for shape in self._state.plate_shapes:
             yield shape
 
-    def load_meta_data(self, *meta_data_paths):
+    def load_meta_data(self, *meta_data_paths) -> bool:
         """Loads meta-data about the experiment based on paths to compatible
         files.
 
@@ -643,7 +643,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
         )
 
-    def iterate_extraction(self, keep_filter=False):
+    def iterate_extraction(self, keep_filter=False) -> None:
         self._logger.info(
             "Iteration started, will extract {0} phenotypes".format(
                 self.get_number_of_phenotypes(),
@@ -665,7 +665,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
         self._state.init_remove_filter_and_undo_actions(self._settings)
 
-    def wipe_extracted_phenotypes(self, keep_filter: bool = False):
+    def wipe_extracted_phenotypes(self, keep_filter: bool = False) -> None:
         """ This clears all extracted phenotypes but keeps the log2_curve data
 
         Args:
@@ -679,7 +679,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         keep_filter: bool = False,
         smoothing: Smoothing = Smoothing.PolynomialWeightedMulti,
         smoothing_coeffs={},
-    ):
+    ) -> None:
         """Extract phenotypes given the current inclusion level
 
         Args:
@@ -730,7 +730,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         self._logger.info("Phenotypes extracted")
 
     @property
-    def has_smooth_growth_data(self):
+    def has_smooth_growth_data(self) -> bool:
         return self._state.has_smooth_growth_data()
 
     @property
@@ -740,7 +740,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             and self._state.has_normalized_data()
         )
 
-    def _poly_smoothen_raw_growth(self, power=3, time_delta=5.1):
+    def _poly_smoothen_raw_growth(
+        self,
+        power: int = 3,
+        time_delta: float = 5.1,
+    ) -> None:
         assert power > 1, "Power must be 2 or greater"
         self._logger.info("Starting Polynomial smoothing")
 
@@ -779,12 +783,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
 
     def _poly_smoothen_raw_growth_weighted(
         self,
-        power=3,
-        time_delta=5.1,
-        gauss_sigma=1.5,
-        apply_median=True,
+        power: int = 3,
+        time_delta: float = 5.1,
+        gauss_sigma: float = 1.5,
+        apply_median: bool = True,
         edge_condition: EdgeCondition = EdgeCondition.Reflect,
-    ):
+    ) -> None:
         assert power > 1, "Power must be 2 or greater"
 
         self._logger.info(
@@ -903,7 +907,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         self._logger.info("Completed Weighted Multi-Polynomial smoothing")
 
     @staticmethod
-    def _multi_poly_smooth(times, polys, r, r0, filt, gauss_sigma):
+    def _multi_poly_smooth(times, polys, r, r0, filt, gauss_sigma: float):
         included = [v is not None for v in r]
         for f in filt:
 
@@ -953,7 +957,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                     yield np.poly1d(p),  0, 1
 
     @staticmethod
-    def _poly_smoothen_raw_growth_curve(times, log2_data, power, filt):
+    def _poly_smoothen_raw_growth_curve(times, log2_data, power: int, filt):
 
         finites = np.isfinite(log2_data)
 
@@ -969,7 +973,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             else:
                 yield np.power(2, np.poly1d(p)(t))
 
-    def _smoothen(self):
+    def _smoothen(self) -> None:
         self.set("smooth_growth_data", self._state.raw_growth_data.copy())
         self._logger.info("Smoothing Started")
         median_kernel = np.ones((1, self._settings.median_kernel_size))

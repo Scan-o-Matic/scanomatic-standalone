@@ -63,25 +63,41 @@ def get_preprocessed_data_for_phenotypes(
     }
 
 
-def initial_value(curve_smooth_growth_data, *args, **kwargs):
+def initial_value(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     return curve_smooth_growth_data[0]
 
 
-def curve_first_two_average(curve_smooth_growth_data, *args, **kwargs):
+def curve_first_two_average(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     if curve_smooth_growth_data[:2].any():
         return curve_smooth_growth_data[:2].mean()
     else:
         return np.nan
 
 
-def curve_baseline(curve_smooth_growth_data, *args, **kwargs):
+def curve_baseline(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     if curve_smooth_growth_data[:3].any():
         return curve_smooth_growth_data[:3].mean()
     else:
         return np.nan
 
 
-def curve_low_point(curve_smooth_growth_data, *args, **kwargs):
+def curve_low_point(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     if curve_smooth_growth_data.any():
         return np.ma.masked_invalid(
             np.convolve(
@@ -95,11 +111,11 @@ def curve_low_point(curve_smooth_growth_data, *args, **kwargs):
 
 
 def curve_low_point_time(
-    curve_smooth_growth_data,
-    flat_times,
+    curve_smooth_growth_data: np.ndarray,
+    flat_times: np.ndarray,
     *args,
     **kwargs,
-):
+) -> float:
     # TODO: If a keeper make the convoloution be precalc and not done
     # twice (se above func)
     try:
@@ -115,14 +131,22 @@ def curve_low_point_time(
         return np.nan
 
 
-def curve_end_average(curve_smooth_growth_data, *args, **kwargs):
+def curve_end_average(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> np.float:
     if curve_smooth_growth_data[-3:].any():
         return curve_smooth_growth_data[-3:].mean()
     else:
         return np.nan
 
 
-def curve_monotonicity(curve_smooth_growth_data, *args, **kwargs):
+def curve_monotonicity(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     return (
         np.diff(
             curve_smooth_growth_data[
@@ -132,21 +156,33 @@ def curve_monotonicity(curve_smooth_growth_data, *args, **kwargs):
     ).astype(float).sum() / (curve_smooth_growth_data.size - 1)
 
 
-def growth_yield(curve_smooth_growth_data, *args, **kwargs):
+def growth_yield(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     return (
         curve_end_average(curve_smooth_growth_data)
         - curve_baseline(curve_smooth_growth_data)
     )
 
 
-def growth_curve_doublings(curve_smooth_growth_data, *args, **kwargs):
+def growth_curve_doublings(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     return (
         np.log2(curve_end_average(curve_smooth_growth_data))
         - np.log2(curve_baseline(curve_smooth_growth_data))
     )
 
 
-def residual_growth(curve_smooth_growth_data, *args, **kwargs):
+def residual_growth(
+    curve_smooth_growth_data: np.ndarray,
+    *args,
+    **kwargs,
+) -> float:
     return (
         curve_end_average(curve_smooth_growth_data)
         - population_size_at_generation_time(
@@ -161,10 +197,10 @@ def residual_growth(curve_smooth_growth_data, *args, **kwargs):
 
 
 def residual_growth_as_population_doublings(
-    curve_smooth_growth_data,
+    curve_smooth_growth_data: np.ndarray,
     *args,
     **kwargs,
-):
+) -> np.ndarray:
     return (
         np.log2(curve_end_average(curve_smooth_growth_data))
         - np.log2(population_size_at_generation_time(
@@ -178,7 +214,12 @@ def residual_growth_as_population_doublings(
     )
 
 
-def growth_48h(curve_smooth_growth_data, index48h, *args, **kwargs):
+def growth_48h(
+    curve_smooth_growth_data: np.ndarray,
+    index48h: int,
+    *args,
+    **kwargs,
+) -> float:
     if index48h < 0 or index48h >= curve_smooth_growth_data.size:
         _logger.warning(
             "Faulty index {0} for 48h size (max {1})".format(
@@ -249,10 +290,10 @@ def get_chapman_richards_4parameter_extended_curve(
 
 
 def get_fit_r_square(
-    x_data,
-    y_data,
-    p0=np.array([1.64, -0.1, -2.46, 0.1, 15.18], dtype=float),
-):
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    p0: np.ndarray = np.array([1.64, -0.1, -2.46, 0.1, 15.18], dtype=float),
+) -> tuple[float, np.ndarray]:
     """x_data and y_data must be 1D, y_data must be log2"""
 
     finite_y = np.isfinite(y_data)
@@ -281,14 +322,14 @@ def get_chapman_richards_residuals(
     cr_params: Sequence[float],
     x_data: np.ndarray,
     y_data: np.ndarray,
-):
+) -> np.ndarray:
     return y_data - get_chapman_richards_4parameter_extended_curve(
         x_data,
         *cr_params,
     )
 
 
-def generation_time(derivative_values_log2, index, **kwargs):
+def generation_time(derivative_values_log2, index: int, **kwargs) -> float:
     if index < 0:
         _logger.warning("No GT because no finite slopes in data")
         return np.nan
@@ -301,7 +342,7 @@ def generation_time(derivative_values_log2, index, **kwargs):
     return 1.0 / derivative_values_log2[index]
 
 
-def generation_time_error(derivative_errors, index, **kwargs):
+def generation_time_error(derivative_errors, index: int, **kwargs) -> float:
     if index < 0:
         _logger.warning("No GT Error because no finite slopes in data")
         return np.nan
@@ -315,7 +356,12 @@ def generation_time_error(derivative_errors, index, **kwargs):
     return derivative_errors[index]
 
 
-def generation_time_when(flat_times, index, linregress_extent, **kwargs):
+def generation_time_when(
+    flat_times,
+    index: int,
+    linregress_extent,
+    **kwargs,
+) -> float:
     pos = index + linregress_extent
     if pos < 0:
         _logger.warning("No GT When because no finite slopes in data")

@@ -627,7 +627,7 @@ def test_bounding_box_for_colony(grid, x, y, w, h, expected):
 @pytest.fixture(scope='function')
 def colony_image():
     im = np.ones((25, 25)) * 80
-    cell_vector = norm.pdf(np.arange(-5, 6)/2.)
+    cell_vector = norm.pdf(np.arange(-5, 6) / 2.)
     colony = np.multiply.outer(cell_vector, cell_vector) * 20
     im[6:17, 5:16] -= colony
     return im

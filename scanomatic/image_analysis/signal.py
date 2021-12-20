@@ -3,7 +3,8 @@ from typing import cast, Optional
 
 import numpy as np
 import numpy.typing as npt
-from scipy import ndimage, signal  # type: ignore
+from scipy.ndimage import binary_dilation, binary_erosion  # type: ignore
+from scipy.signal import convolve, fftconvolve  # type: ignore
 
 _logger = Logger("Resource Signal")
 
@@ -24,7 +25,11 @@ def get_higher_second_half_order_according_to_first(first, *others):
     return (first,) + others
 
 
-def get_signal(data, detection_threshold, kernel=(-1, 1)):
+def get_signal(
+    data: np.ndarray,
+    detection_threshold: float,
+    kernel: tuple[float, ...] = (-1, 1),
+) -> np.ndarray:
     up_spikes = np.abs(np.convolve(data, kernel, "same")) > detection_threshold
     return np.array(get_center_of_spikes(up_spikes))
 
@@ -62,8 +67,8 @@ def get_signal_edges(
     observed_to_expected_index_map,
     deltas,
     observed_spikes,
-    number_of_segments,
-):
+    number_of_segments: int,
+) -> np.ndarray:
     edges = np.ones((number_of_segments + 1,)) * np.nan
 
     for edge_i in range(number_of_segments + 1):
@@ -94,7 +99,11 @@ def get_signal_edges(
     return edges
 
 
-def extrapolate_edges(edges, frequency: float, signal_length):
+def extrapolate_edges(
+    edges: np.ndarray,
+    frequency: float,
+    signal_length: float,
+) -> np.ndarray:
     fin_edges = np.isfinite(edges)
     where_fin_edges = np.where(fin_edges)[0]
     for i in range(where_fin_edges[0] - 1, -1, -1):
@@ -143,7 +152,7 @@ def get_perfect_frequency2(
     return get_perfect_frequency(best_measures, guess_frequency, tolerance)
 
 
-def get_signal_frequency(measures):
+def get_signal_frequency(measures: SpikesArray) -> float:
     """
         get_signal_frequency returns the median distance between two
         consecutive measures.
@@ -157,7 +166,11 @@ def get_signal_frequency(measures):
     return np.median(tmp_array[1:] - tmp_array[:-1])
 
 
-def get_best_offset(n: int, measures, frequency: Optional[float] = None):
+def get_best_offset(
+    n: int,
+    measures: SpikesArray,
+    frequency: Optional[float] = None,
+):
     """
     get_best_offset returns a optimal starting-offset for a hypthetical
     signal with frequency as specified by frequency-variable
@@ -219,7 +232,12 @@ def get_best_offset(n: int, measures, frequency: Optional[float] = None):
     return np.asarray(dist_results).argmin()
 
 
-def get_spike_quality(measures, n=None, offset=None, frequency=None):
+def get_spike_quality(
+    measures: SpikesArray,
+    n: Optional[int] = None,
+    offset: Optional[int] = None,
+    frequency: Optional[float] = None,
+):
     """
     get_spike_quality returns a quality-index for each spike
     as to how well it fits the signal.
@@ -263,12 +281,13 @@ def get_spike_quality(measures, n=None, offset=None, frequency=None):
 
 
 def get_true_signal(
-    max_value,
-    n, measures,
+    max_value: int,
+    n: int,
+    measures: SpikesArray,
     measures_qualities=None,
-    offset=None,
+    offset: Optional[int] = None,
     frequency: Optional[float] = None,
-    offset_buffer_fraction=0,
+    offset_buffer_fraction: int = 0,
 ):
     """
     get_true_signal returns the best spike pattern n peaks that
@@ -408,7 +427,7 @@ def get_true_signal(
     return ideal_signal
 
 
-def get_center_of_spikes(spikes):
+def get_center_of_spikes(spikes: SpikesArray):
     """
     The function returns the an array matching the input-array but
     for each stretch of consequtive truth-values, only the center
@@ -548,7 +567,11 @@ def move_signal(signals, shifts, frequencies=None, freq_offset=1):
         return signals
 
 
-def get_continious_slopes(s, min_slope_length=20, noise_reduction=4):
+def get_continious_slopes(
+    s: np.ndarray,
+    min_slope_length: int = 20,
+    noise_reduction: int = 4,
+) -> tuple[SpikesArray, SpikesArray]:
     """Function takes a 1D noisy signal, e.g. from taking mean of image slice
     in one dimension and gets regions of continious slopes.
 
@@ -556,11 +579,11 @@ def get_continious_slopes(s, min_slope_length=20, noise_reduction=4):
     Second with all continious down hits"""
 
     # Get derivative of signal without catching high freq noise
-    ds = signal.fftconvolve(s, np.array([-1, -1, 1, 1]), mode="same")
+    ds = fftconvolve(s, np.array([-1, -1, 1, 1]), mode="same")
 
     # Look for positive slopes
     s_up = ds > 0
-    continious_s_up = signal.fftconvolve(
+    continious_s_up = fftconvolve(
         s_up,
         np.ones((min_slope_length,)),
         mode='same',
@@ -568,7 +591,7 @@ def get_continious_slopes(s, min_slope_length=20, noise_reduction=4):
 
     # Look for negative slopes
     s_down = ds < 0
-    continious_s_down = signal.fftconvolve(
+    continious_s_down = fftconvolve(
         s_down,
         np.ones((min_slope_length,)),
         mode='same',
@@ -576,16 +599,21 @@ def get_continious_slopes(s, min_slope_length=20, noise_reduction=4):
 
     # Reduce noise 2
     for i in range(noise_reduction):
-        continious_s_up = ndimage.binary_dilation(continious_s_up)
-        continious_s_down = ndimage.binary_dilation(continious_s_down)
+        continious_s_up = binary_dilation(continious_s_up)
+        continious_s_down = binary_dilation(continious_s_down)
     for i in range(noise_reduction):
-        continious_s_up = ndimage.binary_erosion(continious_s_up)
-        continious_s_down = ndimage.binary_erosion(continious_s_down)
+        continious_s_up = binary_erosion(continious_s_up)
+        continious_s_down = binary_erosion(continious_s_down)
 
     return continious_s_up, continious_s_down
 
 
-def get_closest_signal_pair(s1, s2, s1_value=-1, s2_value=1):
+def get_closest_signal_pair(
+    s1,
+    s2,
+    s1_value: int = -1,
+    s2_value: int = 1,
+) -> tuple[np.ndarray, np.ndarray]:
     """The function returns the positions in s1 and s2 for where pairs of
     patterns s1-value -> s2-value are found (s1-value is assumed to preceed
     s2-value)."""
@@ -614,7 +642,10 @@ def get_closest_signal_pair(s1, s2, s1_value=-1, s2_value=1):
     return S[:, 0], S[:, 1]
 
 
-def get_signal_spikes(down_slopes, up_slopes):
+def get_signal_spikes(
+    down_slopes: np.ndarray,
+    up_slopes: np.ndarray,
+) -> np.ndarray:
     """Returns where valleys are in a signal based on down and up slopes"""
     # combined_signal = (
     #     down_slopes.astype(int) * -1 + up_slopes.astype(int)
@@ -623,10 +654,10 @@ def get_signal_spikes(down_slopes, up_slopes):
     # Edge-detect so that signal start is >0 and signal end <0
     kernel = np.array([-1, 1])
     d_down = np.round(
-        signal.fftconvolve(down_slopes, kernel, mode='same'),
+        fftconvolve(down_slopes, kernel, mode='same'),
     ).astype(int)
     d_up = np.round(
-        signal.fftconvolve(up_slopes, kernel, mode='same'),
+        fftconvolve(up_slopes, kernel, mode='same'),
     ).astype(int)
 
     s1, s2 = get_closest_signal_pair(d_up, d_down, s1_value=-1, s2_value=1)
@@ -634,7 +665,7 @@ def get_signal_spikes(down_slopes, up_slopes):
 
 
 """
-def _get_closest(X, Y):
+def _get_closest(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
 
     new_list = []
     for i in ideal_signal:
@@ -648,7 +679,7 @@ def _get_closest(X, Y):
 """
 
 
-def _get_alt_closest(X, Y):
+def _get_alt_closest(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
     dist = np.abs(np.subtract.outer(X, Y))
     idx1 = np.argmin(dist, axis=0)
     idx2 = np.argmin(dist, axis=1)
@@ -659,11 +690,17 @@ def _get_alt_closest(X, Y):
     return Z
 
 
-def _get_orphans(X, shortX):
+def _get_orphans(X: np.ndarray, shortX: np.ndarray) -> np.ndarray:
     return X[np.abs(np.subtract.outer(X, shortX)).min(axis=1).astype(bool)]
 
 
-def get_offset_quality(s, offset, expected_spikes, wl, raw_signal):
+def get_offset_quality(
+    s,
+    offset: int,
+    expected_spikes: int,
+    wl: float,
+    raw_signal,
+) -> float:
     # Get the ideal signal from parameters
     ideal_signal = np.arange(expected_spikes) * wl + offset
 
@@ -690,7 +727,7 @@ def get_offset_quality(s, offset, expected_spikes, wl, raw_signal):
     return q.sum()
 
 
-def _get_wave_length_and_errors(s, expected_spikes):
+def _get_wave_length_and_errors(s, expected_spikes: int) -> float:
 
     diff = np.subtract.outer(s, s)
     # -1 gets step to the right
@@ -715,7 +752,12 @@ def _get_wave_length_and_errors(s, expected_spikes):
     return wl, s_error
 
 
-def _insert_spikes_where_missed(s, s_error, expected_spikes, wl):
+def _insert_spikes_where_missed(
+    s,
+    s_error,
+    expected_spikes: int,
+    wl: float,
+):
     # Get distances in terms of k waves:
     k_wave_d = np.arange(expected_spikes) * wl
 
@@ -740,7 +782,11 @@ def _insert_spikes_where_missed(s, s_error, expected_spikes, wl):
     return s
 
 
-def _remove_false_inter_spikes(s, expected_spikes, wl):
+def _remove_false_inter_spikes(
+    s,
+    expected_spikes: int,
+    wl: float,
+):
 
     # Get distances in terms of k waves:
     k_wave_d = np.arange(expected_spikes) * wl
@@ -759,9 +805,14 @@ def _remove_false_inter_spikes(s, expected_spikes, wl):
     return s
 
 
-def _get_candidate_validation(s, s_error, expected_spikes, raw_signal):
+def _get_candidate_validation(
+    s,
+    s_error,
+    expected_spikes: int,
+    raw_signal: np.ndarray,
+):
     # Get goodness of distances
-    goodness1 = signal.convolve(
+    goodness1 = convolve(
         s_error,
         np.ones(expected_spikes / 4),
         'same',
@@ -818,8 +869,8 @@ def _get_candidate_validation(s, s_error, expected_spikes, raw_signal):
 
 def get_best_signal_candidates_and_wave_length(
     s,
-    expected_spikes,
-    raw_signal,
+    expected_spikes: int,
+    raw_signal: np.ndarray,
 ):
     # We might rewrite the signal and should not mess with original
     s = s.copy()
@@ -845,7 +896,10 @@ def get_best_signal_candidates_and_wave_length(
     return s[s_val], wl
 
 
-def get_grid_signal(raw_signal, expected_spikes):
+def get_grid_signal(
+    raw_signal: np.ndarray,
+    expected_spikes: int,
+):
     """Gives grid signals according to number of expected spikes
     (rows or columns) on 1D raw signal"""
 
