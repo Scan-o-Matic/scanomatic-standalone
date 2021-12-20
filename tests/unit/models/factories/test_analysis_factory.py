@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from unittest import mock
 
 import numpy as np
@@ -7,6 +8,7 @@ import pytest
 from scanomatic.data_processing.calibration import (
     get_polynomial_coefficients_from_ccc
 )
+from scanomatic.io.jsonizer import dumps, load_first, loads
 from scanomatic.models.analysis_model import MEASURES, AnalysisModel, GridModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 
@@ -17,8 +19,8 @@ def analysis_model():
 
 
 @pytest.fixture(scope='function')
-def analysis_serialized_object(analysis_model):
-    return AnalysisModelFactory.get_serializer().serialize(analysis_model)
+def analysis_serialized_object(analysis_model) -> str:
+    return dumps(analysis_model)
 
 
 @pytest.fixture(scope='session')
@@ -34,13 +36,11 @@ class TestAnalysisModels:
         assert hasattr(analysis_model, 'cell_count_calibration_id')
 
     def test_model_can_serialize(self, analysis_model):
-        serial = AnalysisModelFactory.get_serializer().serialize(analysis_model)
+        serial = dumps(analysis_model)
         assert len(serial) == 2
 
     def test_model_can_deserialize(self, analysis_serialized_object):
-        result = AnalysisModelFactory.get_serializer().load_serialized_object(
-            analysis_serialized_object,
-        )
+        result: AnalysisModel = loads(analysis_serialized_object)
         assert len(result) == 1
         model = result[0]
         assert isinstance(model, AnalysisModel)
@@ -83,7 +83,7 @@ class TestAnalysisModels:
         'analysis.model.2017.12',
     ))
     def test_can_load_serialized_files_from_disk(self, basename, data_path):
-        model = AnalysisModelFactory.get_serializer().load_first(
+        model: Optional[AnalysisModel] = load_first(
             os.path.join(data_path, basename),
         )
         assert isinstance(model, AnalysisModel)
@@ -96,9 +96,7 @@ class TestAnalysisModels:
         basename,
         data_path,
     ):
-        model = AnalysisModelFactory.get_serializer().load_first(
-            os.path.join(data_path, basename),
-        )
+        model = load_first(os.path.join(data_path, basename))
         assert model is None
 
     @pytest.mark.parametrize('keys', (

@@ -18,9 +18,9 @@ from werkzeug.datastructures import FileStorage
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.image_grayscale import is_valid_grayscale
 from scanomatic.io.app_config import Config
+from scanomatic.io.jsonizer import load_first
 from scanomatic.io.logger import parse_log_file
 from scanomatic.io.paths import Paths
-from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
     GrayScaleAreaModel
@@ -239,7 +239,7 @@ def get_project_name(project_path):
     )
     if candidates:
         for candidate in candidates:
-            model = ScanningModelFactory.get_serializer().load_first(candidate)
+            model = load_first(candidate)
             if model:
                 return model.project_name if model.project_name else no_name
 

@@ -19,7 +19,6 @@ class VersionChangeFactory(AbstractModelFactory):
 
 class PowerManagerFactory(AbstractModelFactory):
     MODEL = settings_models.PowerManagerModel
-    STORE_SECTION_HEAD = "Power Manager"
     STORE_SECTION_SERIALIZERS = {
         "type": POWER_MANAGER_TYPE,
         "number_of_sockets": int,
@@ -41,7 +40,6 @@ class PowerManagerFactory(AbstractModelFactory):
 
 class RPCServerFactory(AbstractModelFactory):
     MODEL = settings_models.RPCServerModel
-    STORE_SECTION_HEAD = "RPC Server (Main SoM Server)"
     STORE_SECTION_SERIALIZERS = {
         "port": int,
         "host": str,
@@ -58,7 +56,6 @@ class RPCServerFactory(AbstractModelFactory):
 
 class UIServerFactory(AbstractModelFactory):
     MODEL = settings_models.UIServerModel
-    STORE_SECTION_HEAD = "UI Server"
     STORE_SECTION_SERIALIZERS = {
         "port": int,
         "host": str,
@@ -75,7 +72,6 @@ class UIServerFactory(AbstractModelFactory):
 
 class HardwareResourceLimitsFactory(AbstractModelFactory):
     MODEL = settings_models.HardwareResourceLimitsModel
-    STORE_SECTION_HEAD = "Hardware Resource Limits"
     STORE_SECTION_SERIALIZERS = {
         "memory_minimum_percent": float,
         "cpu_total_percent_free": float,
@@ -94,7 +90,6 @@ class HardwareResourceLimitsFactory(AbstractModelFactory):
 
 class MailFactory(AbstractModelFactory):
     MODEL = settings_models.MailModel
-    STORE_SECTION_HEAD = "Mail"
     STORE_SECTION_SERIALIZERS = {
         "server": str,
         "user": str,
@@ -113,7 +108,6 @@ class MailFactory(AbstractModelFactory):
 
 class PathsFactory(AbstractModelFactory):
     MODEL = settings_models.PathsModel
-    STORE_SECTION_HEAD = "Paths"
     STORE_SECTION_SERIALIZERS = {
         "projects_root": str,
     }
@@ -140,10 +134,7 @@ def _scanner_model_serializer(enforce=None, serialize=None):
 
 
 class ApplicationSettingsFactory(AbstractModelFactory):
-
     MODEL = settings_models.ApplicationSettingsModel
-    STORE_SECTION_HEAD = "General settings"
-
     _SUB_FACTORIES = cast(
         dict[Model, AbstractModelFactory],
         {

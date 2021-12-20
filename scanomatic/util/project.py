@@ -1,9 +1,11 @@
 import glob
 import os
 from logging import Logger
+from scanomatic.io.jsonizer import dump, load_first
 
 import scanomatic.io.paths as paths
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.scanning_model import ScanningModel
 
 _logger = Logger("Projects util")
 _paths = paths.Paths()
@@ -96,11 +98,11 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
             destination,
         ))
         os.rename(instructions, destination)
-        m = ScanningModelFactory.get_serializer().load_first(destination)
+        m: ScanningModel = load_first(destination)
         m.project_name = new_name
         ScanningModelFactory.update(m, **model_updates)
         if ScanningModelFactory.validate(m):
-            ScanningModelFactory.get_serializer().dump(
+            dump(
                 m,
                 destination,
                 overwrite=True,

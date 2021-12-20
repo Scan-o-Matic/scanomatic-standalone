@@ -1,6 +1,7 @@
 from logging import Logger
 
 import scanomatic.generics.decorators as decorators
+from scanomatic.io.jsonizer import dump, load, purge
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -19,9 +20,7 @@ class Queue(SingeltonOneInit):
         self._paths = paths.Paths()
         self._logger = Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
-        self._queue = list(RPC_Job_Model_Factory.get_serializer().load(
-            self._paths.rpc_queue,
-        ))
+        self._queue = load(self._paths.rpc_queue)
         self._scanner_manager = ScannerPowerManager()
         self._jobs = jobs
         decorators.register_type_lock(self)
@@ -60,7 +59,7 @@ class Queue(SingeltonOneInit):
 
         if job:
             job.priority = priority
-            RPC_Job_Model_Factory.get_serializer().dump(
+            dump(
                 job,
                 self._paths.rpc_queue,
             )
@@ -74,10 +73,7 @@ class Queue(SingeltonOneInit):
 
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
-            return RPC_Job_Model_Factory.get_serializer().purge(
-                job,
-                self._paths.rpc_queue,
-            )
+            return purge(job, self._paths.rpc_queue)
 
         self._logger.warning(f"No known job {job.id} in queue, can't remove")
         return False
@@ -97,7 +93,7 @@ class Queue(SingeltonOneInit):
         if self[job.id] is None:
             job.status = rpc_job_models.JOB_STATUS.Queued
             self._queue.append(job)
-            RPC_Job_Model_Factory.get_serializer().dump(
+            dump(
                 job,
                 self._paths.rpc_queue,
             )

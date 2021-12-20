@@ -23,7 +23,6 @@ from scanomatic.models.scanning_model import (
 
 class PlateDescriptionFactory(AbstractModelFactory):
     MODEL = PlateDescription
-    STORE_SECTION_HEAD = ("name",)
     STORE_SECTION_SERIALIZERS = {
         'name': str,
         'index': int,
@@ -58,7 +57,6 @@ class PlateDescriptionFactory(AbstractModelFactory):
 
 class ScanningAuxInfoFactory(AbstractModelFactory):
     MODEL = ScanningAuxInfoModel
-    STORE_SECTION_HEAD = "Auxillary Information"
     _SUB_FACTORIES = {
 
     }
@@ -151,7 +149,6 @@ class ScanningModelFactory(AbstractModelFactory):
     MODEL = ScanningModel
     _GET_MIN_MODEL = app_config.Config().get_min_model
     _GET_MAX_MODEL = app_config.Config().get_max_model
-    STORE_SECTION_HEAD = ("project_name",)
     _SUB_FACTORIES = {
         ScanningAuxInfoModel: ScanningAuxInfoFactory,
         PlateDescription: PlateDescriptionFactory
@@ -350,7 +347,6 @@ class ScanningModelFactory(AbstractModelFactory):
 
 class ScannerOwnerFactory(AbstractModelFactory):
     MODEL = ScannerOwnerModel
-    STORE_SECTION_HEAD = ("id",)
     STORE_SECTION_SERIALIZERS = {
         "id": str,
         "pid": int
@@ -363,7 +359,6 @@ class ScannerOwnerFactory(AbstractModelFactory):
 
 class ScannerFactory(AbstractModelFactory):
     MODEL = ScannerModel
-    STORE_SECTION_HEAD = ("scanner_name",)
     _SUB_FACTORIES = {
         ScannerOwnerModel: ScannerOwnerFactory,
         RPCjobModel: ScannerOwnerFactory

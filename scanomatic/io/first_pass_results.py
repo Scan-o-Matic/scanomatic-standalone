@@ -4,6 +4,7 @@ from glob import glob
 from logging import Logger
 from typing import Optional
 from collections.abc import Sequence, Sized
+from scanomatic.io.jsonizer import dump, dump_to_stream, load, load_first
 
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
@@ -14,7 +15,6 @@ from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory,
     CompileProjectFactory
 )
-from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.scanning_model import ScanningModel
 
 FIRST_PASS_SORTING = Enum("FIRST_PASS_SORTING", names=("Index", "Time"))
@@ -84,25 +84,19 @@ class CompilationResults:
                 )
                 return
 
-        self._scanner_instructions = (
-            ScanningModelFactory.get_serializer().load_first(path)
-        )
+        self._scanner_instructions = load_first(path)
 
     def _load_compile_instructions(self, path: str):
-        try:
-            self._compile_instructions = (
-                CompileProjectFactory.get_serializer().load_first(path)
-            )
-        except IndexError:
+        self._compile_instructions = load_first(path)
+        if self._compile_instructions is None:
             self._logger.error(f"Could not load path {path}")
-            self._compile_instructions = None
 
     def _load_compilation(
         self,
         path: str,
         sort_mode: FIRST_PASS_SORTING = FIRST_PASS_SORTING.Time
     ):
-        images = CompileImageAnalysisFactory.get_serializer().load(path)
+        images: list[CompileImageAnalysisModel] = load(path)
         self._logger.info("Loaded {0} compiled images".format(len(images)))
 
         self._reindex_plates(images)
@@ -273,10 +267,8 @@ class CompilationResults:
                     self._update_image_path_if_needed(model, directory)
                     if model is None:
                         break
-                    CompileImageAnalysisFactory.get_serializer().dump_to_filehandle(  # noqa: E501
-                        model,
-                        fh,
-                    )
+                    if CompileImageAnalysisFactory.validate(model):
+                        dump_to_stream(model, fh)
         except IOError:
             self._logger.error("Could not save to directory")
             return
@@ -285,7 +277,7 @@ class CompilationResults:
             directory,
             Paths().project_compilation_pattern.format(new_name),
         )
-        CompileProjectFactory.get_serializer().dump(
+        dump(
             self._compile_instructions,
             compile_instructions,
         )
@@ -302,7 +294,7 @@ class CompilationResults:
                 directory,
                 Paths().scan_project_file_pattern.format(new_name),
             )
-            ScanningModelFactory.get_serializer().dump(
+            dump(
                 self._scanner_instructions,
                 scan_instructions,
             )

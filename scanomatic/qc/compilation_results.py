@@ -3,12 +3,10 @@ import os
 import re
 
 import numpy as np
-from matplotlib import pyplot as plt  # type: ignore
+from matplotlib import pyplot as plt
+from scanomatic.io.jsonizer import load  # type: ignore
 
 from scanomatic.io.movie_writer import MovieWriter
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory
-)
 
 _img_pattern = re.compile(r".*_[0-9]{4}_[0-9.]+\.tiff$")
 _time_pattern = re.compile(r'[0-9]+\.[0-9]*')
@@ -23,9 +21,7 @@ def _input_validate(f):
             if isinstance(args[0], str):
 
                 args = list(args)
-                args[0] = CompileImageAnalysisFactory.get_serializer().load(
-                    args[0],
-                )
+                args[0] = load(args[0])
 
         return f(*args, **kwargs)
 

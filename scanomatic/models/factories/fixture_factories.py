@@ -16,7 +16,6 @@ from scanomatic.models.fixture_models import (
 
 class FixturePlateFactory(AbstractModelFactory):
     MODEL = FixturePlateModel
-    STORE_SECTION_HEAD = "Plate Area"
     STORE_SECTION_SERIALIZERS = {
         "index": int,
         "x1": int,
@@ -36,7 +35,6 @@ class FixturePlateFactory(AbstractModelFactory):
 class GrayScaleAreaModelFactory(AbstractModelFactory):
 
     MODEL = GrayScaleAreaModel
-    STORE_SECTION_HEAD = "Grayscale"
     STORE_SECTION_SERIALIZERS = {
         'name': str,
         'values': float_list_serializer,
@@ -58,7 +56,6 @@ class GrayScaleAreaModelFactory(AbstractModelFactory):
 
 class FixtureFactory(AbstractModelFactory):
     MODEL = FixtureModel
-    STORE_SECTION_HEAD = ('name',)
     _SUB_FACTORIES = cast(
         dict[Model, AbstractModelFactory],
         {

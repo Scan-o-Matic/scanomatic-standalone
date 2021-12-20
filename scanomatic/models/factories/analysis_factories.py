@@ -15,7 +15,6 @@ from scanomatic.generics.abstract_model_factory import (
 
 class GridModelFactory(AbstractModelFactory):
     MODEL = analysis_model.GridModel
-    STORE_SECTION_HEAD = "GRIDDING"
     STORE_SECTION_SERIALIZERS = {
         'use_utso': bool,
         "median_coefficient": float,
@@ -72,7 +71,6 @@ class GridModelFactory(AbstractModelFactory):
 
 class AnalysisModelFactory(AbstractModelFactory):
     MODEL = analysis_model.AnalysisModel
-    STORE_SECTION_HEAD = "GENERAL"
     _SUB_FACTORIES = {
         analysis_model.GridModel: GridModelFactory
     }
@@ -287,7 +285,6 @@ class AnalysisModelFactory(AbstractModelFactory):
 class AnalysisFeaturesFactory(AbstractModelFactory):
 
     MODEL = analysis_model.AnalysisFeatures
-    STORE_SECTION_HEAD = "FEATURES"
     STORE_SECTION_SERIALIZERS = {
         "index": object,
         "data": object,

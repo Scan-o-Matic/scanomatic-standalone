@@ -1,7 +1,7 @@
-import configparser
 import os
 from logging import Logger
 from typing import Optional, cast
+from scanomatic.io.jsonizer import JSONSerializationError, dump, load_first
 
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
@@ -26,15 +26,15 @@ class FixtureSettings:
     def _load_model(self, name, overwrite=False) -> FixtureModel:
         if overwrite:
             return FixtureFactory.create(path=self._conf_path, name=name)
+
         try:
-            val = FixtureFactory.get_serializer().load_first(self._conf_path)
-        except (IndexError, configparser.Error) as e:
-            if isinstance(e, configparser.Error):
-                self._logger.error(
-                    "Trying to load an outdated fixture at {0}, this won't work".format(  # noqa: E501
-                        self._conf_path,
-                    ),
-                )
+            val = load_first(self._conf_path)
+        except JSONSerializationError:
+            self._logger.error(
+                "Trying to load an outdated fixture at {0}, this won't work".format(  # noqa: E501
+                    self._conf_path,
+                ),
+            )
             return FixtureFactory.create(path=self._conf_path, name=name)
         else:
             if val is None:
@@ -84,7 +84,7 @@ class FixtureSettings:
         return None
 
     def save(self) -> None:
-        FixtureFactory.get_serializer().dump(
+        dump(
             self.model,
             self.path,
             overwrite=True,

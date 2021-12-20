@@ -21,7 +21,6 @@ class CompileImageFactory(AbstractModelFactory):
         'time_stamp': float,
         'path': str
     }
-    STORE_SECTION_HEAD = ("index",)
 
     @classmethod
     def create(cls, **settings) -> compile_project_model.CompileImageModel:
@@ -80,7 +79,6 @@ class CompileImageFactory(AbstractModelFactory):
 class CompileProjectFactory(AbstractModelFactory):
 
     MODEL = compile_project_model.CompileInstructionsModel
-    STORE_SECTION_HEAD = ("path",)
     _SUB_FACTORIES = {
         compile_project_model.CompileImageModel: CompileImageFactory,
     }
@@ -207,7 +205,6 @@ class CompileProjectFactory(AbstractModelFactory):
 class CompileImageAnalysisFactory(AbstractModelFactory):
 
     MODEL = compile_project_model.CompileImageAnalysisModel
-    STORE_SECTION_HEAD = "Image"
     _SUB_FACTORIES = {
         compile_project_model.CompileImageModel: CompileImageFactory,
         fixture_models.FixtureModel: fixture_factories.FixtureFactory

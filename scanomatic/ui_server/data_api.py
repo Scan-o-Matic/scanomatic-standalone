@@ -23,6 +23,7 @@ from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.image_grayscale import get_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.io.fixtures import Fixtures
+from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (
@@ -403,7 +404,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             Paths().experiment_local_fixturename)
 
         try:
-            fixture = FixtureFactory.get_serializer().load_first(path)
+            fixture = load_first(path)
             if fixture is None:
                 return jsonify(
                     success=False,
@@ -445,7 +446,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         elif name in rpc_client.get_fixtures():
             path = Paths().get_fixture_path(name)
             try:
-                fixture = FixtureFactory.get_serializer().load_first(path)
+                fixture = load_first(path)
                 if fixture is None:
                     return jsonify(
                         success=False,
@@ -614,7 +615,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 reason="Final compilation doesn't validate",
             )
 
-        FixtureFactory.get_serializer().dump(fixture_model, fixture_model.path)
+        dump(fixture_model, fixture_model.path)
         return jsonify(success=True)
 
     @app.route("/api/data/fixture/calculate/<fixture_name>", methods=['POST'])

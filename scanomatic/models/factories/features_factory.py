@@ -10,7 +10,6 @@ from scanomatic.generics.abstract_model_factory import (
 
 class FeaturesFactory(AbstractModelFactory):
     MODEL = features_model.FeaturesModel
-    STORE_SECTION_HEAD = ("analysis_directory", )
     STORE_SECTION_SERIALIZERS = {
         "analysis_directory": str,
         "email": email_serializer,

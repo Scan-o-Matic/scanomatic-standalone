@@ -4,6 +4,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
 from typing import Optional, Union
 from collections.abc import Sequence
+from scanomatic.io.jsonizer import dump, load_first
 
 import scanomatic.models.scanning_model as scanning_model
 from scanomatic.generics.singleton import SingeltonOneInit
@@ -163,13 +164,8 @@ class Config(SingeltonOneInit):
 
     def reload_settings(self) -> None:
         if os.path.isfile(self._paths.config_main_app):
-            try:
-                self._settings = (
-                    ApplicationSettingsFactory.get_serializer().load_first(
-                        self._paths.config_main_app,
-                    )
-                )
-            except (IOError):
+            self._settings = load_first(self._paths.config_main_app)
+            if self._settings is None:
                 self._settings = ApplicationSettingsFactory.create()
         else:
             self._settings = ApplicationSettingsFactory.create()
@@ -271,12 +267,10 @@ class Config(SingeltonOneInit):
 
     def save_current_settings(self) -> None:
         if self.validate():
-            ApplicationSettingsFactory.get_serializer().purge_all(
-                self._paths.config_main_app,
-            )
-            ApplicationSettingsFactory.get_serializer().dump(
+            dump(
                 self._settings,
                 self._paths.config_main_app,
+                overwrite=True,
             )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:

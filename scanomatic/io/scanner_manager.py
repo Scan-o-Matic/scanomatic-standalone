@@ -9,6 +9,7 @@ import psutil
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.app_config as app_config
 import scanomatic.io.fixtures as fixtures
+from scanomatic.io.jsonizer import dump, load
 import scanomatic.io.paths as paths
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.power_manager import InvalidInit, PowerManagerNull
@@ -71,9 +72,7 @@ class ScannerPowerManager(SingeltonOneInit):
         scanners: dict[int, ScannerModel] = {}
 
         # Load saved scanner data
-        for scanner in ScannerFactory.get_serializer().load(
-            self._paths.config_scanners,
-        ):
+        for scanner in load(self._paths.config_scanners):
 
             if 0 < scanner.socket <= self._conf.number_of_scanners:
                 scanners[scanner.socket] = scanner
@@ -117,8 +116,7 @@ class ScannerPowerManager(SingeltonOneInit):
         return pm
 
     def _save(self, scanner_model) -> None:
-
-        ScannerFactory.get_serializer().dump(
+        dump(
             scanner_model,
             self._paths.config_scanners,
         )

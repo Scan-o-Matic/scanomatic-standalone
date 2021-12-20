@@ -23,7 +23,6 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
         CompileInstructionsModel: CompileProjectFactory,
         FeaturesModel: FeaturesFactory
     }
-    STORE_SECTION_HEAD = ('id',)
     STORE_SECTION_SERIALIZERS = {
         'id': str,
         'type': rpc_job_models.JOB_TYPE,
