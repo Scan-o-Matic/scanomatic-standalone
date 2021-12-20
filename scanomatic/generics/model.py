@@ -1,7 +1,7 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Generator, Sequence
 from enum import Enum
 from itertools import chain
-from typing import Any, Generator
+from typing import Any
 
 
 class Model(Mapping):
@@ -119,7 +119,7 @@ class Model(Mapping):
         )
 
     @classmethod
-    def _set_field_types(cls, names) -> None:
+    def _set_field_types(cls, names: Sequence[str]) -> None:
         if cls._has_set_field_types():
             raise AttributeError("Can't change field types")
         elif names:
@@ -202,3 +202,22 @@ class UnionModel(Model):
         return chain(
             *(model.keys() for model in self.__dict__[UnionModel._MODELS_KEY])
         )
+
+
+def assert_models_deeply_equal(a: Any, b: Any) -> None:
+    if a is b:
+        return
+    elif type(a) != type(b):
+        raise ValueError(f'Model not equal types: {type(a)} != {type(b)}')
+
+    assert isinstance(a, Model) and isinstance(b, Model), (
+        f'Neither side is a model: {type(a).__name__} & {type(b).__name__}'
+    )
+
+    for key in a.keys():
+        a_val = a[key]
+        b_val = b[key]
+        if isinstance(a_val, Model) or isinstance(b_val, Model):
+            assert_models_deeply_equal(a_val, b_val)
+        if a_val != b_val:
+            raise ValueError(f"Model not equal on '{key}': {a_val} != {b_val}")

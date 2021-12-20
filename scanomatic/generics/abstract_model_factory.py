@@ -11,7 +11,8 @@ from enum import Enum
 from logging import Logger
 from numbers import Real
 from types import GeneratorType
-from typing import Any, Generator, Optional, Sequence, Type, Union, cast
+from typing import Any, Generator, Optional, Type, Union, cast
+from collections.abc import Sequence
 
 import scanomatic.generics.decorators as decorators
 from scanomatic.generics.model import Model
@@ -52,25 +53,20 @@ def float_list_serializer(enforce=None, serialize=None):
         return None
 
 
-def email_serializer(enforce=None, serialize=None):
+def email_serializer(enforce=None, serialize=None) -> str:
     if enforce is not None:
         if isinstance(enforce, str):
-            return [m.strip() for m in enforce.split(",")]
-        elif isinstance(enforce, list):
-            return [str(e) for e in enforce if e]
-        else:
-            return list(enforce)
+            return enforce
+        elif isinstance(enforce, Sequence):
+            return ', '.join(enforce)
 
     elif serialize is not None:
         if isinstance(serialize, str):
             return serialize
         elif isinstance(serialize, list):
             return ", ".join(serialize)
-        else:
-            return str(serialize)
 
-    else:
-        return None
+    return ''
 
 
 def _get_coordinates_and_items_to_validate(structure, obj):
@@ -288,6 +284,10 @@ class AbstractModelFactory:
                 or settings[key] is None
                 or key not in cls.STORE_SECTION_SERIALIZERS
             ):
+                if key in settings and settings[key] is not None:
+                    logging.warning(
+                        f"'{key}' ({settings[key]}) not enforced when loaded by {cls.__name__}",  # noqa: E501
+                    )
                 continue
 
             if isinstance(cls.STORE_SECTION_SERIALIZERS[key], tuple):
@@ -305,7 +305,6 @@ class AbstractModelFactory:
                         ref_settings
                     )
                 ):
-
                     if (
                         isinstance(dtype_leaf, type)
                         and issubclass(dtype_leaf, Model)
@@ -355,6 +354,7 @@ class AbstractModelFactory:
                     )
                 else:
                     settings[key] = _enforce_other(dtype, settings[key])
+            # else it is already correct type
 
     @classmethod
     def update(cls, model, **settings) -> None:
@@ -1312,13 +1312,18 @@ class SerializationHelper:
             return serialized_obj
 
         else:
+            if (dtype is tuple and serialized_obj == ''):
+                return None
+            if (dtype is list and serialized_obj == ''):
+                return None
+
             try:
                 return pickle.loads(
                     cast(str, serialized_obj).encode('iso-8859-1'),
                 )
             except (pickle.PickleError, TypeError, EOFError):
                 logging.exception(
-                    f"Could not parse {serialized_obj} with type {dtype}",
+                    f"Could not parse '{serialized_obj}' with type {dtype}",
                 )
                 return None
 

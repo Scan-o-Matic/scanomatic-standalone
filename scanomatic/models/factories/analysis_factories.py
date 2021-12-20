@@ -81,7 +81,7 @@ class AnalysisModelFactory(AbstractModelFactory):
     STORE_SECTION_SERIALIZERS = {
         'compilation': str,
         'compile_instructions': str,
-        'pinning_matrices': list,
+        'pinning_matrices': (tuple, tuple, int),
         'use_local_fixture': bool,
         'email': email_serializer,
         'stop_at_image': int,
