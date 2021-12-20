@@ -20,7 +20,7 @@ _logger = Logger("Phenotype Results QC")
 _marker_sequence = ['v', 'o', 's', '+', 'x', 'D', '*', '^']
 
 
-def _sqaure_ax(ax):
+def _square_ax(ax):
     fig = ax.figure
 
     fig_width = fig.get_figwidth()
@@ -144,7 +144,7 @@ def animate_colony_growth(
             )
             im.set_data(images[..., i])
             set_axvspan_width(polygon, curve_times[i])
-            _sqaure_ax(curve_ax)
+            _square_ax(curve_ax)
             yield
 
     return _plotter()
@@ -242,7 +242,7 @@ def animate_blob_detection(
                     ))
 
             set_axvspan_width(polygon, curve_times[idx])
-            _sqaure_ax(curve_ax)
+            _square_ax(curve_ax)
 
             yield
 
@@ -289,7 +289,7 @@ def animate_3d_colony(
     curve_ax.set_ylabel("")
     curve_ax.set_xlabel("")
 
-    _sqaure_ax(curve_ax)
+    _square_ax(curve_ax)
 
     @MovieWriter(save_target, "Colony detection animation", fps=fps, fig=fig)
     def _plotter():
@@ -335,7 +335,7 @@ def animate_3d_colony(
             ax3d.set_ylim(ymin=0, ymax=coords_x.shape[1])
             ax3d.set_zlim(zmin=0, zmax=15)
 
-            _sqaure_ax(ax3d)
+            _square_ax(ax3d)
             set_axvspan_width(polygon, curve_times[idx])
             yield
 
