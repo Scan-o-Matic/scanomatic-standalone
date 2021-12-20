@@ -161,9 +161,9 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             )
         )
 
-    def __next__(self):
+    def __next__(self) -> bool:
         if self.waiting:
-            return next(super(CompileProjectEffector, self))
+            return super().__next__()
 
         if self._stopping:
             raise StopIteration()
@@ -181,8 +181,10 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
         ):
             self._spawn_analysis()
             self.enact_stop()
+            raise StopIteration
         else:
             self.enact_stop()
+            raise StopIteration
 
     def _analyse_image(self, compile_image_model: CompileImageModel):
         try:
@@ -263,14 +265,13 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             self._stopping = True
             raise e
 
-    def enact_stop(self):
+    def enact_stop(self) -> None:
         self._stopping = True
         self._mail(
             "Scan-o-Matic: Compilation of '{path}' completed",
             SOM_MAIL_BODY_NO_ANALYSIS,
             self._compile_job,
         )
-        raise StopIteration
 
     def _spawn_analysis(self) -> bool:
 

@@ -118,9 +118,9 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
 
         self._allow_start = True
 
-    def __next__(self):
+    def __next__(self) -> bool:
         if self.waiting:
-            return next(super(PhenotypeExtractionEffector, self))
+            return super().__next__()
 
         if self._stopping:
             self._progress = None
@@ -158,6 +158,8 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
             )
 
             raise StopIteration
+
+        return True
 
     def _setup_extraction_iterator(self):
         self._start_time = time.time()
