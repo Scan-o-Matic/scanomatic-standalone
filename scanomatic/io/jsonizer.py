@@ -1,18 +1,52 @@
 import json
-from enum import Enum, unique
 import logging
-from typing import Any, Type, Union
 from collections.abc import Callable
+from enum import Enum, unique
+from typing import Any, Type, Union
+
 import numpy as np
 
 from scanomatic.generics.model import Model
+from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
+from scanomatic.models.analysis_model import COMPARTMENTS, MEASURES, VALUES
+from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
 from scanomatic.models.factories.analysis_factories import (
+    AnalysisFeaturesFactory,
     AnalysisModelFactory,
-    GridModelFactory,
+    GridModelFactory
 )
-from scanomatic.models.analysis_model import COMPARTMENTS, VALUES, MEASURES
+from scanomatic.models.factories.compile_project_factory import (
+    CompileImageAnalysisFactory,
+    CompileImageFactory,
+    CompileProjectFactory
+)
+from scanomatic.models.factories.features_factory import FeaturesFactory
+from scanomatic.models.factories.fixture_factories import (
+    FixtureFactory,
+    FixturePlateFactory,
+    GrayScaleAreaModelFactory
+)
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.models.factories.scanning_factory import (
+    PlateDescriptionFactory,
+    ScannerFactory,
+    ScannerOwnerFactory,
+    ScanningAuxInfoFactory,
+    ScanningModelFactory
+)
+from scanomatic.models.factories.settings_factories import (
+    ApplicationSettingsFactory,
+    HardwareResourceLimitsFactory,
+    MailFactory,
+    PathsFactory,
+    PowerManagerFactory,
+    RPCServerFactory,
+    UIServerFactory,
+    VersionChangeFactory
+)
+from scanomatic.models.features_model import FeatureExtractionData
 from scanomatic.models.rpc_job_models import JOB_STATUS, JOB_TYPE
+from scanomatic.models.scanning_model import CULTURE_SOURCE, PLATE_STORAGE
 
 
 class JSONSerializationError(ValueError):
@@ -31,9 +65,37 @@ CONTENT = "__CONTENT__"
 
 
 MODEL_CLASSES: dict[str, Callable[..., Model]] = {
-    "AnalysisModel": AnalysisModelFactory.create,
+    # From analysis_factories.py
     "GridModel": GridModelFactory.create,
+    "AnalysisModel": AnalysisModelFactory.create,
+    "AnalysisFeatures": AnalysisFeaturesFactory.create,
+    # From compile_project_factory.py
+    "CompileImageModel": CompileImageFactory.create,
+    "CompileInstructionsModel": CompileProjectFactory.create,
+    "CompileImageAnalysisModel": CompileImageAnalysisFactory.create,
+    # From features_factory.py
+    "FeaturesModel": FeaturesFactory.create,
+    # From fixture_factories.py
+    "FixturePlateModel": FixturePlateFactory.create,
+    "GrayScaleAreaModel": GrayScaleAreaModelFactory.create,
+    "FixtureModel": FixtureFactory.create,
+    # From rpc_job_factory.py
     "RPCjobModel": RPC_Job_Model_Factory.create,
+    # From scanning_factory.py
+    "PlateDescription": PlateDescriptionFactory.create,
+    "ScanningAuxInfoModel": ScanningAuxInfoFactory.create,
+    "ScanningModel": ScanningModelFactory.create,
+    "ScannerOwnerModel": ScannerOwnerFactory.create,
+    "ScannerModel": ScannerFactory.create,
+    # From settings_factories.py
+    "VersionChangesModel": VersionChangeFactory.create,
+    "PowerManagerModel": PowerManagerFactory.create,
+    "RPCServerModel": RPCServerFactory.create,
+    "UIServerModel": UIServerFactory.create,
+    "HardwareResourceLimitsModel": HardwareResourceLimitsFactory.create,
+    "MailModel": MailFactory.create,
+    "PathsModel": PathsFactory.create,
+    "ApplicationSettingsModel": ApplicationSettingsFactory.create,
 }
 
 
@@ -58,8 +120,8 @@ def decode_model(obj: dict) -> Model:
             for k, v in content.items()
         })
     except (TypeError, AttributeError):
-        msg = f"Serialized model {obj[encoding]} didn't contain a dict as content: {content}"  # noqa: E501
-        logging.error(msg)
+        msg = f"Serialized model {obj[encoding]} couldn't parse content: {content}"  # noqa: E501
+        logging.exception(msg)
         raise JSONDecodingError(msg)
 
 
@@ -69,6 +131,13 @@ ENUM_CLASSES: dict[str, Type[Enum]] = {
     "MEASURES": MEASURES,
     "JOB_TYPE": JOB_TYPE,
     "JOB_STATUS": JOB_STATUS,
+    "COMPILE_ACTION": COMPILE_ACTION,
+    "FIXTURE": FIXTURE,
+    "FeatureExtractionData": FeatureExtractionData,
+    "PLATE_STORAGE": PLATE_STORAGE,
+    "CULTURE_SOURCE": CULTURE_SOURCE,
+    "POWER_MANAGER_TYPE": POWER_MANAGER_TYPE,
+    "POWER_MODES": POWER_MODES,
 }
 
 

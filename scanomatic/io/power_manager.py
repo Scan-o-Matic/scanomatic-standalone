@@ -20,12 +20,22 @@ class InvalidInit(Exception):
 
 URL_TIMEOUT = 2
 MAX_CONNECTION_TRIES = 10
-POWER_MANAGER_TYPE = Enum(
-    "POWER_MANAGER_TYPE",
-    names=("notInstalled", "USB", "LAN", "linuxUSB", "windowsUSB"),
-)
-POWER_MODES = Enum("POWER_MODES", names=("Toggle", "Impulse"))
-POWER_FLICKER_DELAY = 0.25
+
+
+class POWER_MANAGER_TYPE(Enum):
+    notInstalled = 1
+    USB = 2
+    LAN = 3
+    linuxUSB = 4
+    windowsUSB = 5
+
+
+class POWER_MODES(Enum):
+    Toggle = 1
+    Impulse = 2
+
+
+POWER_FLICKER_DELAY = 0.2
 
 
 def _impulse_scanner(self) -> bool:

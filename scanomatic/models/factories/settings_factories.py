@@ -176,7 +176,8 @@ class ApplicationSettingsFactory(AbstractModelFactory):
     @classmethod
     def create(cls, **settings) -> settings_models.ApplicationSettingsModel:
         cls.populate_with_default_submodels(settings)
-
+        if 'versions' in settings:
+            del settings['versions']
         return cast(
             settings_models.ApplicationSettingsModel,
             super(ApplicationSettingsFactory, cls).create(**settings),

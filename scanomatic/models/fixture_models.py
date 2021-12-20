@@ -57,7 +57,7 @@ class FixtureModel(model.Model):
         self.shape: Sequence = shape
         self.coordinates_scale: float = coordinates_scale
         self.plates: Sequence = plates
-        self.orentation_mark_path: str = orientation_mark_path
+        self.orientation_mark_path: str = orientation_mark_path
         self.scale: float = scale
         super(FixtureModel, self).__init__()
 
