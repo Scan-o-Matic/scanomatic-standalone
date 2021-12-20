@@ -6,12 +6,10 @@ import warnings
 from collections.abc import Callable
 from logging import Logger
 from numbers import Real
-from types import GeneratorType
-from typing import Any, Optional, Type, Union, cast
+from typing import Any, Type, Union, cast
 from collections.abc import Sequence
 
 from scanomatic.generics.model import Model
-from scanomatic.io import jsonizer
 
 
 class UnserializationError(ValueError):
@@ -352,20 +350,6 @@ class AbstractModelFactory:
         for parameter, value in list(settings.items()):
             if parameter in model:
                 setattr(model, parameter, value)
-
-    @classmethod
-    def copy(cls, model: Model) -> Optional[Model]:
-        if cls._verify_correct_model(model):
-            return jsonizer.copy(model)
-        return None
-
-    @classmethod
-    def copy_iterable_of_model(cls, models):
-        gen = (cls.copy(model) for model in models)
-        if isinstance(models, GeneratorType):
-            return gen
-        else:
-            return type(models)(gen)
 
     @classmethod
     def to_dict(cls, model) -> dict:

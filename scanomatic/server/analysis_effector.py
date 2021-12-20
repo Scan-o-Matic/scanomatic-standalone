@@ -1,25 +1,25 @@
 import errno
 import os
 import time
-from typing import Optional
+from typing import Optional, cast
 
 import scanomatic.image_analysis.analysis_image as analysis_image
 import scanomatic.io.first_pass_results as first_pass_results
 import scanomatic.io.image_data as image_data
-from scanomatic.io.jsonizer import dump, load_first
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
+from scanomatic.io.jsonizer import copy, dump, load_first
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import AnalysisModel
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.features_factory import FeaturesFactory
-from scanomatic.models.factories.fixture_factories import (
-    FixturePlateFactory,
-    GrayScaleAreaModelFactory
-)
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.fixture_models import (
+    FixturePlateModel,
+    GrayScaleAreaModel
+)
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
 from scanomatic.models.scanning_model import ScanningModel
 
@@ -232,9 +232,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 ),
             )
 
-            image_model.fixture.grayscale = GrayScaleAreaModelFactory.copy(
+            image_model.fixture.grayscale = cast(GrayScaleAreaModel, copy(
                 self._reference_compilation_image_model.fixture.grayscale,
-            )
+            ))
 
         # Overwrite plate positions if requested
         if self._analysis_job.one_time_positioning:
@@ -255,7 +255,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 self._reference_compilation_image_model.fixture.orientation_marks_y  # noqa: E501
             ]
             image_model.fixture.plates = [
-                FixturePlateFactory.copy(m) for m in
+                cast(FixturePlateModel, copy(m)) for m in
                 self._reference_compilation_image_model.fixture.plates
             ]
 
