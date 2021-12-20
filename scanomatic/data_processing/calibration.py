@@ -11,7 +11,6 @@ from scipy.optimize import leastsq  # type: ignore
 from scipy.stats import linregress  # type: ignore
 
 from scanomatic.generics.maths import mid50_mean
-from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.image_basics import (
     Image_Transpose,
     load_image_to_numpy
@@ -30,7 +29,6 @@ from scanomatic.io.ccc_data import (
     save_ccc,
     validate_polynomial_format
 )
-from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.paths import Paths
 
 __CCC = {}
@@ -329,33 +327,6 @@ def get_image_json_from_ccc(identifier, image_identifier):
             if im_json[CCCImage.identifier] == image_identifier:
                 return im_json
     return None
-
-
-def get_local_fixture_for_image(identifier, image_identifier):
-    im_json = get_image_json_from_ccc(identifier, image_identifier)
-    if im_json is None:
-        return None
-
-    fixture_settings = Fixtures()[im_json[CCCImage.fixture]]
-    if fixture_settings is None:
-        return None
-
-    fixture = FixtureImage(fixture_settings)
-    current_settings = fixture['current']
-    current_settings.model.orientation_marks_x = np.array(
-        im_json[CCCImage.marker_x],
-    )
-    current_settings.model.orientation_marks_y = np.array(
-        im_json[CCCImage.marker_y],
-    )
-    issues = {}
-    fixture.set_current_areas(issues)
-
-    return {
-        "plates": current_settings.model.plates,
-        "grayscale": current_settings.model.grayscale,
-        "issues": issues,
-    }
 
 
 @_validate_ccc_edit_request
