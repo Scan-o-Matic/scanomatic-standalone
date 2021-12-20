@@ -9,10 +9,8 @@ const SELECTED_COLONY_MARKER_COLOR = '#c82124';
 const SELECTED_COLONY_MARKER_STROKE_WIDTH = 5;
 const SCALE = 0.2;
 
-/* eslint no-param-reassign:
-  ["error", { "props": true, "ignorePropertyModificationsFor": ["context"] }]
-*/
-export function drawCircle(context, x, y, radius, lineWidth = 1, strokeStyle = 'black') {
+export function drawCircle(canvas, x, y, radius, lineWidth = 1, strokeStyle = 'black') {
+  const context = canvas.getContext('2d');
   context.beginPath();
   context.strokeStyle = strokeStyle;
   context.lineWidth = lineWidth;
@@ -40,7 +38,7 @@ export default class Plate extends React.Component {
         for (let col = 0; col < xs[row].length; col += 1) {
           const x = xs[row][col];
           const y = ys[row][col];
-          drawCircle(context, x, y, COLONY_OUTLINE_RADIUS);
+          drawCircle(this.canvas, x, y, COLONY_OUTLINE_RADIUS);
         }
       }
 
@@ -49,7 +47,7 @@ export default class Plate extends React.Component {
         const x = xs[row][col];
         const y = ys[row][col];
         drawCircle(
-          context, x, y,
+          this.canvas, x, y,
           SELECTED_COLONY_MARKER_RADIUS,
           SELECTED_COLONY_MARKER_STROKE_WIDTH,
           SELECTED_COLONY_MARKER_COLOR,
