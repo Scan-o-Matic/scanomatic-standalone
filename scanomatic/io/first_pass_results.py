@@ -11,10 +11,8 @@ from scanomatic.models.compile_project_model import (
     CompileImageAnalysisModel,
     CompileInstructionsModel
 )
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory,
-)
 from scanomatic.models.scanning_model import ScanningModel
+from scanomatic.models.validators.validate import validate
 
 
 class FIRST_PASS_SORTING(Enum):
@@ -275,7 +273,7 @@ class CompilationResults:
                     self._update_image_path_if_needed(model, directory)
                     if model is None:
                         break
-                    if CompileImageAnalysisFactory.validate(model):
+                    if validate(model):
                         dump_to_stream(model, fh)
         except IOError:
             self._logger.error("Could not save to directory")
