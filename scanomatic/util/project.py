@@ -103,7 +103,7 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
         m: ScanningModel = load_first(destination)
         m.project_name = new_name
         ScanningModelFactory.update(m, **model_updates)
-        if validate(m, ScanningModelFactory, scanning_model):
+        if validate(m, scanning_model):
             dump(
                 m,
                 destination,

@@ -40,11 +40,10 @@ def proj1_analysis(proj1, tmpdir):
     )
     assert validate(
         analysis_model,
-        AnalysisModelFactory,
         analysis_model_validators,
     )
     job = RPC_Job_Model_Factory.create(id='135', content_model=analysis_model)
-    assert validate(job, RPC_Job_Model_Factory, rpc_job_model)
+    assert validate(job, rpc_job_model)
     return ProjInfo(job, workdir)
 
 

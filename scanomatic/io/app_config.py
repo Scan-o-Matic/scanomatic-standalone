@@ -257,17 +257,14 @@ class Config(SingeltonOneInit):
             except IndexError:
                 pass
 
-        if not validate(self._settings, ApplicationSettingsFactory):
+        if not validate(self._settings):
             self._logger.error(
                 "There are invalid values in the current application settings,"
                 "will not save and will reload last saved settings",
             )
 
             if bad_keys_out is not None:
-                for label in get_invalid_names(
-                    self._settings,
-                    ApplicationSettingsFactory,
-                ):
+                for label in get_invalid_names(self._settings):
                     bad_keys_out.append(label)
 
             self.reload_settings()

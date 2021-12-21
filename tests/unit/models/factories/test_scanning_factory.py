@@ -15,7 +15,7 @@ def scanning_model():
 class TestCreatingScanningModel:
     def test_creating_valid_minimal_model(self):
         model = ScanningModelFactory.create(project_name='Test')
-        assert validate(model, ScanningModelFactory, scanning_model_validators)
+        assert validate(model, scanning_model_validators)
         assert model.project_name == 'Test'
 
     def test_create_valid_minimal_model_with_deprecated_fields(self):
@@ -25,7 +25,7 @@ class TestCreatingScanningModel:
             project_tag='annoying',
         )
 
-        assert validate(model, ScanningModelFactory, scanning_model_validators)
+        assert validate(model, scanning_model_validators)
         with pytest.raises(AttributeError):
             model.scanner_tag
         with pytest.raises(AttributeError):
@@ -35,7 +35,6 @@ class TestCreatingScanningModel:
         model = ScanningModelFactory.create()
         assert validate(
             model,
-            ScanningModelFactory,
             scanning_model_validators,
         ) is False
 

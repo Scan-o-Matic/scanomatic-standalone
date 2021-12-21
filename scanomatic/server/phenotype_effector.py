@@ -66,7 +66,6 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
 
         if validate(
             self._feature_job,
-            feature_factory.FeaturesFactory,
             features_model,
         ):
             dump(

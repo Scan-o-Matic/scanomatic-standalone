@@ -217,7 +217,6 @@ class Server:
 
         if not validate(
             rpc_job,
-            RPC_Job_Model_Factory,
             rpc_job_model_validators,
         ):
             self.logger.error("Failed to create job model")

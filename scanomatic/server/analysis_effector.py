@@ -460,7 +460,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         allow_start = validate(
             self._analysis_job,
-            AnalysisModelFactory,
             analysis_model_validators,
         )
         self._original_model = copy(self._analysis_job)
@@ -488,7 +487,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             )
             for bad_instruction in get_invalid(
                 self._analysis_job,
-                AnalysisModelFactory,
                 analysis_model_validators,
             ):
                 self._logger.error(

@@ -8,7 +8,6 @@ from typing import Optional, Union
 
 import scanomatic.generics.decorators as decorators
 import scanomatic.models.rpc_job_models as rpc_job_models
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.app_config import Config
@@ -63,11 +62,10 @@ def _verify_admin(f):
 
 def _report_invalid(
     logger: Logger,
-    factory: AbstractModelFactory,
     model: Model,
     title,
 ):
-    for param in get_invalid_names(model, factory):
+    for param in get_invalid_names(model):
         logger.warning(
             f"{title} got invalid parameter {param} value '{model[param]}'",
         )
@@ -465,7 +463,6 @@ class InterfaceBuilder(SingeltonOneInit):
             not path_valid or
             not validate(
                 scanning_model,
-                ScanningModelFactory,
                 scanning_model_validators,
             )
         ):
@@ -476,12 +473,10 @@ class InterfaceBuilder(SingeltonOneInit):
 
             if not validate(
                 scanning_model,
-                ScanningModelFactory,
                 scanning_model_validators
             ):
                 _report_invalid(
                     _SOM_SERVER.logger,
-                    ScanningModelFactory,
                     scanning_model,
                     "Request scanning job",
                 )
@@ -504,12 +499,10 @@ class InterfaceBuilder(SingeltonOneInit):
         )
         if not validate(
             compile_project_model,
-            CompileProjectFactory,
             compile_instructions_model_validators,
         ):
             _report_invalid(
                 _SOM_SERVER.logger,
-                CompileProjectFactory,
                 compile_project_model,
                 "Request compile project",
             )
@@ -718,12 +711,10 @@ class InterfaceBuilder(SingeltonOneInit):
         analysis_model = AnalysisModelFactory.create(**analysis_model)
         if not validate(
             analysis_model,
-            AnalysisModelFactory,
             analysis_model_validators,
         ):
             _report_invalid(
                 _SOM_SERVER.logger,
-                AnalysisModelFactory,
                 analysis_model,
                 "Request analysis",
             )
@@ -769,12 +760,10 @@ class InterfaceBuilder(SingeltonOneInit):
         feature_extract_model = FeaturesFactory.create(**feature_extract_model)
         if not validate(
             feature_extract_model,
-            FeaturesFactory,
             features_model_validators,
         ):
             _report_invalid(
                 _SOM_SERVER.logger,
-                FeaturesFactory,
                 feature_extract_model,
                 "Request feature extraction",
             )

@@ -610,10 +610,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             scale=1.0,
         )
 
-        if not validate(
-            fixture_model,
-            FixtureFactory,
-        ):
+        if not validate(fixture_model):
             return jsonify(
                 success=False,
                 reason="Final compilation doesn't validate",

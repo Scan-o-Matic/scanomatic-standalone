@@ -54,7 +54,7 @@ def add_routes(app, rpc_client):
         )
 
         success = (
-            validate(model, FeaturesFactory, features_model)
+            validate(model, features_model)
             and rpc_client.create_feature_extract_job(
                 FeaturesFactory.to_dict(model),
             )
@@ -69,12 +69,11 @@ def add_routes(app, rpc_client):
                         ", ".join(
                             get_invalid_names(
                                 model,
-                                FeaturesFactory,
                                 features_model,
                             )
                         )
                     )
-                    if not validate(model, FeaturesFactory, features_model)
+                    if not validate(model, features_model)
                     else "Refused by the server, check logs."
                 ),
             )
@@ -136,7 +135,7 @@ def add_routes(app, rpc_client):
         )
 
         success = (
-            validate(model, FeaturesFactory, features_model)
+            validate(model, features_model)
             and rpc_client.create_feature_extract_job(
                 FeaturesFactory.to_dict(model),
             )
@@ -157,7 +156,7 @@ def add_routes(app, rpc_client):
                             )
                         ),
                     )
-                    if not validate(model, FeaturesFactory, features_model)
+                    if not validate(model, features_model)
                     else "Refused by the server, check logs."
                 ),
             )
@@ -245,7 +244,7 @@ def add_routes(app, rpc_client):
                 rpc_client.local
             )
         )
-        model_valid = validate(model, AnalysisModelFactory, analysis_model)
+        model_valid = validate(model, analysis_model)
         _logger.info(f"Validate model {model_valid}")
         success = model_valid and rpc_client.create_analysis_job(
             AnalysisModelFactory.to_dict(model)
@@ -260,7 +259,6 @@ def add_routes(app, rpc_client):
                     ", ".join(
                         get_invalid_names(
                             model,
-                            AnalysisModelFactory,
                             analysis_model,
                         )
                     ),
@@ -314,7 +312,7 @@ def add_routes(app, rpc_client):
             auxillary_info=data_object.get("auxillary_info"),
         )
 
-        validates = validate(m, ScanningModelFactory, scanning_model)
+        validates = validate(m, scanning_model)
         job_id = rpc_client.create_scanning_job(
             ScanningModelFactory.to_dict(m),
         )
@@ -328,7 +326,6 @@ def add_routes(app, rpc_client):
                     "The following has bad data: {0}".format(
                         get_invalid_as_text(
                             m,
-                            ScanningModelFactory,
                             scanning_model,
                         ),
                     )
