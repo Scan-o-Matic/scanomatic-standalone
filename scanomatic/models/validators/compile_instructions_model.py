@@ -7,26 +7,14 @@ from scanomatic.models.compile_project_model import (
     FIXTURE,
     CompileInstructionsModel
 )
-from scanomatic.models.factories.compile_project_factory import (
-    CompileProjectFactory
-)
 
 
 def validate_images(
     model: CompileInstructionsModel,
 ):
-    try:
-        for image in model.images:
-            if not isinstance(
-                image,
-                CompileProjectFactory.STORE_SECTION_SERIALIZERS['images'][1],
-            ):
-                return model.FIELD_TYPES.images
-        if model.images:
-            return True
-        else:
-            return model.FIELD_TYPES.images
-    except (IndexError, TypeError):
+    if model.images:
+        return True
+    else:
         return model.FIELD_TYPES.images
 
 

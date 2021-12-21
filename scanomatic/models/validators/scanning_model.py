@@ -166,9 +166,3 @@ def validate_cell_count_calibration_id(model: ScanningModel):
     if model.cell_count_calibration_id in get_active_cccs():
         return True
     return model.FIELD_TYPES.cell_count_calibration
-
-
-def validate_aux_info(model: ScanningModel):
-    if ScanningModelFactory.is_valid_submodel(model, "auxillary_info"):
-        return True
-    return model.FIELD_TYPES.auxillary_info

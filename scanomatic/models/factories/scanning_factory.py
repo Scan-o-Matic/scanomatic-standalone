@@ -81,14 +81,6 @@ class ScanningModelFactory(AbstractModelFactory):
             settings['cell_count_calibration_id'] = 'default'
         return super(cls, ScanningModelFactory).create(**settings)
 
-    @classmethod
-    def clamp(cls, model: ScanningModel):
-        return cls._clamp(
-            model,
-            cls._GET_MIN_MODEL(model, factory=cls),
-            cls._GET_MAX_MODEL(model, factory=cls),
-        )
-
 
 class ScannerOwnerFactory(AbstractModelFactory):
     MODEL = ScannerOwnerModel

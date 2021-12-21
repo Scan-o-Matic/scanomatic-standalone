@@ -24,6 +24,13 @@ from scanomatic.models.factories.scanning_factory import (
 )
 from scanomatic.server.server import Server
 from scanomatic.server.stoppable_rpc_server import Stoppable_RPC_Server
+from scanomatic.models.validators.validate import get_invalid_names, validate
+from scanomatic.models.validators import (
+    scanning_model as scanning_model_validators,
+    compile_instructions_model as compile_instructions_model_validators,
+    analysis_model as analysis_model_validators,
+    features_model as features_model_validators,
+)
 
 _SOM_SERVER: Optional[Server] = None
 _RPC_SERVER: Optional[Stoppable_RPC_Server] = None
@@ -60,7 +67,7 @@ def _report_invalid(
     model: Model,
     title,
 ):
-    for param in factory.get_invalid_names(model):
+    for param in get_invalid_names(model, factory):
         logger.warning(
             f"{title} got invalid parameter {param} value '{model[param]}'",
         )
@@ -454,13 +461,24 @@ class InterfaceBuilder(SingeltonOneInit):
                 "Bad data in attempting to check path for scanning job creation",  # noqa: E501
             )
 
-        if not path_valid or not ScanningModelFactory.validate(scanning_model):
+        if (
+            not path_valid or
+            not validate(
+                scanning_model,
+                ScanningModelFactory,
+                scanning_model_validators,
+            )
+        ):
             if not path_valid:
                 _SOM_SERVER.logger.error(
                     "Project name duplicate in containing directory",
                 )
 
-            if not ScanningModelFactory.validate(scanning_model):
+            if not validate(
+                scanning_model,
+                ScanningModelFactory,
+                scanning_model_validators
+            ):
                 _report_invalid(
                     _SOM_SERVER.logger,
                     ScanningModelFactory,
@@ -484,7 +502,11 @@ class InterfaceBuilder(SingeltonOneInit):
         compile_project_model = CompileProjectFactory.create(
             **compile_project_model,
         )
-        if not CompileProjectFactory.validate(compile_project_model):
+        if not validate(
+            compile_project_model,
+            CompileProjectFactory,
+            compile_instructions_model_validators,
+        ):
             _report_invalid(
                 _SOM_SERVER.logger,
                 CompileProjectFactory,
@@ -694,7 +716,11 @@ class InterfaceBuilder(SingeltonOneInit):
         global _SOM_SERVER
 
         analysis_model = AnalysisModelFactory.create(**analysis_model)
-        if not AnalysisModelFactory.validate(analysis_model):
+        if not validate(
+            analysis_model,
+            AnalysisModelFactory,
+            analysis_model_validators,
+        ):
             _report_invalid(
                 _SOM_SERVER.logger,
                 AnalysisModelFactory,
@@ -741,7 +767,11 @@ class InterfaceBuilder(SingeltonOneInit):
         global _SOM_SERVER
 
         feature_extract_model = FeaturesFactory.create(**feature_extract_model)
-        if not FeaturesFactory.validate(feature_extract_model):
+        if not validate(
+            feature_extract_model,
+            FeaturesFactory,
+            features_model_validators,
+        ):
             _report_invalid(
                 _SOM_SERVER.logger,
                 FeaturesFactory,

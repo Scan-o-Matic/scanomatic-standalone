@@ -4,7 +4,7 @@ import types
 import warnings
 from collections.abc import Callable
 from logging import Logger
-from typing import Any, Type, Union, cast
+from typing import Any, Optional, Type, Union, cast
 from collections.abc import Sequence
 
 from scanomatic.generics.model import Model
@@ -130,11 +130,13 @@ def _toggleTuple(structure, obj, locked):
     return obj
 
 
-class AbstractModelFactory:
-    MODEL = Model
+SubFactoryDict = dict[Type[Model], Type["AbstractModelFactory"]]
 
+
+class AbstractModelFactory:
     _LOGGER = None
-    _SUB_FACTORIES: dict[Type[Model], Type["AbstractModelFactory"]] = {}
+    MODEL = Model
+    _SUB_FACTORIES: SubFactoryDict = {}
     STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
 
     def __new__(cls, *args):
@@ -403,11 +405,6 @@ class AbstractModelFactory:
         return model_as_dict
 
     @classmethod
-    def set_invalid_to_default(cls, model) -> None:
-        if cls.verify_correct_model(model):
-            cls.set_default(model, fields=tuple(cls.get_invalid(model)))
-
-    @classmethod
     def set_default(cls, model, fields=None) -> None:
         if cls.verify_correct_model(model):
             default_model = cls.MODEL()
@@ -434,35 +431,34 @@ class AbstractModelFactory:
                 ].get_default_model()
 
     @classmethod
-    def clamp(cls, model) -> None:
-        pass
-
-    @classmethod
-    def _clamp(cls, model, min_model, max_model) -> None:
-        if (
-            cls.verify_correct_model(model)
-            and cls.verify_correct_model(min_model)
-            and cls.verify_correct_model(max_model)
-        ):
-            for attr, val in model:
-                min_val = getattr(min_model, attr)
-                max_val = getattr(max_model, attr)
-
-                if min_val is not None and val < min_val:
-                    setattr(model, attr, min_val)
-                elif max_val is not None and val > max_val:
-                    setattr(model, attr, max_val)
-
-    @classmethod
-    def is_valid_submodel(cls, model: Any, key: str) -> bool:
-        sub_model = getattr(model, key)
-        sub_model_type = type(sub_model)
-        if (
-            isinstance(sub_model, Model)
-            and sub_model_type in cls._SUB_FACTORIES
-        ):
-            return cls._SUB_FACTORIES[sub_model_type].validate(sub_model)
-        return False
+    def contains_model_type(
+        cls,
+        key: str,
+    ) -> tuple[
+        bool,
+        Optional[Union[SubFactoryDict, tuple[Any]]]
+    ]:
+        type_def = cls.STORE_SECTION_SERIALIZERS.get(key)
+        if type_def is None:
+            return False, None
+        if type_def is Model:
+            return True, cls._SUB_FACTORIES
+        elif issubclass(type_def, Model):
+            return True, {type_def: cls._SUB_FACTORIES[type_def]}
+        elif isinstance(type_def, tuple):
+            if Model in type_def:
+                return True, tuple(
+                    cls._SUB_FACTORIES if td is Model else td
+                    for td in type_def
+                )
+            return (
+                any(issubclass(td, Model) for td in type_def),
+                tuple(
+                    {td: cls._SUB_FACTORIES[td]}
+                    if issubclass(td, Model) else td for td in type_def
+                )
+            )
+        return False, None
 
     @staticmethod
     def _is_enum_value(obj, enum) -> bool:

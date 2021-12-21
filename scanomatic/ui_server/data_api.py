@@ -31,6 +31,7 @@ from scanomatic.models.factories.analysis_factories import (
 )
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import GrayScaleAreaModel
+from scanomatic.models.validators.validate import validate
 
 from .general import (
     convert_path_to_url,
@@ -609,7 +610,10 @@ def add_routes(app, rpc_client, is_debug_mode):
             scale=1.0,
         )
 
-        if not FixtureFactory.validate(fixture_model):
+        if not validate(
+            fixture_model,
+            FixtureFactory,
+        ):
             return jsonify(
                 success=False,
                 reason="Final compilation doesn't validate",

@@ -31,6 +31,6 @@ def validate_status(model: RPCjobModel):
 
 
 def validate_content_model(model: RPCjobModel):
-    if RPCjobModel.is_valid_submodel(model, 'content_model'):
+    if model.content_model is not None:
         return True
     return model.FIELD_TYPES.content_model

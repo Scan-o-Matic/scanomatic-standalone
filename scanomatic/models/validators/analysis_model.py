@@ -2,7 +2,6 @@ import os
 
 from scanomatic.data_processing.calibration import get_active_cccs
 from scanomatic.models.analysis_model import AnalysisModel
-from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.validators.tools import (
     is_coordinates,
     is_file,
@@ -108,12 +107,6 @@ def validate_grid_images(model: AnalysisModel):
     ):
         return True
     return model.FIELD_TYPES.grid_images
-
-
-def validate_grid_model(model: AnalysisModel):
-    if AnalysisModelFactory.is_valid_submodel(model, "grid_model"):
-        return True
-    return model.FIELD_TYPES.grid_model
 
 
 def validate_cell_count_calibration_id(

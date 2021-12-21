@@ -5,6 +5,11 @@ import pytest
 
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.models.validators import (
+    analysis_model as analysis_model_validators,
+)
+from scanomatic.models.validators import rpc_job_model
+from scanomatic.models.validators.validate import validate
 from scanomatic.server.analysis_effector import AnalysisEffector
 
 
@@ -33,9 +38,13 @@ def proj1_analysis(proj1, tmpdir):
         compilation=str(workdir.join('proj1.project.compilation')),
         chain=False,
     )
-    assert AnalysisModelFactory.validate(analysis_model)
+    assert validate(
+        analysis_model,
+        AnalysisModelFactory,
+        analysis_model_validators,
+    )
     job = RPC_Job_Model_Factory.create(id='135', content_model=analysis_model)
-    assert RPC_Job_Model_Factory.validate(job)
+    assert validate(job, RPC_Job_Model_Factory, rpc_job_model)
     return ProjInfo(job, workdir)
 
 

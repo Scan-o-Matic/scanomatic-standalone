@@ -19,6 +19,8 @@ from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory,
 )
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
+from scanomatic.models.validators.validate import validate
+from scanomatic.models.validators import compile_image_analysis_model
 
 from . import proc_effector
 
@@ -195,7 +197,11 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                         self._fixture_settings,
                         issues=issues,
                     )
-                    if CompileImageAnalysisFactory.validate(image_model):
+                    if validate(
+                        image_model,
+                        CompileImageAnalysisFactory,
+                        compile_image_analysis_model,
+                    ):
                         dump_to_stream(
                             image_model,
                             fh,

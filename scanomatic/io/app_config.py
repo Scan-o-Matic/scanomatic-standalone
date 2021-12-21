@@ -1,15 +1,15 @@
 import os
 import uuid
+from collections.abc import Sequence
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
 from typing import Any, Literal, Optional, Type, Union
-from collections.abc import Sequence
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
-from scanomatic.generics.model import Model
-from scanomatic.io.jsonizer import dump, load_first
 
 import scanomatic.models.scanning_model as scanning_model
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
+from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory
 )
@@ -23,6 +23,7 @@ from scanomatic.models.settings_models import (
     UIServerModel,
     VersionChangesModel
 )
+from scanomatic.models.validators.validate import get_invalid_names, validate
 
 from . import paths, power_manager
 
@@ -256,15 +257,16 @@ class Config(SingeltonOneInit):
             except IndexError:
                 pass
 
-        if not ApplicationSettingsFactory.validate(self._settings):
+        if not validate(self._settings, ApplicationSettingsFactory):
             self._logger.error(
                 "There are invalid values in the current application settings,"
                 "will not save and will reload last saved settings",
             )
 
             if bad_keys_out is not None:
-                for label in ApplicationSettingsFactory.get_invalid_names(
-                    self._settings
+                for label in get_invalid_names(
+                    self._settings,
+                    ApplicationSettingsFactory,
                 ):
                     bad_keys_out.append(label)
 
