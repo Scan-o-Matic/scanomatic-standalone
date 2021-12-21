@@ -22,9 +22,6 @@ from scanomatic.models.fixture_models import (
 )
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
 from scanomatic.models.scanning_model import ScanningModel
-from scanomatic.models.validators import (
-    analysis_model as analysis_model_validators,
-)
 from scanomatic.models.validators.validate import get_invalid, validate
 
 from . import proc_effector
@@ -458,10 +455,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 ),
             )
 
-        allow_start = validate(
-            self._analysis_job,
-            analysis_model_validators,
-        )
+        allow_start = validate(self._analysis_job)
         self._original_model = copy(self._analysis_job)
         AnalysisModelFactory.set_absolute_paths(self._analysis_job)
 
@@ -485,10 +479,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._logger.error(
                 "Can't perform analysis; instructions don't validate."
             )
-            for bad_instruction in get_invalid(
-                self._analysis_job,
-                analysis_model_validators,
-            ):
+            for bad_instruction in get_invalid(self._analysis_job):
                 self._logger.error(
                     "Bad value {0}={1}".format(
                         bad_instruction,

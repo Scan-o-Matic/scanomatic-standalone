@@ -23,7 +23,6 @@ from scanomatic.models.settings_models import (
     UIServerModel,
     VersionChangesModel
 )
-from scanomatic.models.validators.validate import get_invalid_names, validate
 
 from . import paths, power_manager
 
@@ -158,6 +157,10 @@ class Config(SingeltonOneInit):
     def scanner_sockets(self) -> dict[str, int]:
         return self._settings.scanner_sockets
 
+    @property
+    def application_settings(self) -> Optional[ApplicationSettingsModel]:
+        return self._settings
+
     def model_copy(self) -> ApplicationSettingsModel:
         return ApplicationSettingsFactory.copy(self._settings)
 
@@ -241,35 +244,6 @@ class Config(SingeltonOneInit):
             return None
 
         return val
-
-    def validate(self, bad_keys_out=None) -> bool:
-        """
-
-        Args:
-            bad_keys_out: list to hold keys with bad values
-            :type bad_keys_out: list
-
-        """
-        if bad_keys_out is not None:
-            try:
-                while True:
-                    bad_keys_out.pop()
-            except IndexError:
-                pass
-
-        if not validate(self._settings):
-            self._logger.error(
-                "There are invalid values in the current application settings,"
-                "will not save and will reload last saved settings",
-            )
-
-            if bad_keys_out is not None:
-                for label in get_invalid_names(self._settings):
-                    bad_keys_out.append(label)
-
-            self.reload_settings()
-            return False
-        return True
 
     def save_current_settings(self) -> None:
         if self.validate():

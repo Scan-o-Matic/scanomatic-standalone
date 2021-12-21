@@ -7,7 +7,6 @@ import scanomatic.io.paths as paths
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.scanning_model import ScanningModel
 from scanomatic.models.validators.validate import validate
-from scanomatic.models.validators import scanning_model
 
 _logger = Logger("Projects util")
 _paths = paths.Paths()
@@ -103,7 +102,7 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
         m: ScanningModel = load_first(destination)
         m.project_name = new_name
         ScanningModelFactory.update(m, **model_updates)
-        if validate(m, scanning_model):
+        if validate(m):
             dump(
                 m,
                 destination,

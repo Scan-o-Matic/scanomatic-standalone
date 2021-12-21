@@ -1,9 +1,6 @@
 import pytest
 
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
-from scanomatic.models.validators import (
-    scanning_model as scanning_model_validators,
-)
 from scanomatic.models.validators.validate import validate
 
 
@@ -15,7 +12,7 @@ def scanning_model():
 class TestCreatingScanningModel:
     def test_creating_valid_minimal_model(self):
         model = ScanningModelFactory.create(project_name='Test')
-        assert validate(model, scanning_model_validators)
+        assert validate(model)
         assert model.project_name == 'Test'
 
     def test_create_valid_minimal_model_with_deprecated_fields(self):
@@ -25,7 +22,7 @@ class TestCreatingScanningModel:
             project_tag='annoying',
         )
 
-        assert validate(model, scanning_model_validators)
+        assert validate(model)
         with pytest.raises(AttributeError):
             model.scanner_tag
         with pytest.raises(AttributeError):
@@ -33,10 +30,7 @@ class TestCreatingScanningModel:
 
     def test_model_without_project_name_doesnt_validate(self):
         model = ScanningModelFactory.create()
-        assert validate(
-            model,
-            scanning_model_validators,
-        ) is False
+        assert validate(model) is False
 
     def test_model_has_ccc_id(self, scanning_model):
         assert hasattr(scanning_model, 'cell_count_calibration_id')

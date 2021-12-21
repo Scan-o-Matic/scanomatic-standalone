@@ -1,19 +1,17 @@
 from collections.abc import Iterator
 from enum import Enum
-from types import ModuleType
-from typing import Literal, Optional, Type, Union
+from typing import Literal, Union
 
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
 from scanomatic.models.factories.factory_lookup import get_factory
+
+from .validation_lookup import get_special_validators
 
 ValidationResults = Iterator[Union[Literal[True], Enum]]
 
 
-def _get_validation_results(
-    model: Model,
-    module: Optional[ModuleType] = None,
-) -> ValidationResults:
+def _get_validation_results(model: Model) -> ValidationResults:
+    module = get_special_validators(model)
     factory = get_factory(model)
     # generate validation results for sub-models
     for k in model.keys():
@@ -27,11 +25,7 @@ def _get_validation_results(
         item = getattr(model, k)
         item_type = type(item)
         if isinstance(sub_validation, dict):
-            if (
-                item_type in sub_validation
-                # TODO: Does not include extra validation yet
-                and validate(item, sub_validation[item_type])
-            ):
+            if (item_type in sub_validation and validate(item)):
                 yield True
             yield model.FIELD_TYPES[k]
         else:
@@ -45,11 +39,7 @@ def _get_validation_results(
                             if i is None:
                                 continue
                             i_type = type(i)
-                            if (
-                                i_type not in leaf_type
-                                # TODO: Does not include extra validation yet
-                                and validate(i, leaf_type[i_type])
-                            ):
+                            if (i_type not in leaf_type and validate(i)):
                                 yield model.FIELD_TYPES[k]
                                 break
 
@@ -61,48 +51,25 @@ def _get_validation_results(
             yield getattr(module, validator)(model)
 
 
-def validate(
-    model: Model,
-    factory: Type[AbstractModelFactory],
-    module: Optional[ModuleType] = None,
-) -> bool:
+def validate(model: Model) -> bool:
     factory = get_factory(model)
     if factory is None:
         return False
     if factory.verify_correct_model(model):
-        return all(
-            v is True for v
-            in _get_validation_results(
-                model,
-                module,
-            )
-        )
+        return all(v is True for v in _get_validation_results(model))
 
 
-def get_invalid(
-    model: Model,
-    module: Optional[ModuleType] = None,
-) -> Iterator[Enum]:
+def get_invalid(model: Model) -> Iterator[Enum]:
     return (
-        v for v in set(_get_validation_results(model, module))
-        if v is not True
+        v for v in set(_get_validation_results(model)) if v is not True
     )
 
 
-def get_invalid_names(
-    model: Model,
-    module: Optional[ModuleType] = None,
-) -> Iterator[str]:
-    return (v.name for v in get_invalid(model, module))
+def get_invalid_names(model: Model) -> Iterator[str]:
+    return (v.name for v in get_invalid(model))
 
 
-def get_invalid_as_text(
-    model: Model,
-    module: Optional[ModuleType] = None,
-) -> str:
+def get_invalid_as_text(model: Model) -> str:
     return ", ".join([
-        f"{key}: '{model[key]}'" for key in get_invalid_names(
-            model,
-            module
-        )
+        f"{key}: '{model[key]}'" for key in get_invalid_names(model)
     ])

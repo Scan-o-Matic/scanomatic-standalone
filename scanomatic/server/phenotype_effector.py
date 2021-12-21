@@ -9,7 +9,6 @@ from scanomatic.io.app_config import Config as AppConfig
 from scanomatic.io.jsonizer import dump, loads
 from scanomatic.models.features_model import FeaturesModel
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
-from scanomatic.models.validators import features_model
 from scanomatic.models.validators.validate import validate
 
 from . import proc_effector
@@ -64,10 +63,7 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
         self._feature_job: FeaturesModel = job.content_model
         self._job.content_model = self._feature_job
 
-        if validate(
-            self._feature_job,
-            features_model,
-        ):
+        if validate(self._feature_job):
             dump(
                 self._feature_job,
                 os.path.join(
