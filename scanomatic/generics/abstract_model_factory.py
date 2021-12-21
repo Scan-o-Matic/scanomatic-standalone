@@ -1,11 +1,9 @@
 import copy
 import logging
-import os
 import types
 import warnings
 from collections.abc import Callable
 from logging import Logger
-from numbers import Real
 from typing import Any, Type, Union, cast
 from collections.abc import Sequence
 
@@ -164,7 +162,7 @@ class AbstractModelFactory:
         return cls._SUB_FACTORIES[model_type]
 
     @classmethod
-    def _verify_correct_model(cls, model) -> bool:
+    def verify_correct_model(cls, model) -> bool:
         if not isinstance(model, cls.MODEL):
             raise TypeError(
                 f"Wrong model for factory {cls.MODEL} is not a {model}",
@@ -192,7 +190,11 @@ class AbstractModelFactory:
         )
 
     @classmethod
-    def drop_keys(cls, settings, valid_keys) -> None:
+    def drop_keys(
+        cls,
+        settings: dict[str, Any],
+        valid_keys: Sequence[str],
+    ) -> None:
         keys = tuple(settings.keys())
         for key in keys:
             if key not in valid_keys:
@@ -401,45 +403,13 @@ class AbstractModelFactory:
         return model_as_dict
 
     @classmethod
-    def validate(cls, model) -> bool:
-        if cls._verify_correct_model(model):
-            return all(v is True for v in cls._get_validation_results(model))
-
-        return False
-
-    @classmethod
-    def get_invalid(cls, model):
-        return (
-            v for v in set(cls._get_validation_results(model))
-            if v is not True
-        )
-
-    @classmethod
-    def get_invalid_names(cls, model):
-        return (v.name for v in cls.get_invalid(model))
-
-    @classmethod
-    def get_invalid_as_text(cls, model):
-        return ", ".join([
-            "{0}: '{1}'".format(key, model[key])
-            for key in cls.get_invalid_names(model)
-        ])
-
-    @classmethod
-    def _get_validation_results(cls, model):
-        return (
-            getattr(cls, attr)(model)
-            for attr in dir(cls) if attr.startswith("_validate")
-        )
-
-    @classmethod
     def set_invalid_to_default(cls, model) -> None:
-        if cls._verify_correct_model(model):
+        if cls.verify_correct_model(model):
             cls.set_default(model, fields=tuple(cls.get_invalid(model)))
 
     @classmethod
     def set_default(cls, model, fields=None) -> None:
-        if cls._verify_correct_model(model):
+        if cls.verify_correct_model(model):
             default_model = cls.MODEL()
 
             for attr, val in default_model:
@@ -470,9 +440,9 @@ class AbstractModelFactory:
     @classmethod
     def _clamp(cls, model, min_model, max_model) -> None:
         if (
-            cls._verify_correct_model(model)
-            and cls._verify_correct_model(min_model)
-            and cls._verify_correct_model(max_model)
+            cls.verify_correct_model(model)
+            and cls.verify_correct_model(min_model)
+            and cls.verify_correct_model(max_model)
         ):
             for attr, val in model:
                 min_val = getattr(min_model, attr)
@@ -484,30 +454,7 @@ class AbstractModelFactory:
                     setattr(model, attr, max_val)
 
     @classmethod
-    def _correct_type_and_in_bounds(
-        cls,
-        model,
-        attr,
-        dtype,
-        min_model_caller,
-        max_model_caller,
-    ):
-        if not isinstance(getattr(model, attr), dtype):
-            return getattr(model.FIELD_TYPES, attr)
-
-        elif not AbstractModelFactory._in_bounds(
-            model,
-            min_model_caller(model, factory=cls),
-            max_model_caller(model, factory=cls),
-            attr,
-        ):
-            return getattr(model.FIELD_TYPES, attr)
-
-        else:
-            return True
-
-    @classmethod
-    def _is_valid_submodel(cls, model, key) -> bool:
+    def is_valid_submodel(cls, model: Any, key: str) -> bool:
         sub_model = getattr(model, key)
         sub_model_type = type(sub_model)
         if (
@@ -516,40 +463,6 @@ class AbstractModelFactory:
         ):
             return cls._SUB_FACTORIES[sub_model_type].validate(sub_model)
         return False
-
-    @staticmethod
-    def _in_bounds(model, lower_bounds, upper_bounds, attr) -> bool:
-        val = getattr(model, attr)
-        min_val = getattr(lower_bounds, attr)
-        max_val = getattr(upper_bounds, attr)
-
-        if min_val is not None and val < min_val:
-            return False
-        elif max_val is not None and val > max_val:
-            return False
-        else:
-            return True
-
-    @staticmethod
-    def _is_pinning_formats(pinning_formats) -> bool:
-        try:
-            return all(
-                pinning_format is None
-                or pinning_format is False
-                or _is_pinning_format(pinning_format)
-                for pinning_format in pinning_formats
-            )
-        except Exception:
-            pass
-        return False
-
-    @staticmethod
-    def _is_file(path) -> bool:
-        return isinstance(path, str) and os.path.isfile(path)
-
-    @staticmethod
-    def _is_tuple_or_list(obj) -> bool:
-        return isinstance(obj, tuple) or isinstance(obj, list)
 
     @staticmethod
     def _is_enum_value(obj, enum) -> bool:
@@ -569,23 +482,6 @@ class AbstractModelFactory:
             return False
         else:
             return True
-
-    @staticmethod
-    def _is_real_number(obj) -> bool:
-        return isinstance(obj, Real)
-
-
-def _is_pinning_format(pinning_format) -> bool:
-    try:
-        return all(
-            isinstance(val, int)
-            and val > 0
-            for val in pinning_format
-        ) and len(pinning_format) == 2
-    except Exception:
-        pass
-
-    return False
 
 
 def rename_setting(

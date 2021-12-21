@@ -31,6 +31,7 @@ MinMaxModelSettings = dict[
     dict[Literal['min', 'max'], dict[str, Any]]
 ]
 
+
 class Config(SingeltonOneInit):
     SCANNER_PATTERN = "Scanner {0}"
     POWER_DEFAULT = power_manager.POWER_MODES.Toggle

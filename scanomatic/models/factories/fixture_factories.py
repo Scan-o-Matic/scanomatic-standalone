@@ -33,7 +33,6 @@ class FixturePlateFactory(AbstractModelFactory):
 
 
 class GrayScaleAreaModelFactory(AbstractModelFactory):
-
     MODEL = GrayScaleAreaModel
     STORE_SECTION_SERIALIZERS = {
         'name': str,

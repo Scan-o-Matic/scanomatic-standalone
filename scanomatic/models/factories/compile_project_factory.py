@@ -2,16 +2,12 @@ import glob
 import os
 import re
 
-from scanomatic.data_processing.calibration import get_active_cccs
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
     email_serializer
 )
-from scanomatic.io.fixtures import Fixtures
-from scanomatic.io.paths import Paths
 from scanomatic.models import compile_project_model, fixture_models
 from scanomatic.models.factories import fixture_factories
-from scanomatic.models.scanning_model import ScanningModel
 
 
 class CompileImageFactory(AbstractModelFactory):
@@ -34,30 +30,6 @@ class CompileImageFactory(AbstractModelFactory):
         return model
 
     @classmethod
-    def _validate_index(cls, model: compile_project_model.CompileImageModel):
-        if model.index >= 0:
-            return True
-        return model.FIELD_TYPES.index
-
-    @classmethod
-    def _validate_path(cls, model: compile_project_model.CompileImageModel):
-        if (
-            os.path.abspath(model.path) == model.path
-            and os.path.isfile(model.path)
-        ):
-            return True
-        return model.FIELD_TYPES.path
-
-    @classmethod
-    def _validate_time_stamp(
-        cls,
-        model: compile_project_model.CompileImageModel,
-    ):
-        if model.time_stamp >= 0.0:
-            return True
-        return model.FIELD_TYPES.time_stamp
-
-    @classmethod
     def set_time_stamp_from_path(
         cls,
         model: compile_project_model.CompileImageModel,
@@ -77,12 +49,10 @@ class CompileImageFactory(AbstractModelFactory):
 
 
 class CompileProjectFactory(AbstractModelFactory):
-
     MODEL = compile_project_model.CompileInstructionsModel
     _SUB_FACTORIES = {
         compile_project_model.CompileImageModel: CompileImageFactory,
     }
-
     STORE_SECTION_SERIALIZERS = {
         'compile_action': compile_project_model.COMPILE_ACTION,
         'images': (tuple, compile_project_model.CompileImageModel),
@@ -140,70 +110,8 @@ class CompileProjectFactory(AbstractModelFactory):
             **kwargs,
         ))
 
-    @classmethod
-    def _validate_images(
-        cls,
-        model: compile_project_model.CompileInstructionsModel,
-    ):
-        try:
-            for image in model.images:
-                if not CompileImageFactory.validate(image):
-                    return model.FIELD_TYPES.images
-            if model.images:
-                return True
-            else:
-                return model.FIELD_TYPES.images
-        except (IndexError, TypeError):
-            return model.FIELD_TYPES.images
-
-    @classmethod
-    def _validate_path(
-        cls,
-        model: compile_project_model.CompileInstructionsModel,
-    ):
-        basename = os.path.basename(model.path)
-        dirname = os.path.dirname(model.path)
-        if (
-            model.path != dirname
-            and os.path.isdir(dirname)
-            and os.path.abspath(dirname) == dirname
-            and basename
-        ):
-            return True
-        return model.FIELD_TYPES.path
-
-    @classmethod
-    def _validate_fixture(
-        cls,
-        model: compile_project_model.CompileInstructionsModel,
-    ):
-        if model.fixture_type is compile_project_model.FIXTURE.Local:
-            if os.path.isfile(
-                os.path.join(
-                    model.path,
-                    Paths().experiment_local_fixturename,
-                ),
-            ):
-                return True
-            else:
-                return model.FIELD_TYPES.fixture_type
-        elif model.fixture_type is compile_project_model.FIXTURE.Global:
-            if model.fixture_name in Fixtures():
-                return True
-            else:
-                return model.FIELD_TYPES.fixture_name
-        else:
-            return model.FIELD_TYPES.fixture_type
-
-    @classmethod
-    def _validate_cell_count_calibration_id(cls, model: ScanningModel):
-        if model.cell_count_calibration_id in get_active_cccs():
-            return True
-        return model.FIELD_TYPES.cell_count_calibration
-
 
 class CompileImageAnalysisFactory(AbstractModelFactory):
-
     MODEL = compile_project_model.CompileImageAnalysisModel
     _SUB_FACTORIES = {
         compile_project_model.CompileImageModel: CompileImageFactory,
@@ -220,23 +128,3 @@ class CompileImageAnalysisFactory(AbstractModelFactory):
         **settings,
     ) -> compile_project_model.CompileImageAnalysisModel:
         return super(CompileImageAnalysisFactory, cls).create(**settings)
-
-    @classmethod
-    def _validate_fixture(
-        cls,
-        model: compile_project_model.CompileImageAnalysisModel,
-    ):
-        if cls._is_valid_submodel(model, "fixture"):
-            return True
-        else:
-            return model.FIELD_TYPES.fixture
-
-    @classmethod
-    def _validate_image(
-        cls,
-        model: compile_project_model.CompileImageAnalysisModel,
-    ):
-        if cls._is_valid_submodel(model, "image"):
-            return True
-        else:
-            return model.FIELD_TYPES.image
