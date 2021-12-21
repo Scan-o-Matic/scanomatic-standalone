@@ -2,7 +2,7 @@ import json
 import logging
 from collections.abc import Callable
 from enum import Enum, unique
-from typing import Any, TextIO, Type, TypeVar, Union
+from typing import Any, Optional, TextIO, Type, TypeVar, Union
 from pathlib import Path
 
 import numpy as np
@@ -285,7 +285,11 @@ def _merge(model: Model, update: Model) -> bool:
     return False
 
 
-def merge_into(model: Model, update: Model) -> Model:
+M = TypeVar[Model]
+M2 = TypeVar[Model]
+
+
+def merge_into(model: Optional[M], update: M2) -> Union[M, M2]:
     if model is None or type(model) == type(update):
         return update
     if not _merge(model, update):
