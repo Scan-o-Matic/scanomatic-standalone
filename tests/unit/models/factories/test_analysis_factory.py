@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 from unittest import mock
+import json
 
 import numpy as np
 import pytest
@@ -37,7 +38,7 @@ class TestAnalysisModels:
 
     def test_model_can_serialize(self, analysis_model):
         serial = dumps(analysis_model)
-        assert len(serial) == 2
+        assert len(json.loads(serial)) == 2
 
     def test_model_can_deserialize(self, analysis_serialized_object):
         result: AnalysisModel = loads(analysis_serialized_object)

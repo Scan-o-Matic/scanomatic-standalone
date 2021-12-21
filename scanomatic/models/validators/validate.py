@@ -23,6 +23,7 @@ def _get_validation_results(
         should_verify, sub_validation = factory.contains_model_type(k)
         if not should_verify or sub_validation is None:
             yield True
+            continue
         item = getattr(model, k)
         item_type = type(item)
         if isinstance(sub_validation, dict):

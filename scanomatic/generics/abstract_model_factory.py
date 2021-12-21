@@ -104,7 +104,7 @@ def _update_object_at(obj, coordinate, value) -> None:
         _update_object_at(obj[coordinate[0]], coordinate[1:], value)
 
 
-def _toggleTuple(structure, obj, locked):
+def _toggle_tuple(structure, obj, locked):
     is_next_to_leaf = len(structure) == 2
     if obj is None or obj is False and structure[0] is not bool:
         return None
@@ -114,7 +114,7 @@ def _toggleTuple(structure, obj, locked):
             obj = list(obj)
         if not is_next_to_leaf:
             for idx, item in enumerate(obj):
-                obj[idx] = _toggleTuple(structure[1:], item, locked)
+                obj[idx] = _toggle_tuple(structure[1:], item, locked)
         if locked:
             obj = tuple(obj)
     elif not is_next_to_leaf:
@@ -123,7 +123,7 @@ def _toggleTuple(structure, obj, locked):
                 iter(obj.items()) if isinstance(obj, dict) else enumerate(obj)
             )
             for pos, item in iterator:
-                obj[pos] = _toggleTuple(structure[1:], item, locked)
+                obj[pos] = _toggle_tuple(structure[1:], item, locked)
 
         except TypeError:
             pass
@@ -152,16 +152,6 @@ class AbstractModelFactory:
     @classmethod
     def get_default_model(cls) -> Model:
         return cls.MODEL()
-
-    @classmethod
-    def get_sub_factory(cls, model: Model) -> Type["AbstractModelFactory"]:
-        model_type = type(model)
-        if model_type not in cls._SUB_FACTORIES:
-            cls.get_logger().warning(
-                f"Unknown subfactory for model-type {model_type}",
-            )
-            return AbstractModelFactory
-        return cls._SUB_FACTORIES[model_type]
 
     @classmethod
     def verify_correct_model(cls, model) -> bool:
@@ -286,7 +276,7 @@ class AbstractModelFactory:
             if isinstance(cls.STORE_SECTION_SERIALIZERS[key], tuple):
 
                 ref_settings = copy.deepcopy(settings[key])
-                settings[key] = _toggleTuple(
+                settings[key] = _toggle_tuple(
                     cls.STORE_SECTION_SERIALIZERS[key],
                     settings[key],
                     False,
@@ -317,7 +307,7 @@ class AbstractModelFactory:
                             _enforce_other(dtype_leaf, item),
                         )
 
-                settings[key] = _toggleTuple(
+                settings[key] = _toggle_tuple(
                     cls.STORE_SECTION_SERIALIZERS[key],
                     settings[key],
                     True,
@@ -350,12 +340,6 @@ class AbstractModelFactory:
             # else it is already correct type
 
     @classmethod
-    def update(cls, model, **settings) -> None:
-        for parameter, value in list(settings.items()):
-            if parameter in model:
-                setattr(model, parameter, value)
-
-    @classmethod
     def to_dict(cls, model) -> dict:
         model_as_dict = dict(**model)
         for k in model_as_dict.keys():
@@ -386,7 +370,7 @@ class AbstractModelFactory:
             ):
                 dtype = cls.STORE_SECTION_SERIALIZERS[k]
                 dtype_leaf = dtype[-1]
-                model_as_dict[k] = _toggleTuple(dtype, model_as_dict[k], False)
+                model_as_dict[k] = _toggle_tuple(dtype, model_as_dict[k], False)
                 if (
                     isinstance(dtype_leaf, type)
                     and issubclass(dtype_leaf, Model)
@@ -400,7 +384,7 @@ class AbstractModelFactory:
                             coord,
                             cls._SUB_FACTORIES[dtype_leaf].to_dict(item),
                         )
-                model_as_dict[k] = _toggleTuple(dtype, model_as_dict[k], True)
+                model_as_dict[k] = _toggle_tuple(dtype, model_as_dict[k], True)
 
         return model_as_dict
 
@@ -459,25 +443,6 @@ class AbstractModelFactory:
                 )
             )
         return False, None
-
-    @staticmethod
-    def _is_enum_value(obj, enum) -> bool:
-        if obj in enum:
-            return True
-
-        try:
-            enum(obj)
-        except ValueError:
-            pass
-        else:
-            return True
-
-        try:
-            enum[obj]
-        except KeyError:
-            return False
-        else:
-            return True
 
 
 def rename_setting(

@@ -96,7 +96,7 @@ class AnalysisModelFactory(AbstractModelFactory):
             'cell_count_calibration_id',
             'cell_count_calibration',
         ))
-        return super(AnalysisModelFactory, cls).all_keys_valid(keys)
+        return super().all_keys_valid(keys)
 
 
 class AnalysisFeaturesFactory(AbstractModelFactory):
