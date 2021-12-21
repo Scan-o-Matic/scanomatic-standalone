@@ -10,7 +10,6 @@ from .paths import Paths
 
 
 class FixtureSettings:
-
     def __init__(self, name, dir_path=None, overwrite=False):
         self._logger = Logger("Fixture {0}".format(name))
         path_name = Paths().get_fixture_path(name, only_name=True)
@@ -42,7 +41,7 @@ class FixtureSettings:
             else:
                 return val
 
-    def get_marker_positions(self):
+    def get_marker_positions(self) -> list[tuple[float, float]]:
         return list(zip(
             self.model.orientation_marks_x,
             self.model.orientation_marks_y

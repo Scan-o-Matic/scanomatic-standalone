@@ -35,14 +35,13 @@ class GrayScaleAreaModel(model.Model):
 
 
 class FixtureModel(model.Model):
-
     def __init__(
         self,
         path: str = "",
         grayscale: Optional[GrayScaleAreaModel] = None,
         orientation_mark_path: str = "",
-        orientation_marks_x: Sequence = [],
-        orientation_marks_y: Sequence = [],
+        orientation_marks_x: Sequence[float] = [],
+        orientation_marks_y: Sequence[float] = [],
         shape: Sequence = [],
         coordinates_scale: float = 1,
         plates: Sequence = [],

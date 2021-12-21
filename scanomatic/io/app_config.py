@@ -2,8 +2,10 @@ import os
 import uuid
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
-from typing import Optional, Union
+from typing import Any, Literal, Optional, Type, Union
 from collections.abc import Sequence
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from scanomatic.generics.model import Model
 from scanomatic.io.jsonizer import dump, load_first
 
 import scanomatic.models.scanning_model as scanning_model
@@ -24,6 +26,10 @@ from scanomatic.models.settings_models import (
 
 from . import paths, power_manager
 
+MinMaxModelSettings = dict[
+    Type[Model],
+    dict[Literal['min', 'max'], dict[str, Any]]
+]
 
 class Config(SingeltonOneInit):
     SCANNER_PATTERN = "Scanner {0}"
@@ -34,7 +40,7 @@ class Config(SingeltonOneInit):
         self._logger = Logger("Application Config")
         # TODO: Extend functionality to toggle to remote connect
         self._use_local_rpc_settings = True
-        self._minMaxModels = {
+        self._minMaxModels: MinMaxModelSettings = {
             scanning_model.ScanningModel: {
                 "min": {
                     "time_between_scans": 7.0,
@@ -296,8 +302,8 @@ class Config(SingeltonOneInit):
         )
         return self._PM(socket, **self.power_manager)
 
-    def get_min_model(self, model, factory):
+    def get_min_model(self, model: Model, factory: Type[AbstractModelFactory]):
         return factory.create(**self._minMaxModels[type(model)]['min'])
 
-    def get_max_model(self, model, factory):
+    def get_max_model(self, model: Model, factory: Type[AbstractModelFactory]):
         return factory.create(**self._minMaxModels[type(model)]['max'])
