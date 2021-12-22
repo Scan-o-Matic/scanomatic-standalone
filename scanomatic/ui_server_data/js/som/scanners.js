@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { API, unselect } from './helpers';
 
 export default function getFreeScanners(targetId) {

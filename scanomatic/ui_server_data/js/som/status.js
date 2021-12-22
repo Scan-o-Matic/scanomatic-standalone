@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { API, Dialogue, InputEnabled } from './helpers';
 
 const okIMG = '/images/yeastOK.png';

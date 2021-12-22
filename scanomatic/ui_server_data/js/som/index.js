@@ -1,3 +1,4 @@
+export * from 'jquery';
 export * from 'spin';
 
 export {

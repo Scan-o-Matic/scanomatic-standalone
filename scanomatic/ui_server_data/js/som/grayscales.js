@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { Execute } from './helpers';
 
 const grayscaleSelectorClass = '.grayscale-selector';
@@ -23,9 +24,9 @@ export function LoadGrayscales() {
 export function GetSelectedGrayscale(identifier) {
   const vals = [];
   $(grayscaleSelectorClass).each((i, obj) => {
-    obj = $(obj);
-    if (identifier == null || obj.id) {
-      vals.push(obj.val());
+    const o = $(obj);
+    if (identifier == null || o.id) {
+      vals.push(o.val());
     }
   });
 

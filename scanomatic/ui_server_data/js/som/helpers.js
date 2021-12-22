@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 export class API {
   static get(url) {
     return new Promise((resolve, reject) => $.ajax({
@@ -35,7 +37,15 @@ export class API {
   }
 }
 
-export function getPathSuggestions(input, isDirectory, suffix, suffixPattern, callback, prefix, checkHasAnalysis) {
+export function getPathSuggestions(
+  input,
+  isDirectory,
+  suffix,
+  suffixPattern,
+  callback,
+  prefix,
+  checkHasAnalysis,
+) {
   if (suffix === undefined) { suffix = ''; }
 
   let url;

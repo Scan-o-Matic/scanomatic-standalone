@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import {
   clamp,
   Dialogue,
@@ -423,7 +424,7 @@ export function setCanvas() {
     const canvasPos = getMousePosRelative(event, selectedFixtureCanvasJq);
     const imagePos = translateToImageCoords(canvasPos);
 
-    if (event.button == 0 && isArea(creatingArea)) {
+    if (event.button === 0 && isArea(creatingArea)) {
       areas[creatingArea].x2 = imagePos.x;
       areas[creatingArea].y2 = imagePos.y;
       drawFixture();

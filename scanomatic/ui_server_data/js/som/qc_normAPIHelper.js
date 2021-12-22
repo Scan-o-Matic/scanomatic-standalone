@@ -1,4 +1,5 @@
-﻿import * as d3 from 'd3';
+﻿import $ from 'jquery';
+import * as d3 from 'd3';
 
 import { getLastSegmentOfPath } from './qc_normHelper';
 // var baseUrl = "http://localhost:5000";
