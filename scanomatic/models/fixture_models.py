@@ -60,9 +60,9 @@ class FixtureModel(model.Model):
         orientation_mark_path: str = "",
         orientation_marks_x: Sequence[float] = [],
         orientation_marks_y: Sequence[float] = [],
-        shape: Sequence = [],
-        coordinates_scale: float = 1,
-        plates: Sequence = [],
+        shape: Sequence[int] = [],
+        coordinates_scale: float = 1.0,
+        plates: Sequence["FixturePlateModel"] = [],
         name: str = "",
         scale: float = 1.0,
     ):

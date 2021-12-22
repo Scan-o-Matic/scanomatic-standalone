@@ -67,7 +67,7 @@ class TestFeatureExtractEndpoint:
         assert response.status_code != 200
 
     @patch(
-        'scanomatic.ui_server.experiment_api.FeaturesFactory._validate_analysis_directory',  # noqa: E501
+        'scanomatic.models.validators.features_model.validate_analysis_directory',  # noqa: E501
         return_value=True,
     )
     def test_keep_previous_qc(self, validator_mock, test_app):
@@ -89,7 +89,7 @@ class TestFeatureExtractEndpoint:
         assert response.status_code == 200
 
     @patch(
-        'scanomatic.ui_server.experiment_api.FeaturesFactory._validate_analysis_directory',  # noqa: E501
+        'scanomatic.models.validators.features_model.validate_analysis_directory',  # noqa: E501
         return_value=True,
     )
     def test_dont_keep_previous_qc(self, validator_mock, test_app):

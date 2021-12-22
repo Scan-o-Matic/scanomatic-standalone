@@ -87,17 +87,6 @@ class TestAnalysisModels:
         )
         assert isinstance(model, AnalysisModel)
 
-    @pytest.mark.parametrize('basename', (
-        'test.project.compilation',
-    ))
-    def test_cant_load_other_serialized_files_from_disk(
-        self,
-        basename,
-        data_path,
-    ):
-        model = load_first(os.path.join(data_path, basename))
-        assert model is None
-
     @pytest.mark.parametrize('keys', (
         [1, 2, 3, 4],
         [
