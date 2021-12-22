@@ -1,8 +1,8 @@
 import glob
 import os
+from collections.abc import Sequence
 from logging import Logger
 from typing import Optional
-from collections.abc import Sequence
 
 import numpy as np
 
@@ -10,6 +10,7 @@ from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.jsonizer import load
 from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _logger = Logger("Image loader")
 
@@ -188,7 +189,9 @@ def load_colony_images_for_animation(
 
     grid, grid_size = _load_grid_info(analysis_directory, position[0])
 
-    compilation_results = load(project_compilation)
+    compilation_results: list[CompileImageAnalysisModel] = load(
+        project_compilation,
+    )
     compilation_results = sorted(
         compilation_results,
         key=lambda e: e.image.index,

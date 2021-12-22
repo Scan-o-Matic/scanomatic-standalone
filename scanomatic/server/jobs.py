@@ -115,7 +115,7 @@ class Jobs(SingeltonOneInit):
         self._forcingStop = value
 
     def _load_from_file(self):
-        jobs = load(self._paths.rpc_jobs)
+        jobs: list[rpc_job_models.RPCjobModel] = load(self._paths.rpc_jobs)
         for job in jobs:
             if job and job.content_model:
                 _, parent_pipe = Pipe()

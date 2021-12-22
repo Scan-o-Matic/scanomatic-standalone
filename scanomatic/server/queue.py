@@ -20,29 +20,27 @@ class Queue(SingeltonOneInit):
         self._paths = paths.Paths()
         self._logger = Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
-        self._queue = load(self._paths.rpc_queue)
+        self._queue: list[rpc_job_models.RPCjobModel] = load(
+            self._paths.rpc_queue,
+        )
         self._scanner_manager = ScannerPowerManager()
         self._jobs = jobs
         decorators.register_type_lock(self)
 
     @decorators.type_lock
     def __len__(self) -> int:
-
         return len(self._queue)
 
     @decorators.type_lock
     def __nonzero__(self) -> bool:
-
         return len(self._queue) != 0
 
     @decorators.type_lock
     def __contains__(self, job_id) -> bool:
-
         return any(job.id == job_id for job in self._queue)
 
     @decorators.type_lock
     def __getitem__(self, job_id):
-
         if job_id in self:
             return [job for job in self._queue if job.id == job_id][0]
         return None
@@ -54,9 +52,7 @@ class Queue(SingeltonOneInit):
 
     @decorators.type_lock
     def set_priority(self, job_id, priority):
-
         job = self[job_id]
-
         if job:
             job.priority = priority
             dump(
@@ -67,10 +63,8 @@ class Queue(SingeltonOneInit):
         return False
 
     @decorators.type_lock
-    def remove(self, job):
-
+    def remove(self, job: rpc_job_models.RPCjobModel):
         if job.id in self:
-
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
             return purge(job, self._paths.rpc_queue)
@@ -79,8 +73,10 @@ class Queue(SingeltonOneInit):
         return False
 
     @decorators.type_lock
-    def remove_and_free_potential_scanner_claim(self, job):
-
+    def remove_and_free_potential_scanner_claim(
+        self,
+        job: rpc_job_models.RPCjobModel,
+    ):
         if self.remove(job):
             if job.type is rpc_job_models.JOB_TYPE.Scan:
                 return self._scanner_manager.release_scanner(job.id)
@@ -88,8 +84,7 @@ class Queue(SingeltonOneInit):
         return False
 
     @decorators.type_lock
-    def reinstate(self, job):
-
+    def reinstate(self, job: rpc_job_models.RPCjobModel):
         if self[job.id] is None:
             job.status = rpc_job_models.JOB_STATUS.Queued
             self._queue.append(job)
@@ -103,7 +98,6 @@ class Queue(SingeltonOneInit):
 
     @decorators.type_lock
     def get_highest_priority(self):
-
         job_type = self.__next_priority_job_type
         if self._has_job_of_type(job_type):
             jobs = list(self._get_job_by_type(job_type))
@@ -158,15 +152,13 @@ class Queue(SingeltonOneInit):
 
         return self._next_priority
 
-    def _has_job_of_type(self, job_type):
-
+    def _has_job_of_type(self, job_type: rpc_job_models.JOB_TYPE):
         return any(self._get_job_by_type(job_type))
 
-    def _get_job_by_type(self, job_type):
-
+    def _get_job_by_type(self, job_type: rpc_job_models.JOB_TYPE):
         return (job for job in self._queue if job.type == job_type)
 
-    def add(self, job):
+    def add(self, job: rpc_job_models.RPCjobModel):
 
         if job.priority < 0:
 
