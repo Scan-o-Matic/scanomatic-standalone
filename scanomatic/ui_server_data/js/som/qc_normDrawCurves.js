@@ -1,6 +1,11 @@
-﻿if (!d3.scanomatic) d3.scanomatic = {};
+﻿import * as d3 from 'd3';
+import { getExtentFromMultipleArrs, getBaseLog } from './qc_normHelper';
 
-function DrawCurves(container, data, gt, gtWhen, yld) {
+if (!d3.scanomatic) {
+  d3.scanomatic = {};
+}
+
+export default function DrawCurves(container, data, gt, gtWhen, yld) {
   // GrowthChart
   const chartMarginAll = 30;
   const chartMargin = {
@@ -60,7 +65,7 @@ function DrawCurves(container, data, gt, gtWhen, yld) {
   gChart(chart);
 }
 
-d3.scanomatic.growthChart = function () {
+d3.scanomatic.growthChart = () => {
   // properties
   let data;
   let margin;
@@ -74,63 +79,6 @@ d3.scanomatic.growthChart = function () {
   // local variables
   let g;
 
-
-  function chart(container) {
-    g = container.append('g')
-      .attr({
-        transform: `translate(${margin.left},${margin.top})`,
-        class: 'PlotArea',
-      });
-    update();
-  }
-
-  chart.update = update;
-
-  function update() {
-    // data
-    const serRaw = data.raw_data;
-    const serSmooth = data.smooth_data;
-    const time = data.time_data;
-    // chart
-    const w = width - margin.left - margin.right;
-    const h = height - margin.top - margin.bottom;
-
-    if (serRaw.length !== time.length || serSmooth.length !== time.length) { throw ('GrowthData lenghts do not match!!!'); }
-
-    const odExtend = getExtentFromMultipleArrs(serRaw, serSmooth);
-
-    const rawData = getDataObject(time, serRaw);
-    const smoothData = getDataObject(time, serSmooth);
-
-    const xScale = d3.scale.linear()
-      .domain(d3.extent(time))
-      .range([0, w]);
-
-    const yScale = d3.scale.log()
-      .base(2)
-      .domain(d3.extent(odExtend))
-      .range([h, 0]);
-
-    addAxis(xScale, yScale, h);
-
-    addSeries(rawData, smoothData, xScale, yScale);
-
-    addMetaGt(smoothData, xScale, yScale);
-
-    addMetaYield(smoothData, xScale, yScale);
-
-    function getDataObject(time, value) {
-      const dataObject = [];
-      let i = 0;
-      time.forEach((timePoint) => {
-        const p = { time: timePoint, value: value[i] };
-        dataObject.push(p);
-        i += 1;
-      });
-      return dataObject;
-    }
-  }
-
   function addAxis(xScale, yScale, chartHeight) {
     const xAxis = d3.svg.axis()
       .scale(xScale)
@@ -139,7 +87,7 @@ d3.scanomatic.growthChart = function () {
     const yAxis = d3.svg.axis()
       .scale(yScale)
       .orient('left')
-    // .ticks(5)
+      // .ticks(5)
       .tickFormat(d3.format('.0e'));
 
     g.append('g')
@@ -180,6 +128,10 @@ d3.scanomatic.growthChart = function () {
         class: 'smooth',
         d: lineFun(smoothData),
       });
+  }
+
+  function getYOffset(y, offset) {
+    return (y > 100) ? y - offset : y + offset;
   }
 
   function addMetaGt(smoothData, xScale, yScale) {
@@ -237,7 +189,7 @@ d3.scanomatic.growthChart = function () {
     const leftXLimit = xScale(l);
     const logPy = getBaseLog(2, smoothGtValue);
     const yLeftLogged = logPy - (windowSize * gtSlope);
-    const yLeft = Math.pow(2, yLeftLogged);
+    const yLeft = 2 ** yLeftLogged;
     const leftYLimit = yScale(yLeft);
 
     gMetaGt.append('line')
@@ -253,7 +205,7 @@ d3.scanomatic.growthChart = function () {
     const r = parseFloat(smoothGtTime) + windowSize;
     const rightXlimit = xScale(r);
     const yRightLogged = (windowSize * gtSlope) + logPy;
-    const yRight = Math.pow(2, yRightLogged);
+    const yRight = 2 ** yRightLogged;
     const rightYLimit = yScale(yRight);
 
     gMetaGt.append('line')
@@ -311,47 +263,101 @@ d3.scanomatic.growthChart = function () {
       .text('Yield');
   }
 
-  function getYOffset(y, offset) {
-    return (y > 100) ? y - offset : y + offset;
+  function update() {
+    function getDataObject(time, value) {
+      const dataObject = [];
+      let i = 0;
+      time.forEach((timePoint) => {
+        const p = { time: timePoint, value: value[i] };
+        dataObject.push(p);
+        i += 1;
+      });
+      return dataObject;
+    }
+
+    // data
+    const serRaw = data.raw_data;
+    const serSmooth = data.smooth_data;
+    const time = data.time_data;
+    // chart
+    const w = width - margin.left - margin.right;
+    const h = height - margin.top - margin.bottom;
+
+    if (serRaw.length !== time.length || serSmooth.length !== time.length) {
+      throw Error('GrowthData lengths do not match!!!');
+    }
+
+    const odExtend = getExtentFromMultipleArrs(serRaw, serSmooth);
+
+    const rawData = getDataObject(time, serRaw);
+    const smoothData = getDataObject(time, serSmooth);
+
+    const xScale = d3.scale.linear()
+      .domain(d3.extent(time))
+      .range([0, w]);
+
+    const yScale = d3.scale.log()
+      .base(2)
+      .domain(d3.extent(odExtend))
+      .range([h, 0]);
+
+    addAxis(xScale, yScale, h);
+
+    addSeries(rawData, smoothData, xScale, yScale);
+
+    addMetaGt(smoothData, xScale, yScale);
+
+    addMetaYield(smoothData, xScale, yScale);
   }
 
-  chart.data = function (value) {
+  function chart(container) {
+    g = container.append('g')
+      .attr({
+        transform: `translate(${margin.left},${margin.top})`,
+        class: 'PlotArea',
+      });
+    update();
+  }
+
+  chart.update = update;
+
+  chart.data = (value) => {
     if (!arguments.length) return data;
     data = value;
     return chart;
   };
 
-  chart.margin = function (value) {
+  chart.margin = (value) => {
     if (!arguments.length) return margin;
     margin = value;
     return chart;
   };
 
-  chart.width = function (value) {
+  chart.width = (value) => {
     if (!arguments.length) return width;
     width = value;
     return chart;
   };
 
-  chart.height = function (value) {
+  chart.height = (value) => {
     if (!arguments.length) return height;
     height = value;
     return chart;
   };
 
-  chart.generationTimeWhen = function (value) {
+  chart.generationTimeWhen = (value) => {
     if (!arguments.length) return generationTimeWhen;
     generationTimeWhen = value;
     return chart;
   };
 
-  chart.generationTime = function (value) {
+  chart.generationTime = (value) => {
     if (!arguments.length) return generationTime;
     generationTime = value;
     return chart;
   };
 
-  chart.growthYield = function (value) {
+  chart.growthYield = (value) => {
     if (!arguments.length) return growthYield;
     growthYield = value;
     return chart;

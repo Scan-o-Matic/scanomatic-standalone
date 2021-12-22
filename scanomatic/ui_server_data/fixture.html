@@ -11,19 +11,19 @@
   <script src="/js/grayscales.js?ver=_-_VERSIONTAG_-_"></script>
   <script src="/js/fixtures.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
-    current_fixture_id = "#current-fixture";
-    new_fixture_data_id = "#new-fixture-data";
-    new_fixture_detect_id = "#new-fixture-detect";
-    new_fixture_image_id = "#new-fixture-image";
-    new_fixture_markers_id = "#new-fixture-markers";
-    new_fixture_name = "#new-fixture-name";
-    selected_fixture_div_id = "#selected-fixture";
-    selected_fixture_canvas_id = '#selected-fixture-canvas';
-    fixture_name_id = "#selected-fixture-name";
-    save_fixture_action_id = "#update-type";
-    save_fixture_button = "#submit-button";
-    remove_fixture_id = "#remove-button";
-    grayscale_type_id = "#grayscale";
+    currentFixtureId = "#current-fixture";
+    newFixtureData_id = "#new-fixture-data";
+    newFixtureDetect_id = "#new-fixture-detect";
+    newFixtureImage_id = "#new-fixture-image";
+    newFixtureMarkers_id = "#new-fixture-markers";
+    newFixtureName = "#new-fixture-name";
+    selectedFixtureDivId = "#selected-fixture";
+    selectedFixtureCanvasId = '#selected-fixture-canvas';
+    fixtureNameId = "#selected-fixture-name";
+    saveFixtureActionId = "#update-type";
+    saveFixtureButton = "#submit-button";
+    removeFixtureId = "#remove-button";
+    grayscaleTypeId = "#grayscale";
   </script>
 </head>
 <body>
@@ -36,9 +36,9 @@
         Select:
       </label>
       <select name="current-fixtures" id="current-fixture"
-        onchange="get_fixture();"></select>
+        onchange="getFixture();"></select>
       <input name="add-fixture" id="add-fixture"
-        onclick="add_fixture()"  type="button" value="Add new..."/>
+        onclick="addFixture()"  type="button" value="Add new..."/>
     </div>
 
     <div id="new-fixture-data" class="section">
@@ -65,7 +65,7 @@
           </label>
           <input type="number" value="3" name="new-fixture-markers" id="new-fixture-markers" min="3" max="7"/>
           <button type="button" id="new-fixture-detect"
-              onclick="detect_markers()">
+              onclick="detectMarkers()">
             Detect
           </button>
         </li>
@@ -84,7 +84,7 @@
       <input type="hidden" name="update-type" id='update-type' value="update"/>
       <div>
         <button type="button" id="clear-areas"
-            onclick="clearAreas();draw_fixture();selected_fixture_canvas_jq.focus();">
+            onclick="clearAreas();drawFixture();selectedFixtureCanvasJq.focus();">
           Clear All Areas
         </button>
         <label for="grayscale">
@@ -104,8 +104,8 @@
 
     <script>
       LoadGrayscales();
-      get_fixtures();
-      set_canvas();
+      getFixtures();
+      setCanvas();
     </script>
 
   </form>

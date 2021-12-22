@@ -1,5 +1,4 @@
-
-class API {
+export class API {
   static get(url) {
     return new Promise((resolve, reject) => $.ajax({
       url,
@@ -36,7 +35,7 @@ class API {
   }
 }
 
-function get_path_suggestions(input, isDirectory, suffix, suffix_pattern, callback, prefix, checkHasAnalysis) {
+export function getPathSuggestions(input, isDirectory, suffix, suffixPattern, callback, prefix, checkHasAnalysis) {
   if (suffix === undefined) { suffix = ''; }
 
   let url;
@@ -59,28 +58,29 @@ function get_path_suggestions(input, isDirectory, suffix, suffix_pattern, callba
     (data, status) => {
       const val = $(input).val();
       if (prefix) {
-        start_index = (`root/${prefix.replace(/^\/?|\/?$/, '')}`).length;
+        const startIndex = (`root/${prefix.replace(/^\/?|\/?$/, '')}`).length;
         for (let i = 0; i < data.suggestions.length; i += 1) {
-          data.suggestions[i] = data.suggestions[i].substring(start_index, data.suggestions[i].length);
+          data.suggestions[i] = data.suggestions[i].substring(startIndex, data.suggestions[i].length);
         }
       }
 
-      if (suffix_pattern != null) {
-        filtered = [];
-        filtered_is_directories = [];
-        i = data.suggestions.length;
-        while (i--) {
-          if (data.suggestion_is_directories[i] || suffix_pattern.test(data.suggestions[i])) {
+      if (suffixPattern != null) {
+        const filtered = [];
+        const filteredIsDirectories = [];
+        let i = data.suggestions.length;
+        while (i !== 0) {
+          i -= 1;
+          if (data.suggestion_is_directories[i] || suffixPattern.test(data.suggestions[i])) {
             filtered.push(data.suggestions[i]);
-            filtered_is_directories.push(data.suggestion_is_directories[i]);
+            filteredIsDirectories.push(data.suggestion_is_directories[i]);
           }
         }
         data.suggestions = filtered;
-        data.suggestion_is_directories = filtered_is_directories;
+        data.suggestion_is_directories = filteredIsDirectories;
       }
 
       $(input).autocomplete({ source: data.suggestions });
-      if (prefix == undefined && (val == '' || (data.path == 'root/' && val.length < data.path.length))) {
+      if (prefix == null && (val === '' || (data.path === 'root/' && val.length < data.path.length))) {
         $(input).val(data.path);
       }
 
@@ -89,20 +89,23 @@ function get_path_suggestions(input, isDirectory, suffix, suffix_pattern, callba
   );
 }
 
-function clamp(value, min, max) {
-  return value == null ? min : (isNaN(value) ? max : Math.max(Math.min(value, max), min));
+export function clamp(value, min, max) {
+  if (value == null) {
+    return min;
+  }
+  return Math.isNaN(value) ? max : Math.max(Math.min(value, max), min);
 }
 
-function GetMousePosRelative(event, obj) {
+export function getMousePosRelative(event, obj) {
   return { x: event.pageX - obj.offset().left, y: event.pageY - obj.offset().top };
 }
 
-function isInt(value) {
-  return !isNaN(value) &&
-         parseInt(Number(value)) === value && !isNaN(parseInt(value, 10));
+export function isInt(value) {
+  return !Math.isNaN(value) &&
+         parseInt(Number(value), 10) === value && !Math.isNaN(parseInt(value, 10));
 }
 
-function InputEnabled(obj, isEnabled) {
+export function InputEnabled(obj, isEnabled) {
   if (isEnabled) {
     obj.removeAttr('disabled');
   } else {
@@ -110,11 +113,11 @@ function InputEnabled(obj, isEnabled) {
   }
 }
 
-function unselect(target) {
+export function unselect(target) {
   target.val('');
 }
 
-function get_fixture_as_name(fixture) {
+export function getFixtureAsName(fixture) {
   return fixture.replace(/_/g, ' ')
     .replace(/[^ a-zA-Z0-9]/g, '')
     .replace(
@@ -123,22 +126,22 @@ function get_fixture_as_name(fixture) {
     );
 }
 
-function get_fixture_from_name(fixture) {
+export function getFixtureFromName(fixture) {
   return `${fixture.replace(/ /g, '_')
     .replace(/[A-Z]/g, $1 => $1.toLowerCase())
     .replace(/[^a-z1-9_]/g, '')}.config`;
 }
 
-function Execute(idOrClass, methodName) {
+export function Execute(idOrClass, methodName) {
   $(idOrClass).each((i, obj) => {
     methodName($(obj));
   });
 }
 
-function Dialogue(title, body_header, body, redirect, reactivate_button) {
+export function Dialogue(title, bodyHeader, body, redirect, reactivateButton) {
   $('<div class=\'dialog\'></div>').appendTo('body')
     .prop('title', title)
-    .html(`<div>${body_header != null ? (`<h3>${body_header}</h3>`) : ''}${body != null ? body : ''}</div>`)
+    .html(`<div>${bodyHeader != null ? (`<h3>${bodyHeader}</h3>`) : ''}${body != null ? body : ''}</div>`)
     .dialog({
       modal: true,
       buttons: {
@@ -147,21 +150,21 @@ function Dialogue(title, body_header, body, redirect, reactivate_button) {
         },
       },
     })
-    .on('dialogclose', (event) => {
+    .on('dialogclose', () => {
       if (redirect) { location.href = redirect; }
-      if (reactivate_button) { InputEnabled($(reactivate_button), true); }
+      if (reactivateButton) { InputEnabled($(reactivateButton), true); }
     });
 }
 
-function Map(arr, lambda_func) {
-  new_arr = [];
+export function Map(arr, lambdaFunc) {
+  const newArray = [];
   for (let i = 0; i < arr.length; i += 1) {
-    new_arr[i] = lambda_func(arr[i]);
+    newArray[i] = lambdaFunc(arr[i]);
   }
-  return new_arr;
+  return newArray;
 }
 
-function setVersionInformation(target, preface) {
+export function setVersionInformation(target, preface) {
   API.get('/api/app/version')
     .then((data) => {
       let branch = '';

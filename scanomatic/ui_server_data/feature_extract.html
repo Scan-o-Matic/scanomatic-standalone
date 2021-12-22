@@ -10,7 +10,7 @@
   <script src="/js/fixtures.js?ver=_-_VERSIONTAG_-_"></script>
   <script src="/js/analysis.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
-    current_fixture_id = "#current-fixture";
+    currentFixtureId = "#current-fixture";
   </script>
   <title>Scan-o-Matic</title>
 </head>
@@ -24,9 +24,9 @@
           Analysis folder
         </label>
         <input name="extract" id="extract" class="long"
-          onchange="set_analysis_directory(this, true);"
-          onfocus="set_analysis_directory(this, true);"
-          onkeyup="set_analysis_directory(this, true);"/>
+          onchange="setAnalysisDirectory(this, true);"
+          onfocus="setAnalysisDirectory(this, true);"
+          onkeyup="setAnalysisDirectory(this, true);"/>
 
         <div class="indented"><em>
           The analysis folder is the folder produced by the above

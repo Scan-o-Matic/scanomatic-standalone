@@ -10,7 +10,7 @@
   <script src="/js/fixtures.js?ver=_-_VERSIONTAG_-_"></script>
   <script src="/js/compile.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
-    current_fixture_id = "#current-fixture";
+    currentFixtureId = "#current-fixture";
   </script>
   <title>Scan-o-Matic</title>
 </head>
@@ -31,16 +31,16 @@
             </label>
           </div>
           <label for="current-fixture"></label>
-          <select name="current-fixtures" id="current-fixture" onchange="set_fixture_status();"></select>
+          <select name="current-fixtures" id="current-fixture" onchange="setFixtureStatus();"></select>
           <br>
           <div class="error-message" id="fixture-error-message"></div>
         </div>
         <div class="section">
           <label for="project-directory">Project Directory</label>
           <input id="project-directory" name="project-directory" class="long"
-            onchange="set_project_directory(this);"
-            onfocus="set_project_directory(this);"
-            onkeyup="set_project_directory(this);"/>
+            onchange="setProjectDirectory(this);"
+            onfocus="setProjectDirectory(this);"
+            onkeyup="setProjectDirectory(this);"/>
           <div class="indented" id="project-directory-info"><em>
             The project directory is the directory that contains
             the images that were scanned.
@@ -88,7 +88,7 @@
     manual_btn = $('#manual-selection');
     InputEnabled(manual_btn, false);
     toggleManualSelectionBtn(manual_btn);
-    get_fixtures();
+    getFixtures();
     compileToggleLocalFixture("#local-fixture");
     InputEnabled($("#submit-button"), false);
   </script>

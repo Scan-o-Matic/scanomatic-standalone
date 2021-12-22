@@ -12,7 +12,7 @@
   <script src="/js/experiment.js?ver=_-_VERSIONTAG_-_"></script>
   <script src="/js/calibration.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
-    current_fixture_id = "#current-fixture";
+    currentFixtureId = "#current-fixture";
     current_scanner_id = "#current-scanner";
   </script>
   <title>Scan-o-Matic</title>
@@ -29,9 +29,9 @@
             <td><label for="project-path">Project Path</label></td>
             <td colspan="5">
               <input class='long' id="project-path" name="project-path"
-                onchange="set_experiment_root(this); validate_experiment();"
-                onfocus="set_experiment_root(this);"
-                onkeyup="set_experiment_root(this);"/>
+                onchange="setExperimentRoot(this); validateExperiment();"
+                onfocus=" setExperimentRoot(this);"
+                onkeyup=" setExperimentRoot(this);"/>
             </td>
           </tr>
           <tr>
@@ -49,7 +49,7 @@
             </label></td>
             <td colspan="5">
               <textarea id="project-description" name="project-description"
-                onchange="validate_experiment();"></textarea>
+                onchange="validateExperiment();"></textarea>
             </td>
           </tr>
           <tr>
@@ -77,14 +77,14 @@
             <td><label for="current-scanner">
               Scanner:
             </label></td>
-            <td><select name="current-scanner" id="current-scanner" onchange="validate_experiment();"></select></td>
+            <td><select name="current-scanner" id="current-scanner" onchange="validateExperiment();"></select></td>
           </tr>
 
           <tr>
             <td><label for="current-fixture">
               Fixture:
             </label></td>
-            <td><select name="current-fixtures" id="current-fixture" onchange="update_fixture(this);"></select></td>
+            <td><select name="current-fixtures" id="current-fixture" onchange="updateFixture(this);"></select></td>
           </tr>
         </table>
       </div>
@@ -99,9 +99,9 @@
             </label></td>
             <td>
               <input id="project-duration" name="project-duration" class="medium-long"
-                onchange="format_time(this);
-                update_scans('#project-scans');
-                validate_experiment();"/>
+                onchange="formatTime(this);
+                updateScans('#project-scans');
+                validateExperiment();"/>
             </td>
           </tr>
 
@@ -111,9 +111,9 @@
             </label></td>
             <td>
               <input id="project-interval" name="project-interval" class="medium-long"
-                onchange="format_minutes(this);
-                update_scans('#project-scans');
-                validate_experiment();"/>
+                onchange="formatMinutes(this);
+                updateScans('#project-scans');
+                validateExperiment();"/>
             </td>
           </tr>
           <tr>
@@ -294,13 +294,13 @@
   </div>
   <script>
     $(document).ready(() => {
-    set_poetry("#project-description");
-    format_time("#project-duration");
-    format_minutes("#project-interval");
-    update_scans("#project-scans");
-    set_experiment_root("#project-path");
-    get_free_scanners(current_scanner_id);
-    get_fixtures();
+    setPoetry("#project-description");
+    formatTime("#project-duration");
+    formatMinutes("#project-interval");
+    updateScans("#project-scans");
+    setExperimentRoot("#project-path");
+    getFreeScanners(current_scanner_id);
+    getFixtures();
     InputEnabled($("#submit-button"), false);
     createSelector($('#ccc-selection'));
     });

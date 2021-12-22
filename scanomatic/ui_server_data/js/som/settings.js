@@ -1,12 +1,14 @@
+import { API, Dialogue, InputEnabled } from './helpers';
+
 let pmType;
 
-function toggleVisibilities(button, state) {
+export function toggleVisibilities(button, state) {
   $(button).parent().nextAll().css('display', state ? '' : 'none');
   $('#scanner_section').css('display', $(button).val() !== 'notInstalled' ? '' : 'none');
   pmType = $(button).val();
 }
 
-function dynamicallyLimitScanners(button) {
+export function dynamicallyLimitScanners(button) {
   const numOfScanners = $('#number_of_scanners');
   const maxVal = $(button).val();
   numOfScanners.attr('max', maxVal);
@@ -15,7 +17,7 @@ function dynamicallyLimitScanners(button) {
   }
 }
 
-function UpdateSettings(button) {
+export function UpdateSettings(button) {
   InputEnabled($(button), false);
 
   const data = {
