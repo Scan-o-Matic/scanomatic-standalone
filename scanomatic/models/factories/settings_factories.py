@@ -1,7 +1,10 @@
-from typing import Any, Type, cast
-from scanomatic.generics.model import Model
+from typing import Any, cast
+
 import scanomatic.models.settings_models as settings_models
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory, SubFactoryDict
+from scanomatic.generics.abstract_model_factory import (
+    AbstractModelFactory,
+    SubFactoryDict,
+)
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 

@@ -4,7 +4,7 @@ import re
 
 import numpy as np
 from matplotlib import pyplot as plt
-from scanomatic.io.jsonizer import load  # type: ignore
+from scanomatic.io.jsonizer import load
 
 from scanomatic.io.movie_writer import MovieWriter
 

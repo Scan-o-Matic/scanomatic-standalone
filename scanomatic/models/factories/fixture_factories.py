@@ -7,7 +7,6 @@ from scanomatic.generics.abstract_model_factory import (
     float_list_serializer,
     rename_setting
 )
-from scanomatic.generics.model import Model
 from scanomatic.models.fixture_models import (
     FixtureModel,
     FixturePlateModel,

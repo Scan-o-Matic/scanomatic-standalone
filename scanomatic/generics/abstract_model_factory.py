@@ -389,19 +389,6 @@ class AbstractModelFactory:
         return model_as_dict
 
     @classmethod
-    def set_default(
-        cls,
-        model: Model,
-        fields: Optional[Sequence[str]] = None,
-    ) -> None:
-        if cls.verify_correct_model(model):
-            default_model = cls.MODEL()
-
-            for attr, val in default_model:
-                if (fields is None or attr in fields):
-                    setattr(model, attr, val)
-
-    @classmethod
     def populate_with_default_submodels(cls, obj: Union[dict, Model]) -> None:
         """Keys missing models/having None will get default instances of that
         field if possible."""

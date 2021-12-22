@@ -1,5 +1,5 @@
 import os
-from typing import Mapping
+from typing import Mapping, Optional
 from collections.abc import Sequence
 
 import scanomatic.models.analysis_model as analysis_model
@@ -97,6 +97,23 @@ class AnalysisModelFactory(AbstractModelFactory):
             'cell_count_calibration',
         ))
         return super().all_keys_valid(keys)
+
+    @classmethod
+    def set_default(
+        cls,
+        model: analysis_model.AnalysisModel,
+        fields: Optional[list[analysis_model.AnalysisModelFields]] = None,
+    ) -> None:
+        if cls.verify_correct_model(model):
+            default_model = cls.MODEL()
+
+            for attr, val in default_model:
+                try:
+                    field = analysis_model.AnalysisModelFields[attr]
+                    if (fields is None or field in fields):
+                        setattr(model, attr, val)
+                except KeyError:
+                    pass
 
 
 class AnalysisFeaturesFactory(AbstractModelFactory):

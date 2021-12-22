@@ -12,7 +12,6 @@ from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory,
-    RPCServerFactory
 )
 from scanomatic.models.settings_models import (
     ApplicationSettingsModel,

@@ -11,7 +11,7 @@ from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
 from scanomatic.io.jsonizer import copy, dump, load_first
 from scanomatic.io.paths import Paths
-from scanomatic.models.analysis_model import AnalysisModel
+from scanomatic.models.analysis_model import AnalysisModel, AnalysisModelFields
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.features_factory import FeaturesFactory
@@ -435,7 +435,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if not self._analysis_job.output_directory:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                ["output_directory"],
+                [AnalysisModelFields.output_directory],
             )
             self._logger.info(
                 "Using default '{0}' output directory".format(
@@ -494,10 +494,10 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if not self._analysis_job.image_data_output_measure:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                ["image_data_output_measure"],
+                [AnalysisModelFields.image_data_output_measure],
             )
         if not self._analysis_job.image_data_output_item:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                ["image_data_output_item"],
+                [AnalysisModelFields.image_data_output_item],
             )

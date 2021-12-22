@@ -144,7 +144,9 @@ class ScanningModel(model.Model):
         self.directory_containing_project: str = directory_containing_project
         self.id: str = id
         self.description: str = description
-        self.plate_descriptions: tuple[PlateDescription, ...] = plate_descriptions
+        self.plate_descriptions: tuple[PlateDescription, ...] = (
+            plate_descriptions
+        )
         self.email: str = email
         self.pinning_formats: tuple[tuple[int, int], ...] = pinning_formats
         self.fixture: str = fixture
