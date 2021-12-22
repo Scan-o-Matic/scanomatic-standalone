@@ -73,6 +73,19 @@ def is_int_positive_or_neg_one(obj: Any, allow_zero: bool = False) -> bool:
     return False
 
 
+def in_bounds(model, lower_bounds, upper_bounds, attr: str) -> bool:
+    val = getattr(model, attr)
+    min_val = getattr(lower_bounds, attr)
+    max_val = getattr(upper_bounds, attr)
+
+    if min_val is not None and val < min_val:
+        return False
+    elif max_val is not None and val > max_val:
+        return False
+    else:
+        return True
+
+
 def correct_type_and_in_bounds(
     model: Model,
     attr: Enum,
@@ -92,18 +105,5 @@ def correct_type_and_in_bounds(
     ):
         return attr
 
-    else:
-        return True
-
-
-def in_bounds(model, lower_bounds, upper_bounds, attr: str) -> bool:
-    val = getattr(model, attr)
-    min_val = getattr(lower_bounds, attr)
-    max_val = getattr(upper_bounds, attr)
-
-    if min_val is not None and val < min_val:
-        return False
-    elif max_val is not None and val > max_val:
-        return False
     else:
         return True
