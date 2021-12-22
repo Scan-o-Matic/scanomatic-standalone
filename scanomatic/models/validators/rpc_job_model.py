@@ -1,36 +1,47 @@
-from scanomatic.models.rpc_job_models import JOB_STATUS, JOB_TYPE, RPCjobModel
+from typing import Literal, Union
+
+from scanomatic.models.rpc_job_models import (
+    JOB_STATUS,
+    JOB_TYPE,
+    RPCjobModel,
+    RPCjobModelFields,
+)
+
+ValidationResult = Union[Literal[True], RPCjobModelFields]
 
 
-def validate_pid(model: RPCjobModel):
+def validate_pid(model: RPCjobModel) -> ValidationResult:
     if model.pid is None or isinstance(model.pid, int) and model.pid > 0:
         return True
 
-    return model.FIELD_TYPES.pid
+    return RPCjobModelFields.pid
 
 
-def validate_id(model: RPCjobModel):
+def validate_id(model: RPCjobModel) -> ValidationResult:
     if isinstance(model.id, str):
         return True
-    return model.FIELD_TYPES.id
+    return RPCjobModelFields.id
 
 
-def validate_type(model: RPCjobModel):
+def validate_type(model: RPCjobModel) -> ValidationResult:
     if model.type in JOB_TYPE:
         return True
-    return model.FIELD_TYPES.type
+    return RPCjobModelFields.type
 
 
-def validate_priority(model: RPCjobModel):
-    return isinstance(model.priority, int)
+def validate_priority(model: RPCjobModel) -> ValidationResult:
+    if isinstance(model.priority, int):
+        return True
+    return RPCjobModelFields.priority
 
 
-def validate_status(model: RPCjobModel):
+def validate_status(model: RPCjobModel) -> ValidationResult:
     if model.status in JOB_STATUS:
         return True
-    return model.FIELD_TYPES.model
+    return RPCjobModelFields.status
 
 
-def validate_content_model(model: RPCjobModel):
+def validate_content_model(model: RPCjobModel) -> ValidationResult:
     if model.content_model is not None:
         return True
-    return model.FIELD_TYPES.content_model
+    return RPCjobModelFields.content_model

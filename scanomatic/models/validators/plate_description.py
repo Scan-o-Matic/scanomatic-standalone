@@ -1,22 +1,29 @@
-from scanomatic.models.scanning_model import PlateDescription
+from typing import Literal, Union
+
+from scanomatic.models.scanning_model import (
+    PlateDescription,
+    PlateDescriptionFields,
+)
+
+ValidationResult = Union[Literal[True], PlateDescriptionFields]
 
 
-def validate_index(model: PlateDescription):
+def validate_index(model: PlateDescription) -> ValidationResult:
     if not isinstance(model.index, int):
-        return model.FIELD_TYPES.index
+        return PlateDescriptionFields.index
     elif model.index >= 0:
         return True
     else:
-        return model.FIELD_TYPES.index
+        return PlateDescriptionFields.index
 
 
-def validate_name(model: PlateDescription):
+def validate_name(model: PlateDescription) -> ValidationResult:
     if isinstance(model.name, str):
         return True
-    return model.FIELD_TYPES.name
+    return PlateDescriptionFields._name
 
 
-def validate_description(model: PlateDescription):
+def validate_description(model: PlateDescription) -> ValidationResult:
     if isinstance(model.description, str):
         return True
-    return model.FIELD_TYPES.description
+    return PlateDescriptionFields.description

@@ -428,7 +428,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         remove_state_from_path(self._analysis_job.output_directory)
 
     def setup(self, *_):
-        assert self._analysis_job.FIELD_TYPES is not None
         if self._running:
             self.add_message("Cannot change settings while running")
             return
@@ -436,7 +435,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if not self._analysis_job.output_directory:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.output_directory],
+                ["output_directory"],
             )
             self._logger.info(
                 "Using default '{0}' output directory".format(
@@ -492,14 +491,13 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._stopping = True
 
     def ensure_default_values_if_missing(self):
-        assert self._analysis_job.FIELD_TYPES is not None
         if not self._analysis_job.image_data_output_measure:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_measure],
+                ["image_data_output_measure"],
             )
         if not self._analysis_job.image_data_output_item:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_item],
+                ["image_data_output_item"],
             )

@@ -1,27 +1,27 @@
-from enum import Enum
 from typing import Literal, Union
 
-from scanomatic.models.analysis_model import GridModel
+from scanomatic.models.analysis_model import GridModel, GridModelFields
 
-ValidationResult = Union[Literal[True], Enum]
+
+ValidationResult = Union[Literal[True], GridModelFields]
 
 
 def validate_use_utso(model: GridModel) -> ValidationResult:
     if isinstance(model.use_utso, bool):
         return True
-    return model.FIELD_TYPES.use_otsu
+    return GridModelFields.use_utso
 
 
 def validate_median_coefficient(model: GridModel) -> ValidationResult:
     if isinstance(model.median_coefficient, float):
         return True
-    return model.FIELD_TYPES.median_coefficient
+    return GridModelFields.median_coefficient
 
 
 def validate_manual_threshold(model: GridModel) -> ValidationResult:
     if isinstance(model.manual_threshold, float):
         return True
-    return model.FIELD_TYPES.manual_threshold
+    return GridModelFields.manual_threshold
 
 
 def validate_grid_offsets(model: GridModel) -> ValidationResult:
@@ -45,4 +45,4 @@ def validate_grid_offsets(model: GridModel) -> ValidationResult:
     except (TypeError, IndexError):
         pass
 
-    return model.FIELD_TYPES.gridding_offsets
+    return GridModelFields.gridding_offsets

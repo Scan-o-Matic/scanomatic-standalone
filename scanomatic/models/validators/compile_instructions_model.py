@@ -1,26 +1,30 @@
 import os
+from typing import Literal, Union
 
 from scanomatic.data_processing.calibration import get_active_cccs
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
     FIXTURE,
-    CompileInstructionsModel
+    CompileInstructionsModel,
+    CompileInstructionsModelFields,
 )
+
+ValidationResult = Union[Literal[True], CompileInstructionsModelFields]
 
 
 def validate_images(
     model: CompileInstructionsModel,
-):
+) -> ValidationResult:
     if model.images:
         return True
     else:
-        return model.FIELD_TYPES.images
+        return CompileInstructionsModel.images
 
 
 def validate_path(
     model: CompileInstructionsModel,
-):
+) -> ValidationResult:
     basename = os.path.basename(model.path)
     dirname = os.path.dirname(model.path)
     if (
@@ -30,10 +34,10 @@ def validate_path(
         and basename
     ):
         return True
-    return model.FIELD_TYPES.path
+    return CompileInstructionsModel.path
 
 
-def validate_fixture(model: CompileInstructionsModel):
+def validate_fixture(model: CompileInstructionsModel) -> ValidationResult:
     if model.fixture_type is FIXTURE.Local:
         if os.path.isfile(
             os.path.join(
@@ -43,17 +47,19 @@ def validate_fixture(model: CompileInstructionsModel):
         ):
             return True
         else:
-            return model.FIELD_TYPES.fixture_type
+            return CompileInstructionsModel.fixture_type
     elif model.fixture_type is FIXTURE.Global:
         if model.fixture_name in Fixtures():
             return True
         else:
-            return model.FIELD_TYPES.fixture_name
+            return CompileInstructionsModel.fixture_name
     else:
-        return model.FIELD_TYPES.fixture_type
+        return CompileInstructionsModel.fixture_type
 
 
-def validate_cell_count_calibration_id(model: CompileInstructionsModel):
+def validate_cell_count_calibration_id(
+    model: CompileInstructionsModel,
+) -> ValidationResult:
     if model.cell_count_calibration_id in get_active_cccs():
         return True
-    return model.FIELD_TYPES.cell_count_calibration
+    return CompileInstructionsModel.cell_count_calibration

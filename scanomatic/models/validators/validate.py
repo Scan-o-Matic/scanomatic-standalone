@@ -4,6 +4,7 @@ from typing import Literal, Union
 
 from scanomatic.generics.model import Model
 from scanomatic.models.factories.factory_lookup import get_factory
+from scanomatic.models.fields_lookup import get_field_types
 
 from .validation_lookup import get_special_validators
 
@@ -13,10 +14,11 @@ ValidationResults = Iterator[Union[Literal[True], Enum]]
 def _get_validation_results(model: Model) -> ValidationResults:
     module = get_special_validators(model)
     factory = get_factory(model)
+    fields = get_field_types(model)
     # generate validation results for sub-models
     for k in model.keys():
         if factory is None:
-            yield model.FIELD_TYPES[k]
+            yield fields["_name" if k == "name" else k]
             continue
         should_verify, sub_validation = factory.contains_model_type(k)
         if not should_verify or sub_validation is None:
@@ -27,11 +29,11 @@ def _get_validation_results(model: Model) -> ValidationResults:
         if isinstance(sub_validation, dict):
             if (item_type in sub_validation and validate(item)):
                 yield True
-            yield model.FIELD_TYPES[k]
+            yield fields["_name" if k == "name" else k]
         else:
             if len(sub_validation) == 2:
                 if not isinstance(item, sub_validation[0]):
-                    yield model.FIELD_TYPES[k]
+                    yield fields["_name" if k == "name" else k]
                 else:
                     leaf_type = sub_validation[1]
                     if isinstance(leaf_type, dict):
@@ -40,7 +42,7 @@ def _get_validation_results(model: Model) -> ValidationResults:
                                 continue
                             i_type = type(i)
                             if (i_type not in leaf_type and validate(i)):
-                                yield model.FIELD_TYPES[k]
+                                yield fields["_name" if k == "name" else k]
                                 break
 
     # generate specific validation results

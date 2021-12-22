@@ -285,11 +285,7 @@ def _merge(model: Model, update: Model) -> bool:
     return False
 
 
-M = TypeVar[Model]
-M2 = TypeVar[Model]
-
-
-def merge_into(model: Optional[M], update: M2) -> Union[M, M2]:
+def merge_into(model: Optional[Model], update: Model) -> Model:
     if model is None or type(model) == type(update):
         return update
     if not _merge(model, update):

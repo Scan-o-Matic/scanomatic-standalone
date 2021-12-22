@@ -1,11 +1,15 @@
 import os
+from typing import Literal, Union
 
-from scanomatic.models.features_model import FeaturesModel
+from scanomatic.models.features_model import FeaturesModel, FeaturesModelFields
 
 
-def validate_analysis_directory(model: FeaturesModel):
+ValidationResult = Union[Literal[True], FeaturesModelFields]
+
+
+def validate_analysis_directory(model: FeaturesModel) -> ValidationResult:
     if not isinstance(model.analysis_directory, str):
-        return model.FIELD_TYPES.analysis_directory
+        return FeaturesModelFields.analysis_directory
 
     analysis_directory = model.analysis_directory.rstrip("/")
     if (
@@ -13,6 +17,4 @@ def validate_analysis_directory(model: FeaturesModel):
         and os.path.isdir(model.analysis_directory)
     ):
         return True
-    if model.FIELD_TYPES is None:
-        raise ValueError("Model not initialized properly")
-    return model.FIELD_TYPES.analysis_directory
+    return FeaturesModelFields.analysis_directory

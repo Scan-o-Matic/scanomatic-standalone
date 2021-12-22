@@ -1,7 +1,8 @@
 import os
+from typing import Literal, Union
 
 from scanomatic.data_processing.calibration import get_active_cccs
-from scanomatic.models.analysis_model import AnalysisModel
+from scanomatic.models.analysis_model import AnalysisModel, AnalysisModelFields
 from scanomatic.models.validators.tools import (
     is_coordinates,
     is_file,
@@ -11,52 +12,54 @@ from scanomatic.models.validators.tools import (
     is_tuple_or_list
 )
 
+ValidationResult = Union[Literal[True], AnalysisModelFields]
 
-def validate_compilation_file(model: AnalysisModel):
+
+def validate_compilation_file(model: AnalysisModel) -> ValidationResult:
     if (
         is_file(model.compilation)
         and os.path.abspath(model.compilation) == model.compilation
     ):
         return True
-    return model.FIELD_TYPES.compilation
+    return AnalysisModelFields.compilation
 
 
 def validate_compilation_instructions_file(
     model: AnalysisModel,
-):
+) -> ValidationResult:
     if (
         model.compile_instructions in (None, "")
         or is_file(model.compile_instructions)
     ):
         return True
-    return model.FIELD_TYPES.compile_instructions
+    return AnalysisModelFields.compile_instructions
 
 
-def validate_pinning_matrices(model: AnalysisModel):
+def validate_pinning_matrices(model: AnalysisModel) -> ValidationResult:
     if is_pinning_formats(model.pinning_matrices):
         return True
-    return model.FIELD_TYPES.pinning_matrices
+    return AnalysisModelFields.pinning_matrices
 
 
-def validate_use_local_fixture(model: AnalysisModel):
+def validate_use_local_fixture(model: AnalysisModel) -> ValidationResult:
     if isinstance(model.use_local_fixture, bool):
         return True
-    return model.FIELD_TYPES.use_local_fixture
+    return AnalysisModelFields.use_local_fixture
 
 
-def validate_stop_at_image(model: AnalysisModel):
+def validate_stop_at_image(model: AnalysisModel) -> ValidationResult:
     if isinstance(model.stop_at_image, int):
         return True
-    return model.FIELD_TYPES.stop_at_image
+    return AnalysisModelFields.stop_at_image
 
 
-def validate_output_directory(model: AnalysisModel):
+def validate_output_directory(model: AnalysisModel) -> ValidationResult:
     if is_safe_path(model.output_directory):
         return True
-    return model.FIELD_TYPES.output_directory
+    return AnalysisModelFields.output_directory
 
 
-def validate_focus_position(model: AnalysisModel):
+def validate_focus_position(model: AnalysisModel) -> ValidationResult:
     if model.focus_position is None:
         return True
 
@@ -79,22 +82,22 @@ def validate_focus_position(model: AnalysisModel):
             )
         ):
             return True
-    return model.FIELD_TYPES.focus_position
+    return AnalysisModelFields.focus_position
 
 
-def validate_suppress_non_focal(model: AnalysisModel):
+def validate_suppress_non_focal(model: AnalysisModel) -> ValidationResult:
     if isinstance(model.suppress_non_focal, bool):
         return True
-    return model.FIELD_TYPES.suppress_non_focal
+    return AnalysisModelFields.suppress_non_focal
 
 
-def validate_animate_focal(model: AnalysisModel):
+def validate_animate_focal(model: AnalysisModel) -> ValidationResult:
     if isinstance(model.animate_focal, bool):
         return True
-    return model.FIELD_TYPES.animate_focal
+    return AnalysisModelFields.animate_focal
 
 
-def validate_grid_images(model: AnalysisModel):
+def validate_grid_images(model: AnalysisModel) -> ValidationResult:
     if (
         model.grid_images is None
         or (
@@ -106,20 +109,20 @@ def validate_grid_images(model: AnalysisModel):
         )
     ):
         return True
-    return model.FIELD_TYPES.grid_images
+    return AnalysisModelFields.grid_images
 
 
 def validate_cell_count_calibration_id(
     model: AnalysisModel,
-):
+) -> ValidationResult:
     if model.cell_count_calibration_id in get_active_cccs():
         return True
-    return model.FIELD_TYPES.cell_count_calibration_id
+    return AnalysisModelFields.cell_count_calibration_id
 
 
 def validate_cell_count_calibration(
     model: AnalysisModel,
-):
+) -> ValidationResult:
     if (
         is_tuple_or_list(model.cell_count_calibration)
         and all(
@@ -128,4 +131,4 @@ def validate_cell_count_calibration(
         )
     ):
         return True
-    return model.FIELD_TYPES.cell_count_calibration
+    return AnalysisModelFields.cell_count_calibration

@@ -75,28 +75,28 @@ def is_int_positive_or_neg_one(obj: Any, allow_zero: bool = False) -> bool:
 
 def correct_type_and_in_bounds(
     model: Model,
-    attr: str,
-    dtype,
+    attr: Enum,
+    dtype: Type[Any],
     min_model_caller,
     max_model_caller,
     factory: Type[AbstractModelFactory]
 ) -> Union[Literal[True], Enum]:
-    if not isinstance(getattr(model, attr), dtype):
-        return getattr(model.FIELD_TYPES, attr)
+    if not isinstance(getattr(model, attr.name), dtype):
+        return attr
 
     elif not in_bounds(
         model,
         min_model_caller(model, factory=factory),
         max_model_caller(model, factory=factory),
-        attr,
+        attr.name,
     ):
-        return getattr(model.FIELD_TYPES, attr)
+        return attr
 
     else:
         return True
 
 
-def in_bounds(model, lower_bounds, upper_bounds, attr) -> bool:
+def in_bounds(model, lower_bounds, upper_bounds, attr: str) -> bool:
     val = getattr(model, attr)
     min_val = getattr(lower_bounds, attr)
     max_val = getattr(upper_bounds, attr)

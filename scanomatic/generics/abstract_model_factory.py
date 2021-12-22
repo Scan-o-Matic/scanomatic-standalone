@@ -389,15 +389,16 @@ class AbstractModelFactory:
         return model_as_dict
 
     @classmethod
-    def set_default(cls, model, fields=None) -> None:
+    def set_default(
+        cls,
+        model: Model,
+        fields: Optional[Sequence[str]] = None,
+    ) -> None:
         if cls.verify_correct_model(model):
             default_model = cls.MODEL()
 
             for attr, val in default_model:
-                if (
-                    fields is None
-                    or getattr(default_model.FIELD_TYPES, attr) in fields
-                ):
+                if (fields is None or attr in fields):
                     setattr(model, attr, val)
 
     @classmethod

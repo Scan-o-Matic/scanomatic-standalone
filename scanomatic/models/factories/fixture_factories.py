@@ -3,6 +3,7 @@ from typing import Optional, SupportsInt, cast
 
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
+    SubFactoryDict,
     float_list_serializer,
     rename_setting
 )
@@ -55,13 +56,10 @@ class GrayScaleAreaModelFactory(AbstractModelFactory):
 
 class FixtureFactory(AbstractModelFactory):
     MODEL = FixtureModel
-    _SUB_FACTORIES = cast(
-        dict[Model, AbstractModelFactory],
-        {
+    _SUB_FACTORIES: SubFactoryDict = {
             FixturePlateModel: FixturePlateFactory,
             GrayScaleAreaModel: GrayScaleAreaModelFactory
-        },
-    )
+    }
     STORE_SECTION_SERIALIZERS = {
         'grayscale': GrayScaleAreaModel,
         "orientation_marks_x": float_list_serializer,

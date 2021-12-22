@@ -1,5 +1,4 @@
-from collections.abc import Mapping, Generator, Sequence
-from enum import Enum
+from collections.abc import Mapping, Generator
 from itertools import chain
 from typing import Any
 
@@ -8,19 +7,11 @@ class Model(Mapping):
     _INITIALIZED = "_initialized"
     _RESERVED_WORDS = ('keys',)
     _STR_PATTERN = "<{0} {1}={2}>"
-    FIELD_TYPES = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         content = [attribute for attribute in self]
         if content:
             fields, _ = zip(*content)
-
-            if not all(key == key.lower() for key in fields):
-                raise AttributeError(
-                    "Model fields may only be lower case to work with serializers {0}".format(  # noqa: E501
-                        fields(),
-                    )
-                )
 
             if any(field in self._RESERVED_WORDS for field in fields):
                 raise AttributeError(
@@ -31,9 +22,6 @@ class Model(Mapping):
 
             if any(k for k in fields if k.startswith("_")):
                 raise AttributeError("Model attributes may not be hidden")
-
-            if not self._has_set_field_types():
-                self._set_field_types(fields)
 
         self._set_initialized()
 
@@ -110,22 +98,6 @@ class Model(Mapping):
 
     def __len__(self) -> int:
         return len(tuple(self.keys()))
-
-    @classmethod
-    def _has_set_field_types(cls) -> bool:
-        return (
-            "FIELD_TYPES" in cls.__dict__
-            and cls.__dict__["FIELD_TYPES"] is not None
-        )
-
-    @classmethod
-    def _set_field_types(cls, names: Sequence[str]) -> None:
-        if cls._has_set_field_types():
-            raise AttributeError("Can't change field types")
-        elif names:
-            cls.FIELD_TYPES = Enum(cls.__name__, {n: hash(n) for n in names})
-        else:
-            cls.FIELD_TYPES = None
 
     def _set_initialized(self) -> None:
         self.__dict__[Model._INITIALIZED] = True

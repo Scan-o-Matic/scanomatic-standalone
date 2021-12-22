@@ -1,23 +1,30 @@
 import os
-from scanomatic.models.compile_project_model import CompileImageModel
+from typing import Literal, Union
+
+from scanomatic.models.compile_project_model import (
+    CompileImageModel,
+    CompileImageModelFields,
+)
+
+ValidationResult = Union[Literal[True], CompileImageModelFields]
 
 
-def validate_index(model: CompileImageModel):
+def validate_index(model: CompileImageModel) -> ValidationResult:
     if model.index >= 0:
         return True
-    return model.FIELD_TYPES.index
+    return CompileImageModelFields.index
 
 
-def validate_path(model: CompileImageModel):
+def validate_path(model: CompileImageModel) -> ValidationResult:
     if (
         os.path.abspath(model.path) == model.path
         and os.path.isfile(model.path)
     ):
         return True
-    return model.FIELD_TYPES.path
+    return CompileImageModelFields.path
 
 
-def validate_time_stamp(model: CompileImageModel):
+def validate_time_stamp(model: CompileImageModel) -> ValidationResult:
     if model.time_stamp >= 0.0:
         return True
-    return model.FIELD_TYPES.time_stamp
+    return CompileImageModelFields.time_stamp

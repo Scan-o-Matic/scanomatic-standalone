@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+from typing import cast
 
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
@@ -20,7 +21,10 @@ class CompileImageFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> compile_project_model.CompileImageModel:
-        model = super(CompileImageFactory, cls).create(**settings)
+        model = cast(
+            compile_project_model.CompileImageModel,
+            super(CompileImageFactory, cls).create(**settings)
+        )
         if not model.time_stamp:
             cls.set_time_stamp_from_path(model)
 
@@ -71,7 +75,10 @@ class CompileProjectFactory(AbstractModelFactory):
         cls,
         **settings,
     ) -> compile_project_model.CompileInstructionsModel:
-        return super(CompileProjectFactory, cls).create(**settings)
+        return cast(
+            compile_project_model.CompileInstructionsModel,
+            super(CompileProjectFactory, cls).create(**settings),
+        )
 
     @classmethod
     def dict_from_path_and_fixture(
@@ -127,4 +134,7 @@ class CompileImageAnalysisFactory(AbstractModelFactory):
         cls,
         **settings,
     ) -> compile_project_model.CompileImageAnalysisModel:
-        return super(CompileImageAnalysisFactory, cls).create(**settings)
+        return cast(
+            compile_project_model.CompileImageAnalysisModel,
+            super(CompileImageAnalysisFactory, cls).create(**settings),
+        )

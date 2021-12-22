@@ -1,7 +1,7 @@
-from typing import Any, cast
+from typing import Any, Type, cast
 from scanomatic.generics.model import Model
 import scanomatic.models.settings_models as settings_models
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory, SubFactoryDict
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 
@@ -135,18 +135,15 @@ def _scanner_model_serializer(enforce=None, serialize=None):
 
 class ApplicationSettingsFactory(AbstractModelFactory):
     MODEL = settings_models.ApplicationSettingsModel
-    _SUB_FACTORIES = cast(
-        dict[Model, AbstractModelFactory],
-        {
-            settings_models.PathsModel: PathsFactory,
-            settings_models.HardwareResourceLimitsModel:
-                HardwareResourceLimitsFactory,
-            settings_models.PowerManagerModel: PowerManagerFactory,
-            settings_models.RPCServerModel: RPCServerFactory,
-            settings_models.UIServerModel: UIServerFactory,
-            settings_models.MailModel: MailFactory
-        },
-    )
+    _SUB_FACTORIES: SubFactoryDict = {
+        settings_models.PathsModel: PathsFactory,
+        settings_models.HardwareResourceLimitsModel:
+            HardwareResourceLimitsFactory,
+        settings_models.PowerManagerModel: PowerManagerFactory,
+        settings_models.RPCServerModel: RPCServerFactory,
+        settings_models.UIServerModel: UIServerFactory,
+        settings_models.MailModel: MailFactory
+    }
 
     STORE_SECTION_SERIALIZERS = {
         "power_manager": settings_models.PowerManagerModel,

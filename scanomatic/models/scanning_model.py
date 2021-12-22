@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from typing import Optional, Union
 from collections.abc import Sequence
 
@@ -56,6 +56,16 @@ class COMPILE_STATE(Enum):
     Finalized = 2
 
 
+class ScanningAuxInfoModelFields(Enum):
+    stress_level = auto()
+    plate_storage = auto()
+    plate_age = auto()
+    pinning_project_start_delay = auto()
+    precultures = auto()
+    culture_freshness = auto()
+    culture_source = auto()
+
+
 class ScanningAuxInfoModel(model.Model):
     def __init__(
         self,
@@ -76,7 +86,31 @@ class ScanningAuxInfoModel(model.Model):
         self.precultures = precultures
         self.culture_freshness = culture_freshness
         self.culture_source: CULTURE_SOURCE = culture_source
-        super(ScanningAuxInfoModel, self).__init__()
+        super().__init__()
+
+
+class ScanningModelFields(Enum):
+    number_of_scans = auto()
+    time_between_scans = auto()
+    project_name = auto()
+    directory_containing_project = auto()
+    id = auto()
+    description = auto()
+    plate_descriptions = auto()
+    email = auto()
+    pinning_formats = auto()
+    fixture = auto()
+    scanner = auto()
+    scanner_hardware = auto()
+    scanning_program = auto()
+    scanning_program_version = auto()
+    scanning_program_params = auto()
+    mode = auto()
+    computer = auto()
+    start_time = auto()
+    cell_count_calibration_id = auto()
+    auxillary_info = auto()
+    version = auto()
 
 
 class ScanningModel(model.Model):
@@ -97,7 +131,7 @@ class ScanningModel(model.Model):
         mode: str = "TPU",
         computer: str = "",
         auxillary_info: ScanningAuxInfoModel = ScanningAuxInfoModel(),
-        plate_descriptions: Sequence = tuple(),
+        plate_descriptions: tuple["PlateDescription", ...] = tuple(),
         version: str = scanomatic.__version__,
         scanning_program: str = "",
         scanning_program_version: str = "",
@@ -110,7 +144,7 @@ class ScanningModel(model.Model):
         self.directory_containing_project: str = directory_containing_project
         self.id: str = id
         self.description: str = description
-        self.plate_descriptions: Sequence = plate_descriptions
+        self.plate_descriptions: tuple[PlateDescription, ...] = plate_descriptions
         self.email: str = email
         self.pinning_formats: tuple[tuple[int, int], ...] = pinning_formats
         self.fixture: str = fixture
@@ -125,7 +159,13 @@ class ScanningModel(model.Model):
         self.cell_count_calibration_id = cell_count_calibration_id
         self.auxillary_info: ScanningAuxInfoModel = auxillary_info
         self.version: str = version
-        super(ScanningModel, self).__init__()
+        super().__init__()
+
+
+class PlateDescriptionFields(Enum):
+    _name = auto()
+    index = auto()
+    description = auto()
 
 
 class PlateDescription(model.Model):
@@ -140,13 +180,35 @@ class PlateDescription(model.Model):
         self.name: str = name
         self.index: int = index
         self.description: str = description
+        super().__init__()
+
+
+class ScannerOwnerModelFields(Enum):
+    id = auto()
+    pid = auto()
 
 
 class ScannerOwnerModel(model.Model):
     def __init__(self, id=None, pid: int = 0):
         self.id = id
         self.pid: int = pid
-        super(ScannerOwnerModel, self).__init__()
+        super().__init__()
+
+
+class ScannerModelFields(Enum):
+    socket = auto()
+    scanner_name = auto()
+    usb = auto()
+    power = auto()
+    model = auto()
+    last_on = auto()
+    last_off = auto()
+    expected_interval = auto()
+    email = auto()
+    warned = auto()
+    owner = auto()
+    claiming = auto()
+    reported = auto()
 
 
 class ScannerModel(model.Model):
@@ -176,10 +238,34 @@ class ScannerModel(model.Model):
         self.expected_interval = expected_interval
         self.email: str = email
         self.warned: bool = warned
-        self.owner = owner
+        self.owner: Optional[ScannerOwnerModel] = owner
         self.claiming: bool = claiming
         self.reported: bool = reported
-        super(ScannerModel, self).__init__()
+        super().__init__()
+
+
+class ScanningModelEffectorDataFields(Enum):
+    current_cycle_step = auto()
+    current_step_start_time = auto()
+    current_image = auto()
+    current_image_path = auto()
+    current_image_path_pattern = auto()
+    previous_scan_cycle_start = auto()
+    current_scan_time = auto()
+    scanning_thread = auto()
+    scan_success = auto()
+    scanning_image_name = auto()
+    usb_port = auto()
+    scanner_model = auto()
+    compile_project_model = auto()
+    known_file_size = auto()
+    warned_file_size = auto()
+    warned_scanner_error = auto()
+    warned_scanner_usb = auto()
+    warned_discspace = auto()
+    warned_terminated = auto()
+    compilation_state = auto()
+    informed_close_to_end = auto()
 
 
 class ScanningModelEffectorData(model.Model):
@@ -231,4 +317,4 @@ class ScanningModelEffectorData(model.Model):
         self.warned_terminated: bool = warned_terminated
         self.compilation_state: COMPILE_STATE = compilation_state
         self.informed_close_to_end: bool = informed_close_to_end
-        super(ScanningModelEffectorData, self).__init__()
+        super().__init__()

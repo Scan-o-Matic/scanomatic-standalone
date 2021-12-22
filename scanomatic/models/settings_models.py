@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import Optional, Union
 from collections.abc import Sequence
 from uuid import uuid1
@@ -6,11 +7,27 @@ import scanomatic.generics.model as model
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 
+class VersionChangesModelFields(Enum):
+    first_pass_change_1 = auto()
+    oldest_allow_fixture = auto()
+
+
 class VersionChangesModel(model.Model):
     def __init__(self, **kwargs):
         self.first_pass_change_1: float = 0.997
         self.oldest_allow_fixture: float = 0.9991
-        super(VersionChangesModel, self).__init__()
+        super().__init__()
+
+
+class PowerManagerModelFields(Enum):
+    type = auto()
+    number_of_sockets = auto()
+    host = auto()
+    password = auto()
+    _name = auto()
+    verify_name = auto()
+    mac = auto()
+    power_mode = auto()
 
 
 class PowerManagerModel(model.Model):
@@ -21,7 +38,7 @@ class PowerManagerModel(model.Model):
         host: str = "192.168.0.100",
         password: str = "1",
         verify_name: bool = False,
-        mac=None,
+        mac: Optional[str] = None,
         name: str = "Server 1",
         power_mode: POWER_MODES = POWER_MODES.Toggle,
     ):
@@ -33,22 +50,35 @@ class PowerManagerModel(model.Model):
         self.verify_name: bool = verify_name
         self.mac = mac
         self.power_mode: POWER_MODES = power_mode
-        super(PowerManagerModel, self).__init__()
+        super().__init__()
+
+
+class RPCServerModelFields(Enum):
+    port = auto()
+    host = auto()
+    admin = auto()
+    config = auto()
 
 
 class RPCServerModel(model.Model):
     def __init__(
         self,
-        port=None,
-        host=None,
-        admin=None,
+        port: Optional[int] = None,
+        host: Optional[str] = None,
+        admin: Optional[bool] = None,
         config=None,
     ):
         self.port = port
         self.host = host
         self.admin = admin
-        self.config = config
-        super(RPCServerModel, self).__init__()
+        self.config = config  # Might not be used?
+        super().__init__()
+
+
+class UIServerModelFields(Enum):
+    port = auto()
+    host = auto()
+    master_key = auto()
 
 
 class UIServerModel(model.Model):
@@ -61,7 +91,15 @@ class UIServerModel(model.Model):
         self.port: int = port
         self.host: str = host
         self.master_key: str = master_key if master_key else str(uuid1())
-        super(UIServerModel, self).__init__()
+        super().__init__()
+
+
+class HardwareResourceLimitsModelFields(Enum):
+    memory_minimum_percent = auto()
+    cpu_total_percent_free = auto()
+    cpu_single_free = auto()
+    cpu_free_count = auto()
+    checks_pass_needed = auto()
 
 
 class HardwareResourceLimitsModel(model.Model):
@@ -78,13 +116,25 @@ class HardwareResourceLimitsModel(model.Model):
         self.cpu_single_free: float = cpu_single_free
         self.cpu_free_count: int = cpu_free_count
         self.checks_pass_needed: int = checks_pass_needed
-        super(HardwareResourceLimitsModel, self).__init__()
+        super().__init__()
+
+
+class PathsModelFields(Enum):
+    projects_root = auto()
 
 
 class PathsModel(model.Model):
     def __init__(self, projects_root: str = "/somprojects"):
         self.projects_root: str = projects_root
-        super(PathsModel, self).__init__()
+        super().__init__()
+
+
+class MailModelFields(Enum):
+    server = auto()
+    user = auto()
+    port = auto()
+    password = auto()
+    warn_scanning_done_minutes_before = auto()
 
 
 class MailModel(model.Model):
@@ -104,7 +154,25 @@ class MailModel(model.Model):
         self.warn_scanning_done_minutes_before: float = (
             warn_scanning_done_minutes_before
         )
-        super(MailModel, self).__init__()
+        super().__init__()
+
+
+class ApplicationSettingsModelFields(Enum):
+    versions = auto()
+    power_manager = auto()
+    rpc_server = auto()
+    ui_server = auto()
+    hardware_resource_limits = auto()
+    paths = auto()
+    computer_human_name = auto()
+    mail = auto()
+    number_of_scanners = auto()
+    scanner_name_pattern = auto()
+    scanner_names = auto()
+    scan_program = auto()
+    scan_program_version_flag = auto()
+    scanner_models = auto()
+    scanner_sockets = auto()
 
 
 class ApplicationSettingsModel(model.Model):
@@ -127,7 +195,6 @@ class ApplicationSettingsModel(model.Model):
         scanner_names: Optional[Sequence[str]] = None,
         scanner_sockets: Optional[dict[str, int]] = None,
     ):
-
         self.versions: VersionChangesModel = VersionChangesModel()
         self.power_manager: Optional[PowerManagerModel] = power_manager
         self.rpc_server: Optional[RPCServerModel] = rpc_server
@@ -144,7 +211,7 @@ class ApplicationSettingsModel(model.Model):
         if scanner_names is not None:
             self.scanner_names = scanner_names
         if power_manager is not None:
-            self.scanner_names: Sequence[str] = [
+            self.scanner_names = [
                 self.scanner_name_pattern.format(i + 1) for i
                 in range(power_manager.number_of_sockets)
             ]
@@ -172,4 +239,4 @@ class ApplicationSettingsModel(model.Model):
                 name: socket for name, socket in
                 zip(self.scanner_names, list(range(len(self.scanner_models))))
             }
-        super(ApplicationSettingsModel, self).__init__()
+        super().__init__()

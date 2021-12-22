@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 import scanomatic.generics.model as model
 
@@ -8,8 +8,14 @@ class FeatureExtractionData(Enum):
     State = 1
 
 
-class FeaturesModel(model.Model):
+class FeaturesModelFields(Enum):
+    analysis_directory = auto()
+    email = auto()
+    extraction_data = auto()
+    try_keep_qc = auto()
 
+
+class FeaturesModel(model.Model):
     def __init__(
         self,
         analysis_directory: str = "",
@@ -22,4 +28,4 @@ class FeaturesModel(model.Model):
         self.email: str = email
         self.extraction_data: FeatureExtractionData = extraction_data
         self.try_keep_qc: bool = try_keep_qc
-        super(FeaturesModel, self).__init__()
+        super().__init__()

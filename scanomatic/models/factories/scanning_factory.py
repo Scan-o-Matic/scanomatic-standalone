@@ -1,3 +1,4 @@
+from typing import cast
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
     email_serializer
@@ -91,7 +92,10 @@ class ScannerOwnerFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> ScannerOwnerModel:
-        return super(ScannerOwnerFactory, cls).create(**settings)
+        return cast(
+            ScannerOwnerModel,
+            super(ScannerOwnerFactory, cls).create(**settings),
+        )
 
 
 class ScannerFactory(AbstractModelFactory):
@@ -118,4 +122,7 @@ class ScannerFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> ScannerModel:
-        return super(ScannerFactory, cls).create(**settings)
+        return cast(
+            ScannerModel,
+            super(ScannerFactory, cls).create(**settings),
+        )
