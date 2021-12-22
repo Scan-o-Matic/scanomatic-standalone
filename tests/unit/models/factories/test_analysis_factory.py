@@ -41,9 +41,7 @@ class TestAnalysisModels:
         assert len(json.loads(serial)) == 2
 
     def test_model_can_deserialize(self, analysis_serialized_object):
-        result: AnalysisModel = loads(analysis_serialized_object)
-        assert len(result) == 1
-        model = result[0]
+        model: AnalysisModel = loads(analysis_serialized_object)
         assert isinstance(model, AnalysisModel)
         # Test a few representative attributes:
         assert model.image_data_output_measure is MEASURES.Sum
