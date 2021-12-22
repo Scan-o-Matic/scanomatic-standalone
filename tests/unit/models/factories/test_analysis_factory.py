@@ -1,7 +1,7 @@
+import json
 import os
 from typing import Optional
 from unittest import mock
-import json
 
 import numpy as np
 import pytest
@@ -10,8 +10,16 @@ from scanomatic.data_processing.calibration import (
     get_polynomial_coefficients_from_ccc
 )
 from scanomatic.io.jsonizer import dumps, load_first, loads
-from scanomatic.models.analysis_model import MEASURES, AnalysisModel, GridModel
-from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
+from scanomatic.models.analysis_model import (
+    MEASURES,
+    AnalysisModel,
+    AnalysisModelFields,
+    GridModel
+)
+from scanomatic.models.factories.analysis_factories import (
+    AnalysisFeaturesFactory,
+    AnalysisModelFactory
+)
 
 
 @pytest.fixture(scope='function')
@@ -27,6 +35,42 @@ def analysis_serialized_object(analysis_model) -> str:
 @pytest.fixture(scope='session')
 def data_path():
     return os.path.join(os.path.dirname(__file__), 'data')
+
+
+def test_set_default_refuses_bad_model():
+    m = AnalysisFeaturesFactory.create(shape=(42, 42))
+    with pytest.raises(TypeError):
+        AnalysisModelFactory.set_default(m)
+
+
+def test_set_default_clears_everything():
+    m = AnalysisModelFactory.create(
+        chain=False,
+        email="hello",
+        stop_at_image=42,
+    )
+    AnalysisModelFactory.set_default(m)
+    assert m.chain is True
+    assert m.email == ""
+    assert m.stop_at_image == -1
+
+
+def test_set_default_limits_to_fields():
+    m = AnalysisModelFactory.create(
+        chain=False,
+        email="hello",
+        stop_at_image=42,
+    )
+    AnalysisModelFactory.set_default(
+        m,
+        fields=[
+            AnalysisModelFields.chain,
+            AnalysisModelFields.stop_at_image
+        ]
+    )
+    assert m.chain is True
+    assert m.email == "hello"
+    assert m.stop_at_image == -1
 
 
 class TestAnalysisModels:
