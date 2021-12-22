@@ -261,6 +261,9 @@ def load(path: Union[str, Path]) -> Any:
     try:
         return loads(path.read_text())
     except IOError:
+        logging.warning(
+            f"Attempted to load model from '{path}', but failed",
+        )
         return None
 
 
@@ -295,13 +298,18 @@ def merge_into(model: Optional[Model], update: Model) -> Model:
     return model
 
 
-def dump(model: Model, path: str, overwrite: bool = False) -> bool:
+def dump(
+    model: Model,
+    path: Union[str, Path],
+    overwrite: bool = False,
+) -> bool:
     if overwrite:
         model = merge_into(load(path), model)
     try:
-        with open(path) as fh:
+        with open(path, 'w') as fh:
             fh.write(dumps(model))
     except IOError:
+        logging.exception(f'Could not save {model} to: {path}')
         return False
     return True
 
@@ -313,7 +321,11 @@ def dump_to_stream(
 ):
     if as_if_appending:
         stream.seek(0)
-        previous = loads(stream)
+        contents = stream.read().strip()
+        if contents:
+            previous = loads(contents)
+        else:
+            previous = []
         if not isinstance(previous, list):
             previous = [previous]
         previous.append(model)
@@ -327,7 +339,7 @@ def _models_equal(a: Any, b: Model) -> bool:
     try:
         assert_models_deeply_equal(a, b)
         return True
-    except AssertionError:
+    except (ValueError, AssertionError):
         return False
 
 
@@ -361,6 +373,6 @@ def purge(model: Model, path: Union[str, Path]) -> bool:
     if _models_equal(updated, original):
         return False
     else:
-        with open(path) as fh:
-            fh.write(updated)
+        with open(path, 'w') as fh:
+            fh.write(dumps(updated))
         return True
