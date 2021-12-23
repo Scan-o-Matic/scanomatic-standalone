@@ -35,8 +35,8 @@ class CompilationResults:
         self.load_scanner_instructions(scanner_instructions_path)
         self._plates = None
         self._plate_position_keys = None
-        self._image_models = []
-        self._used_models = []
+        self._image_models: list[CompileImageAnalysisModel] = []
+        self._used_models: list[CompileImageAnalysisModel] = []
         self._current_model: Optional[CompileImageAnalysisModel] = None
         self._loading_length = 0
         if compile_instructions_path:
@@ -63,11 +63,11 @@ class CompilationResults:
             copy(compile_instructions),
         )
         new._image_models = cast(
-            CompileImageAnalysisModel,
+            list[CompileImageAnalysisModel],
             copy(list(image_models)),
         )
         new._used_models = cast(
-            CompileImageAnalysisModel,
+            list[CompileImageAnalysisModel],
             copy(list(used_models)),
         )
         new._loading_length = len(new._image_models)

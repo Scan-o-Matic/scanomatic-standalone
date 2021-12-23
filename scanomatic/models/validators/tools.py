@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Literal, Optional, Type, Union
+from typing import Any, Literal, Optional, Type, TypeVar, Union
 from numbers import Real
 
 import os
@@ -96,7 +96,6 @@ def correct_type_and_in_bounds(
 ) -> Union[Literal[True], Enum]:
     if not isinstance(getattr(model, attr.name), dtype):
         return attr
-
     elif not in_bounds(
         model,
         min_model_caller(model, factory=factory),
@@ -104,6 +103,5 @@ def correct_type_and_in_bounds(
         attr.name,
     ):
         return attr
-
     else:
         return True

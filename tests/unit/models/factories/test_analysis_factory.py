@@ -40,7 +40,7 @@ def data_path():
 def test_set_default_refuses_bad_model():
     m = AnalysisFeaturesFactory.create(shape=(42, 42))
     with pytest.raises(TypeError):
-        AnalysisModelFactory.set_default(m)
+        AnalysisModelFactory.set_default(m)  # type: ignore
 
 
 def test_set_default_clears_everything():

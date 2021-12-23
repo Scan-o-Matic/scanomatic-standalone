@@ -19,7 +19,7 @@ def validate_images(
     if model.images:
         return True
     else:
-        return CompileInstructionsModel.images
+        return CompileInstructionsModelFields.images
 
 
 def validate_path(
@@ -34,7 +34,7 @@ def validate_path(
         and basename
     ):
         return True
-    return CompileInstructionsModel.path
+    return CompileInstructionsModelFields.path
 
 
 def validate_fixture(model: CompileInstructionsModel) -> ValidationResult:
@@ -47,12 +47,12 @@ def validate_fixture(model: CompileInstructionsModel) -> ValidationResult:
         ):
             return True
         else:
-            return CompileInstructionsModel.fixture_type
+            return CompileInstructionsModelFields.fixture_type
     elif model.fixture_type is FIXTURE.Global:
         if model.fixture_name in Fixtures():
             return True
         else:
-            return CompileInstructionsModel.fixture_name
+            return CompileInstructionsModelFields.fixture_name
     else:
         return CompileInstructionsModel.fixture_type
 
@@ -62,4 +62,4 @@ def validate_cell_count_calibration_id(
 ) -> ValidationResult:
     if model.cell_count_calibration_id in get_active_cccs():
         return True
-    return CompileInstructionsModel.cell_count_calibration
+    return CompileInstructionsModelFields.cell_count_calibration_id

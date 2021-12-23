@@ -71,7 +71,7 @@ from scanomatic.models.settings_models import (
     VersionChangesModel
 )
 
-_FACTORIES: dict[Type[Model], Type[AnalysisModelFactory]] = {
+_FACTORIES: dict[Type[Model], Type[AbstractModelFactory]] = {
     # From analysis_factories.py
     GridModel: GridModelFactory,
     AnalysisModel: AnalysisModelFactory,

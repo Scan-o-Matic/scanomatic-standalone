@@ -1,6 +1,6 @@
 from collections.abc import Iterator
-from enum import Enum
-from typing import Literal, Union
+from enum import Enum, auto
+from typing import Literal, Optional, Type, Union, cast
 
 from scanomatic.generics.model import Model
 from scanomatic.models.factories.factory_lookup import get_factory
@@ -11,6 +11,18 @@ from .validation_lookup import get_special_validators
 ValidationResults = Iterator[Union[Literal[True], Enum]]
 
 
+class UnknownFields(Enum):
+    UNKNOWN_FIELD = auto()
+
+
+def produce_validation_error(fields: Optional[Type[Enum]], field: str) -> Enum:
+    if fields is None:
+        return UnknownFields.UNKNOWN_FIELD
+    if field == "name":
+        return fields["_name"]
+    return fields[field]
+
+
 def _get_validation_results(model: Model) -> ValidationResults:
     module = get_special_validators(model)
     factory = get_factory(model)
@@ -18,7 +30,7 @@ def _get_validation_results(model: Model) -> ValidationResults:
     # generate validation results for sub-models
     for k in model.keys():
         if factory is None:
-            yield fields["_name" if k == "name" else k]
+            yield produce_validation_error(fields, k)
             continue
         should_verify, sub_validation = factory.contains_model_type(k)
         if not should_verify or sub_validation is None:
@@ -29,20 +41,20 @@ def _get_validation_results(model: Model) -> ValidationResults:
         if isinstance(sub_validation, dict):
             if (item_type in sub_validation and validate(item)):
                 yield True
-            yield fields["_name" if k == "name" else k]
+            yield produce_validation_error(fields, k)
         else:
             if len(sub_validation) == 2:
-                if not isinstance(item, sub_validation[0]):
-                    yield fields["_name" if k == "name" else k]
+                outer_type, leaf_type = cast(tuple[Type, Type], sub_validation)
+                if not isinstance(item, outer_type):
+                    yield produce_validation_error(fields, k)
                 else:
-                    leaf_type = sub_validation[1]
                     if isinstance(leaf_type, dict):
                         for i in item:
                             if i is None:
                                 continue
                             i_type = type(i)
                             if (i_type not in leaf_type and validate(i)):
-                                yield fields["_name" if k == "name" else k]
+                                yield produce_validation_error(fields, k)
                                 break
 
     # generate specific validation results
@@ -59,6 +71,7 @@ def validate(model: Model) -> bool:
         return False
     if factory.verify_correct_model(model):
         return all(v is True for v in _get_validation_results(model))
+    return False
 
 
 def get_invalid(model: Model) -> Iterator[Enum]:

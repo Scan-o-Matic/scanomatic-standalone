@@ -1,3 +1,4 @@
+from typing import cast
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
@@ -33,4 +34,7 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> rpc_job_models.RPCjobModel:
-        return super(RPC_Job_Model_Factory, cls).create(**settings)
+        return cast(
+            rpc_job_models.RPCjobModel,
+            super(RPC_Job_Model_Factory, cls).create(**settings),
+        )

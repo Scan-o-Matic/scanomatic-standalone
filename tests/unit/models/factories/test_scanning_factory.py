@@ -24,9 +24,9 @@ class TestCreatingScanningModel:
 
         assert validate(model)
         with pytest.raises(AttributeError):
-            model.scanner_tag
+            model.scanner_tag  # type: ignore
         with pytest.raises(AttributeError):
-            model.project_tag
+            model.project_tag  # type: ignore
 
     def test_model_without_project_name_doesnt_validate(self):
         model = ScanningModelFactory.create()

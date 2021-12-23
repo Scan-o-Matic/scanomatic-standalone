@@ -1,5 +1,5 @@
 import os
-from typing import Mapping, Optional
+from typing import Mapping, Optional, cast
 from collections.abc import Sequence
 
 import scanomatic.models.analysis_model as analysis_model
@@ -22,6 +22,10 @@ class GridModelFactory(AbstractModelFactory):
         "reference_grid_folder": str,
         "grid": (tuple, tuple, float)
     }
+
+    @classmethod
+    def create(cls, **settings) -> analysis_model.GridModel:
+        return cast(analysis_model.GridModel, super().create(**settings))
 
 
 class AnalysisModelFactory(AbstractModelFactory):
@@ -66,7 +70,7 @@ class AnalysisModelFactory(AbstractModelFactory):
                     settings['cell_count_calibration_id'],
                 )
             )
-        return super(cls, AnalysisModelFactory).create(**settings)
+        return cast(analysis_model.AnalysisModel, super().create(**settings))
 
     @classmethod
     def set_absolute_paths(cls, model: analysis_model.AnalysisModel):
@@ -131,7 +135,10 @@ class AnalysisFeaturesFactory(AbstractModelFactory):
         data_type=None,
         **settings,
     ) -> analysis_model.AnalysisFeatures:
-        return super(AnalysisFeaturesFactory, cls).create(**settings)
+        return cast(
+            analysis_model.AnalysisFeatures,
+            super().create(**settings),
+        )
 
     @classmethod
     def deep_to_dict(cls, model_or_data):

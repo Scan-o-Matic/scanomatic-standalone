@@ -1,7 +1,7 @@
 import os
 import re
 import string
-from typing import Literal, Type, Union
+from typing import Literal, Type, Union, cast
 
 import scanomatic.io.app_config as app_config
 import scanomatic.io.fixtures as fixtures
@@ -24,14 +24,16 @@ def _correct_type_and_in_bounds(
     attr: ScanningModelFields,
     dtype: Type,
 ) -> ValidationResult:
-    return correct_type_and_in_bounds(
-        model,
-        attr,
-        dtype,
-        _GET_MIN_MODEL,
-        _GET_MAX_MODEL,
-        ScanningModelFactory,
-
+    return cast(
+        ScanningModelFields,
+        correct_type_and_in_bounds(
+            model,
+            attr,
+            dtype,
+            _GET_MIN_MODEL,
+            _GET_MAX_MODEL,
+            ScanningModelFactory,
+        )
     )
 
 
@@ -141,23 +143,16 @@ def validate_scanner(model: ScanningModel) -> ValidationResult:
 
 
 def validate_plate_descriptions(model: ScanningModel) -> ValidationResult:
-    if not isinstance(
-        model.plate_descriptions,
-        ScanningModelFactory.STORE_SECTION_SERIALIZERS[
-            "plate_descriptions"
-        ][0]
-    ):
+    type_def = ScanningModelFactory.STORE_SECTION_SERIALIZERS[
+        "plate_descriptions"
+    ]
+    if not isinstance(type_def, tuple) or len(type_def) != 2:
+        return ScanningModelFields.plate_descriptions
+    if not isinstance(model.plate_descriptions, type_def[0]):
         return ScanningModelFields.plate_descriptions
 
     for plate_description in model.plate_descriptions:
-        if (
-            not isinstance(
-                plate_description,
-                ScanningModelFactory.STORE_SECTION_SERIALIZERS[
-                    "plate_descriptions"
-                ][1],
-            )
-        ):
+        if not isinstance(plate_description, type_def[1]):
             return ScanningModelFields.plate_descriptions
 
     if (
