@@ -15,7 +15,7 @@ class UnknownFields(Enum):
     UNKNOWN_FIELD = auto()
 
 
-def produce_validation_error(fields: Optional[Type[Enum]], field: str) -> Enum:
+def _produce_validation_error(fields: Optional[Type[Enum]], field: str) -> Enum:
     if fields is None:
         return UnknownFields.UNKNOWN_FIELD
     if field == "name":
@@ -30,7 +30,7 @@ def _get_validation_results(model: Model) -> ValidationResults:
     # generate validation results for sub-models
     for k in model.keys():
         if factory is None:
-            yield produce_validation_error(fields, k)
+            yield _produce_validation_error(fields, k)
             continue
         should_verify, sub_validation = factory.contains_model_type(k)
         if not should_verify or sub_validation is None:
@@ -41,12 +41,13 @@ def _get_validation_results(model: Model) -> ValidationResults:
         if isinstance(sub_validation, dict):
             if (item_type in sub_validation and validate(item)):
                 yield True
-            yield produce_validation_error(fields, k)
+            else:
+                yield _produce_validation_error(fields, k)
         else:
             if len(sub_validation) == 2:
                 outer_type, leaf_type = cast(tuple[Type, Type], sub_validation)
                 if not isinstance(item, outer_type):
-                    yield produce_validation_error(fields, k)
+                    yield _produce_validation_error(fields, k)
                 else:
                     if isinstance(leaf_type, dict):
                         for i in item:
@@ -54,7 +55,7 @@ def _get_validation_results(model: Model) -> ValidationResults:
                                 continue
                             i_type = type(i)
                             if (i_type not in leaf_type and validate(i)):
-                                yield produce_validation_error(fields, k)
+                                yield _produce_validation_error(fields, k)
                                 break
 
     # generate specific validation results
@@ -85,6 +86,6 @@ def get_invalid_names(model: Model) -> Iterator[str]:
 
 
 def get_invalid_as_text(model: Model) -> str:
-    return ", ".join([
+    return ", ".join(
         f"{key}: '{model[key]}'" for key in get_invalid_names(model)
-    ])
+    )

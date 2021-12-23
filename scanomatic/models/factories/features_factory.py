@@ -3,7 +3,7 @@ from typing import cast
 import scanomatic.models.features_model as features_model
 from scanomatic.generics.abstract_model_factory import (
     AbstractModelFactory,
-    email_serializer
+    email_serializer,
 )
 
 

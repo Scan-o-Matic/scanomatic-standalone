@@ -27,8 +27,9 @@ def validate_manual_threshold(model: GridModel) -> ValidationResult:
 def validate_grid_offsets(model: GridModel) -> ValidationResult:
     def _valid_correction(value) -> bool:
         return (
-            value is None or
-            value is False or (
+            value is None
+            or value is False
+            or (
                 len(value) == 2
                 and all(isinstance(offset, int) for offset in value)
             )

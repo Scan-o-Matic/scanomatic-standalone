@@ -408,13 +408,11 @@ class AbstractModelFactory:
         key: str,
     ) -> tuple[
         bool,
-        Optional[Union[SubFactoryDict, tuple[Any]]]
+        Optional[Union[SubFactoryDict, tuple[Any, ...]]]
     ]:
         type_def = cls.STORE_SECTION_SERIALIZERS.get(key)
         if type_def is None:
             return False, None
-        if type_def is Model:
-            return True, cls._SUB_FACTORIES
         elif isinstance(type_def, tuple):
             if Model in type_def:
                 return True, tuple(
@@ -428,10 +426,13 @@ class AbstractModelFactory:
                     if issubclass(td, Model) else td for td in type_def
                 )
             )
+        elif isinstance(type_def, Type):
+            if type_def is Model:
+                return True, cls._SUB_FACTORIES
+            elif issubclass(type_def, Model):
+                return True, {type_def: cls._SUB_FACTORIES[type_def]}
         elif isinstance(type_def, Callable):
             return False, None
-        elif issubclass(type_def, Model):
-            return True, {type_def: cls._SUB_FACTORIES[type_def]}
         return False, None
 
 

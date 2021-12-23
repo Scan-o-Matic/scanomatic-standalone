@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Literal, Optional, Type, TypeVar, Union
+from typing import Any, Literal, Optional, Type, Union
 from numbers import Real
 
 import os
