@@ -86,6 +86,7 @@ def get_invalid_names(model: Model) -> Iterator[str]:
 
 
 def get_invalid_as_text(model: Model) -> str:
+    invalids = sorted(list(get_invalid_names(model)))
     return ", ".join(
-        f"{key}: '{model[key]}'" for key in get_invalid_names(model)
+        f"{key}: '{model[key]}'" for key in invalids
     )
