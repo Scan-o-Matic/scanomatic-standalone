@@ -10,7 +10,7 @@ from scanomatic.generics.maths import mid50_mean as iqr_mean
 from scanomatic.io.paths import Paths
 
 from . import signal
-from .grayscale import getGrayscale
+from .grayscale import get_grayscale
 
 ORTH_EDGE_T = 0.2
 ORTH_T1 = 0.15
@@ -182,7 +182,7 @@ def get_grayscale_image_analysis(
 ):
     global DEBUG_DETECTION
 
-    gs = getGrayscale(grayscale_name)
+    gs = get_grayscale(grayscale_name)
     if not im.size:
         return None, None
     im_o = get_ortho_trimmed_slice(im, gs)

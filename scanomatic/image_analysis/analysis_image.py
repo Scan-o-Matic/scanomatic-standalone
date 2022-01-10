@@ -19,7 +19,7 @@ from scanomatic.models.factories.analysis_factories import (
 )
 
 from . import grid_array
-from .grayscale import getGrayscale
+from .grayscale import get_grayscale
 from .image_basics import load_image_to_numpy
 from .image_grayscale import is_valid_grayscale
 
@@ -503,7 +503,7 @@ class ProjectImage:
             return
 
         if not image_model.fixture.grayscale.values or not is_valid_grayscale(
-            getGrayscale(image_model.fixture.grayscale.name)['targets'],
+            get_grayscale(image_model.fixture.grayscale.name)['targets'],
             image_model.fixture.grayscale.values,
         ):
             self._logger.warning("Not a valid grayscale")
