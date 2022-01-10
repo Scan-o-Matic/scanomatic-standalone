@@ -1,12 +1,13 @@
 import configparser
 from logging import Logger
 from typing import Any
+from collections.abc import Callable
 
 import scanomatic.io.paths as paths
 
 _GRAYSCALE_PATH = paths.Paths().analysis_grayscales
 _GRAYSCALE_CONFIGS = configparser.ConfigParser()
-_GRAYSCALE_VALUE_TYPES = {
+_GRAYSCALE_VALUE_TYPES: dict[str, Callable] = {
     'default': bool,
     'targets': eval,
     'sections': int,

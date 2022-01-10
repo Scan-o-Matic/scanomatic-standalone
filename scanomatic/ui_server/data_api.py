@@ -1,11 +1,11 @@
 import glob
 import os
 import shutil
+from collections.abc import Sequence
 from configparser import Error as ConfigError
 from enum import Enum
 from logging import Logger
 from typing import Mapping
-from collections.abc import Sequence
 
 import numpy as np
 from flask import jsonify, request, send_from_directory
@@ -17,7 +17,10 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.data_processing.norm import NormState
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.grayscale import get_grayscale, get_grayscales
+from scanomatic.image_analysis.grayscale import (
+    get_grayscale as get_grayscale_conf
+)
+from scanomatic.image_analysis.grayscale import get_grayscales
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.image_grayscale import get_grayscale
@@ -297,7 +300,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = get_grayscale(grayscale_area_model.name)
+        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
         valid = get_grayscale_is_valid(values, grayscale_object)
 
         return jsonify(
@@ -366,7 +369,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = get_grayscale(grayscale_area_model.name)
+        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
         valid = get_grayscale_is_valid(values, grayscale_object)
 
         return jsonify(
@@ -584,7 +587,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                     reason="Could not detect grayscale",
                 )
 
-            grayscale_object = get_grayscale(grayscale_area_model.name)
+            grayscale_object = get_grayscale_conf(grayscale_area_model.name)
             valid = get_grayscale_is_valid(values, grayscale_object)
 
             if not valid:
@@ -832,7 +835,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         grayscale_targets = np.array(data_object.get("grayscale_targets", []))
 
         if not grayscale_targets:
-            grayscale_targets = get_grayscale(
+            grayscale_targets = get_grayscale_conf(
                 data_object.get("grayscale_name", ""),
             )['targets']
 
