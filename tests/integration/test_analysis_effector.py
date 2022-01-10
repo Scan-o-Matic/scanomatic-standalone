@@ -7,6 +7,7 @@ from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.validators.validate import validate
 from scanomatic.server.analysis_effector import AnalysisEffector
+from scanomatic.image_analysis import grayscale
 
 
 @pytest.fixture(scope='session')
@@ -14,11 +15,21 @@ def proj1(pytestconfig):
     return pytestconfig.rootdir.join('tests/integration/fixtures/proj1')
 
 
+@pytest.fixture
+def grayscales(tmpdir, pytestconfig):
+    source = pytestconfig.rootdir.join('data/config/')
+    target = tmpdir.mkdir('config')
+    for fname in ['grayscales.cfg']:
+        source.join(fname).copy(target)
+    grayscale._GRAYSCALE_PATH = str(target.join("grayscales.cfg"))
+
+
 ProjInfo = namedtuple('ProjInfo', ['job', 'workdir'])
 
 
 @pytest.fixture
-def proj1_analysis(proj1, tmpdir):
+def proj1_analysis(proj1, tmpdir, grayscales):
+
     workdir = tmpdir.mkdir('proj1')
     files = [
         'fixture.config',
