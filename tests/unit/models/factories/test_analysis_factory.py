@@ -18,13 +18,19 @@ from scanomatic.models.analysis_model import (
 )
 from scanomatic.models.factories.analysis_factories import (
     AnalysisFeaturesFactory,
-    AnalysisModelFactory
+    AnalysisModelFactory,
+    GridModelFactory
 )
 
 
 @pytest.fixture(scope='function')
 def analysis_model():
-    return AnalysisModelFactory.create()
+    return AnalysisModelFactory.create(
+        email="my@mail.deamon",
+        grid_model=GridModelFactory.create(
+            reference_grid_folder="/dev/null",
+        ),
+    )
 
 
 @pytest.fixture(scope='function')
@@ -87,12 +93,15 @@ class TestAnalysisModels:
     def test_model_can_deserialize(self, analysis_serialized_object):
         model: AnalysisModel = loads(analysis_serialized_object)
         assert isinstance(model, AnalysisModel)
-        # Test a few representative attributes:
+        # Test a few default attributes where preserved:
         assert model.image_data_output_measure is MEASURES.Sum
         assert model.cell_count_calibration == (
             3.379796310880545e-05, 0.0, 0.0, 0.0, 48.99061427688507, 0.0,
         )
+        # Test a few non-default attributes where preserved:
+        assert model.email == "my@mail.deamon"
         assert isinstance(model.grid_model, GridModel)
+        assert model.grid_model.reference_grid_folder == "/dev/null"
 
     def test_can_create_using_default_ccc(self, analysis_model):
         default = get_polynomial_coefficients_from_ccc('default')

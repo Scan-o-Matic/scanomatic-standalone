@@ -1,10 +1,10 @@
-from enum import Enum
-from typing import Any, Literal, Optional, Type, Union
-from numbers import Real
-
+import math
 import os
-from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from enum import Enum
+from numbers import Real
+from typing import Any, Literal, Optional, Type, Union
 
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
 
 
@@ -58,7 +58,7 @@ def is_coordinates(obj: Any) -> bool:
 
 
 def is_real_number(obj: Any) -> bool:
-    return isinstance(obj, Real)
+    return isinstance(obj, Real) and math.isfinite(obj)
 
 
 def is_numeric_positive_or_neg_one(obj: Any) -> bool:

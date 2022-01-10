@@ -17,7 +17,7 @@ ValidationResult = Union[Literal[True], ScanningAuxInfoModelFields]
 def validate_stress_level(model: ScanningAuxInfoModel) -> ValidationResult:
     if not isinstance(model.stress_level, int):
         return ScanningAuxInfoModelFields.stress_level
-    elif model.stress_level == -1 or model.stress_level > 0:
+    elif is_int_positive_or_neg_one(model.stress_level):
         return True
     else:
         return ScanningAuxInfoModelFields.stress_level

@@ -30,8 +30,16 @@ from scanomatic.models.validators.validate import (
 
 @pytest.mark.parametrize('model,updates,expect', (
     (GridModelFactory.create(), {}, True),
-    (GridModelFactory.create(), {'use_utso': 5}, False),
-    (GridModelFactory.create(gridding_offsets=[[2, 3, 4]]), {}, False),
+    (  # bad type, should be boolean
+        GridModelFactory.create(),
+        {'use_utso': 5},
+        False,
+    ),
+    (  # failing special validator
+        GridModelFactory.create(gridding_offsets=[[2, 3, 4]]),
+        {},
+        False,
+    ),
     (AnalysisModelFactory.create(), {}, False),
     (
         AnalysisModelFactory.create(
@@ -41,7 +49,7 @@ from scanomatic.models.validators.validate import (
         {},
         True,
     ),
-    (
+    (  # invalid sub-model (grid_model)
         AnalysisModelFactory.create(
             compilation=os.path.abspath(__file__),
             grid_model=GridModelFactory.create(gridding_offsets=((2, 3, 4),)),
@@ -69,7 +77,7 @@ from scanomatic.models.validators.validate import (
         {},
         True,
     ),
-    (
+    (  # Wrong plate model
         FixtureFactory.create(
             grayscale=GrayScaleAreaModelFactory.create(),
         ),

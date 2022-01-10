@@ -1,3 +1,4 @@
+import math
 from os import sep
 from pathlib import Path
 from typing import Any, Literal, Optional, Type, Union
@@ -102,6 +103,9 @@ def test_is_coordinates(obj: Any, expected: bool):
     (1j, False),
     ('a', False),
     (None, False),
+    (math.inf, False),
+    (math.nan, False),
+    (-math.inf, False),
 ])
 def test_is_real_number(obj: Any, expected: bool):
     assert is_real_number(obj) == expected
