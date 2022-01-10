@@ -135,7 +135,7 @@ class ScanningModel(model.Model):
         version: str = scanomatic.__version__,
         scanning_program: str = "",
         scanning_program_version: str = "",
-        scanning_program_params: Sequence = tuple(),
+        scanning_program_params: Sequence[str] = tuple(),
         cell_count_calibration_id=None,
     ):
         self.number_of_scans: int = number_of_scans
@@ -154,7 +154,7 @@ class ScanningModel(model.Model):
         self.scanner_hardware: str = scanner_hardware
         self.scanning_program: str = scanning_program
         self.scanning_program_version: str = scanning_program_version
-        self.scanning_program_params: Sequence = scanning_program_params
+        self.scanning_program_params: Sequence[str] = scanning_program_params
         self.mode: str = mode
         self.computer: str = computer
         self.start_time: float = start_time
