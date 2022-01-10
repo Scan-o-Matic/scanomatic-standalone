@@ -6,6 +6,7 @@ from typing import Optional, cast
 import scanomatic.image_analysis.analysis_image as analysis_image
 import scanomatic.io.first_pass_results as first_pass_results
 import scanomatic.io.image_data as image_data
+from scanomatic.io.logger import get_logger
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
@@ -65,6 +66,10 @@ class AnalysisEffector(proc_effector.ProcessEffector):
     TYPE = JOB_TYPE.Analysis
 
     def __init__(self, job: RPCjobModel):
+        super(AnalysisEffector, self).__init__(
+            job,
+            logger_name="Analysis Effector",
+        )
 
         if job.content_model:
             self._analysis_job = AnalysisModelFactory.create(
@@ -73,15 +78,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         else:
             self._analysis_job = AnalysisModelFactory.create()
             self._logger.warning("No job instructions")
-
-        super(AnalysisEffector, self).__init__(
-            job,
-            logger_name="Analysis Effector",
-            logging_target=os.path.join(
-                self._analysis_job.output_directory,
-                Paths().analysis_run_log,
-            )
-        )
         self._config = None
         self._job_label = get_label_from_analysis_model(
             job.content_model,
@@ -457,6 +453,14 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         allow_start = validate(self._analysis_job)
         self._original_model = copy(self._analysis_job)
         AnalysisModelFactory.set_absolute_paths(self._analysis_job)
+
+        # Make logger start logging to disk
+        logger_name = "Analysis Effector"
+        logging_target = os.path.join(
+            self._analysis_job.output_directory,
+            Paths().analysis_run_log,
+        )
+        self._logger = get_logger(logger_name, logging_target)
 
         self._scanning_instructions = load_first(
             Paths().get_scan_instructions_path_from_compile_instructions_path(  # noqa: E501
