@@ -2,6 +2,7 @@ import re
 from functools import wraps
 from itertools import chain, product
 from logging import Logger
+from typing import Optional
 
 import matplotlib  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
@@ -24,6 +25,7 @@ from scanomatic.data_processing.phases.segmentation import (
     DEFAULT_THRESHOLDS,
     CurvePhases,
     Thresholds,
+    ThresholdsDict,
     classifier_flat,
     get_barad_dur_towers,
     get_curve_classification_in_steps,
@@ -104,11 +106,11 @@ def get_position_phenotypes(phenotypes, plate, position_selection=None):
 
 
 def get_linkage_matrix(
-    aligned_phases,
-    clust_method='single',
-    clust_metric='euclidean',
-    nan_to_mean=True,
-    drop_low_cov_phenotypes=0.01,
+    aligned_phases: np.ndarray,
+    clust_method: str = 'single',
+    clust_metric: str = 'euclidean',
+    nan_to_mean: bool = True,
+    drop_low_cov_phenotypes: float = 0.01,
 ):
     if aligned_phases.ndim > 2:
         aligned_phases = aligned_phases.reshape(
@@ -144,9 +146,9 @@ def get_linkage_matrix(
 
 
 def plot_plate_clustered_heatmap(
-    shape,
-    c,
-    similarity_threshold=0.25,
+    shape: tuple[int, int],
+    c: np.ndarray,
+    similarity_threshold: float = 0.25,
     cmap=plt.cm.jet,
 ):
     z = sch.dendrogram(c, no_plot=True, color_threshold=similarity_threshold)
@@ -169,13 +171,13 @@ def plot_plate_clustered_heatmap(
 
 
 def plot_phase_correlation_dendrogram(
-    aligned_phases,
+    aligned_phases: np.ndarray,
     phase_labels,
-    clust_method='single',
-    clust_metric='euclidean',
+    clust_method: str = 'single',
+    clust_metric: str = 'euclidean',
     cmap=plt.cm.jet,
-    vmax=None,
-    nan_to_mean=True,
+    vmax: Optional[float] = None,
+    nan_to_mean: bool = True,
 ):
 
     print("Reshaping")
@@ -454,8 +456,8 @@ def plot_plate_phase_assigment_frequencies(phenotypes, plate):
 def plot_plate_phase_pop_size_variance_decomp(
     phenotypes,
     plate,
-    relative=False,
-    min_members=0,
+    relative: bool = False,
+    min_members: int = 0,
 ):
 
     # Prepare the data
@@ -572,17 +574,17 @@ def plot_plate_heatmap(
     phenotypes,
     plate_index,
     measure=None,
-    use_common_value_axis=True,
-    vmin=None,
-    vmax=None,
-    show_color_bar=True,
-    horizontal_orientation=True,
+    use_common_value_axis: bool = True,
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
+    show_color_bar: bool = True,
+    horizontal_orientation: bool = True,
     cm=plt.cm.RdBu_r,
-    title_text=None,
-    hide_axis=False,
+    title_text: Optional[str] = None,
+    hide_axis: bool = False,
     fig=None,
-    save_target=None,
-    normalized=False,
+    save_target: Optional[str] = None,
+    normalized: bool = False,
 ):
     if measure is None:
         measure = Phenotypes.GenerationTime
@@ -676,12 +678,12 @@ def plot_all_curves_and_smoothing(
     phenotyper_object,
     id_plate,
     f=None,
-    smoothing_label="Smoothed",
-    smoothing_color=None,
-    plot_raw=True,
-    set_title=True,
-    plot_from_pos=None,
-    plot_to_pos=None,
+    smoothing_label: str = "Smoothed",
+    smoothing_color: Optional[str] = None,
+    plot_raw: bool = True,
+    set_title: bool = True,
+    plot_from_pos: Optional[tuple[int, int]] = None,
+    plot_to_pos: Optional[tuple[int, int]] = None,
 ):
 
     if f is None:
@@ -756,11 +758,11 @@ def plot_phases_all_curves(
     phenotyper_object,
     id_plate,
     f=None,
-    set_title=False,
-    plot_from_pos=None,
-    plot_to_pos=None,
-    plot_derivative=False,
-    hide_all_legends=True,
+    set_title: bool = False,
+    plot_from_pos: Optional[tuple[int, int]] = None,
+    plot_to_pos: Optional[tuple[int, int]] = None,
+    plot_derivative: bool = False,
+    hide_all_legends: bool = True,
 ):
 
     if f is None:
@@ -821,7 +823,10 @@ def plot_phases_all_curves(
 
 
 @_validate_input
-def plot_phases_legend(f=None, colors=None):
+def plot_phases_legend(
+    f=None,
+    colors: Optional[dict[CurvePhases, str]] = None,
+):
     if f is None:
         f = plt.figure("Phases legend")
     else:
@@ -858,9 +863,9 @@ def plot_phases_legend(f=None, colors=None):
 def plot_barad_dur_plot(
     phenotyper_object,
     plate,
-    pos,
-    plot_curve=False,
-    plot_final_phases=False,
+    pos: tuple[int, int],
+    plot_curve: bool = False,
+    plot_final_phases: bool = False,
     f=None,
     ax=None,
 ):
@@ -1015,9 +1020,9 @@ def plot_barad_dur_plot(
 def plot_curve_and_derivatives(
     phenotyper_object,
     plate,
-    pos,
-    thresholds=DEFAULT_THRESHOLDS,
-    show_thresholds=True,
+    pos: tuple[int, int],
+    thresholds: ThresholdsDict = DEFAULT_THRESHOLDS,
+    show_thresholds: bool = True,
     ax=None,
     f=None,
     **kwargs,
@@ -1056,11 +1061,11 @@ def plot_curve_and_derivatives(
 @_setup_figure
 def plot_curve_and_derivatives_from_model(
     model,
-    thresholds=DEFAULT_THRESHOLDS,
-    show_thresholds=False,
+    thresholds: ThresholdsDict = DEFAULT_THRESHOLDS,
+    show_thresholds: bool = False,
     f=None,
     ax=None,
-    fill_alpha=0.35,
+    fill_alpha: float = 0.35,
 ):
     thresholds_width = 1.5
 
@@ -1133,8 +1138,8 @@ def plot_curve_and_derivatives_from_model(
 
 
 def load_phenotype_results_into_plates(
-    file_name,
-    phenotype_header='Generation Time',
+    file_name: str,
+    phenotype_header: str = 'Generation Time',
 ):
 
     data = pd.read_csv(file_name, sep='\t')
@@ -1164,11 +1169,11 @@ def load_phenotype_results_into_plates(
 def animate_plate_over_time(
     save_target,
     plate,
-    truncate_value_encoding=False,
+    truncate_value_encoding: bool = False,
     index=None,
     fig=None,
     ax=None,
-    fps=3,
+    fps: int = 3,
     cmap=None,
 ):
 
@@ -1191,11 +1196,13 @@ def animate_plate_over_time(
         vmin = masked_plate.min()
         vmax = masked_plate.max()
 
+    if ax is None:
+        if fig is None:
+            fig = plt.figure()
+        ax = fig.gca()
+
     @MovieWriter(save_target, fps=fps, fig=fig)
     def _animation():
-
-        if ax is None:  # noqa: F823
-            ax = fig.gca()
 
         im = ax.imshow(
             plate[..., 0],
@@ -1219,14 +1226,14 @@ def animate_plate_over_time(
 def plot_phases(
     phenotypes,
     plate,
-    position,
-    segment_alpha=1,
+    position: tuple[int, int],
+    segment_alpha: float = 1,
     f=None,
     ax=None,
     colors=None,
-    save_target=None,
+    save_target: Optional[str] = None,
     loc="lower right",
-    plot_deriv=False,
+    plot_deriv: bool = False,
 ):
 
     if not isinstance(phenotypes, Phenotyper):
@@ -1268,9 +1275,9 @@ def plot_phases_from_model(
     ax=None,
     f=None,
     colors=None,
-    segment_alpha=1,
+    segment_alpha: float = 1,
     loc="lower right",
-    plot_deriv=False,
+    plot_deriv: bool = False,
 ):
 
     times = model.times
@@ -1297,7 +1304,7 @@ def plot_phases_from_data(
     ax=None,
     f=None,
     colors=None,
-    segment_alpha=1,
+    segment_alpha: float = 1,
     loc="lower right",
     deriv=None,
     plot_legend=True,
@@ -1379,8 +1386,8 @@ def plot_phases_from_data(
 def plot_phase_segmentation_in_steps(
     phenotyper,
     plate,
-    position,
-    plot_deriv=True,
+    position: tuple[int, int],
+    plot_deriv: bool = True,
     **kwargs,
 ):
     steps, model = get_curve_classification_in_steps(

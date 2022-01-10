@@ -1,8 +1,9 @@
+from typing import Optional
 import numpy as np
 from scipy.stats.mstats import mquantiles  # type: ignore
 
 
-def iqr_mean(data, *args, **kwargs):
+def iqr_mean(data: np.ndarray, *args, **kwargs) -> Optional[np.ndarray]:
     quantiles = mquantiles(data, prob=(0.25, 0.75))
     if quantiles.any():
         val = np.ma.masked_outside(data, *quantiles).mean(*args, **kwargs)
@@ -12,7 +13,7 @@ def iqr_mean(data, *args, **kwargs):
     return None
 
 
-def mid50_mean(data):
+def mid50_mean(data: np.ndarray) -> float:
 
     if not isinstance(data, np.ma.masked_array):
         data = np.ma.masked_invalid(data)
@@ -24,7 +25,7 @@ def mid50_mean(data):
     return data[flank:-flank].mean()
 
 
-def quantiles_stable(data):
+def quantiles_stable(data: np.ndarray) -> tuple[float, float]:
 
     if not isinstance(data, np.ma.masked_array):
         data = np.ma.masked_invalid(data)

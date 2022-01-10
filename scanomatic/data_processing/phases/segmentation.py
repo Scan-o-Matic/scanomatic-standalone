@@ -3,13 +3,15 @@ from enum import Enum
 from typing import Optional, Union
 
 import numpy as np
-from scipy import signal  # type: ignore
+from scipy.signal import convolve  # type: ignore
+from scipy.signal.windows import gaussian  # type: ignore
 from scipy.ndimage import (  # type: ignore
     binary_closing, generic_filter, label,
 )
 
 
 from scanomatic.models.phases_models import SegmentationModel
+from scanomatic.data_processing.convolution import FilterArray
 
 __EMPTY_FILT = np.array([]).astype(bool)
 
@@ -250,12 +252,12 @@ def get_data_needed_for_segmentation(
     model.times = phenotyper_object.times
 
     # Smoothing kernel for derivatives
-    gauss = signal.gaussian(7, 3)
+    gauss = gaussian(7, 3)
     gauss /= gauss.sum()
 
     # Some center weighted smoothing of derivative, we only care for general
     # shape
-    dydt = signal.convolve(
+    dydt = convolve(
         phenotyper_object.get_derivative(plate, pos),
         gauss,
         mode='valid',
@@ -275,8 +277,8 @@ def get_data_needed_for_segmentation(
     model.offset = 0
 
     # Smoothing in kernel shape because only want reliable trends
-    d2yd2t = signal.convolve(dydt, [1., 0., -1.], mode='valid')
-    d2yd2t = signal.convolve(d2yd2t, gauss, mode='valid')
+    d2yd2t = convolve(dydt, [1., 0., -1.], mode='valid')
+    d2yd2t = convolve(d2yd2t, gauss, mode='valid')
 
     d2_offset = int((model.times.size - d2yd2t.size) / 2)
     model.d2yd2t = np.ma.masked_invalid(np.hstack((
@@ -310,7 +312,7 @@ def get_data_needed_for_segmentation(
 
 def get_curve_classification_in_steps(
     phenotyper,
-    plate,
+    plate: int,
     position,
     thresholds: Optional[ThresholdsDict] = None,
 ):
@@ -331,7 +333,7 @@ def get_curve_classification_in_steps(
     return states, model
 
 
-def _get_flanks(phases, filt):
+def _get_flanks(phases, filt: FilterArray):
 
     n = filt.sum()
     if n == 0:
@@ -404,11 +406,11 @@ def _get_candidate_segment(
             break
 
 
-def classifier_flat(model):
-    return CurvePhases.Flat, _bridge_canditates(model.dydt_signs == 0)
+def classifier_flat(model: SegmentationModel):
+    return CurvePhases.Flat, _bridge_candidates(model.dydt_signs == 0)
 
 
-def _set_flat_segments(model, thresholds):
+def _set_flat_segments(model: SegmentationModel, thresholds: ThresholdsDict):
     model.phases[...] = CurvePhases.UndeterminedNonFlat.value
     _, flats = classifier_flat(model)
     for length, left, right in zip(*_get_candidate_lengths_and_edges(flats)):
@@ -416,7 +418,11 @@ def _set_flat_segments(model, thresholds):
             model.phases[left: right] = CurvePhases.Flat.value
 
 
-def get_tangent_proximity(model, loc, thresholds):
+def get_tangent_proximity(
+    model: SegmentationModel,
+    loc: int,
+    thresholds: ThresholdsDict,
+):
     # Getting back the sign and values for linear model
     loc_slope = model.dydt[loc]
     loc_value = model.log2_curve[loc]
@@ -435,7 +441,12 @@ def get_tangent_proximity(model, loc, thresholds):
     ).filled(False)
 
 
-def _validate_linear_non_flat_phase(model, elected, phase, thresholds):
+def _validate_linear_non_flat_phase(
+    model: SegmentationModel,
+    elected,
+    phase,
+    thresholds: ThresholdsDict,
+):
     if (
         phase is CurvePhases.Undetermined
         or elected.sum() < thresholds[Thresholds.NonFlatLinearMinimumLength]
@@ -494,7 +505,11 @@ def _validate_linear_non_flat_phase(model, elected, phase, thresholds):
     return True
 
 
-def classifier_nonflat_linear(model, thresholds, filt):
+def classifier_nonflat_linear(
+    model: SegmentationModel,
+    thresholds: ThresholdsDict,
+    filt: FilterArray,
+):
     """
 
     Args:
@@ -553,7 +568,7 @@ def classifier_nonflat_linear(model, thresholds, filt):
     # if model.pos == (8, 3):
     #    print candidates.sum()
 
-    candidates = _bridge_canditates(candidates)
+    candidates = _bridge_candidates(candidates)
     candidates, n_found = label(candidates)
 
     # if model.pos == (8, 3):
@@ -622,7 +637,10 @@ def classifier_nonflat_linear(model, thresholds, filt):
     return phase, elected, True
 
 
-def _set_nonflat_linear_segment(model, thresholds):
+def _set_nonflat_linear_segment(
+    model: SegmentationModel,
+    thresholds: ThresholdsDict,
+):
     """
 
     Args:
@@ -683,9 +701,9 @@ def _set_nonflat_linear_segment(model, thresholds):
     return (border_candidates == loc_label) - elected
 
 
-def _get_candidate_lengths_and_edges(candidates):
+def _get_candidate_lengths_and_edges(candidates: np.ndarray):
     kernel = [-1, 1]
-    edges = signal.convolve(candidates, kernel, mode='same')
+    edges = convolve(candidates, kernel, mode='same')
     lefts, = np.where(edges == -1)
     rights, = np.where(edges == 1)
     if rights.size < lefts.size:
@@ -693,7 +711,10 @@ def _get_candidate_lengths_and_edges(candidates):
     return rights - lefts, lefts, rights
 
 
-def _bridge_canditates(candidates, structure=(True, True, True, True, True)):
+def _bridge_candidates(
+    candidates: np.ndarray,
+    structure=(True, True, True, True, True),
+):
 
     return (
         binary_closing(candidates.astype(bool), structure=structure)
@@ -705,7 +726,7 @@ def classifier_nonlinear(
     model: SegmentationModel,
     thresholds: ThresholdsDict,
     filt: np.ndarray,
-    test_edge,
+    test_edge: PhaseEdge,
 ):
     """ Classifies non-linear segments
 
@@ -753,7 +774,8 @@ def classifier_nonlinear(
     candidates = filt & op1(model.dydt_signs, 0) & op2(model.d2yd2t_signs, 0)
     candidates = generic_filter(
         candidates,
-        _custom_filt, size=9,
+        _custom_filt,
+        size=9,
         mode='nearest'
     )
     candidates, label_count = label(candidates)
@@ -771,7 +793,7 @@ def classify_non_linear_segment_type(
     model: SegmentationModel,
     thresholds: ThresholdsDict,
     filt: np.ndarray,
-    test_edge,
+    test_edge: PhaseEdge,
 ) -> CurvePhases:
     """Classifies the primary non-linear phase in a segment
 
@@ -905,8 +927,8 @@ def _set_nonlinear_phase_type(
 
 
 def _classify_non_linear_segment_type(
-    dydt_section,
-    d2yd2t_section,
+    dydt_section: np.ndarray,
+    d2yd2t_section: np.ndarray,
     thresholds: ThresholdsDict,
 ):
     """Classifies non linear segment
@@ -961,21 +983,24 @@ def _classify_non_linear_segment_type(
         return CurvePhases.Undetermined
 
 
-def _custom_filt(v, max_gap=3, min_length=3):
+def _custom_filt(v: FilterArray, max_gap: int = 3, min_length: float = 3):
     w, = np.where(v)
     if not w.any():
         return False
-    filted = signal.convolve(
+    filtered = convolve(
         v[w[0]:w[-1] + 1] == np.False_,
-        (1,)*max_gap,
+        (1,) * max_gap,
         mode='same',
     ) < max_gap
-    padded = np.hstack([(0,), filted, (0,)]).astype(int)
+    padded = np.hstack([(0,), filtered, (0,)]).astype(int)
     diff = np.diff(padded)
     return (np.where(diff < 0)[0] - np.where(diff > 0)[0]).max() >= min_length
 
 
-def get_linear_non_flat_extension_per_position(model, thresholds):
+def get_linear_non_flat_extension_per_position(
+    model: SegmentationModel,
+    thresholds: ThresholdsDict,
+):
     filt = (model.phases != CurvePhases.Flat.value)
     if isinstance(filt, np.ma.masked_array):
         filt = filt.filled(False)
@@ -992,7 +1017,7 @@ def get_linear_non_flat_extension_per_position(model, thresholds):
 
         candidates &= filt
 
-        candidates = _bridge_canditates(candidates)
+        candidates = _bridge_candidates(candidates)
         candidates, n_found = label(candidates)
 
         # Verify that there's actually still a candidate at the peak value
@@ -1010,18 +1035,22 @@ def get_linear_non_flat_extension_per_position(model, thresholds):
     return extension_lengths, extension_borders
 
 
-def get_barad_dur_towers(extension_lengths, filt, thresholds):
+def get_barad_dur_towers(
+    extension_lengths: np.ndarray,
+    filt: FilterArray,
+    thresholds: ThresholdsDict,
+):
 
     peaks = np.hstack((
         [0],
-        signal.convolve(extension_lengths, [-1, 2, -1], mode='valid'),
+        convolve(extension_lengths, [-1, 2, -1], mode='valid'),
         [0],
     ))
     peaks = (peaks > thresholds[Thresholds.LinearityPeak]) & filt
 
     # slopes = np.hstack((
     #     [0],
-    #     signal.convolve(extension_lengths, [1, 0, -1], mode='valid'),
+    #     convolve(extension_lengths, [1, 0, -1], mode='valid'),
     #     [0],
     # ))
     # peak_directions = slopes[peaks]
@@ -1066,7 +1095,11 @@ def get_barad_dur_towers(extension_lengths, filt, thresholds):
     return label(candidates)
 
 
-def set_nonflat_linearity_segments(model, extension_lengths, thresholds):
+def set_nonflat_linearity_segments(
+    model: SegmentationModel,
+    extension_lengths: np.ndarray,
+    thresholds: ThresholdsDict,
+) -> SegmentationModel:
 
     filt = model.phases != CurvePhases.Flat.value
     model.phases[filt] = CurvePhases.UndeterminedNonFlat.value
@@ -1108,7 +1141,7 @@ def set_nonflat_linearity_segments(model, extension_lengths, thresholds):
                 model.phases[elected] = phase.value
 
                 # Expand so that two segments may not collide
-                ext_elected = signal.convolve(
+                ext_elected = convolve(
                     elected,
                     [1, 1, 1],
                     mode='same',

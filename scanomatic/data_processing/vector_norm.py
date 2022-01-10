@@ -2,7 +2,7 @@ import itertools
 from enum import Enum
 
 import numpy as np
-from scipy.signal import gaussian  # type: ignore
+from scipy.signal.windows import gaussian  # type: ignore
 
 
 class PositionOffset(Enum):
@@ -34,8 +34,8 @@ def get_reference_position_selector(
 
 
 def get_reference_position_filter(
-    plate_shape,
-    position_selector=get_reference_position_selector(),
+    plate_shape: tuple[int, ...],
+    position_selector: np.ndarray = get_reference_position_selector(),
 ):
 
     return np.tile(
@@ -48,11 +48,11 @@ def get_reference_position_filter(
 
 
 def get_best_reference_for_experiments(
-    plate,
+    plate: np.ndarray,
     reference_position_filter=None,
-    distance_matrix=get_distance_matrix(),
+    distance_matrix: np.ndarray = get_distance_matrix(),
     scale_references: bool = False,
-):
+) -> np.ndarray:
 
     def most_stable(curves, reference_weights, reference_filter):
         positions = np.array(list(zip(*np.where(reference_filter))))
@@ -147,9 +147,9 @@ def get_best_reference_for_experiments(
 
 
 def remove_positions_by_offset_and_flatten(
-    plate,
+    plate: np.ndarray,
     offset: PositionOffset = PositionOffset.LowerRight,
-):
+) -> np.ndarray:
     out = np.zeros(
         (plate.shape[0] * plate.shape[1] * 3 / 4, plate.shape[2]),
         dtype=plate.dtype,
@@ -169,7 +169,10 @@ def remove_positions_by_offset_and_flatten(
     return out
 
 
-def vector_norm(plate, scale_references=False):
+def vector_norm(
+    plate: np.ndarray,
+    scale_references: bool = False,
+) -> np.ndarray:
     reference = get_best_reference_for_experiments(
         plate,
         scale_references=scale_references,

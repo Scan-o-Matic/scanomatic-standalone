@@ -1,5 +1,6 @@
 """Resource module for handling basic images operations."""
 from logging import Logger
+from typing import Optional, Type
 
 import numpy as np
 from PIL import Image
@@ -10,19 +11,19 @@ from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 _logger = Logger("Basic Image Utils")
 
 
-def scale_16bit_to_8bit_range(data):
+def scale_16bit_to_8bit_range(data: np.ndarray) -> np.ndarray:
     return data / (2 ** 16 - 1.) * 255
 
 
-def round_to_8bit(data):
+def round_to_8bit(data: np.ndarray) -> np.ndarray:
     return np.round(data).astype(np.uint8)
 
 
 def load_image_to_numpy(
-    path,
-    orientation=IMAGE_ROTATIONS.Portrait,
-    dtype=np.float64,
-):
+    path: str,
+    orientation: IMAGE_ROTATIONS = IMAGE_ROTATIONS.Portrait,
+    dtype: Type = np.float64,
+) -> np.ndarray:
     im = Image.open(path)
     data = np.array(im)
 
@@ -51,12 +52,12 @@ def load_image_to_numpy(
 
 
 def Quick_Scale_To_im(
-    path=None,
-    im=None,
-    source_dpi=600,
-    target_dpi=150,
-    scale=None,
-):
+    path: Optional[str] = None,
+    im: Optional[np.ndarray] = None,
+    source_dpi: int = 600,
+    target_dpi: int = 150,
+    scale: Optional[float] = None,
+) -> np.ndarray:
     if im is None:
         try:
             im = load_image_to_numpy(path, dtype=np.uint8)

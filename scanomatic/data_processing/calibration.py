@@ -3,7 +3,7 @@ from collections import namedtuple
 from collections.abc import Callable
 from enum import Enum
 from logging import Logger
-from typing import Any, Union
+from typing import Any, Optional, Union
 from uuid import uuid1
 
 import numpy as np
@@ -58,7 +58,7 @@ class CalibrationValidation(Enum):
     BadData = 4
 
 
-def _ccc_edit_validator(identifier, **kwargs):
+def _ccc_edit_validator(identifier, **kwargs) -> bool:
     if identifier in __CCC:
         ccc = __CCC[identifier]
 
@@ -104,7 +104,7 @@ def _validate_ccc_edit_request(f):
 
 
 @_validate_ccc_edit_request
-def is_valid_edit_request(identifier):
+def is_valid_edit_request(identifier) -> bool:
     return True
 
 
@@ -192,7 +192,7 @@ def get_under_construction_cccs():
     }
 
 
-def add_ccc(ccc):
+def add_ccc(ccc) -> bool:
 
     if (
         ccc[CellCountCalibration.identifier]
@@ -211,7 +211,7 @@ def add_ccc(ccc):
         return False
 
 
-def has_valid_polynomial(ccc):
+def has_valid_polynomial(ccc) -> None:
     poly = ccc[CellCountCalibration.polynomial]
     try:
         validate_polynomial_format(poly)
@@ -222,7 +222,7 @@ def has_valid_polynomial(ccc):
 
 
 @_validate_ccc_edit_request
-def activate_ccc(identifier):
+def activate_ccc(identifier) -> bool:
     ccc = __CCC[identifier]
     try:
         has_valid_polynomial(ccc)
@@ -235,14 +235,14 @@ def activate_ccc(identifier):
 
 
 @_validate_ccc_edit_request
-def delete_ccc(identifier):
+def delete_ccc(identifier) -> bool:
     ccc = __CCC[identifier]
     ccc[CellCountCalibration.status] = CalibrationEntryStatus.Deleted
     ccc[CellCountCalibration.edit_access_token] = uuid1().hex
     return save_ccc_to_disk(ccc)
 
 
-def save_ccc_to_disk(ccc):
+def save_ccc_to_disk(ccc) -> bool:
     if ccc[CellCountCalibration.identifier] in __CCC:
         return save_ccc(ccc)
     else:
@@ -276,7 +276,7 @@ def get_image_identifiers_in_ccc(identifier):
 
 
 @_validate_ccc_edit_request
-def set_image_info(identifier, image_identifier, **kwargs):
+def set_image_info(identifier, image_identifier, **kwargs) -> bool:
     ccc = __CCC[identifier]
     im_json = get_image_json_from_ccc(identifier, image_identifier)
 
@@ -298,7 +298,7 @@ def set_plate_grid_info(
     grid_shape=None,
     grid_cell_size=None,
     **kwargs
-):
+) -> bool:
 
     ccc = __CCC[identifier]
     im_json = get_image_json_from_ccc(identifier, image_identifier)
@@ -335,7 +335,7 @@ def save_image_slices(
     image_identifier,
     grayscale_slice=None,
     plate_slices=None,
-):
+) -> bool:
 
     im = load_image_to_numpy(
         Paths().ccc_image_pattern.format(identifier, image_identifier),
@@ -364,7 +364,7 @@ def save_image_slices(
     return True
 
 
-def _get_im_slice(im, model):
+def _get_im_slice(im: np.ndarray, model) -> np.ndarray:
     return im[
         int(np.floor(model.y1)): int(np.ceil(model.y2)),
         int(np.floor(model.x1)): int(np.ceil(model.x2))
@@ -386,7 +386,7 @@ def get_plate_slice(
     image_identifier,
     id_plate,
     gs_transformed=False,
-):
+) -> Optional[np.ndarray]:
 
     if gs_transformed:
         try:
@@ -431,7 +431,7 @@ def get_plate_slice(
 
 
 @_validate_ccc_edit_request
-def transform_plate_slice(identifier, image_identifier, plate_id):
+def transform_plate_slice(identifier, image_identifier, plate_id) -> bool:
     im_json = get_image_json_from_ccc(identifier, image_identifier)
     if not im_json:
         _logger.error(
@@ -504,7 +504,7 @@ def set_colony_compressed_data(
     image,
     blob_filter,
     background_filter,
-):
+) -> bool:
 
     ccc = __CCC[identifier]
     background = mid50_mean(image[background_filter].ravel())
@@ -540,7 +540,7 @@ def set_colony_compressed_data(
     return save_ccc_to_disk(ccc)
 
 
-def calculate_sizes(data, poly):
+def calculate_sizes(data, poly) -> list[float]:
     """Get summed population size using a CCC.
 
     Use pixel darkening -> Cell Count Per pixel (CCC polynomial)
@@ -554,7 +554,11 @@ def calculate_sizes(data, poly):
     ]
 
 
-def validate_polynomial(slope, p_value, stderr) -> CalibrationValidation:
+def validate_polynomial(
+    slope: float,
+    p_value: float,
+    stderr: float,
+) -> CalibrationValidation:
     if abs(1.0 - slope) > 0.1:
         _logger.error("Bad slope for polynomial: {0}".format(slope))
         return CalibrationValidation.BadSlope
@@ -565,7 +569,7 @@ def validate_polynomial(slope, p_value, stderr) -> CalibrationValidation:
     return CalibrationValidation.OK
 
 
-def _collect_all_included_data(ccc):
+def _collect_all_included_data(ccc) -> CalibrationData:
     source_values = []
     source_value_counts = []
     target_value = []
@@ -603,7 +607,7 @@ def _collect_all_included_data(ccc):
     )
 
 
-def get_calibration_optimization_function(degree=5):
+def get_calibration_optimization_function(degree: int = 5) -> Callable:
     coeffs = np.zeros((degree + 1,), float)
 
     def poly(data_store, *guess):
@@ -620,7 +624,7 @@ def get_calibration_polynomial_residuals(
     guess,
     colony_sum_function: Callable,
     data_store
-):
+) -> float:
     return data_store.target_value - colony_sum_function(data_store, *guess)
 
 
@@ -628,7 +632,7 @@ def get_calibration_polynomial(coefficients_array):
     return np.poly1d(coefficients_array)
 
 
-def poly_as_text(poly) -> str:
+def poly_as_text(poly: np.ndarray) -> str:
     def coeffs():
         for i, coeff in enumerate(poly[::-1]):
             if (coeff != 0):
@@ -637,7 +641,7 @@ def poly_as_text(poly) -> str:
     return "y = {0}".format(" + ".join(coeffs()))
 
 
-def calculate_polynomial(data_store, degree=5):
+def calculate_polynomial(data_store, degree: int = 5) -> np.ndarray:
     fit_function = get_calibration_optimization_function(degree)
 
     p0 = np.zeros((degree,), float)

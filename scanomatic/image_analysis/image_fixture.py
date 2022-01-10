@@ -1,5 +1,6 @@
 import os
 from logging import Logger
+from typing import Optional
 
 import numpy as np
 from scipy.ndimage import center_of_mass  # type: ignore
@@ -85,7 +86,11 @@ class FixtureImage:
             if len(self._img.shape) > 2:
                 self._img = self._img[:, :, 0]
 
-    def load_other_size(self, path=None, conversion_factor: float = 1.0):
+    def load_other_size(
+        self,
+        path: Optional[str] = None,
+        conversion_factor: float = 1.0,
+    ) -> None:
 
         self._conversion_factor = conversion_factor
 
@@ -115,7 +120,7 @@ class FixtureImage:
         local_hit,
         conv_img,
         coordinates=None,
-        gaussian_weight_size_fraction=2.0,
+        gaussian_weight_size_fraction: float = 2.0,
     ) -> tuple[int, int]:
         """
         Use half-size to select area and give each pixel the weight of the
@@ -169,7 +174,7 @@ class FixtureImage:
             )
         ) - local_hit
 
-    def get_convolution(self, threshold=127):
+    def get_convolution(self, threshold: float = 127) -> np.ndarray:
         t_img = (self._img > threshold).astype(np.int8) * 2 - 1
         marker = self._pattern_img
 
@@ -182,10 +187,10 @@ class FixtureImage:
     @staticmethod
     def get_best_location(
         conv_img,
-        stencil_size,
-        refine_hit_gauss_weight_size_fraction=2.0,
-        max_refinement_iterations=20,
-        min_refinement_sq_distance=0.0001,
+        stencil_size: tuple[int, int],
+        refine_hit_gauss_weight_size_fraction: float = 2.0,
+        max_refinement_iterations: int = 20,
+        min_refinement_sq_distance: float = 0.0001,
     ):
         """This whas hidden and should be taken care of, is it needed"""
 
@@ -240,9 +245,9 @@ class FixtureImage:
     def get_best_locations(
         self,
         conv_img,
-        stencil_size,
-        n,
-        refine_hit_gauss_weight_size_fraction=2.0,
+        stencil_size: tuple[int, int],
+        n: int,
+        refine_hit_gauss_weight_size_fraction: float = 2.0,
     ):
         """This returns the best locations as a list of coordinates on the
         CURRENT IMAGE regardless of if it was scaled"""
@@ -268,7 +273,11 @@ class FixtureImage:
 
         return m_locations
 
-    def find_pattern(self, markings=3, img_threshold=127):
+    def find_pattern(
+        self,
+        markings: int = 3,
+        img_threshold: float = 127,
+    ) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """This function returns the image positions as numpy arrays that
         are scaled to match the ORIGINAL IMAGE size"""
 
@@ -292,5 +301,5 @@ class FixtureImage:
         else:
             return None, None
 
-    def get_loaded(self):
+    def get_loaded(self) -> bool:
         return (self._img is not None) and (self._load_error is not True)
