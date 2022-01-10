@@ -74,7 +74,7 @@ class AnalysisModelFactory(AbstractModelFactory):
 
     @classmethod
     def set_absolute_paths(cls, model: analysis_model.AnalysisModel):
-        base_path = os.path.dirname(model.compilation)
+        base_path = os.path.abspath(os.path.dirname(model.compilation))
         model.compile_instructions = cls._get_absolute_path(
             model.compile_instructions,
             base_path,
