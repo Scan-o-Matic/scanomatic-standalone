@@ -32,6 +32,7 @@ def proj1_analysis(proj1, tmpdir):
 
     analysis_model = AnalysisModelFactory.create(
         compilation=str(workdir.join('proj1.project.compilation')),
+        compile_instructions=str(workdir.join('proj1.project.compilation.instructions')),
         chain=False,
     )
     assert validate(analysis_model)
