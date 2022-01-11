@@ -108,7 +108,9 @@ def test_status(scanomatic, browser):
 def test_settings(scanomatic, browser):
     uri = '/settings'
     r = requests.get(scanomatic + uri)
-    assert r.status_code == HTTPStatus.OK, f"Got status {r.status_code}: ({r.text})"
+    assert r.status_code == HTTPStatus.OK, (
+        f"Got status {r.status_code}: ({r.text})"
+    )
     assert r.text and len(r.text), '{} is empty'.format(uri)
     assert "<h1>Settings</h1>" in r.text
 
