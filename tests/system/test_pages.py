@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import requests
 
 
@@ -6,7 +7,7 @@ def test_root(scanomatic, browser):
     r = requests.get(scanomatic + uri)
     r.raise_for_status()
     assert r.text and len(r.text), '{} is empty'.format(uri)
-    assert "src='images/scan-o-matic_2.png'" in r.text
+    assert "src='images/scan-o-matic_3.png'" in r.text
 
 
 def test_home(scanomatic, browser):
@@ -107,7 +108,7 @@ def test_status(scanomatic, browser):
 def test_settings(scanomatic, browser):
     uri = '/settings'
     r = requests.get(scanomatic + uri)
-    r.raise_for_status()
+    assert r.status_code == HTTPStatus.OK, f"Got status {r.status_code}: ({r.text})"
     assert r.text and len(r.text), '{} is empty'.format(uri)
     assert "<h1>Settings</h1>" in r.text
 
