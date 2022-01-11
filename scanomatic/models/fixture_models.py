@@ -1,14 +1,19 @@
+from enum import Enum, auto
 from typing import Optional
 from collections.abc import Sequence
 
 from scanomatic.generics import model
 
 
-class GrayScaleModel(model.Model):
-    def __init__(self, name, targets):
-        self.name = name
-        self.targets = targets
-        super(GrayScaleModel, self).__init__()
+class GrayScaleAreaModelFields(Enum):
+    _name = auto()
+    values = auto()
+    width = auto()
+    section_length = auto()
+    x1 = auto()
+    x2 = auto()
+    y1 = auto()
+    y2 = auto()
 
 
 class GrayScaleAreaModel(model.Model):
@@ -31,21 +36,33 @@ class GrayScaleAreaModel(model.Model):
         self.x2: int = x2
         self.y1: int = y1
         self.y2: int = y2
-        super(GrayScaleAreaModel, self).__init__()
+        super().__init__()
+
+
+class FixtureModelFields(Enum):
+    _name = auto()
+    path = auto()
+    grayscale = auto()
+    orientation_marks_x = auto()
+    orientation_marks_y = auto()
+    shape = auto()
+    coordinates_scale = auto()
+    plates = auto()
+    orientation_mark_path = auto()
+    scale = auto()
 
 
 class FixtureModel(model.Model):
-
     def __init__(
         self,
         path: str = "",
         grayscale: Optional[GrayScaleAreaModel] = None,
         orientation_mark_path: str = "",
-        orientation_marks_x: Sequence = [],
-        orientation_marks_y: Sequence = [],
-        shape: Sequence = [],
-        coordinates_scale: float = 1,
-        plates: Sequence = [],
+        orientation_marks_x: Sequence[float] = [],
+        orientation_marks_y: Sequence[float] = [],
+        shape: Sequence[int] = [],
+        coordinates_scale: float = 1.0,
+        plates: Sequence["FixturePlateModel"] = [],
         name: str = "",
         scale: float = 1.0,
     ):
@@ -59,7 +76,15 @@ class FixtureModel(model.Model):
         self.plates: Sequence = plates
         self.orientation_mark_path: str = orientation_mark_path
         self.scale: float = scale
-        super(FixtureModel, self).__init__()
+        super().__init__()
+
+
+class FixturePlateModelFields(Enum):
+    index = auto()
+    x1 = auto()
+    x2 = auto()
+    y1 = auto()
+    y2 = auto()
 
 
 class FixturePlateModel(model.Model):
@@ -76,4 +101,4 @@ class FixturePlateModel(model.Model):
         self.x2: int = x2
         self.y1: int = y1
         self.y2: int = y2
-        super(FixturePlateModel, self).__init__()
+        super().__init__()

@@ -1,14 +1,17 @@
 import os
 import uuid
+from collections.abc import Sequence
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from logging import Logger
-from typing import Optional, Union
-from collections.abc import Sequence
+from typing import Any, Literal, Optional, Type, Union
 
 import scanomatic.models.scanning_model as scanning_model
+from scanomatic.generics.abstract_model_factory import AbstractModelFactory
+from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
+from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.models.factories.settings_factories import (
-    ApplicationSettingsFactory
+    ApplicationSettingsFactory,
 )
 from scanomatic.models.settings_models import (
     ApplicationSettingsModel,
@@ -23,6 +26,11 @@ from scanomatic.models.settings_models import (
 
 from . import paths, power_manager
 
+MinMaxModelSettings = dict[
+    Type[Model],
+    dict[Literal['min', 'max'], dict[str, Any]]
+]
+
 
 class Config(SingeltonOneInit):
     SCANNER_PATTERN = "Scanner {0}"
@@ -33,7 +41,7 @@ class Config(SingeltonOneInit):
         self._logger = Logger("Application Config")
         # TODO: Extend functionality to toggle to remote connect
         self._use_local_rpc_settings = True
-        self._minMaxModels = {
+        self._minMaxModels: MinMaxModelSettings = {
             scanning_model.ScanningModel: {
                 "min": {
                     "time_between_scans": 7.0,
@@ -149,6 +157,10 @@ class Config(SingeltonOneInit):
     def scanner_sockets(self) -> dict[str, int]:
         return self._settings.scanner_sockets
 
+    @property
+    def application_settings(self) -> Optional[ApplicationSettingsModel]:
+        return self._settings
+
     def model_copy(self) -> ApplicationSettingsModel:
         return ApplicationSettingsFactory.copy(self._settings)
 
@@ -163,13 +175,8 @@ class Config(SingeltonOneInit):
 
     def reload_settings(self) -> None:
         if os.path.isfile(self._paths.config_main_app):
-            try:
-                self._settings = (
-                    ApplicationSettingsFactory.get_serializer().load_first(
-                        self._paths.config_main_app,
-                    )
-                )
-            except (IOError):
+            self._settings = load_first(self._paths.config_main_app)
+            if self._settings is None:
                 self._settings = ApplicationSettingsFactory.create()
         else:
             self._settings = ApplicationSettingsFactory.create()
@@ -238,45 +245,12 @@ class Config(SingeltonOneInit):
 
         return val
 
-    def validate(self, bad_keys_out=None) -> bool:
-        """
-
-        Args:
-            bad_keys_out: list to hold keys with bad values
-            :type bad_keys_out: list
-
-        """
-        if bad_keys_out is not None:
-            try:
-                while True:
-                    bad_keys_out.pop()
-            except IndexError:
-                pass
-
-        if not ApplicationSettingsFactory.validate(self._settings):
-            self._logger.error(
-                "There are invalid values in the current application settings,"
-                "will not save and will reload last saved settings",
-            )
-
-            if bad_keys_out is not None:
-                for label in ApplicationSettingsFactory.get_invalid_names(
-                    self._settings
-                ):
-                    bad_keys_out.append(label)
-
-            self.reload_settings()
-            return False
-        return True
-
     def save_current_settings(self) -> None:
         if self.validate():
-            ApplicationSettingsFactory.get_serializer().purge_all(
-                self._paths.config_main_app,
-            )
-            ApplicationSettingsFactory.get_serializer().dump(
+            dump(
                 self._settings,
                 self._paths.config_main_app,
+                overwrite=True,
             )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
@@ -302,8 +276,8 @@ class Config(SingeltonOneInit):
         )
         return self._PM(socket, **self.power_manager)
 
-    def get_min_model(self, model, factory):
+    def get_min_model(self, model: Model, factory: Type[AbstractModelFactory]):
         return factory.create(**self._minMaxModels[type(model)]['min'])
 
-    def get_max_model(self, model, factory):
+    def get_max_model(self, model: Model, factory: Type[AbstractModelFactory]):
         return factory.create(**self._minMaxModels[type(model)]['max'])

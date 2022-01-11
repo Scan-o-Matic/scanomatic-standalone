@@ -201,8 +201,8 @@ def filterUniquesOnPlate(
 
         plate:    A plate to return uniques dict for
     """
-    plate = _PLATE_STRING.format(plate)
-    return {k: v for k, v in list(uniqueDict.items()) if k[-1] == plate}
+    plate_name = _PLATE_STRING.format(plate)
+    return {k: v for k, v in list(uniqueDict.items()) if k[-1] == plate_name}
 
 
 def splitStrainsPerPlates(strainDict: dict) -> list[dict]:

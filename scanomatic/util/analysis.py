@@ -6,11 +6,10 @@ import numpy as np
 
 from scanomatic.generics.purge_importing import ExpiringModule
 from scanomatic.image_analysis.image_basics import load_image_to_numpy
+from scanomatic.io.jsonizer import load
 from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory
-)
+from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _logger = Logger("Analysis Utils")
 
@@ -61,7 +60,7 @@ def produce_grid_images(
         )
     )
 
-    compilation = CompileImageAnalysisFactory.get_serializer().load(compilation)
+    compilation: list[CompileImageAnalysisModel] = load(compilation)
 
     image_path = compilation[-1].image.path
     all_plates = compilation[-1].fixture.plates

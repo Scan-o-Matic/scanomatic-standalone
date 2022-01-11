@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from typing import Optional
 from collections.abc import Sequence
 
@@ -18,6 +18,19 @@ class FIXTURE(Enum):
     Global = 1
 
 
+class CompileInstructionsModelFields(Enum):
+    compile_action = auto()
+    images = auto()
+    path = auto()
+    start_time = auto()
+    start_condition = auto()
+    fixture_type = auto()
+    fixture_name = auto()
+    email = auto()
+    overwrite_pinning_matrices = auto()
+    cell_count_calibration_id = auto()
+
+
 class CompileInstructionsModel(Model):
     def __init__(
         self,
@@ -33,7 +46,7 @@ class CompileInstructionsModel(Model):
         cell_count_calibration_id="default",
     ):
         self.compile_action: COMPILE_ACTION = compile_action
-        self.images: Sequence = images
+        self.images: Sequence[CompileImageModelFields] = images
         self.path: str = path
         self.start_time: float = start_time
         self.start_condition: str = start_condition
@@ -42,7 +55,13 @@ class CompileInstructionsModel(Model):
         self.email: str = email
         self.overwrite_pinning_matrices = overwrite_pinning_matrices
         self.cell_count_calibration_id: str = cell_count_calibration_id
-        super(CompileInstructionsModel, self).__init__()
+        super().__init__()
+
+
+class CompileImageModelFields(Enum):
+    index = auto()
+    path = auto()
+    time_stamp = auto()
 
 
 class CompileImageModel(Model):
@@ -55,7 +74,12 @@ class CompileImageModel(Model):
         self.index: int = index
         self.path: str = path
         self.time_stamp: float = time_stamp
-        super(CompileImageModel, self).__init__()
+        super().__init__()
+
+
+class CompileImageAnalysisModelFields(Enum):
+    image = auto()
+    fixture = auto()
 
 
 class CompileImageAnalysisModel(Model):
@@ -66,4 +90,4 @@ class CompileImageAnalysisModel(Model):
     ):
         self.image: Optional[CompileImageModel] = image
         self.fixture: Optional[FixtureModel] = fixture
-        super(CompileImageAnalysisModel, self).__init__()
+        super().__init__()

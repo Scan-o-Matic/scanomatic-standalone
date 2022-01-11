@@ -6,9 +6,10 @@ import scanomatic.io.image_data as image_data
 import scanomatic.io.paths as paths
 import scanomatic.models.factories.features_factory as feature_factory
 from scanomatic.io.app_config import Config as AppConfig
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.io.jsonizer import dump, loads
 from scanomatic.models.features_model import FeaturesModel
-from scanomatic.models.rpc_job_models import JOB_TYPE
+from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
+from scanomatic.models.validators.validate import validate
 
 from . import proc_effector
 
@@ -58,14 +59,12 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
             self._logger.warning("Can't setup when started")
             return False
 
-        job = RPC_Job_Model_Factory.get_serializer().load_serialized_object(
-            job,
-        )[0]
-        self._feature_job = job.content_model
+        job: RPCjobModel = loads(job)
+        self._feature_job: FeaturesModel = job.content_model
         self._job.content_model = self._feature_job
 
-        if feature_factory.FeaturesFactory.validate(self._feature_job) is True:
-            feature_factory.FeaturesFactory.get_serializer().dump(
+        if validate(self._feature_job):
+            dump(
                 self._feature_job,
                 os.path.join(
                     self._feature_job.analysis_directory,

@@ -1,6 +1,7 @@
 from logging import Logger
 from multiprocessing import Pipe
 from typing import Union
+from scanomatic.io.jsonizer import dump, dumps, load, purge
 
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -11,7 +12,6 @@ import scanomatic.server.rpcjob as rpc_job
 import scanomatic.server.scanning_effector as scanning_effector
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io import scanner_manager
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 
 
 class Jobs(SingeltonOneInit):
@@ -61,10 +61,7 @@ class Jobs(SingeltonOneInit):
                 self._scanner_manager.release_scanner(job.id)
             del self._jobs[job]
             self._logger.info("Job '{0}' not active/removed".format(job))
-            if not RPC_Job_Model_Factory.get_serializer().purge(
-                job,
-                self._paths.rpc_jobs,
-            ):
+            if not purge(job, self._paths.rpc_jobs):
                 self._logger.warning(
                     "Failed to remove references to job in config file",
                 )
@@ -118,7 +115,7 @@ class Jobs(SingeltonOneInit):
         self._forcingStop = value
 
     def _load_from_file(self):
-        jobs = RPC_Job_Model_Factory.get_serializer().load(self._paths.rpc_jobs)
+        jobs: list[rpc_job_models.RPCjobModel] = load(self._paths.rpc_jobs)
         for job in jobs:
             if job and job.content_model:
                 _, parent_pipe = Pipe()
@@ -221,7 +218,7 @@ class Jobs(SingeltonOneInit):
     def _set_initialized_job(self, job_process, job):
         self._jobs[job] = job_process
         job.status = rpc_job_models.JOB_STATUS.Running
-        RPC_Job_Model_Factory.get_serializer().dump(job, self._paths.rpc_jobs)
+        dump(job, self._paths.rpc_jobs)
 
     def _initialize_job_process(
         self,
@@ -237,7 +234,7 @@ class Jobs(SingeltonOneInit):
 
         job_process.pipe.send(
             'setup',
-            RPC_Job_Model_Factory.get_serializer().serialize(job),
+            dumps(job),
         )
 
     def _add_scanner_operations_to_job(self, job_process: rpc_job.RpcJob):

@@ -5,6 +5,7 @@ from itertools import chain, product
 from flask import jsonify, request
 
 from scanomatic.image_analysis.grid_array import GridArray
+from scanomatic.io.jsonizer import load_first
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import (
     AnalysisModel,
@@ -95,9 +96,7 @@ def add_routes(app):
         path = convert_url_to_path(project)
 
         analysis_file = os.path.join(path, Paths().analysis_model_file)
-        model: AnalysisModel = AnalysisModelFactory.get_serializer().load_first(
-            analysis_file,
-        )
+        model: AnalysisModel = load_first(analysis_file)
 
         analysis_logs = tuple(
             chain(((

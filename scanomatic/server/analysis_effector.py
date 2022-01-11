@@ -1,26 +1,29 @@
 import errno
 import os
 import time
-from typing import Optional
+from typing import Optional, cast
 
 import scanomatic.image_analysis.analysis_image as analysis_image
 import scanomatic.io.first_pass_results as first_pass_results
 import scanomatic.io.image_data as image_data
+from scanomatic.io.logger import get_logger
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config as AppConfig
+from scanomatic.io.jsonizer import copy, dump, load_first
 from scanomatic.io.paths import Paths
-from scanomatic.models.analysis_model import AnalysisModel
+from scanomatic.models.analysis_model import AnalysisModel, AnalysisModelFields
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.features_factory import FeaturesFactory
-from scanomatic.models.factories.fixture_factories import (
-    FixturePlateFactory,
-    GrayScaleAreaModelFactory
-)
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.fixture_models import (
+    FixturePlateModel,
+    GrayScaleAreaModel
+)
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
 from scanomatic.models.scanning_model import ScanningModel
+from scanomatic.models.validators.validate import get_invalid, validate
 
 from . import proc_effector
 
@@ -63,6 +66,10 @@ class AnalysisEffector(proc_effector.ProcessEffector):
     TYPE = JOB_TYPE.Analysis
 
     def __init__(self, job: RPCjobModel):
+        super(AnalysisEffector, self).__init__(
+            job,
+            logger_name="Analysis Effector",
+        )
 
         if job.content_model:
             self._analysis_job = AnalysisModelFactory.create(
@@ -71,15 +78,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         else:
             self._analysis_job = AnalysisModelFactory.create()
             self._logger.warning("No job instructions")
-
-        super(AnalysisEffector, self).__init__(
-            job,
-            logger_name="Analysis Effector",
-            logging_target=os.path.join(
-                self._analysis_job.output_directory,
-                Paths().analysis_run_log,
-            )
-        )
         self._config = None
         self._job_label = get_label_from_analysis_model(
             job.content_model,
@@ -231,9 +229,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 ),
             )
 
-            image_model.fixture.grayscale = GrayScaleAreaModelFactory.copy(
+            image_model.fixture.grayscale = cast(GrayScaleAreaModel, copy(
                 self._reference_compilation_image_model.fixture.grayscale,
-            )
+            ))
 
         # Overwrite plate positions if requested
         if self._analysis_job.one_time_positioning:
@@ -254,7 +252,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 self._reference_compilation_image_model.fixture.orientation_marks_y  # noqa: E501
             ]
             image_model.fixture.plates = [
-                FixturePlateFactory.copy(m) for m in
+                cast(FixturePlateModel, copy(m)) for m in
                 self._reference_compilation_image_model.fixture.plates
             ]
 
@@ -326,8 +324,9 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         ):
             self._filter_pinning_on_included_plates()
 
-        AnalysisModelFactory.get_serializer().dump(
-            self._original_model, os.path.join(
+        dump(
+            self._original_model,
+            os.path.join(
                 self._analysis_job.output_directory,
                 Paths().analysis_model_file,
             ),
@@ -425,7 +424,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         remove_state_from_path(self._analysis_job.output_directory)
 
     def setup(self, *_):
-        assert self._analysis_job.FIELD_TYPES is not None
         if self._running:
             self.add_message("Cannot change settings while running")
             return
@@ -433,7 +431,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         if not self._analysis_job.output_directory:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.output_directory],
+                [AnalysisModelFields.output_directory],
             )
             self._logger.info(
                 "Using default '{0}' output directory".format(
@@ -452,21 +450,23 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 ),
             )
 
-        allow_start = AnalysisModelFactory.validate(self._analysis_job)
-
-        self._original_model = AnalysisModelFactory.copy(self._analysis_job)
+        allow_start = validate(self._analysis_job)
+        self._original_model = copy(self._analysis_job)
         AnalysisModelFactory.set_absolute_paths(self._analysis_job)
 
-        try:
-            self._scanning_instructions = (
-                ScanningModelFactory.get_serializer().load_first(
-                    Paths().get_scan_instructions_path_from_compile_instructions_path(  # noqa: E501
-                        self._analysis_job.compile_instructions,
-                    )
-                )
-            )
-        except IOError:
-            pass
+        # Make logger start logging to disk
+        logger_name = "Analysis Effector"
+        logging_target = os.path.join(
+            self._analysis_job.output_directory,
+            Paths().analysis_run_log,
+        )
+        self._logger = get_logger(logger_name, logging_target)
+
+        self._scanning_instructions = load_first(
+            Paths().get_scan_instructions_path_from_compile_instructions_path(  # noqa: E501
+                self._analysis_job.compile_instructions,
+            ),
+        )
 
         if not self._scanning_instructions:
             self._logger.warning(
@@ -482,9 +482,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._logger.error(
                 "Can't perform analysis; instructions don't validate."
             )
-            for bad_instruction in AnalysisModelFactory.get_invalid(
-                self._analysis_job,
-            ):
+            for bad_instruction in get_invalid(self._analysis_job):
                 self._logger.error(
                     "Bad value {0}={1}".format(
                         bad_instruction,
@@ -497,14 +495,13 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._stopping = True
 
     def ensure_default_values_if_missing(self):
-        assert self._analysis_job.FIELD_TYPES is not None
         if not self._analysis_job.image_data_output_measure:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_measure],
+                [AnalysisModelFields.image_data_output_measure],
             )
         if not self._analysis_job.image_data_output_item:
             AnalysisModelFactory.set_default(
                 self._analysis_job,
-                [self._analysis_job.FIELD_TYPES.image_data_output_item],
+                [AnalysisModelFields.image_data_output_item],
             )

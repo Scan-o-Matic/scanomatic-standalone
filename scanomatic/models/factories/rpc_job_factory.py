@@ -1,3 +1,4 @@
+from typing import cast
 import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
@@ -23,7 +24,6 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
         CompileInstructionsModel: CompileProjectFactory,
         FeaturesModel: FeaturesFactory
     }
-    STORE_SECTION_HEAD = ('id',)
     STORE_SECTION_SERIALIZERS = {
         'id': str,
         'type': rpc_job_models.JOB_TYPE,
@@ -34,39 +34,7 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> rpc_job_models.RPCjobModel:
-        return super(RPC_Job_Model_Factory, cls).create(**settings)
-
-    @classmethod
-    def _validate_pid(cls, model: rpc_job_models.RPCjobModel):
-        if model.pid is None or isinstance(model.pid, int) and model.pid > 0:
-            return True
-
-        return model.FIELD_TYPES.pid
-
-    @classmethod
-    def _validate_id(cls, model: rpc_job_models.RPCjobModel):
-        if isinstance(model.id, str):
-            return True
-        return model.FIELD_TYPES.id
-
-    @classmethod
-    def _validate_type(cls, model: rpc_job_models.RPCjobModel):
-        if model.type in rpc_job_models.JOB_TYPE:
-            return True
-        return model.FIELD_TYPES.type
-
-    @classmethod
-    def _validate_priority(cls, model: rpc_job_models.RPCjobModel):
-        return isinstance(model.priority, int)
-
-    @classmethod
-    def _validate_status(cls, model: rpc_job_models.RPCjobModel):
-        if model.status in rpc_job_models.JOB_STATUS:
-            return True
-        return model.FIELD_TYPES.model
-
-    @classmethod
-    def _vaildate_content_model(cls, model: rpc_job_models.RPCjobModel):
-        if isinstance(model.content_model, Model):
-            return True
-        return model.FIELD_TYPES.content_model
+        return cast(
+            rpc_job_models.RPCjobModel,
+            super(RPC_Job_Model_Factory, cls).create(**settings),
+        )

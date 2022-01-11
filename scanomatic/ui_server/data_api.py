@@ -1,11 +1,11 @@
 import glob
 import os
 import shutil
+from collections.abc import Sequence
 from configparser import Error as ConfigError
 from enum import Enum
 from logging import Logger
 from typing import Mapping
-from collections.abc import Sequence
 
 import numpy as np
 from flask import jsonify, request, send_from_directory
@@ -17,12 +17,16 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.data_processing.norm import NormState
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.grayscale import getGrayscale, getGrayscales
+from scanomatic.image_analysis.grayscale import (
+    get_grayscale as get_grayscale_conf
+)
+from scanomatic.image_analysis.grayscale import get_grayscales
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.image_grayscale import get_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.io.fixtures import Fixtures
+from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (
@@ -30,6 +34,7 @@ from scanomatic.models.factories.analysis_factories import (
 )
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import GrayScaleAreaModel
+from scanomatic.models.validators.validate import validate
 
 from .general import (
     convert_path_to_url,
@@ -225,7 +230,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         Returns: json-object with key 'garyscales' having an array of strings.
 
         """
-        grayscales = getGrayscales()
+        grayscales = get_grayscales()
 
         # TODO: This should be part of app_config really
         if 'SilverFast' in grayscales:
@@ -295,7 +300,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = getGrayscale(grayscale_area_model.name)
+        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
         valid = get_grayscale_is_valid(values, grayscale_object)
 
         return jsonify(
@@ -364,7 +369,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = getGrayscale(grayscale_area_model.name)
+        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
         valid = get_grayscale_is_valid(values, grayscale_object)
 
         return jsonify(
@@ -403,7 +408,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             Paths().experiment_local_fixturename)
 
         try:
-            fixture = FixtureFactory.get_serializer().load_first(path)
+            fixture = load_first(path)
             if fixture is None:
                 return jsonify(
                     success=False,
@@ -445,7 +450,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         elif name in rpc_client.get_fixtures():
             path = Paths().get_fixture_path(name)
             try:
-                fixture = FixtureFactory.get_serializer().load_first(path)
+                fixture = load_first(path)
                 if fixture is None:
                     return jsonify(
                         success=False,
@@ -563,7 +568,7 @@ def add_routes(app, rpc_client, is_debug_mode):
 
         if grayscale_area_model:
 
-            if grayscale_name not in getGrayscales():
+            if grayscale_name not in get_grayscales():
                 return jsonify(success=False, reason="Unknown grayscale type")
             if get_area_too_large_for_grayscale(grayscale_area_model):
                 return jsonify(
@@ -582,7 +587,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                     reason="Could not detect grayscale",
                 )
 
-            grayscale_object = getGrayscale(grayscale_area_model.name)
+            grayscale_object = get_grayscale_conf(grayscale_area_model.name)
             valid = get_grayscale_is_valid(values, grayscale_object)
 
             if not valid:
@@ -608,13 +613,13 @@ def add_routes(app, rpc_client, is_debug_mode):
             scale=1.0,
         )
 
-        if not FixtureFactory.validate(fixture_model):
+        if not validate(fixture_model):
             return jsonify(
                 success=False,
                 reason="Final compilation doesn't validate",
             )
 
-        FixtureFactory.get_serializer().dump(fixture_model, fixture_model.path)
+        dump(fixture_model, fixture_model.path)
         return jsonify(success=True)
 
     @app.route("/api/data/fixture/calculate/<fixture_name>", methods=['POST'])
@@ -830,7 +835,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         grayscale_targets = np.array(data_object.get("grayscale_targets", []))
 
         if not grayscale_targets:
-            grayscale_targets = getGrayscale(
+            grayscale_targets = get_grayscale_conf(
                 data_object.get("grayscale_name", ""),
             )['targets']
 

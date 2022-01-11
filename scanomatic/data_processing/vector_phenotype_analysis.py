@@ -164,10 +164,10 @@ def plot_grouped_scatter_phenotypes(
 ):
     uniques = np.unique(clustering)
     cluster_sizes = {label: (clustering == label).sum() for label in uniques}
-    unique_order = zip(*sorted(
+    unique_order = list(zip(*sorted(
         iter(cluster_sizes.items()),
         key=operator.itemgetter(1)
-    ))[0][::-1]
+    )))[0][::-1]
     fig = plt.figure()
     ax = fig.gca()
 

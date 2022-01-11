@@ -5,7 +5,8 @@ from flask import Blueprint, current_app, jsonify, request, send_file
 
 from scanomatic.data_processing import calibration
 from scanomatic.data_processing.calibration import delete_ccc
-from scanomatic.image_analysis.grayscale import getGrayscale
+from scanomatic.image_analysis import first_pass_image
+from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.image_analysis.grid_array import GridArray
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_grayscale import (
@@ -254,7 +255,7 @@ def slice_ccc_image(ccc_identifier, image_identifier):
     if not data_object:
         data_object = request.values
 
-    data = calibration.get_local_fixture_for_image(
+    data = first_pass_image.get_local_fixture_for_image(
         ccc_identifier, image_identifier)
     if data is None:
         return json_abort(
@@ -327,7 +328,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
 
     _, values = get_grayscale_image_analysis(
         gs_image, gs_name, debug=False)
-    grayscale_object = getGrayscale(gs_name)
+    grayscale_object = get_grayscale(gs_name)
     valid = get_grayscale_is_valid(values, grayscale_object)
     if not valid:
         return json_abort(

@@ -6,7 +6,7 @@ from collections.abc import Sequence
 import numpy as np
 
 import scanomatic.io.paths as paths
-from scanomatic.image_analysis.grayscale import getGrayscale
+from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.io.pickler import unpickle_with_unpickler
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
@@ -516,7 +516,7 @@ class GridArray:
         try:
             transpose_polynomial = image_basics.Image_Transpose(
                 sourceValues=image_model.fixture.grayscale.values,
-                targetValues=getGrayscale(
+                targetValues=get_grayscale(
                     image_model.fixture.grayscale.name,
                 )['targets'],
             )

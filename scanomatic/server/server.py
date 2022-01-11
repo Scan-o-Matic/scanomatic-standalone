@@ -13,6 +13,7 @@ from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.io.resource_status import Resource_Status
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.models.validators.validate import validate
 
 
 class Server:
@@ -211,7 +212,7 @@ class Server:
             status=rpc_job_models.JOB_STATUS.Requested,
             content_model=model)
 
-        if not RPC_Job_Model_Factory.validate(rpc_job):
+        if not validate(rpc_job):
             self.logger.error("Failed to create job model")
             return False
 

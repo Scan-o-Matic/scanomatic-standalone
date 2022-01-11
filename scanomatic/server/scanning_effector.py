@@ -2,15 +2,14 @@ import os
 import time
 from threading import Thread
 from typing import Union
+from scanomatic.io.jsonizer import dump, loads
 
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.io import paths, sane, scanner_manager
 from scanomatic.io.app_config import Config as AppConfig
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
 from scanomatic.models.factories import compile_project_factory
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
-from scanomatic.models.factories.scanning_factory import ScanningModelFactory
-from scanomatic.models.rpc_job_models import JOB_TYPE
+from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
 from scanomatic.models.scanning_model import (
     COMPILE_STATE,
     SCAN_CYCLE,
@@ -284,9 +283,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
             time_left)
 
     def setup(self, job, redirect_logging=True):
-        job = RPC_Job_Model_Factory.get_serializer().load_serialized_object(
-            job,
-        )[0]
+        job: RPCjobModel = loads(job)
         paths_object = paths.Paths()
         self._scanning_job.id = job.id
         self._scanning_job.computer = AppConfig().computer_human_name
@@ -342,7 +339,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
             self._scanner.get_scan_instructions_as_tuple()
         )
 
-        if ScanningModelFactory.get_serializer().dump(
+        if dump(
             self._scanning_job,
             scan_project_file_path,
         ):

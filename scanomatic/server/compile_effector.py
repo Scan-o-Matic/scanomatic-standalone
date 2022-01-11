@@ -1,5 +1,7 @@
 import os
 import time
+from typing import cast
+from scanomatic.io.jsonizer import dump, dump_to_stream, loads
 
 import scanomatic.io.rpc_client as rpc_client
 from scanomatic.image_analysis import first_pass
@@ -13,12 +15,8 @@ from scanomatic.models.compile_project_model import (
     CompileInstructionsModel
 )
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory,
-    CompileProjectFactory
-)
-from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
+from scanomatic.models.validators.validate import validate
 
 from . import proc_effector
 
@@ -80,11 +78,10 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
 
         self._logger.info("Setup called")
 
-        self._compile_job = (
-            RPC_Job_Model_Factory.get_serializer().load_serialized_object(
-                job,
-            )[0].content_model
-        )
+        self._compile_job: CompileInstructionsModel = cast(
+            RPCjobModel,
+            loads(job),
+        ).content_model
         self._job.content_model = self._compile_job
 
         if self._compile_job.images is None:
@@ -109,7 +106,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             except OSError:
                 pass
 
-            CompileProjectFactory.get_serializer().dump(
+            dump(
                 self._compile_job,
                 self._compile_instructions_path
             )
@@ -196,11 +193,12 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                         self._fixture_settings,
                         issues=issues,
                     )
-                    CompileImageAnalysisFactory.get_serializer().dump_to_filehandle(  # noqa: E501
-                        image_model,
-                        fh,
-                        as_if_appending=True,
-                    )
+                    if validate(image_model):
+                        dump_to_stream(
+                            image_model,
+                            fh,
+                            as_if_appending=True,
+                        )
                 except first_pass.MarkerDetectionFailed:
                     self._logger.error(
                         "Failed to detect the markers on {0} using fixture {1}".format(  # noqa: E501

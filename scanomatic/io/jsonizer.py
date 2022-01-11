@@ -2,11 +2,12 @@ import json
 import logging
 from collections.abc import Callable
 from enum import Enum, unique
-from typing import Any, Type, Union
+from typing import Any, Optional, TextIO, Type, TypeVar, Union
+from pathlib import Path
 
 import numpy as np
 
-from scanomatic.generics.model import Model
+from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 from scanomatic.models.analysis_model import COMPARTMENTS, MEASURES, VALUES
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
@@ -245,3 +246,133 @@ def object_hook(obj: dict) -> Union[dict, Enum, Model]:
 
 def loads(s: Union[str, bytes]) -> Any:
     return json.loads(s, object_hook=object_hook)
+
+
+T = TypeVar('T')
+
+
+def copy(o: T) -> T:
+    return loads(dumps(o))
+
+
+def load(path: Union[str, Path]) -> Any:
+    if isinstance(path, str):
+        path = Path(path)
+    try:
+        return loads(path.read_text())
+    except IOError:
+        logging.warning(
+            f"Attempted to load model from '{path}', but failed",
+        )
+        return None
+
+
+def load_first(path: Union[str, Path]) -> Any:
+    content = load(path)
+    if isinstance(content, list):
+        if len(content) > 0:
+            return content[0]
+        return None
+    return content
+
+
+def _merge(model: Model, update: Model) -> bool:
+    for key in model.keys():
+        item = model[key]
+        if type(item) == type(update):
+            model[key] = update
+            return True
+        elif isinstance(item, Model):
+            if _merge(item, update):
+                return True
+    return False
+
+
+def merge_into(model: Optional[Model], update: Model) -> Model:
+    if model is None or type(model) == type(update):
+        return update
+    if not _merge(model, update):
+        logging.warning(
+            f"Attempted to update {model} with {update}, but found no matching part of the model",  # noqa: E501
+        )
+    return model
+
+
+def dump(
+    model: Model,
+    path: Union[str, Path],
+    overwrite: bool = False,
+) -> bool:
+    if overwrite:
+        model = merge_into(load(path), model)
+    try:
+        with open(path, 'w') as fh:
+            fh.write(dumps(model))
+    except IOError:
+        logging.exception(f'Could not save {model} to: {path}')
+        return False
+    return True
+
+
+def dump_to_stream(
+    model: Model,
+    stream: TextIO,
+    as_if_appending: bool = False,
+):
+    if as_if_appending:
+        stream.seek(0)
+        contents = stream.read().strip()
+        if contents:
+            previous = loads(contents)
+        else:
+            previous = []
+        if not isinstance(previous, list):
+            previous = [previous]
+        previous.append(model)
+        stream.seek(0)
+        stream.write(dumps(previous))
+    else:
+        stream.write(dumps(model))
+
+
+def _models_equal(a: Any, b: Model) -> bool:
+    try:
+        assert_models_deeply_equal(a, b)
+        return True
+    except (ValueError, AssertionError):
+        return False
+
+
+def _purge(original: Any, model: Any) -> Any:
+    if isinstance(original, list):
+        return [
+            _purge(item, model) for item in original
+            if not _models_equal(item, model)
+        ]
+    elif isinstance(original, tuple):
+        return tuple(
+            _purge(item, model) for item in original
+            if not _models_equal(item, model)
+        )
+    elif isinstance(original, Model):
+        if _models_equal(original, model):
+            return None
+        elif type(original) != type(model):
+            for key in original.keys():
+                original[key] = _purge(original[key], model)
+    return original
+
+
+def purge(model: Model, path: Union[str, Path]) -> bool:
+    try:
+        original = load(path)
+    except IOError:
+        return False
+
+    updated = _purge(original, model)
+    if _models_equal(updated, original):
+        return False
+    else:
+        with open(path, 'w') as fh:
+            fh.write(dumps(updated))
+        return True

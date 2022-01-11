@@ -6,6 +6,7 @@ from flask import jsonify
 
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.io import image_loading
+from scanomatic.io.jsonizer import load_first
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import CompileInstructionsModel
 from scanomatic.models.factories.compile_project_factory import (
@@ -65,14 +66,9 @@ def add_routes(app):
     @app.route("/api/compile/instructions/", defaults={'project': ''})
     @app.route("/api/compile/instructions/<path:project>")
     def get_compile_instructions(project=None):
-
         base_url = "/api/compile/instructions"
-
         path = convert_url_to_path(project)
-
-        model: CompileInstructionsModel = (
-            CompileProjectFactory.get_serializer().load_first(path)
-        )
+        model: CompileInstructionsModel = load_first(path)
 
         if model is None:
             scan_instructions = [

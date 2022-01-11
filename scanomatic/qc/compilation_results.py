@@ -4,35 +4,30 @@ import re
 
 import numpy as np
 from matplotlib import pyplot as plt  # type: ignore
+from scanomatic.io.jsonizer import load
 
 from scanomatic.io.movie_writer import MovieWriter
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory
-)
+from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _img_pattern = re.compile(r".*_[0-9]{4}_[0-9.]+\.tiff$")
 _time_pattern = re.compile(r'[0-9]+\.[0-9]*')
 
 
 def _input_validate(f):
-
     def wrapped(*args, **kwargs):
-
         if len(args) > 0:
-
             if isinstance(args[0], str):
-
                 args = list(args)
-                args[0] = CompileImageAnalysisFactory.get_serializer().load(
-                    args[0],
-                )
-
+                args[0] = load(args[0])
         return f(*args, **kwargs)
 
     return wrapped
 
 
-def simulate_positioning(project_compilation, positioning):
+def simulate_positioning(
+    project_compilation: list[CompileImageAnalysisModel],
+    positioning: str,
+):
 
     assert positioning in (
         'detected', 'probable', 'one-time',
@@ -58,7 +53,7 @@ def get_grayscale_variability(project_compilation):
 
 @_input_validate
 def get_grayscale_outlier_images(
-    project_compilation,
+    project_compilation: list[CompileImageAnalysisModel],
     max_distance=3.0,
     only_image_indices=False,
 ):
@@ -77,7 +72,7 @@ def get_grayscale_outlier_images(
 
 @_input_validate
 def plot_grayscale_histogram(
-    project_compilation,
+    project_compilation: list[CompileImageAnalysisModel],
     mark_outliers=True,
     max_distance=3.0,
     save_target=None,
@@ -125,7 +120,7 @@ def plot_grayscale_histogram(
 
 @_input_validate
 def animate_marker_positions(
-    project_compilation,
+    project_compilation: list[CompileImageAnalysisModel],
     fig=None,
     slice_size=201,
     positioning='detected',
@@ -208,7 +203,10 @@ def animate_marker_positions(
 
 
 @_input_validate
-def get_irregular_intervals(project_compilation, max_deviation=0.05):
+def get_irregular_intervals(
+    project_compilation: list[CompileImageAnalysisModel],
+    max_deviation=0.05,
+):
     return _get_irregular_intervals(
         [i.image.time_stamp for i in project_compilation],
         max_deviation,
@@ -232,7 +230,10 @@ def _get_irregular_intervals(data, max_deviation):
 
 
 @_input_validate
-def plot_positional_markers(project_compilation, save_target=None):
+def plot_positional_markers(
+    project_compilation: list[CompileImageAnalysisModel],
+    save_target=None
+):
     data = _get_marker_sorted_data(project_compilation)
     shape = np.max(
         [image.fixture.shape for image in project_compilation],
@@ -298,7 +299,7 @@ def get_positional_markers_variability(project_compilation):
 
 @_input_validate
 def get_positional_marker_outlier_images(
-    project_compilation,
+    project_compilation: list[CompileImageAnalysisModel],
     max_distance=4,
     only_image_indices=False,
 ):
@@ -312,7 +313,9 @@ def get_positional_marker_outlier_images(
     )
 
 
-def _get_marker_sorted_data(project_compilation):
+def _get_marker_sorted_data(
+    project_compilation: list[CompileImageAnalysisModel],
+):
     data = np.array([
         (image.fixture.orientation_marks_x, image.fixture.orientation_marks_y)
         for image in project_compilation
@@ -325,7 +328,7 @@ def _get_marker_sorted_data(project_compilation):
 
 @_input_validate
 def get_images_with_irregularities(
-    project_compilation,
+    project_compilation: list[CompileImageAnalysisModel],
     only_image_indices=False,
 ):
     data = set(

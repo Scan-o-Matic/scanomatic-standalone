@@ -5,7 +5,9 @@ from typing import Optional, Union
 
 import numpy as np
 
-from scanomatic.io.fixtures import FixtureSettings
+from scanomatic.data_processing.calibration import get_image_json_from_ccc
+from scanomatic.io.ccc_data import CCCImage
+from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.models.factories.fixture_factories import FixturePlateFactory
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
@@ -36,8 +38,35 @@ def get_image_scale(im):
         return invalid_scale
 
 
-def _get_rotated_vector(x, y, rotation):
-    return x * np.cos(rotation), y * np.sin(rotation)
+# def _get_rotated_vector(x, y, rotation):
+#    return x * np.cos(rotation), y * np.sin(rotation)
+
+
+def get_local_fixture_for_image(identifier, image_identifier):
+    im_json = get_image_json_from_ccc(identifier, image_identifier)
+    if im_json is None:
+        return None
+
+    fixture_settings = Fixtures()[im_json[CCCImage.fixture]]
+    if fixture_settings is None:
+        return None
+
+    fixture = FixtureImage(fixture_settings)
+    current_settings = fixture['current']
+    current_settings.model.orientation_marks_x = np.array(
+        im_json[CCCImage.marker_x],
+    )
+    current_settings.model.orientation_marks_y = np.array(
+        im_json[CCCImage.marker_y],
+    )
+    issues = {}
+    fixture.set_current_areas(issues)
+
+    return {
+        "plates": current_settings.model.plates,
+        "grayscale": current_settings.model.grayscale,
+        "issues": issues,
+    }
 
 
 class FixtureImage:

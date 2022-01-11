@@ -2,22 +2,22 @@ import os
 from enum import Enum
 from glob import glob
 from logging import Logger
-from typing import Optional
+from typing import Optional, cast
 from collections.abc import Sequence, Sized
+from scanomatic.io.jsonizer import copy, dump, dump_to_stream, load, load_first
 
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
     CompileImageAnalysisModel,
     CompileInstructionsModel
 )
-from scanomatic.models.factories.compile_project_factory import (
-    CompileImageAnalysisFactory,
-    CompileProjectFactory
-)
-from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.scanning_model import ScanningModel
+from scanomatic.models.validators.validate import validate
 
-FIRST_PASS_SORTING = Enum("FIRST_PASS_SORTING", names=("Index", "Time"))
+
+class FIRST_PASS_SORTING(Enum):
+    Index = 1
+    Time = 2
 
 
 class CompilationResults:
@@ -35,8 +35,8 @@ class CompilationResults:
         self.load_scanner_instructions(scanner_instructions_path)
         self._plates = None
         self._plate_position_keys = None
-        self._image_models = []
-        self._used_models = []
+        self._image_models: list[CompileImageAnalysisModel] = []
+        self._used_models: list[CompileImageAnalysisModel] = []
         self._current_model: Optional[CompileImageAnalysisModel] = None
         self._loading_length = 0
         if compile_instructions_path:
@@ -58,14 +58,17 @@ class CompilationResults:
 
         new = cls()
         new._compilation_path = path
-        new._compile_instructions = CompileProjectFactory.copy(
-            compile_instructions,
+        new._compile_instructions = cast(
+            CompileInstructionsModel,
+            copy(compile_instructions),
         )
-        new._image_models = CompileImageAnalysisFactory.copy_iterable_of_model(
-            list(image_models),
+        new._image_models = cast(
+            list[CompileImageAnalysisModel],
+            copy(list(image_models)),
         )
-        new._used_models = CompileImageAnalysisFactory.copy_iterable_of_model(
-            list(used_models),
+        new._used_models = cast(
+            list[CompileImageAnalysisModel],
+            copy(list(used_models)),
         )
         new._loading_length = len(new._image_models)
         new._scanner_instructions = scan_instructions
@@ -84,41 +87,40 @@ class CompilationResults:
                 )
                 return
 
-        self._scanner_instructions = (
-            ScanningModelFactory.get_serializer().load_first(path)
-        )
+        self._scanner_instructions = load_first(path)
 
     def _load_compile_instructions(self, path: str):
-        try:
-            self._compile_instructions = (
-                CompileProjectFactory.get_serializer().load_first(path)
-            )
-        except IndexError:
+        self._compile_instructions = load_first(path)
+        if self._compile_instructions is None:
             self._logger.error(f"Could not load path {path}")
-            self._compile_instructions = None
 
     def _load_compilation(
         self,
         path: str,
         sort_mode: FIRST_PASS_SORTING = FIRST_PASS_SORTING.Time
     ):
-        images = CompileImageAnalysisFactory.get_serializer().load(path)
+        images: list[CompileImageAnalysisModel] = load(path)
         self._logger.info("Loaded {0} compiled images".format(len(images)))
 
         self._reindex_plates(images)
 
+        models = copy(images)
         if sort_mode is FIRST_PASS_SORTING.Time:
-            self._image_models = list(
-                CompileImageAnalysisFactory.copy_iterable_of_model_update_indices(  # noqa: E501
-                    images,
-                )
-            )
+            for (index, m) in enumerate(sorted(
+                models,
+                key=lambda x: x.image.time_stamp,
+            )):
+                m.image.index = index
+            self._image_models = models
         else:
-            self._image_models = list(
-                CompileImageAnalysisFactory.copy_iterable_of_model_update_time(
-                    images,
-                ),
-            )
+            inject_time = 0
+            previous_time = 0
+            for (index, m) in enumerate(models):
+                m.image.index = index
+                if m.image.time_stamp < previous_time:
+                    inject_time += previous_time - m.image.time_stamp
+                m.image.time_stamp += inject_time
+            self._image_models = models
         self._loading_length = len(self._image_models)
 
     @staticmethod
@@ -158,9 +160,7 @@ class CompilationResults:
         other_image_models = []
         other_directory = os.path.dirname(other._compilation_path)
         for index in range(len(other)):
-            model: CompileImageAnalysisModel = (
-                CompileImageAnalysisFactory.copy(other[index])
-            )
+            model: CompileImageAnalysisModel = copy(other[index])
             model.image.time_stamp += start_time_difference
             model.image.index += other_start_index
             self._update_image_path_if_needed(model, other_directory)
@@ -267,16 +267,14 @@ class CompilationResults:
                 'w',
             ) as fh:
                 while True:
-                    model = CompileImageAnalysisFactory.copy(
+                    model: CompileImageAnalysisModel = copy(
                         self.get_next_image_model(),
                     )
                     self._update_image_path_if_needed(model, directory)
                     if model is None:
                         break
-                    CompileImageAnalysisFactory.get_serializer().dump_to_filehandle(  # noqa: E501
-                        model,
-                        fh,
-                    )
+                    if validate(model):
+                        dump_to_stream(model, fh)
         except IOError:
             self._logger.error("Could not save to directory")
             return
@@ -285,7 +283,7 @@ class CompilationResults:
             directory,
             Paths().project_compilation_pattern.format(new_name),
         )
-        CompileProjectFactory.get_serializer().dump(
+        dump(
             self._compile_instructions,
             compile_instructions,
         )
@@ -302,7 +300,7 @@ class CompilationResults:
                 directory,
                 Paths().scan_project_file_pattern.format(new_name),
             )
-            ScanningModelFactory.get_serializer().dump(
+            dump(
                 self._scanner_instructions,
                 scan_instructions,
             )

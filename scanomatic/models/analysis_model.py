@@ -1,8 +1,7 @@
 import re
-from enum import Enum
+from enum import Enum, auto
 from typing import Optional
 
-import scanomatic
 import scanomatic.generics.model as model
 
 
@@ -49,9 +48,33 @@ class VALUES(Enum):
     Cell_Estimates = 2
 
 
+class AnalysisModelFields(Enum):
+    cell_count_calibration = auto()
+    cell_count_calibration_id = auto()
+    compilation = auto()
+    compile_instructions = auto()
+    pinning_matrices = auto()
+    use_local_fixture = auto()
+    email = auto()
+    stop_at_image = auto()
+    output_directory = auto()
+    focus_position = auto()
+    suppress_non_focal = auto()
+    animate_focal = auto()
+    one_time_positioning = auto()
+    one_time_grayscale = auto()
+    grid_images = auto()
+    grid_model = auto()
+    image_data_output_item = auto()
+    image_data_output_measure = auto()
+    chain = auto()
+    plate_image_inclusion = auto()
+
+
 class AnalysisModel(model.Model):
     def __init__(
-        self, compilation: str = "",
+        self,
+        compilation: str = "",
         compile_instructions: str = "",
         pinning_matrices: tuple[tuple[int, int], ...] = (
             (32, 48), (32, 48), (32, 48), (32, 48)
@@ -98,7 +121,16 @@ class AnalysisModel(model.Model):
         self.image_data_output_measure = image_data_output_measure
         self.chain = chain
         self.plate_image_inclusion = plate_image_inclusion
-        super(AnalysisModel, self).__init__()
+        super().__init__()
+
+
+class GridModelFields(Enum):
+    use_utso = auto()
+    median_coefficient = auto()
+    manual_threshold = auto()
+    grid = auto()
+    gridding_offsets = auto()
+    reference_grid_folder = auto()
 
 
 class GridModel(model.Model):
@@ -117,41 +149,16 @@ class GridModel(model.Model):
         self.grid = grid
         self.gridding_offsets = gridding_offsets
         self.reference_grid_folder = reference_grid_folder
-        super(GridModel, self).__init__()
+        super().__init__()
 
     def __hash__(self):
         return id(self)
 
 
-class AnalysisMetaData(model.Model):
-    def __init__(
-        self,
-        start_time: float = 0,
-        name: str = "",
-        description: str = "",
-        interval: float = 20.0,
-        images: int = 0,
-        uuid: str = "",
-        fixture: str = "",
-        scanner: str = "",
-        project_id: str = "",
-        scanner_layout_id: str = "",
-        version: str = scanomatic.__version__,
-        pinnings=(),
-    ):
-        self.start_time: float = start_time
-        self.name: str = name
-        self.description: str = description
-        self.interval: float = interval
-        self.images: int = images
-        self.uuid: str = uuid
-        self.fixture: str = fixture
-        self.scanner: str = scanner
-        self.project_id = project_id
-        self.scanner_layout_id: str = scanner_layout_id
-        self.version: str = version
-        self.pinnings = pinnings
-        super(AnalysisMetaData, self).__init__()
+class AnalysisFeaturesFields(Enum):
+    data = auto()
+    shape = auto()
+    index = auto()
 
 
 class AnalysisFeatures(model.Model):
@@ -159,7 +166,7 @@ class AnalysisFeatures(model.Model):
         self.data = data
         self.shape = shape
         self.index: int = index
-        super(AnalysisFeatures, self).__init__()
+        super().__init__()
 
     def __hash__(self):
         return id(self)

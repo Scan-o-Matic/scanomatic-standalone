@@ -13,6 +13,11 @@ from scanomatic.models.factories.compile_project_factory import (
 )
 from scanomatic.models.factories.features_factory import FeaturesFactory
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.validators.validate import (
+    get_invalid_as_text,
+    get_invalid_names,
+    validate
+)
 from scanomatic.util import bioscreen
 
 from .general import json_abort
@@ -44,8 +49,8 @@ def add_routes(app, rpc_client):
         )
 
         success = (
-            FeaturesFactory.validate(model) and
-            rpc_client.create_feature_extract_job(
+            validate(model)
+            and rpc_client.create_feature_extract_job(
                 FeaturesFactory.to_dict(model),
             )
         )
@@ -57,10 +62,10 @@ def add_routes(app, rpc_client):
                 reason=(
                     "The following has bad data: {0}".format(
                         ", ".join(
-                            FeaturesFactory.get_invalid_names(model)
+                            get_invalid_names(model)
                         )
                     )
-                    if not FeaturesFactory.validate(model)
+                    if not validate(model)
                     else "Refused by the server, check logs."
                 ),
             )
@@ -122,7 +127,7 @@ def add_routes(app, rpc_client):
         )
 
         success = (
-            FeaturesFactory.validate(model)
+            validate(model)
             and rpc_client.create_feature_extract_job(
                 FeaturesFactory.to_dict(model),
             )
@@ -136,10 +141,10 @@ def add_routes(app, rpc_client):
                 reason=(
                     "The following has bad data: {0}".format(
                         ", ".join(
-                            FeaturesFactory.get_invalid_names(model)
+                            get_invalid_names(model)
                         ),
                     )
-                    if not FeaturesFactory.validate(model)
+                    if not validate(model)
                     else "Refused by the server, check logs."
                 ),
             )
@@ -227,12 +232,10 @@ def add_routes(app, rpc_client):
                 rpc_client.local
             )
         )
-        _logger.info(f"Validate model {AnalysisModelFactory.validate(model)}")
-        success = (
-            AnalysisModelFactory.validate(model)
-            and rpc_client.create_analysis_job(
-                AnalysisModelFactory.to_dict(model)
-            )
+        model_valid = validate(model)
+        _logger.info(f"Validate model {model_valid}")
+        success = model_valid and rpc_client.create_analysis_job(
+            AnalysisModelFactory.to_dict(model)
         )
 
         if success:
@@ -241,9 +244,7 @@ def add_routes(app, rpc_client):
             return json_abort(
                 400,
                 reason="The following has bad data: {0}".format(
-                    ", ".join(
-                        AnalysisModelFactory.get_invalid_names(model)
-                    ),
+                    ", ".join(get_invalid_names(model)),
                 ),
             )
 
@@ -294,8 +295,7 @@ def add_routes(app, rpc_client):
             auxillary_info=data_object.get("auxillary_info"),
         )
 
-        validates = ScanningModelFactory.validate(m)
-
+        validates = validate(m)
         job_id = rpc_client.create_scanning_job(
             ScanningModelFactory.to_dict(m),
         )
@@ -303,12 +303,11 @@ def add_routes(app, rpc_client):
         if validates and job_id:
             return jsonify(name=project_name)
         else:
-
             return json_abort(
                 400,
                 reason=(
                     "The following has bad data: {0}".format(
-                        ScanningModelFactory.get_invalid_as_text(m),
+                        get_invalid_as_text(m),
                     )
                     if not validates
                     else "Job refused, probably scanner can't be reached."

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 
@@ -53,6 +53,15 @@ JOB_STATUS = Enum(
 )
 
 
+class RPCjobModelFields(Enum):
+    id = auto()
+    type = auto()
+    status = auto()
+    pid = auto()
+    priority = auto()
+    content_model = auto()
+
+
 class RPCjobModel(model.Model):
     def __init__(
         self,
@@ -69,7 +78,7 @@ class RPCjobModel(model.Model):
         self.pid = pid
         self.priority: int = priority
         self.content_model = content_model
-        super(RPCjobModel, self).__init__()
+        super().__init__()
 
     def __hash__(self):
         return hash(self.id)

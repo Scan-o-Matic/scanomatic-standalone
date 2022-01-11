@@ -27,6 +27,7 @@ packages = [
     "scanomatic",
     "scanomatic.generics",
     "scanomatic.models",
+    "scanomatic.models.validators",
     "scanomatic.models.factories",
     "scanomatic.io",
     "scanomatic.qc",
