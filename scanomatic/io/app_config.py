@@ -9,7 +9,7 @@ import scanomatic.models.scanning_model as scanning_model
 from scanomatic.generics.abstract_model_factory import AbstractModelFactory
 from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
-from scanomatic.io.jsonizer import dump, load_first
+from scanomatic.io.jsonizer import dump, load_first, copy
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory,
 )
@@ -162,7 +162,7 @@ class Config(SingeltonOneInit):
         return self._settings
 
     def model_copy(self) -> ApplicationSettingsModel:
-        return ApplicationSettingsFactory.copy(self._settings)
+        return copy(self._settings)
 
     def get_scanner_name(self, scanner: Union[int, str]) -> Optional[str]:
         if isinstance(scanner, int) and 0 < scanner <= self.number_of_scanners:
