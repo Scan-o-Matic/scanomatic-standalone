@@ -64,7 +64,7 @@ def Quick_Scale_To_im(
             im = load_image_to_numpy(str(path), dtype=np.uint8)
         except Exception:
             msg = f"Could not open source with path {path}"
-            _logger.error(msg)
+            _logger.exception(msg)
             raise LoadImageError(msg)
 
     if scale is None:
