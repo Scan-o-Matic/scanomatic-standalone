@@ -1,11 +1,12 @@
 import os
 
-from flask import jsonify, request
+from flask import Flask, jsonify, request
 from flask_restful import Api  # type: ignore
 
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config
 from scanomatic.io.logger import get_logger
+from scanomatic.io.rpc_client import _ClientProxy
 from scanomatic.models.compile_project_model import COMPILE_ACTION
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.compile_project_factory import (
@@ -26,7 +27,7 @@ from .resources import ScanCollection
 _logger = get_logger("Experiment/Project API")
 
 
-def add_routes(app, rpc_client):
+def add_routes(app: Flask, rpc_client: _ClientProxy):
 
     @app.route("/api/project/feature_extract", methods=['post'])
     def _feature_extract_api():

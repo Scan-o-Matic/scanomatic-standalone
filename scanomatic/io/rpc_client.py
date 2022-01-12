@@ -1,12 +1,14 @@
 import enum
 import socket
 import xmlrpc.client
+from collections.abc import Callable
+from http.client import CannotSendRequest
 from subprocess import Popen
 from types import GeneratorType
 from typing import Optional
 
-from scanomatic.io.logger import get_logger
 import scanomatic.io.app_config as app_config
+from scanomatic.io.logger import get_logger
 
 
 def sanitize_communication(obj):
@@ -53,15 +55,19 @@ class _ClientProxy:
 
         self._logger = get_logger("Client Proxy")
         self._user_id = user_id
-        self._adminMethods = (
-            'communicateWith',
-            'createFeatureExtractJob',
-            'createAnalysisJob',
-            'removeFromQueue',
-            'reestablishMe',
-            'flushQueue',
-            'serverRestart',
-            'serverShutDown',
+        self._admin_methods = (
+            'get_power_manager_info',
+            'communicate',
+            'create_feature_extract_job',
+            'create_compile_project_job',
+            'create_analysis_job',
+            'create_scanning_job',
+            'restart',
+            'shutdown',
+            'request_scanner_opteration',
+            'remove_from_queue',
+            'flush_queue',
+            'reestablish_process',
         )
 
         self._client = None
@@ -83,8 +89,8 @@ class _ClientProxy:
             )
 
     def __getattr__(self, key):
-        if key in self._allowedMethods() and self._client is not None:
-            m = self._userIDdecorator(getattr(self._client, key))
+        if key in self._allowed_methods() and self._client is not None:
+            m = self.user_id_decorator(getattr(self._client, key))
             m.__doc__ = (
                 self._client.system.methodHelp(key) +
                 ["", "\n\nNOTE: user_id is already supplied"][
@@ -96,7 +102,7 @@ class _ClientProxy:
             raise AttributeError(f"Client doesn't support attribute {key}")
 
     def __dir__(self):
-        return list(self._allowedMethods())
+        return list(self._allowed_methods())
 
     def _setupClient(self):
         if (self._host is None or self._port is None):
@@ -107,7 +113,7 @@ class _ClientProxy:
             self._logger.info("Communicates with '{0}'".format(address))
             self._client = xmlrpc.client.ServerProxy(address)
 
-    def _userIDdecorator(self, f):
+    def user_id_decorator(self, f: Callable):
 
         def _wrapped(*args, **kwargs):
 
@@ -117,17 +123,23 @@ class _ClientProxy:
             args = sanitize_communication(args)
             kwargs = sanitize_communication(kwargs)
 
-            self._logger.debug(
-                "Sanitized args {0} and kwargs {1}".format(args, kwargs),
-            )
-
-            return f(*args, **kwargs)
+            try:
+                return f(*args, **kwargs)
+            except xmlrpc.client.Fault:
+                self._logger.critical(
+                    "Failed to communicate with {}({}, **{})".format(
+                        f.__name__,
+                        args,
+                        kwargs,
+                    ),
+                )
+                raise
 
         return _wrapped
 
-    def _allowedMethods(self):
+    def _allowed_methods(self):
 
-        retTup: tuple[str, ...] = tuple()
+        ret: tuple[str, ...] = tuple()
 
         if not(
             self._client is None
@@ -135,10 +147,10 @@ class _ClientProxy:
         ):
 
             try:
-                retTup = tuple(
+                ret = tuple(
                     str(v) for v in self._client.system.listMethods()
                     if not v.startswith("system.")
-                    and not (self._user_id is None and v in self._adminMethods)
+                    and not (self._user_id is None and v in self._admin_methods)
                 )
             except socket.error:
                 self._logger.warning("Connection Refused for '{0}:{1}'".format(
@@ -147,7 +159,7 @@ class _ClientProxy:
                 ))
                 return ("launch_local",)
 
-        return retTup
+        return ret
 
     @property
     def working_on_job_or_has_queue(self) -> bool:
@@ -161,7 +173,7 @@ class _ClientProxy:
         if self._client is not None:
             try:
                 return bool(dir(self._client.system.listMethods()))
-            except socket.error:
+            except (socket.error, CannotSendRequest):
                 return False
         return False
 

@@ -251,7 +251,7 @@ class ChildPipeEffector(_PipeEffector):
                 time.sleep(2)
 
             if client.online and self.procEffector is not None:
-                pipe = client.reestablishMe(
+                pipe = client.reestablish_process(
                     self.procEffector.label,
                     self.procEffector.label,
                     self.procEffector.TYPE,
