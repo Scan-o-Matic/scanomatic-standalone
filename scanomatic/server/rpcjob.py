@@ -1,5 +1,4 @@
 import os
-from logging import Logger
 from multiprocessing import Process
 from threading import Thread
 from time import sleep
@@ -7,6 +6,7 @@ from time import sleep
 import psutil
 import setproctitle  # type: ignore
 
+from scanomatic.io.logger import get_logger
 from scanomatic.server.proc_effector import (
     ChildPipeEffector,
     ParentPipeEffector,
@@ -19,7 +19,7 @@ class Fake:
 
         self._job = job
         self._parent_pipe = ParentPipeEffector(parent_pipe)
-        self._logger = Logger("Fake Process {0}".format(job.id))
+        self._logger = get_logger("Fake Process {0}".format(job.id))
         self._logger.info("Running ({0}) with pid {1}".format(
             self.is_alive(), job.pid))
 
@@ -63,7 +63,7 @@ class RpcJob(Process, Fake):
         self._job_effector = job_effector
         self._parent_pipe = ParentPipeEffector(parent_pipe)
         self._childPipe = child_pipe
-        self._logger = Logger("Job {0} Process".format(job.id))
+        self._logger = get_logger("Job {0} Process".format(job.id))
         self.abandoned = False
 
     def run(self):
@@ -77,7 +77,7 @@ class RpcJob(Process, Fake):
             _logger.info("Will not recieve any more communications")
 
         job_running = True
-        _logger = Logger("RPC Job {0} (proc-side)".format(self._job.id))
+        _logger = get_logger("RPC Job {0} (proc-side)".format(self._job.id))
 
         pipe_effector = ChildPipeEffector(
             self._childPipe, self._job_effector(self._job))

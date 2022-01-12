@@ -1,18 +1,18 @@
 import glob
 import os
 from collections.abc import Sequence
-from logging import Logger
 from typing import Optional
 
 import numpy as np
 
 from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.jsonizer import load
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
-_logger = Logger("Image loader")
+_logger = get_logger("Image loader")
 
 
 def _get_project_compilation(analysis_directory, file_name=None):

@@ -1,9 +1,9 @@
 import configparser
-from logging import Logger
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 import scanomatic.io.paths as paths
+from scanomatic.io.logger import get_logger
 
 _GRAYSCALE_PATH = paths.Paths().analysis_grayscales
 _GRAYSCALE_CONFIGS = configparser.ConfigParser()
@@ -17,7 +17,7 @@ _GRAYSCALE_VALUE_TYPES: dict[str, Callable] = {
     'higher_than_half_width': float,
     'length': float,
 }
-_logger = Logger("Grayscale settings")
+_logger = get_logger("Grayscale settings")
 
 
 def get_grayscales() -> list[str]:

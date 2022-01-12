@@ -1,4 +1,3 @@
-from logging import Logger
 from multiprocessing import Pipe
 from typing import Union, cast
 
@@ -12,12 +11,13 @@ import scanomatic.server.scanning_effector as scanning_effector
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io import scanner_manager
 from scanomatic.io.jsonizer import dump, dumps, load, purge
+from scanomatic.io.logger import get_logger
 
 
 class Jobs(SingeltonOneInit):
     def __one_init__(self):
 
-        self._logger = Logger("Jobs Handler")
+        self._logger = get_logger("Jobs Handler")
         self._paths = paths.Paths()
         self._scanner_manager = scanner_manager.ScannerPowerManager()
         self._jobs: dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}

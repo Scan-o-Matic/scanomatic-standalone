@@ -1,17 +1,17 @@
 import os
 import re
-from logging import Logger
 from typing import Optional
 
 import scanomatic
 from scanomatic.generics.singleton import SingeltonOneInit
+from scanomatic.io.logger import get_logger
 from scanomatic.models.compile_project_model import CompileInstructionsModel
 
 
 class Paths(SingeltonOneInit):
     def __one_init__(self, *args):
 
-        self._logger = Logger("Paths Class")
+        self._logger = get_logger("Paths Class")
         if len(args) > 0:
             self._logger.warning(
                 "Some class instantiated a Paths object wit parameters."

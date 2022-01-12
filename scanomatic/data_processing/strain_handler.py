@@ -1,13 +1,13 @@
-from logging import Logger
-from typing import Any, SupportsInt, Union
 from collections.abc import Sequence
+from typing import Any, SupportsInt, Union
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 
+from scanomatic.io.logger import get_logger
 from scanomatic.io.meta_data import MetaData2
 
-_logger = Logger("Strain Handler Module")
+_logger = get_logger("Strain Handler Module")
 
 _PLATE_STRING = "Plate {0}"
 
