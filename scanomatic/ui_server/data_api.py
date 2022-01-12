@@ -16,8 +16,9 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.data_processing.norm import NormState
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.grayscale import \
+from scanomatic.image_analysis.grayscale import (
     get_grayscale as get_grayscale_conf
+)
 from scanomatic.image_analysis.grayscale import get_grayscales
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose

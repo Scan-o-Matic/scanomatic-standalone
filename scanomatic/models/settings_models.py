@@ -65,7 +65,7 @@ class RPCServerModel(model.Model):
         self,
         port: Optional[int] = None,
         host: Optional[str] = None,
-        admin: Optional[bool] = None,
+        admin: Optional[str] = None,
         config=None,
     ):
         self.port = port

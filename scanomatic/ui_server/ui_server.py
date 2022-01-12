@@ -44,7 +44,7 @@ def launch_server(host, port, debug):
     app = Flask("Scan-o-Matic UI", template_folder=Paths().ui_templates)
     app.config['scanstore'] = ScanStore(Config().paths.projects_root)
 
-    rpc_client = get_client(admin=True)
+    rpc_client = get_client()
 
     if rpc_client.local and rpc_client.online is False:
         _LOGGER.warning(

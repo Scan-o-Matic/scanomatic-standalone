@@ -37,31 +37,21 @@ def sanitize_communication(obj):
         return obj
 
 
-def get_client(
-    host=None,
-    port=None,
-    admin=False,
-    log_level=None,
-) -> "_ClientProxy":
+def get_client() -> "_ClientProxy":
     config = app_config.Config()
-    if port is None:
-        port = config.rpc_server.port
-    if host is None:
-        host = config.rpc_server.host
-
-    cp = _ClientProxy(host, port, log_level=log_level)
-    if admin:
-        cp.user_id = config.rpc_server.admin
-
-    return cp
+    port = config.rpc_server.port
+    host = config.rpc_server.host
+    user_id = config.rpc_server.admin
+    assert isinstance(port, int), "RPC Server port not known"
+    assert isinstance(host, str), "RPC Server host not known"
+    assert isinstance(user_id, str), "RPC Client user id not known"
+    return _ClientProxy(host, port, user_id)
 
 
 class _ClientProxy:
-    def __init__(self, host, port, user_id=None, log_level=None):
+    def __init__(self, host: str, port: int, user_id: str):
 
         self._logger = get_logger("Client Proxy")
-        if log_level is not None:
-            self._logger.setLevel(log_level)
         self._user_id = user_id
         self._adminMethods = (
             'communicateWith',
@@ -180,14 +170,6 @@ class _ClientProxy:
         if self.host is None:
             return False
         return "127.0.0.1" in self.host or "localhost" in self.host
-
-    @property
-    def user_id(self):
-        return self._user_id
-
-    @user_id.setter
-    def user_id(self, value):
-        self._user_id = value
 
     @property
     def host(self) -> Optional[str]:

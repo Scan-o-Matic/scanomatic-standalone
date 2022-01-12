@@ -243,15 +243,15 @@ class ChildPipeEffector(_PipeEffector):
         super(ChildPipeEffector, self)._failSend(callName, *args, **kwargs)
 
         if callName in self._failVunerableCalls:
-            rC = rpc_client.get_client(admin=True)
+            client = rpc_client.get_client()
 
-            if not rC.online:
+            if not client.online:
                 self._logger.info("Re-booting server process")
                 Popen('scan-o-matic_server')
                 time.sleep(2)
 
-            if rC.online and self.procEffector is not None:
-                pipe = rC.reestablishMe(
+            if client.online and self.procEffector is not None:
+                pipe = client.reestablishMe(
                     self.procEffector.label,
                     self.procEffector.label,
                     self.procEffector.TYPE,
