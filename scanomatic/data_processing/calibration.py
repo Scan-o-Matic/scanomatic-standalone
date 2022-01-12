@@ -2,7 +2,7 @@ import re
 from collections import namedtuple
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 from uuid import uuid1
 
 import numpy as np
@@ -31,7 +31,7 @@ from scanomatic.io.ccc_data import (
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
-__CCC = {}
+__CCC: Dict[str, Any] = {}
 _logger = get_logger("CCC")
 
 CalibrationData = namedtuple(

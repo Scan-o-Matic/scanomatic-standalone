@@ -1,7 +1,7 @@
 import operator
 from collections.abc import Callable
 from itertools import product
-from typing import Any
+from typing import Any, Dict, List
 
 import numpy as np
 import scipy.cluster.hierarchy as sch  # type: ignore
@@ -71,10 +71,10 @@ def _ensure_indata(f):
         while data.ndim > 2:
             data = get_linearized_positions(data)
 
-        args = list(args)
-        args[0] = data
+        args_list = list(args)
+        args_list[0] = data
 
-        return f(*args, **kwargs)
+        return f(*args_list, **kwargs)
 
     return wrapped
 
@@ -119,7 +119,7 @@ def plot_heatmap_dendrogram_and_cluster(
     fig = plt.figure()
 
     # Easy extension for clustering in both dimensions
-    dendrogram = [None]
+    dendrogram: List[Dict] = []
     linkage = [None]
     for id, (ax_placement, dendrogram_orientation) in enumerate(
         (([0.09, 0.1, 0.4, 0.8], 'right'),)
