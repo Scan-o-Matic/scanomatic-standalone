@@ -37,7 +37,18 @@ In this case, only redact the sensitive information, but keep general systematic
 
 This section contains information relevant to those contributing to the source-code.
 
-## System tests
+## Tests and quality assurance
+
+Scan-o-Matic has three kinds of tests: unit, integration, and system tests. In addition the Scan-o-Matic code should be lint free and pass type checking.
+Backend tests, linting and typechecking are run by `tox` while front-end tests are run with `karma` and lint with `eslint`.
+
+The tox environments are `lint`, `mypy`, `unit`, `integration` and `system`. Only the latter requires additional dependencies.
+
+### Tox mypy type checking
+
+Currently this is not required as the code is still riddled with type errors, however there's a `typecheck-changed.sh` that filters out errors only in files changed in the branch. It should be used to guarantee that no new errors are introduced and it is encouraged to clean up unrelated errors in the files touched.
+
+### System tests
 
 System tests require `firefox`, `geckodriver`, `google-chrome` and `chromedriver` to be installed on host system.
 After that it run with `tox -e system`.

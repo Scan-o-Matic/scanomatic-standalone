@@ -1,16 +1,17 @@
 import csv
-from logging import Logger
 from typing import Iterator, Optional, Union, cast
 
 import numpy as np
-import pandas as pd  # type: ignore
+import pandas as pd
+
+from scanomatic.io.logger import get_logger
 
 
 class DataLoader:
     _SUFFIXES: tuple[str, ...] = tuple()
 
     def __init__(self, path):
-        self._logger = Logger("MetaDataLoader")
+        self._logger = get_logger("MetaDataLoader")
         self._path = path
         self._sheet = -1
         self._entries = []
@@ -180,7 +181,7 @@ class MetaData2:
 
     def __init__(self, plate_shapes, *paths):
 
-        self._logger = Logger("MetaData")
+        self._logger = get_logger("MetaData")
         self._plate_shapes = plate_shapes
 
         self._data = tuple(

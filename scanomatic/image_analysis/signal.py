@@ -1,14 +1,14 @@
-from logging import Logger
-from typing import cast, Optional
+from typing import Optional, cast
 
 import numpy as np
 import numpy.typing as npt
 from scipy.ndimage import binary_dilation, binary_erosion  # type: ignore
 from scipy.signal import convolve, fftconvolve  # type: ignore
 
-from .exceptions import SignalError
+from scanomatic.image_analysis.exceptions import SignalError
+from scanomatic.io.logger import get_logger
 
-_logger = Logger("Resource Signal")
+_logger = get_logger("Resource Signal")
 
 SpikesArray = npt.NDArray[np.bool_]
 

@@ -11,6 +11,7 @@ import scanomatic.models.rpc_job_models as rpc_job_models
 from scanomatic.generics.model import Model
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io.app_config import Config
+from scanomatic.io.logger import get_logger
 from scanomatic.io.rpc_client import sanitize_communication
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.compile_project_factory import (
@@ -21,9 +22,9 @@ from scanomatic.models.factories.scanning_factory import (
     ScannerFactory,
     ScanningModelFactory
 )
+from scanomatic.models.validators.validate import get_invalid_names, validate
 from scanomatic.server.server import Server
 from scanomatic.server.stoppable_rpc_server import Stoppable_RPC_Server
-from scanomatic.models.validators.validate import get_invalid_names, validate
 
 _SOM_SERVER: Optional[Server] = None
 _RPC_SERVER: Optional[Stoppable_RPC_Server] = None
@@ -69,7 +70,7 @@ class InterfaceBuilder(SingeltonOneInit):
 
     def __one_init__(self):
 
-        self.logger = Logger("Server Manager")
+        self.logger = get_logger("Server Manager")
         self._start_som_server()
         self._start_rpc_server()
 
@@ -80,6 +81,7 @@ class InterfaceBuilder(SingeltonOneInit):
         if _SOM_SERVER is None:
             _SOM_SERVER = Server()
             _SOM_SERVER.start()
+            _SOM_SERVER.logger.info('SOM Server started')
         else:
             _SOM_SERVER.logger.warning(
                 "Attempt to launch second instance of server",

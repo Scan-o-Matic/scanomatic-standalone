@@ -2,7 +2,6 @@ import re
 from collections import namedtuple
 from collections.abc import Callable
 from enum import Enum
-from logging import Logger
 from typing import Any, Optional, Union
 from uuid import uuid1
 
@@ -29,10 +28,11 @@ from scanomatic.io.ccc_data import (
     save_ccc,
     validate_polynomial_format
 )
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
 __CCC = {}
-_logger = Logger("CCC")
+_logger = get_logger("CCC")
 
 CalibrationData = namedtuple(
     "CalibrationData", [

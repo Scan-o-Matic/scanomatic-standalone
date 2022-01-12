@@ -1,15 +1,15 @@
 import os
 import sys
 import time
-from logging import Logger
 from typing import Optional
 
 import numpy as np
 from PIL import Image
 
 import scanomatic.io.app_config as app_config
+from scanomatic.io.logger import get_logger
 
-_logger = Logger("Resource Analysis Support")
+_logger = get_logger("Resource Analysis Support")
 
 
 def save_image_as_png(from_path, **kwargs):

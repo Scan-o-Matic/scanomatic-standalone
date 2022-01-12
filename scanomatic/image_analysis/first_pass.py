@@ -1,7 +1,6 @@
-from logging import Logger
-
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.io.fixtures import FixtureSettings
+from scanomatic.io.logger import get_logger
 from scanomatic.models.compile_project_model import (
     CompileImageAnalysisModel,
     CompileImageModel
@@ -11,7 +10,7 @@ from scanomatic.models.factories.compile_project_factory import (
 )
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 
-_logger = Logger("1st Pass Analysis")
+_logger = get_logger("1st Pass Analysis")
 
 
 class MarkerDetectionFailed(Exception):
