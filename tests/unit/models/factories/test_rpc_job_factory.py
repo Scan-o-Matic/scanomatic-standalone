@@ -1,4 +1,4 @@
-import pytest  # type: ignore
+import pytest
 
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 
