@@ -4,7 +4,7 @@ const classExperimentSelected = 'ExperimentSelected';
 const dispatcherSelectedExperiment = 'SelectedExperiment';
 let markingSelection = false;
 const allowMarking = false;
-const plateMetaDataType = {
+export const plateMetaDataType = {
   OK: 'OK',
   BadData: 'BadData',
   Empty: 'Empty',
@@ -16,7 +16,7 @@ if (!d3.scanomatic) {
   d3.scanomatic = {};
 }
 
-function addSymbolToSGV(svgRoot, type) {
+export function addSymbolToSVG(svgRoot, type) {
   let badDataSym;
   let okSym;
   switch (type) {
@@ -79,12 +79,12 @@ function addSymbolToSGV(svgRoot, type) {
   return null;
 }
 
-function addSymbolsToSGV(svgRoot) {
-  addSymbolToSGV(svgRoot, plateMetaDataType.BadData);
-  addSymbolToSGV(svgRoot, plateMetaDataType.Empty);
-  addSymbolToSGV(svgRoot, plateMetaDataType.NoGrowth);
-  addSymbolToSGV(svgRoot, plateMetaDataType.OK);
-  addSymbolToSGV(svgRoot, plateMetaDataType.UndecidedProblem);
+function addSymbolsToSVG(svgRoot) {
+  addSymbolToSVG(svgRoot, plateMetaDataType.BadData);
+  addSymbolToSVG(svgRoot, plateMetaDataType.Empty);
+  addSymbolToSVG(svgRoot, plateMetaDataType.NoGrowth);
+  addSymbolToSVG(svgRoot, plateMetaDataType.OK);
+  addSymbolToSVG(svgRoot, plateMetaDataType.UndecidedProblem);
 }
 
 function addSelectionHandling(svgRoot) {
@@ -208,7 +208,7 @@ export function DrawPlate(container, data, growthMetaData, plateMetaData, phenot
 
 
   addSelectionHandling(grid);
-  addSymbolsToSGV(grid);
+  addSymbolsToSVG(grid);
 
   const plateGroup = grid.append('g').classed('gHeatmap', true);
 
@@ -596,7 +596,7 @@ d3.scanomatic.plateHeatmap = () => {
           style: 'float: left',
         });
 
-      addSymbolsToSGV(toolTipIcon);
+      addSymbolsToSVG(toolTipIcon);
 
       node.select('.plateWell')
         .attr('fill', 'black')

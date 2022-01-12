@@ -1,14 +1,26 @@
-// export * from 'bootstrap';
-// export * from 'bootstrap-toggle';
-// export d3 from 'd3';
-// export $ from 'jquery';
-// export * from 'jquery-modal';
-// export * from 'jquery-treetable';
-// export * from 'jquery-ui';
-// export Spinner from 'spin';
+import $ from 'jquery';
+// import 'bootstrap';
+import 'bootstrap-toggle';
+import * as d3 from 'd3';
+import 'jquery-modal';
+import 'jquery-treetable';
+import 'jquery-ui';
+import 'jquery-ui/ui/widgets/autocomplete';
+// CSS
+// import 'bootstrap/' css
+import 'bootstrap-toggle/css/bootstrap-toggle.css';
+// import 'jquery-ui/' css
+import 'jquery-modal/jquery.modal.css';
+import 'jquery-treetable/css/jquery.treetable.css';
+import 'jquery-treetable/css/jquery.treetable.theme.default.css';
+
+/* External dependencies */
+window.$ = $;
+window.jQuery = $;
+window.d3 = d3;
+export { Spinner } from 'spin';
 
 /* Scan-o-Matic API */
-
 export {
   analysisToggleLocalFixture,
   createSelector,
@@ -18,6 +30,7 @@ export {
   setRegriddingSourceDirectory,
   setAnalysisDirectory,
   setFilePath,
+  toggleManualRegridding,
   Analyse,
   Extract,
   BioscreenExtract,
@@ -86,7 +99,9 @@ export {
 export { default as DrawCurves } from './qc_normDrawCurves';
 
 export {
+  addSymbolToSVG,
   getValidSymbol,
+  plateMetaDataType,
   DrawPlate,
 } from './qc_normDrawPlate';
 
@@ -106,16 +121,3 @@ export {
   stopDialogue,
   updateStatus,
 } from './status';
-
-
-/* External dependencies */
-
-window.$ = require('jquery');
-window.d3 = require('d3');
-
-// export * from 'bootstrap';
-// export * from 'bootstrap-toggle';
-export * from 'jquery-modal';
-export * from 'jquery-treetable';
-export * from 'jquery-ui';
-export { Spinner } from 'spin';

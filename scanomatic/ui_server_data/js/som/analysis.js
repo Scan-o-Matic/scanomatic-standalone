@@ -140,7 +140,7 @@ function regriddingSettingsData() {
   return plates;
 }
 
-function toggleManualRegridding(chkbox) {
+export function toggleManualRegridding(chkbox) {
   const isActive = $(chkbox).prop('checked');
   if (isActive) {
     $('#manual-regridding-settings').show();
