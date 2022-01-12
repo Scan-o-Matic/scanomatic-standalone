@@ -3,20 +3,7 @@
   <head>
     <title>Quality Control Prototype</title>
     <meta charset="utf-8" />
-    <script src="js/external/jquery.js"></script>
-    <script src="js/external/bootstrap.js"></script>
-    <script src="js/external/d3.js"></script>
-    <script src="js/external/jquery.treetable.js"></script>
-    <script src="js/external/jquery.modal.js"></script>
-    <script src="js/external/jquery-ui.js"></script>
-    <script src="js/external/bootstrap-toggle.js"></script>
-    <script src="js/external/spin.js"></script>
-
-    <script src="js/qc_normHelper.js?ver=1.0.0"></script>
-    <script src="js/qc_normDrawPlate.js?ver=1.0.0"></script>
-    <script src="js/qc_normDrawCurves.js?ver=1.0.0"></script>
-    <script src="js/qc_normAPIHelper.js?ver=1.0.0"></script>
-
+    <script src="js/som.js?ver=1.0.0"></script>
     <link href="style/qc_norm.css" rel="stylesheet"/>
     <link href="style/bootstrap.css" rel="stylesheet"/>
     <link href="style/main.css" rel="stylesheet"/>
@@ -25,8 +12,6 @@
     <link href="style/bootstrap-toggle.min.css" rel="stylesheet" />
     <link href="style/jquery.modal.css" rel="stylesheet" />
     <link href="style/jquery-ui.css" rel="stylesheet" />
-
-
   </head>
 <body>
   <script>
@@ -36,7 +21,7 @@
         var unlockPath = $("#spLock").data("unLock_path");
         if (unlockPath) {
           $("#divLockRemoving").show();
-          RemoveLock(unlockPath,
+          som.RemoveLock(unlockPath,
             lock_key,
             function (success) {
               $("#spLock").text("Read/Write");
@@ -100,7 +85,7 @@
             var project = $("#spProject").text();
             var lockKey = getLock_key();
             wait();
-            GetNormalizeProject(project, lockKey, function (data) {
+            som.GetNormalizeProject(project, lockKey, function (data) {
               if (data.success === true)
                 alert("Succeded!");
               else
@@ -120,7 +105,7 @@
           var project = $("#spProject").text();
           var url = "/api/results/export/phenotypes/NormalizedRelative/" + project;
           wait();
-          GetExport(url, function () {
+          som.GetExport(url, function () {
             stopWait();
           });
         });
@@ -128,7 +113,7 @@
           var project = $("#spProject").text();
           var url = "/api/results/export/phenotypes/NormalizedAbsoluteBatched/" + project;
           wait();
-          GetExport(url, function () {
+          som.GetExport(url, function () {
             stopWait();
           });
         });
@@ -272,7 +257,7 @@
           addSymbolToSGV(btn, type);
           btn.append("use")
             .attr({
-              "xlink:href": "#" + getValidSymbol(type),
+              "xlink:href": "#" + som.getValidSymbol(type),
               "x": 0,
               "y": 0,
               "width": 25,
@@ -327,7 +312,7 @@
             path = "/api/results/curve_mark/set/" + mark + "/" + plateIdx + "/" + row + "/" + col + "/" + project;
           var lockKey = getLock_key();
           wait();
-          GetMarkExperiment(path, lockKey, function (gData) {
+          som.GetMarkExperiment(path, lockKey, function (gData) {
             if (gData.success === true) {
               dispatch.reDrawExp("id" + row + "_" + col, mark);
               var queueCurrent = getQIndexCoord(qIdxOperations.Current);
@@ -343,7 +328,7 @@
         }
 
         //draw Project selection
-        BrowseProjectsRoot(function (browseData) {
+        som.BrowseProjectsRoot(function (browseData) {
           if (browseData === null) {
             alert("ERROR: There was a problem with the API!");
             return;
@@ -372,7 +357,7 @@
 
         function nodeExpand() {
           var parentId = this.id;
-          BrowsePath(parentId, function (browse) {
+          som.BrowsePath(parentId, function (browse) {
             console.log("ParentID:" + parentId);
             console.log("is project:" + browse.isProject);
             console.log("paths len:" + browse.paths.length);
@@ -418,7 +403,7 @@
         function getLock(callback) {
           var lockPath = $("#spLock").data("lock_path");
           wait();
-          GetAPILock(lockPath,
+          som.GetAPILock(lockPath,
             function (lockData) {
               if (lockData != null) {
                 var lock = lockData.lock_key;
@@ -488,7 +473,7 @@
         //draw Reference Offset selection
         function drawReferenceOffsetSelecton() {
           var elementName = "selRefOffSets";
-          GetReferenceOffsets(function (offsets) {
+          som.GetReferenceOffsets(function (offsets) {
             d3.select("#" + elementName).remove();
             var selPhen = d3.select("#divReferenceOffsetSelector")
               .append("select")
@@ -509,7 +494,7 @@
           projectSlelectionStage("Phenotypes");
           console.log("Phenotypes path: " + path);
           var lockKey = getLock_key();
-          GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
+          som.GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
             d3.select("#" + selRunPhenotypesName).remove();
             var selPhen = d3.select("#divRunPhenotypesSelector")
               .append("select")
@@ -529,7 +514,7 @@
         function drawRunNormalizedPhenotypeSelection(path) {
           console.log("Norm Phenotypes path: " + path);
           var lockKey = getLock_key();
-          GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
+          som.GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
             d3.select("#" + selRunNormPhenotypesName).remove();
             var selPhen = d3.select("#divRunPhenotypesSelector")
               .append("select")
@@ -556,7 +541,7 @@
           projectSlelectionStage("Plates");
           console.log("plates: " + path);
           var lockKey = getLock_key();
-          GetPhenotypesPlates(path, lockKey, function (phenotypePlates) {
+          som.GetPhenotypesPlates(path, lockKey, function (phenotypePlates) {
             //plate buttons
             d3.selectAll(".plateSelectionButton").remove();
             var selPlates = d3.select("#divPhenotypePlatesSelecton");
@@ -611,7 +596,7 @@
           var phenotypePath = isNormalized ? "/api/results/normalized_phenotype/###/" : "/api/results/phenotype/###/";
           var metaDataPath = phenotypePath + plateIdx + "/" + project;
           var lockKey = getLock_key();
-          GetPlateData(path, isNormalized, metaDataPath, "###", lockKey, function (data) {
+          som.GetPlateData(path, isNormalized, metaDataPath, "###", lockKey, function (data) {
             $("#plate").empty();
             var allNull = isPlateAllNull(data.plate_data);
             if (!data || allNull) {
@@ -623,7 +608,7 @@
             var growthMetaData = data.Growth_metaData;
             var phenotypeName = data.plate_phenotype;
             qIndexQueue = data.plate_qIdxSort;
-            var plate = DrawPlate("#plate", plateData, growthMetaData, plateMetaData, phenotypeName, dispatch);
+            var plate = som.DrawPlate("#plate", plateData, growthMetaData, plateMetaData, phenotypeName, dispatch);
             var row = $("#currentSelection").data("row");
             var col = $("#currentSelection").data("col");
             if (row && col)
@@ -644,9 +629,9 @@
                 var expPath = "/api/results/curves/" + plateIdx + "/" + row + "/" + col + "/" + project;
                 console.log("curve path:" + expPath);
                 var lockKey = getLock_key();
-                GetExperimentGrowthData(expPath, lockKey, function (gData) {
+                som.GetExperimentGrowthData(expPath, lockKey, function (gData) {
                   $("#graph").empty();
-                  DrawCurves("#graph", gData, datah.metaDataGt, datah.metaDataGtWhen, datah.metaDataYield);
+                  som.DrawCurves("#graph", gData, datah.metaDataGt, datah.metaDataGtWhen, datah.metaDataYield);
                 });
               });
           });

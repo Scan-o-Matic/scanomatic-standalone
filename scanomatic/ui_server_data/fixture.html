@@ -4,12 +4,7 @@
   <link rel="stylesheet" type="text/css" href="/style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="/style/fixtures.css?ver=_-_VERSIONTAG_-_">
   <title>Scan-o-Matic</title>
-  <script src="/js/external/jquery.js"></script>
-  <script src="/js/external/jquery-ui.js"></script>
-  <script src="/js/helpers.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/simple_graphs.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/grayscales.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/fixtures.js?ver=_-_VERSIONTAG_-_"></script>
+  <script src="/js/som.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
     currentFixtureId = "#current-fixture";
     newFixtureData_id = "#new-fixture-data";
@@ -36,9 +31,9 @@
         Select:
       </label>
       <select name="current-fixtures" id="current-fixture"
-        onchange="getFixture();"></select>
+        onchange="som.getFixture();"></select>
       <input name="add-fixture" id="add-fixture"
-        onclick="addFixture()"  type="button" value="Add new..."/>
+        onclick="som.addFixture()"  type="button" value="Add new..."/>
     </div>
 
     <div id="new-fixture-data" class="section">
@@ -49,15 +44,15 @@
             Name:
           </label>
           <input name="new-fixture-name" id="new-fixture-name"
-            onchange="SetAllowDetect();"
-            onkeyup="SetAllowDetect();"/>
+            onchange="som.SetAllowDetect();"
+            onkeyup="som.SetAllowDetect();"/>
         </li>
         <li>
           <label for="new-fixture-image">
             Reference Image:
           </label>
           <input name="new-fixture-image" id="new-fixture-image" type="file" accept="image/tiff"
-               onchange="SetAllowDetect();"/>
+               onchange="som.SetAllowDetect();"/>
         </li>
         <li>
           <label for="new-fixture-markers">
@@ -65,7 +60,7 @@
           </label>
           <input type="number" value="3" name="new-fixture-markers" id="new-fixture-markers" min="3" max="7"/>
           <button type="button" id="new-fixture-detect"
-              onclick="detectMarkers()">
+              onclick="som.detectMarkers()">
             Detect
           </button>
         </li>
@@ -84,7 +79,7 @@
       <input type="hidden" name="update-type" id='update-type' value="update"/>
       <div>
         <button type="button" id="clear-areas"
-            onclick="clearAreas();drawFixture();selectedFixtureCanvasJq.focus();">
+            onclick="som.clearAreas();som.drawFixture();selectedFixtureCanvasJq.focus();">
           Clear All Areas
         </button>
         <label for="grayscale">
@@ -92,20 +87,20 @@
         </label>
         <select name="grayscale" id="grayscale" class="grayscale-selector"></select>
         <button type="button" id="submit-button"
-            onclick="SaveFixture();">
+            onclick="som.SaveFixture();">
           Save
         </button>
         <button type="button" id="remove-button"
-            onclick="RemoveFixture();">
+            onclick="som.RemoveFixture();">
           Remove
         </button>
       </div>
     </div>
 
     <script>
-      LoadGrayscales();
-      getFixtures();
-      setCanvas();
+      som.LoadGrayscales();
+      som.getFixtures();
+      som.setCanvas();
     </script>
 
   </form>

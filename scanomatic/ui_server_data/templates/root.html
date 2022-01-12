@@ -3,8 +3,7 @@
   <head lang="en">
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="style/main.css?ver=_-_VERSIONTAG_-_">
-    <script src="/js/external/jquery.js"></script>
-    <script src="/js/helpers.js?ver=_-_VERSIONTAG_-_"></script>
+    <script src="/js/som.js?ver=_-_VERSIONTAG_-_"></script>
     <title>Scan-o-Matic</title>
     <link rel="icon" type="image/ico" href="images/favicon.ico">
   </head>
@@ -59,7 +58,7 @@
     </div>
     <script>
       $("#logo").bind("load", function () { $(this).hide().fadeIn(4000); });
-      setVersionInformation("#version-info", "");
+      som.setVersionInformation("#version-info", "");
     </script>
   </body>
 </html>

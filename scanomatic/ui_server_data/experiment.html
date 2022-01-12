@@ -4,16 +4,10 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="style/experiment.css?ver=_-_VERSIONTAG_-_">
-  <script src="/js/external/jquery.js"></script>
-  <script src="/js/external/jquery-ui.js"></script>
-  <script src="/js/helpers.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/fixtures.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/scanners.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/experiment.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/calibration.js?ver=_-_VERSIONTAG_-_"></script>
+  <script src="/js/som.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
     currentFixtureId = "#current-fixture";
-    current_scanner_id = "#current-scanner";
+    currentScannerId = "#current-scanner";
   </script>
   <title>Scan-o-Matic</title>
 </head>
@@ -29,9 +23,9 @@
             <td><label for="project-path">Project Path</label></td>
             <td colspan="5">
               <input class='long' id="project-path" name="project-path"
-                onchange="setExperimentRoot(this); validateExperiment();"
-                onfocus=" setExperimentRoot(this);"
-                onkeyup=" setExperimentRoot(this);"/>
+                onchange="som.setExperimentRoot(this); validateExperiment();"
+                onfocus="som.setExperimentRoot(this);"
+                onkeyup="som.setExperimentRoot(this);"/>
             </td>
           </tr>
           <tr>
@@ -77,14 +71,14 @@
             <td><label for="current-scanner">
               Scanner:
             </label></td>
-            <td><select name="current-scanner" id="current-scanner" onchange="validateExperiment();"></select></td>
+            <td><select name="current-scanner" id="current-scanner" onchange="som.validateExperiment();"></select></td>
           </tr>
 
           <tr>
             <td><label for="current-fixture">
               Fixture:
             </label></td>
-            <td><select name="current-fixtures" id="current-fixture" onchange="updateFixture(this);"></select></td>
+            <td><select name="current-fixtures" id="current-fixture" onchange="som.updateFixture(this);"></select></td>
           </tr>
         </table>
       </div>
@@ -99,9 +93,9 @@
             </label></td>
             <td>
               <input id="project-duration" name="project-duration" class="medium-long"
-                onchange="formatTime(this);
-                updateScans('#project-scans');
-                validateExperiment();"/>
+                onchange="som.formatTime(this);
+                som.updateScans('#project-scans');
+                som.validateExperiment();"/>
             </td>
           </tr>
 
@@ -111,9 +105,9 @@
             </label></td>
             <td>
               <input id="project-interval" name="project-interval" class="medium-long"
-                onchange="formatMinutes(this);
-                updateScans('#project-scans');
-                validateExperiment();"/>
+                onchange="som.formatMinutes(this);
+                som.updateScans('#project-scans');
+                som.validateExperiment();"/>
             </td>
           </tr>
           <tr>
@@ -157,7 +151,7 @@
               <img src="/images/calm.png" class="icon-large">
               <p class="block">No stress</p>
               <input id='aux-stress' type="range" min="1" max="100" step="1" value="50" class="block"
-                onchange="setAux(this, 'stress_level');")/>
+                onchange="som.setAux(this, 'stress_level');")/>
               <p class="block">Overwhelmed</p><img src="/images/stressed.png" class="icon-large">
             </td>
           </tr>
@@ -169,21 +163,21 @@
               <h3>Storage</h3>
               <div>
                 <input type="radio" name="aux-plate-stored" value="Fresh" id="aux-plates-fresh" class="block"
-                  onchange="setAux(this, 'plate_storage');"/>
+                  onchange="som.setAux(this, 'plate_storage');"/>
                 <p class="block">
                   Fresh / No storage
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-plate-stored" value="Cold" id="aux-plates-cold" class="block"
-                  onchange="setAux(this, 'plate_storage');"/>
+                  onchange="som.setAux(this, 'plate_storage');"/>
                 <p class="block">
                   Cold / Fridge
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-plate-stored" value="RoomTemperature" id="aux-plates-room" class="block"
-                  onchange="setAux(this, 'plate_storage');"/>
+                  onchange="som.setAux(this, 'plate_storage');"/>
                 <p class="block">
                   Room Temperature
                 </p>
@@ -191,12 +185,12 @@
               <h3>Age</h3>
               <div>
                 <input type="number" class="short" id="'aux-plate-age-days"
-                  onchange="setAuxTime(this, 'plate_age', 60*24);"/>
+                  onchange="som.setAuxTime(this, 'plate_age', 60*24);"/>
                 <p class="block">
                   days
                 </p>
                 <input type="number" class='short' id="'aux-plate-age-hours"
-                  onchange="setAuxTime(this, 'plate_age', 60);"/>
+                  onchange="som.setAuxTime(this, 'plate_age', 60);"/>
                 <p class="block">
                   hours old
                 </p>
@@ -209,17 +203,17 @@
               <h3>Time from pinning to experiment start</h3>
               <div>
                 <input type="number" id="'aux-pinning-delay-days" class="short"
-                  onchange="setAuxTime(this, 'pinning_project_start_delay', 24*60);"/>
+                  onchange="som.setAuxTime(this, 'pinning_project_start_delay', 24*60);"/>
                 <p class="block">
                   days
                 </p>
                 <input type="number" id="'aux-pinning-delay-h" class="short"
-                  onchange="setAuxTime(this, 'pinning_project_start_delay', 60);"/>
+                  onchange="som.setAuxTime(this, 'pinning_project_start_delay', 60);"/>
                 <p class="block">
                   h
                 </p>
                 <input type="number" id="'aux-pinning-delay-minutes" class="short"
-                  onchange="setAuxTime(this, 'pinning_project_start_delay', 1);"/>
+                  onchange="som.setAuxTime(this, 'pinning_project_start_delay', 1);"/>
                 <p class="block">
                   minutes
                 </p>
@@ -227,7 +221,7 @@
               <h3>Number of pre-cultures at final pinning density</h3>
               <div>
                 <input type="number" id="'aux-pinning-precultures" class="short"
-                  onchange="setAux(this, 'precultures');"/>
+                  onchange="som.setAux(this, 'precultures');"/>
                 <p class="block">
                   iterations
                 </p>
@@ -238,7 +232,7 @@
                   Fresh
                 </p>
                 <input id='aux-culture-freshness' type="range" min="1" max="100" step="1" value="50" class="block"
-                  onchange="setAux(this, 'culture_freshness');"/>
+                  onchange="som.setAux(this, 'culture_freshness');"/>
                 <p class="block">
                   Old
                 </p>
@@ -246,35 +240,35 @@
               <h3>Source of culture (before pre-culturing and scaling up pinning densities)</h3>
               <div>
                 <input type="radio" name="aux-culture-source" value="Freezer80" id="aux-culture-source-freezer-80" class="block"
-                  onchange="setAux(this, 'culture_source');"/>
+                  onchange="som.setAux(this, 'culture_source');"/>
                 <p class="block">
                   Freezer(-80C) / Long-term storage
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-culture-source" value="Freezer20" id="aux-culture-source-freezer-20" class="block"
-                  onchange="setAux(this, 'culture_source');"/>
+                  onchange="som.setAux(this, 'culture_source');"/>
                 <p class="block">
                   Freezer (-20C) / Short-term storage
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-culture-source" value="Fridge" id="aux-culture-source-fridge" class="block"
-                  onchange="setAux(this, 'culture_source');"/>
+                  onchange="som.setAux(this, 'culture_source');"/>
                 <p class="block">
                   Fridge / Short-term storage
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-culture-source" value="shipped" id="aux-culture-source-shipped" class="block"
-                  onchange="setAux(this, 'culture_source');"/>
+                  onchange="som.setAux(this, 'culture_source');"/>
                 <p class="block">
                   Shipped from other lab / no storage
                 </p>
               </div>
               <div>
                 <input type="radio" name="aux-culture-source" value="Novel" id="aux-culture-source-novel" class="block"
-                  onchange="setAux(this, 'culture_source');">
+                  onchange="som.setAux(this, 'culture_source');">
                 <p class="block">
                   Novel / just created
                 </p>
@@ -286,7 +280,7 @@
 
       <div class="section">
         <button type="button" id="submit-button"
-            onclick="StartExperiment(this)">
+            onclick="som.StartExperiment(this)">
           Start Scanning
         </button>
       </div>
@@ -294,15 +288,15 @@
   </div>
   <script>
     $(document).ready(() => {
-    setPoetry("#project-description");
-    formatTime("#project-duration");
-    formatMinutes("#project-interval");
-    updateScans("#project-scans");
-    setExperimentRoot("#project-path");
-    getFreeScanners(current_scanner_id);
-    getFixtures();
-    InputEnabled($("#submit-button"), false);
-    createSelector($('#ccc-selection'));
+    som.setPoetry("#project-description");
+    som.formatTime("#project-duration");
+    som.formatMinutes("#project-interval");
+    som.updateScans("#project-scans");
+    som.setExperimentRoot("#project-path");
+    som.getFreeScanners(currentScannerId);
+    som.getFixtures();
+    som.InputEnabled($("#submit-button"), false);
+    som.createSelector($('#ccc-selection'));
     });
   </script>
 </body>

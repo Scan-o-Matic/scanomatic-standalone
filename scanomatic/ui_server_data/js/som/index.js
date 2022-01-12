@@ -1,5 +1,13 @@
-export * from 'jquery';
-export * from 'spin';
+// export * from 'bootstrap';
+// export * from 'bootstrap-toggle';
+// export d3 from 'd3';
+// export $ from 'jquery';
+// export * from 'jquery-modal';
+// export * from 'jquery-treetable';
+// export * from 'jquery-ui';
+// export Spinner from 'spin';
+
+/* Scan-o-Matic API */
 
 export {
   analysisToggleLocalFixture,
@@ -98,3 +106,16 @@ export {
   stopDialogue,
   updateStatus,
 } from './status';
+
+
+/* External dependencies */
+
+window.$ = require('jquery');
+window.d3 = require('d3');
+
+// export * from 'bootstrap';
+// export * from 'bootstrap-toggle';
+export * from 'jquery-modal';
+export * from 'jquery-treetable';
+export * from 'jquery-ui';
+export { Spinner } from 'spin';

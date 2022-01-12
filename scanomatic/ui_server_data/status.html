@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="/style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="/style/status.css?ver=_-_VERSIONTAG_-_">
-  <script src="/js/external/jquery.js"></script>
-  <script src="/js/external/jquery-ui.js"></script>
-  <script src="/js/helpers.js?ver=_-_VERSIONTAG_-_"></script>
-  <script src="/js/status.js?ver=_-_VERSIONTAG_-_"></script>
+  <script src="/js/som.js?ver=_-_VERSIONTAG_-_"></script>
   <title>Scan-o-Matic</title>
 </head>
 <body>
@@ -23,16 +20,16 @@
     <div class="section-frame" id="status-jobs"></div>
   </div>
   <script>
-    updateStatus('#status-general', 'server', serverStatusFormatter);
-    updateStatus('#status-scanners', 'scanners', scannerStatusFormatter);
-    updateStatus('#status-queue', 'queue', queueStatusFormatter);
-    updateStatus('#status-jobs', 'jobs', jobsStatusFormatter);
+    som.updateStatus('#status-general', 'server', som.serverStatusFormatter);
+    som.updateStatus('#status-scanners', 'scanners', som.scannerStatusFormatter);
+    som.updateStatus('#status-queue', 'queue', som.queueStatusFormatter);
+    som.updateStatus('#status-jobs', 'jobs', som.jobsStatusFormatter);
 
     $(document).ready(function() {
-      setInterval("updateStatus('#status-general', 'server', serverStatusFormatter)", 61000);
-      setInterval("updateStatus('#status-scanners', 'scanners', scannerStatusFormatter)", 13000);
-      setInterval("updateStatus('#status-queue', 'queue', queueStatusFormatter)", 17000);
-      setInterval("updateStatus('#status-jobs', 'jobs', jobsStatusFormatter)", 19000);
+      setInterval("som.updateStatus('#status-general', 'server', som.serverStatusFormatter)", 61000);
+      setInterval("som.updateStatus('#status-scanners', 'scanners', som.scannerStatusFormatter)", 13000);
+      setInterval("som.updateStatus('#status-queue', 'queue', som.queueStatusFormatter)", 17000);
+      setInterval("som.updateStatus('#status-jobs', 'jobs', som.jobsStatusFormatter)", 19000);
     });
 
   </script>

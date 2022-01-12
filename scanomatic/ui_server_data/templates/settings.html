@@ -3,14 +3,7 @@
 <head lang="en">
   <meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="/style/main.css">
-  <script src="/js/external/jquery.js"></script>
-  <script src="/js/external/jquery-ui.js"></script>
-  <script src="/js/helpers.js"></script>
-  <script src="/js/settings.js"></script>
-  <script>
-
-
-  </script>
+  <script src="/js/som.js"></script>
 	<title>Scan-o-Matic</title>
 </head>
 <body>
@@ -24,15 +17,15 @@
           <h2>Power manager</h2>
           <label for="number_of_sockets">Number of sockets</label>
           <input name="number_of_sockets" id="number_of_sockets" class="short" type="number" min="1" max="12" value="{{power_manager['number_of_sockets']}}"
-              onchange="dynamicallyLimitScanners(this);">
+              onchange="som.dynamicallyLimitScanners(this);">
         </div>
 
         <div class="section">
-          <input name="power_manager_type" id="power_manager_type-notInstalled" type="radio" value="notInstalled" onchange="toggleVisibilities(this, false);" {{'checked' if power_manager['type'].name == 'notInstalled' else ''}}>
+          <input name="power_manager_type" id="power_manager_type-notInstalled" type="radio" value="notInstalled" onchange="som.toggleVisibilities(this, false);" {{'checked' if power_manager['type'].name == 'notInstalled' else ''}}>
           <label for="power_manager_type-notInstalled">Not Installed</label><br>
-          <input name="power_manager_type" id="power_manager_type-lan" type="radio" value="LAN" onchange="toggleVisibilities(this, true);" {{'checked' if power_manager['type'].name == 'LAN' else ''}}>
+          <input name="power_manager_type" id="power_manager_type-lan" type="radio" value="LAN" onchange="som.toggleVisibilities(this, true);" {{'checked' if power_manager['type'].name == 'LAN' else ''}}>
           <label for="power_manager_type-lan">LAN</label><br>
-          <input name="power_manager_type" id="power_manager_type-usb" type="radio" value="linuxUSB" onchange="toggleVisibilities(this, false);" {{'checked' if power_manager['type'].name == 'linuxUSB' else ''}}>
+          <input name="power_manager_type" id="power_manager_type-usb" type="radio" value="linuxUSB" onchange="som.toggleVisibilities(this, false);" {{'checked' if power_manager['type'].name == 'linuxUSB' else ''}}>
           <label for="power_manager_type-usb">USB</label><br>
         </div>
 
@@ -84,14 +77,9 @@
       </div>
 
       <div class="section">
-        <button type="button" id="submit-button" onclick="UpdateSettings(this, false);">Save (will take effect next reboot of Scan-o-Matic & Scan-o-Matic server)</button>
+        <button type="button" id="submit-button" onclick="som.UpdateSettings(this, false);">Save (will take effect next reboot of Scan-o-Matic & Scan-o-Matic server)</button>
       </div>
 
-      <!--
-      <div class="section">
-        <button type="button" id="submit-button" onclick="UpdateSettings(this, true);">Save and force to take effect (may cause problems if jobs are running)</button>
-      </div>
-      -->
     </form>
 
   </div>

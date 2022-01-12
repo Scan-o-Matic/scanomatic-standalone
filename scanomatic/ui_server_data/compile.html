@@ -24,23 +24,23 @@
 
           <div class="onoffswitch">
             <input type="checkbox" name="local-fixture" class="onoffswitch-checkbox" id="local-fixture"
-              onclick="compileToggleLocalFixture(this)"/>
+              onclick="som.compileToggleLocalFixture(this)"/>
             <label class="onoffswitch-label" for="local-fixture">
               <span class="onoffswitch-inner"></span>
               <span class="onoffswitch-switch"></span>
             </label>
           </div>
           <label for="current-fixture"></label>
-          <select name="current-fixtures" id="current-fixture" onchange="setFixtureStatus();"></select>
+          <select name="current-fixtures" id="current-fixture" onchange="som.setFixtureStatus();"></select>
           <br>
           <div class="error-message" id="fixture-error-message"></div>
         </div>
         <div class="section">
           <label for="project-directory">Project Directory</label>
           <input id="project-directory" name="project-directory" class="long"
-            onchange="setProjectDirectory(this);"
-            onfocus="setProjectDirectory(this);"
-            onkeyup="setProjectDirectory(this);"/>
+            onchange="som.setProjectDirectory(this);"
+            onfocus="som.setProjectDirectory(this);"
+            onkeyup="som.setProjectDirectory(this);"/>
           <div class="indented" id="project-directory-info"><em>
             The project directory is the directory that contains
             the images that were scanned.
@@ -51,14 +51,14 @@
         <h3>Manual selection of images</h3>
         <div class="section" id="manual-selection-div">
           <input type="checkbox" id="manual-selection"
-            onclick="toggleManualSelectionBtn(this);"/>
+            onclick="som.toggleManualSelectionBtn(this);"/>
           <label for="manual-selection">Manual Selection</label>
           <input type="hidden" id="hidden-path" value="">
           <div class="large" id="list-buttons">
             <input type="button" id="manual-select-all" value="Select All"
-              onclick="setOnAllImages(true);"/>
+              onclick="som.setOnAllImages(true);"/>
             <input type="button" id="manual-select-none" value="Select None"
-              onclick="setOnAllImages(false);"/>
+              onclick="som.etOnAllImages(false);"/>
           </div>
           <div id="options"></div>
         </div>
@@ -75,7 +75,7 @@
         </div>
         <div class="section">
           <button type="button" id="submit-button"
-              onclick="Compile(this);">
+              onclick="som.Compile(this);">
             Compile Project
           </button>
         </div>
@@ -86,11 +86,11 @@
   <script>
     image_list_div = $('#manual-selection-div');
     manual_btn = $('#manual-selection');
-    InputEnabled(manual_btn, false);
-    toggleManualSelectionBtn(manual_btn);
-    getFixtures();
-    compileToggleLocalFixture("#local-fixture");
-    InputEnabled($("#submit-button"), false);
+    som.InputEnabled(manual_btn, false);
+    som.toggleManualSelectionBtn(manual_btn);
+    som.getFixtures();
+    som.compileToggleLocalFixture("#local-fixture");
+    som.InputEnabled($("#submit-button"), false);
   </script>
 
 </body>

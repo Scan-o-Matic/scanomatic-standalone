@@ -87,7 +87,6 @@ d3.scanomatic.growthChart = () => {
     const yAxis = d3.svg.axis()
       .scale(yScale)
       .orient('left')
-      // .ticks(5)
       .tickFormat(d3.format('.0e'));
 
     g.append('g')
