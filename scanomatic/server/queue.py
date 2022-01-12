@@ -20,8 +20,9 @@ class Queue(SingeltonOneInit):
         self._paths = paths.Paths()
         self._logger = Logger("Job Queue")
         self._next_priority = rpc_job_models.JOB_TYPE.Scan
-        self._queue: list[rpc_job_models.RPCjobModel] = load(
-            self._paths.rpc_queue,
+        queue = load(self._paths.rpc_queue)
+        self._queue: list[rpc_job_models.RPCjobModel] = (
+            [] if queue is None else queue
         )
         self._scanner_manager = ScannerPowerManager()
         self._jobs = jobs

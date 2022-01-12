@@ -1,7 +1,6 @@
 from logging import Logger
 from multiprocessing import Pipe
-from typing import Union
-from scanomatic.io.jsonizer import dump, dumps, load, purge
+from typing import Union, cast
 
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -12,6 +11,7 @@ import scanomatic.server.rpcjob as rpc_job
 import scanomatic.server.scanning_effector as scanning_effector
 from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io import scanner_manager
+from scanomatic.io.jsonizer import dump, dumps, load, purge
 
 
 class Jobs(SingeltonOneInit):
@@ -115,8 +115,11 @@ class Jobs(SingeltonOneInit):
         self._forcingStop = value
 
     def _load_from_file(self):
-        jobs: list[rpc_job_models.RPCjobModel] = load(self._paths.rpc_jobs)
-        for job in jobs:
+        jobs = load(self._paths.rpc_jobs)
+        for job in cast(
+            list[rpc_job_models.RPCjobModel],
+            [] if jobs is None else jobs
+        ):
             if job and job.content_model:
                 _, parent_pipe = Pipe()
                 self._jobs[job] = rpc_job.Fake(job, parent_pipe)

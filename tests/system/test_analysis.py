@@ -12,7 +12,10 @@ def cleanup_rpc(scanomatic):
     # Nothing before
     yield
     # Remove all jobs after
-    jobs = requests.get(scanomatic + '/api/status/jobs').json()['jobs']
+    jobs_json = requests.get(scanomatic + '/api/status/jobs').json()
+    if 'jobs' not in jobs_json:
+        warn('Unexpected jobs response {}'.format(jobs_json))
+    jobs = jobs_json.get('jobs', [])
     for job in jobs:
         job_id = job['id']
         response = requests.get(scanomatic + '/api/job/{}/stop'.format(job_id))

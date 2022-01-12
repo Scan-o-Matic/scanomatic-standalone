@@ -2,7 +2,7 @@ import fnmatch
 import http.client
 from collections import namedtuple
 from hashlib import sha256
-from io import StringIO
+from io import BytesIO
 from typing import Union
 
 import pytest
@@ -13,7 +13,7 @@ import requests
 def image():
     data = b'I am an image'
     return namedtuple('image', ['image', 'filename', 'digest'])(
-        StringIO(data), 'my_image.tiff', sha256(data).hexdigest()
+        BytesIO(data), 'my_image.tiff', sha256(data).hexdigest()
     )
 
 

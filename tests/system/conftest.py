@@ -8,8 +8,8 @@ from selenium import webdriver  # type: ignore
 @pytest.fixture(scope='session')
 def docker_compose_file(pytestconfig):
     return [
-        pytestconfig.rootdir.join('docker-compose.yml'),
-        Path(__file__).parent / 'docker-compose.override.yml',
+        str(pytestconfig.rootdir.join('docker-compose.yml')),
+        str(Path(__file__).parent / 'docker-compose.override.yml'),
     ]
 
 
