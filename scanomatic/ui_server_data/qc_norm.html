@@ -16,7 +16,7 @@
 <body>
   <script>
     $(window)
-      .unload(function () {
+      .on("unload", function () {
         var lock_key = $("#spLock").data("lock_key");
         var unlockPath = $("#spLock").data("unLock_path");
         if (unlockPath) {
@@ -121,16 +121,16 @@
           getLock(function () { });
         });
         $("#btnMarkOK").click(function () {
-          markExperiemnt(plateMetaDataType.OK, false);
+          markExperiemnt(som.plateMetaDataType.OK, false);
         });
         $("#btnMarkBad").click(function () {
-          markExperiemnt(plateMetaDataType.BadData, false);
+          markExperiemnt(som.plateMetaDataType.BadData, false);
         });
         $("#btnMarkEmpty").click(function () {
-          markExperiemnt(plateMetaDataType.Empty, true);
+          markExperiemnt(som.plateMetaDataType.Empty, true);
         });
         $("#btnMarkNoGrowth").click(function () {
-          markExperiemnt(plateMetaDataType.NoGrowth, true);
+          markExperiemnt(som.plateMetaDataType.NoGrowth, true);
         });
         $("#btnQidxNext").click(function () {
           setExperimentByQidx(qIdxOperations.Prev);
@@ -142,16 +142,16 @@
           var char = getChar(event).toLowerCase();
           switch (char) {
             case 'q':
-              markExperiemnt(plateMetaDataType.OK, false);
+              markExperiemnt(som.plateMetaDataType.OK, false);
               break;
             case 'w':
-              markExperiemnt(plateMetaDataType.BadData, false);
+              markExperiemnt(som.plateMetaDataType.BadData, false);
               break;
             case 'e':
-              markExperiemnt(plateMetaDataType.Empty, true);
+              markExperiemnt(som.plateMetaDataType.Empty, true);
               break;
             case 'r':
-              markExperiemnt(plateMetaDataType.NoGrowth, true);
+              markExperiemnt(som.plateMetaDataType.NoGrowth, true);
               break;
             case '1':
               $("#btnPlate0").focus();
@@ -254,7 +254,7 @@
               "width": 25,
               "height": 25
             });
-          addSymbolToSGV(btn, type);
+          som.addSymbolToSGV(btn, type);
           btn.append("use")
             .attr({
               "xlink:href": "#" + som.getValidSymbol(type),
@@ -266,10 +266,10 @@
         };
 
         function createMarkButtons() {
-          createMarkButton("#btnMarkOK", plateMetaDataType.OK);
-          createMarkButton("#btnMarkBad", plateMetaDataType.BadData);
-          createMarkButton("#btnMarkEmpty", plateMetaDataType.Empty);
-          createMarkButton("#btnMarkNoGrowth", plateMetaDataType.NoGrowth);
+          createMarkButton("#btnMarkOK", som.plateMetaDataType.OK);
+          createMarkButton("#btnMarkBad", som.plateMetaDataType.BadData);
+          createMarkButton("#btnMarkEmpty", som.plateMetaDataType.Empty);
+          createMarkButton("#btnMarkNoGrowth", som.plateMetaDataType.NoGrowth);
         }
 
         function projectSlelectionStage(level) {

@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import 'jquery-ui';
 
 export class API {
   static get(url) {
@@ -103,7 +104,7 @@ export function clamp(value, min, max) {
   if (value == null) {
     return min;
   }
-  return Math.isNaN(value) ? max : Math.max(Math.min(value, max), min);
+  return Number.isNaN(value) ? max : Math.max(Math.min(value, max), min);
 }
 
 export function getMousePosRelative(event, obj) {
@@ -111,8 +112,8 @@ export function getMousePosRelative(event, obj) {
 }
 
 export function isInt(value) {
-  return !Math.isNaN(value) &&
-         parseInt(Number(value), 10) === value && !Math.isNaN(parseInt(value, 10));
+  return !Number.isNaN(value) &&
+         parseInt(Number(value), 10) === value && !Number.isNaN(parseInt(value, 10));
 }
 
 export function InputEnabled(obj, isEnabled) {

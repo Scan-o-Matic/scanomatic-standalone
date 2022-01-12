@@ -259,7 +259,7 @@ export function formatTime(input) {
   } catch (err) {
     if (minutes === 0 && days === 0) {
       hours = parseFloat(s);
-      if (Math.isNaN(hours)) {
+      if (Number.isNaN(hours)) {
         hours = 0;
       }
       minutes = Math.round((hours - Math.floor(hours)) * 60);
@@ -285,7 +285,7 @@ export function formatTime(input) {
 
 export function formatMinutes(input) {
   interval = parseFloat($(input).val());
-  if (Math.isNaN(interval) || interval <= 0) {
+  if (Number.isNaN(interval) || interval <= 0) {
     interval = 20.0;
   } else if (interval < 7) {
     interval = 7.0;
