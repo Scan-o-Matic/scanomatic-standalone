@@ -5,13 +5,13 @@ import re
 import time
 from enum import Enum
 from itertools import chain
-from logging import Logger
 from subprocess import PIPE, Popen
-from typing import Sequence, cast, Any, Optional
+from typing import Any, Optional, Sequence, cast
 
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
-_logger = Logger("SANE module")
+_logger = get_logger("SANE module")
 
 
 def get_alive_scanners():
@@ -254,7 +254,7 @@ class SaneBase:
         return stdout.strip()
 
     def __init__(self, model, scan_mode):
-        self._logger = Logger("SANE")
+        self._logger = get_logger("SANE")
         self.next_file_name = None
         self._model = SaneBase._get_model(model, self._logger)
         self._scan_mode = SaneBase._get_mode(

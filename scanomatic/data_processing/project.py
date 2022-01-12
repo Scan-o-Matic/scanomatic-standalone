@@ -1,13 +1,13 @@
 import glob
 import os
-from logging import Logger
 
 import numpy as np
 
 import scanomatic.io.paths as paths
+from scanomatic.io.logger import get_logger
 from scanomatic.io.pickler import unpickle_with_unpickler
 
-_logger = Logger("Project")
+_logger = get_logger("Project")
 
 
 def path_has_saved_project_state(

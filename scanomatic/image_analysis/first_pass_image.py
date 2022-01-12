@@ -1,6 +1,5 @@
 import itertools
 import time
-from logging import Logger
 from typing import Optional, Union
 
 import numpy as np
@@ -8,6 +7,7 @@ import numpy as np
 from scanomatic.data_processing.calibration import get_image_json_from_ccc
 from scanomatic.io.ccc_data import CCCImage
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
+from scanomatic.io.logger import get_logger
 from scanomatic.models.factories.fixture_factories import FixturePlateFactory
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
@@ -79,7 +79,7 @@ class FixtureImage:
         fixture: FixtureSettings = None,
         reference_overwrite_mode: bool = False
     ):
-        self._logger = Logger("Fixture Image")
+        self._logger = get_logger("Fixture Image")
         self._reference_fixture_settings = fixture
         self._current_fixture_settings = None
         self._reference_overwrite_mode = reference_overwrite_mode

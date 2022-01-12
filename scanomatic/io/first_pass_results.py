@@ -1,10 +1,10 @@
 import os
 from enum import Enum
 from glob import glob
-from logging import Logger
 from typing import Optional, cast
 from collections.abc import Sequence, Sized
 from scanomatic.io.jsonizer import copy, dump, dump_to_stream, load, load_first
+from scanomatic.io.logger import get_logger
 
 from scanomatic.io.paths import Paths
 from scanomatic.models.compile_project_model import (
@@ -28,7 +28,7 @@ class CompilationResults:
         scanner_instructions_path=None,
         sort_mode: FIRST_PASS_SORTING = FIRST_PASS_SORTING.Time,
     ):
-        self._logger = Logger("Compilation results")
+        self._logger = get_logger("Compilation results")
         self._compilation_path = compilation_path
         self._compile_instructions = None
         self._scanner_instructions: Optional[ScanningModel] = None

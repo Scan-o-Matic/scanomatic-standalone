@@ -1,7 +1,6 @@
 import glob
 import os
 import re
-from logging import Logger
 
 import numpy as np
 from matplotlib import pyplot as plt  # type: ignore
@@ -11,12 +10,13 @@ from mpl_toolkits.mplot3d import Axes3D  # type: ignore  # noqa: F401
 from scanomatic.generics.maths import mid50_mean
 from scanomatic.io.image_data import ImageData
 from scanomatic.io.image_loading import load_colony_images_for_animation
+from scanomatic.io.logger import get_logger
 from scanomatic.io.movie_writer import MovieWriter
 from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
 
 _pattern = re.compile(r".*_([0-9]+)_[0-9]+_[0-9]+_[0-9]+\..*")
-_logger = Logger("Phenotype Results QC")
+_logger = get_logger("Phenotype Results QC")
 _marker_sequence = ['v', 'o', 's', '+', 'x', 'D', '*', '^']
 
 

@@ -1,17 +1,17 @@
 import glob
 import os
-from logging import Logger
 
 import numpy as np
 
 from scanomatic.generics.purge_importing import ExpiringModule
 from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.jsonizer import load
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.io.pickler import unpickle_with_unpickler
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
-_logger = Logger("Analysis Utils")
+_logger = get_logger("Analysis Utils")
 
 
 def produce_grid_images(

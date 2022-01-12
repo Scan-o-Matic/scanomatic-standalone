@@ -160,7 +160,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
 
         if self._analysis_job.chain:
             try:
-                rc = rpc_client.get_client(admin=True)
+                rc = rpc_client.get_client()
                 if rc.create_feature_extract_job(
                     FeaturesFactory.to_dict(
                         FeaturesFactory.create(

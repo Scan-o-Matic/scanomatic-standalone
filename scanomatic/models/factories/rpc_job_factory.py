@@ -30,7 +30,8 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
         'status': rpc_job_models.JOB_STATUS,
         'priority': int,
         'content_model': Model,
-        'pid': int}
+        'pid': int,
+    }
 
     @classmethod
     def create(cls, **settings) -> rpc_job_models.RPCjobModel:

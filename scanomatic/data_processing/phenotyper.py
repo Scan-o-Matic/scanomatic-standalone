@@ -5,7 +5,6 @@ from collections.abc import Callable
 from enum import Enum
 from io import StringIO
 from itertools import chain, product
-from logging import Logger
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -53,6 +52,7 @@ from scanomatic.data_processing.pheno.state import (
 from scanomatic.data_processing.phenotypes import PhenotypeDataType
 from scanomatic.data_processing.strain_selector import StrainSelector
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
+from scanomatic.io.logger import get_logger
 from scanomatic.io.meta_data import MetaData2
 from scanomatic.io.pickler import unpickle, unpickle_with_unpickler
 
@@ -141,7 +141,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         phenotypes=None,
         phenotypes_inclusion=PhenotypeDataType.Trusted,
     ):
-        self._logger = Logger("Phenotyper")
+        self._logger = get_logger("Phenotyper")
         self._paths = paths.Paths()
         self._settings = PhenotyperSettings(
             median_kernel_size=median_kernel_size,

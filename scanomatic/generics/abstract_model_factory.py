@@ -1,13 +1,12 @@
 import copy
-import logging
 import types
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from logging import Logger
 from typing import Any, Optional, Type, Union, cast
-from collections.abc import Sequence
 
 from scanomatic.generics.model import Model
+from scanomatic.io.logger import get_logger
 
 
 class UnserializationError(ValueError):
@@ -145,7 +144,7 @@ class AbstractModelFactory:
     @classmethod
     def get_logger(cls) -> Logger:
         if cls._LOGGER is None:
-            cls._LOGGER = Logger(cls.__name__)
+            cls._LOGGER = get_logger(cls.__name__)
 
         return cls._LOGGER
 
@@ -268,7 +267,7 @@ class AbstractModelFactory:
                 or key not in cls.STORE_SECTION_SERIALIZERS
             ):
                 if key in settings and settings[key] is not None:
-                    logging.warning(
+                    cls.get_logger().warning(
                         f"'{key}' ({settings[key]}) not enforced when loaded by {cls.__name__}",  # noqa: E501
                     )
                 continue

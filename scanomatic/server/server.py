@@ -1,9 +1,10 @@
 import hashlib
 import time
 from math import trunc
-from typing import Any
+from typing import Any, Optional, Union
 
 import scanomatic.generics.decorators as decorators
+from scanomatic.generics.model import Model
 import scanomatic.io.app_config as app_config
 import scanomatic.io.scanner_manager as scanner_manager
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -14,6 +15,10 @@ from scanomatic.io.paths import Paths
 from scanomatic.io.resource_status import Resource_Status
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.validators.validate import validate
+
+
+def get_id() -> str:
+    return hashlib.md5(str(time.time()).encode()).hexdigest()
 
 
 class Server:
@@ -186,13 +191,12 @@ class Server:
                 "Jobs will be abandoned, can't wait for ever...",
             )
 
-    def _get_job_id(self):
-
+    def _get_job_id(self) -> str:
         job_id = ""
         bad_name = True
 
         while bad_name:
-            job_id = hashlib.md5(str(time.time())).hexdigest()
+            job_id = get_id()
             bad_name = job_id in self._queue or job_id in self._jobs
 
         return job_id
@@ -203,14 +207,19 @@ class Server:
             return self._queue[job_id]
         return self._jobs[job_id]
 
-    def enqueue(self, model, job_type):
+    def enqueue(
+        self,
+        model: Model,
+        job_type: rpc_job_models.JOB_TYPE,
+    ) -> Optional[Union[str, bool]]:
 
         rpc_job = RPC_Job_Model_Factory.create(
             id=self._get_job_id(),
             pid=None,
             type=job_type,
             status=rpc_job_models.JOB_STATUS.Requested,
-            content_model=model)
+            content_model=model,
+        )
 
         if not validate(rpc_job):
             self.logger.error("Failed to create job model")

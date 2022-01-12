@@ -1,13 +1,14 @@
-from enum import Enum
-from logging import Logger
-from typing import Any
 from collections.abc import Sequence
+from enum import Enum
+from typing import Any
 
 import numpy as np
 from scipy.optimize import leastsq  # type: ignore
 from scipy.stats import linregress  # type: ignore
 
-_logger = Logger("Growth Phenotypes")
+from scanomatic.io.logger import get_logger
+
+_logger = get_logger("Growth Phenotypes")
 
 
 def _linreg_helper(X, Y):

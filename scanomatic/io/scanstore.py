@@ -22,7 +22,7 @@ class ScanStore:
             scan.timedelta.total_seconds(),
         )
         path = os.path.join(self._path, project_fullname, filename)
-        with open(path, 'w') as f:
+        with open(path, 'wb') as f:
             f.write(scan.image.read())
             f.flush()
             os.fsync(f)

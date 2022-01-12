@@ -1,5 +1,4 @@
 from enum import Enum
-from logging import Logger
 
 import numpy as np
 
@@ -13,8 +12,9 @@ from scanomatic.data_processing.phases.segmentation import (
     CurvePhases,
     is_detected_non_linear
 )
+from scanomatic.io.logger import get_logger
 
-_logger = Logger("Curve Phase Meta Phenotyping")
+_logger = get_logger("Curve Phase Meta Phenotyping")
 
 
 class CurvePhaseMetaPhenotypes(Enum):

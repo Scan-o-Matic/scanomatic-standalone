@@ -1,5 +1,4 @@
 import json
-import logging
 from collections.abc import Callable
 from enum import Enum, unique
 from typing import Any, Optional, TextIO, Type, TypeVar, Union
@@ -8,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from scanomatic.generics.model import Model, assert_models_deeply_equal
+from scanomatic.io.logger import get_logger
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 from scanomatic.models.analysis_model import COMPARTMENTS, MEASURES, VALUES
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
@@ -62,6 +62,7 @@ class JSONEncodingError(JSONSerializationError):
     pass
 
 
+_LOGGER = get_logger("Jsonizer")
 CONTENT = "__CONTENT__"
 
 
@@ -106,13 +107,13 @@ def decode_model(obj: dict) -> Model:
         creator = MODEL_CLASSES[obj[encoding]]
     except KeyError:
         msg = f"'{obj.get(encoding)}' is not a recognized model"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
     try:
         content: dict = obj[CONTENT]
     except KeyError:
         msg = f"Serialized model {obj[encoding]} didn't have any content"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
 
     try:
@@ -122,7 +123,7 @@ def decode_model(obj: dict) -> Model:
         })
     except (TypeError, AttributeError):
         msg = f"Serialized model {obj[encoding]} couldn't parse content: {content}"  # noqa: E501
-        logging.exception(msg)
+        _LOGGER.exception(msg)
         raise JSONDecodingError(msg)
 
 
@@ -148,18 +149,18 @@ def decode_enum(obj: dict) -> Enum:
         e = ENUM_CLASSES[obj[encoding]]
     except KeyError:
         msg = f"'{obj.get(encoding)}' is not a recognized enum"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
     content = obj.get(CONTENT)
     if not isinstance(content, str):
         msg = f"'{content}' is not one of the allowed string values for {type(e).__name__}"  # noqa: E501
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
     try:
         return e[content]
     except KeyError:
         msg = f"'{content}' is not a recognized enum value of {type(e).__name__}"  # noqa: E501
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
 
 
@@ -169,20 +170,20 @@ def decode_array(obj: dict) -> np.ndarray:
         dtype = np.dtype(obj[encoding])
     except TypeError:
         msg = f"'{obj[encoding]}' is not a recognized array type"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
     try:
         content = obj[CONTENT]
     except KeyError:
         msg = "Array data missing from serialized object"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
 
     try:
         return np.array(content, dtype=dtype)
     except TypeError:
         msg = f"Array could not be created with {dtype}"
-        logging.error(msg)
+        _LOGGER.error(msg)
         raise JSONDecodingError(msg)
 
 
@@ -210,7 +211,7 @@ class SOMEncoder(json.JSONEncoder):
         if isinstance(o, Model):
             if name not in MODEL_CLASSES:
                 msg = f"'{name}' not a recognized serializable model"
-                logging.error(msg)
+                _LOGGER.error(msg)
                 raise JSONEncodingError(msg)
             return {
                 SOMSerializers.MODEL.encoding: name,
@@ -219,7 +220,7 @@ class SOMEncoder(json.JSONEncoder):
         elif isinstance(o, Enum):
             if name not in ENUM_CLASSES:
                 msg = f"'{name}' not a recognized serializable enum"
-                logging.error(msg)
+                _LOGGER.error(msg)
                 raise JSONEncodingError(msg)
             return {
                 SOMSerializers.ENUM.encoding: name,
@@ -261,7 +262,7 @@ def load(path: Union[str, Path]) -> Any:
     try:
         return loads(path.read_text())
     except IOError:
-        logging.warning(
+        _LOGGER.warning(
             f"Attempted to load model from '{path}', but failed",
         )
         return None
@@ -292,7 +293,7 @@ def merge_into(model: Optional[Model], update: Model) -> Model:
     if model is None or type(model) == type(update):
         return update
     if not _merge(model, update):
-        logging.warning(
+        _LOGGER.warning(
             f"Attempted to update {model} with {update}, but found no matching part of the model",  # noqa: E501
         )
     return model
@@ -309,7 +310,7 @@ def dump(
         with open(path, 'w') as fh:
             fh.write(dumps(model))
     except IOError:
-        logging.exception(f'Could not save {model} to: {path}')
+        _LOGGER.exception(f'Could not save {model} to: {path}')
         return False
     return True
 
