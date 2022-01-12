@@ -1,0 +1,2 @@
+class LoadImageError(Exception):
+    pass
