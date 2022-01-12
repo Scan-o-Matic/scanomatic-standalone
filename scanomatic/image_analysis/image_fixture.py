@@ -1,10 +1,11 @@
 import os
-from logging import Logger
 from typing import Optional
 
 import numpy as np
 from scipy.ndimage import center_of_mass  # type: ignore
 from scipy.signal import fftconvolve  # type: ignore
+
+from scanomatic.io.logger import get_logger
 
 from . import image_basics
 from .image_basics import load_image_to_numpy
@@ -25,7 +26,7 @@ class FixtureImage:
         self._load_error = None
         self._transformed = False
         self._conversion_factor = 1.0 / scale
-        self._logger = Logger("Resource Image Analysis")
+        self._logger = get_logger("Resource Image Analysis")
 
         self._logger.info(
             "Analysing image {0} using pattern file {1} and scale {2}".format(

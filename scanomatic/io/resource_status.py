@@ -1,13 +1,14 @@
-from logging import Logger
 from typing import cast
 
 import psutil
+
+from scanomatic.io.logger import get_logger
 
 from . import app_config
 
 
 class Resource_Status:
-    _LOGGER = Logger("Hardware Status")
+    _LOGGER = get_logger("Hardware Status")
     _APP_CONFIG = app_config.Config()
     _passes = 0
 

@@ -1,7 +1,7 @@
 import os
-from logging import Logger
 from typing import Optional, cast
 from scanomatic.io.jsonizer import JSONSerializationError, dump, load_first
+from scanomatic.io.logger import get_logger
 
 from scanomatic.models.factories.fixture_factories import FixtureFactory
 from scanomatic.models.fixture_models import FixtureModel
@@ -11,7 +11,7 @@ from .paths import Paths
 
 class FixtureSettings:
     def __init__(self, name, dir_path=None, overwrite=False):
-        self._logger = Logger("Fixture {0}".format(name))
+        self._logger = get_logger("Fixture {0}".format(name))
         path_name = Paths().get_fixture_path(name, only_name=True)
         if dir_path:
             conf_rel_path = Paths().fixture_conf_file_rel_pattern.format(

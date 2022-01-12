@@ -4,7 +4,6 @@ import shutil
 from collections.abc import Sequence
 from configparser import Error as ConfigError
 from enum import Enum
-from logging import Logger
 from typing import Mapping
 
 import numpy as np
@@ -27,6 +26,7 @@ from scanomatic.image_analysis.image_grayscale import get_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.jsonizer import dump, load_first
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (
@@ -55,7 +55,7 @@ from .general import (
     usable_plates
 )
 
-_logger = Logger("Data API")
+_logger = get_logger("Data API")
 
 
 def _depth(arr, lvl=1):

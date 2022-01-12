@@ -1,3 +1,5 @@
+from http import HTTPStatus
+from json.decoder import JSONDecodeError
 from time import sleep
 from warnings import warn
 
@@ -25,7 +27,12 @@ def cleanup_rpc(scanomatic):
 
 def assert_has_job(scanomatic, job_settings):
     uri = scanomatic + '/api/status/queue'
-    payload = requests.get(uri).json()
+    response = requests.get(uri)
+    assert response.status_code == HTTPStatus.OK, response.text
+    try:
+        payload = response.json()
+    except JSONDecodeError:
+        assert False, f"Got unexpected response {response.text}"
     if payload.get('queue', None):
         for item in payload.get('queue'):
             if item.get('type') == 'Analysis':

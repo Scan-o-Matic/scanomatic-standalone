@@ -6,7 +6,6 @@ import re
 import zipfile
 from io import IOBase, StringIO
 from itertools import chain
-from logging import Logger
 from typing import Sequence
 from urllib.parse import quote, unquote
 
@@ -19,7 +18,7 @@ from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.image_grayscale import is_valid_grayscale
 from scanomatic.io.app_config import Config
 from scanomatic.io.jsonizer import load_first
-from scanomatic.io.logger import parse_log_file
+from scanomatic.io.logger import get_logger, parse_log_file
 from scanomatic.io.paths import Paths
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
@@ -30,7 +29,7 @@ _safe_dir = re.compile(
     r"^[A-Za-z_0-9.%/ \\]*$" if os.sep == "\\" else r"^[A-Za-z_0-9.%/ ]*$",
 )
 _no_super = re.compile(r"/?\.{2}/")
-_logger = Logger("UI API helpers")
+_logger = get_logger("UI API helpers")
 _ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.tiff'}
 _TOO_LARGE_GRAYSCALE_AREA = 300000
 

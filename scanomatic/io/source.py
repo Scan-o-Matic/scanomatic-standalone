@@ -3,17 +3,17 @@ import os
 import tempfile
 import zipfile
 from io import BytesIO
-from logging import Logger
 from subprocess import PIPE, Popen, call
 from typing import Any, Optional
 
 import requests
 
 from scanomatic import get_version
+from scanomatic.io.logger import get_logger
 
 from .paths import Paths
 
-_logger = Logger("Source Checker")
+_logger = get_logger("Source Checker")
 
 
 def _read_source_version(base_path) -> Optional[str]:

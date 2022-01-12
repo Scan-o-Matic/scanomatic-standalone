@@ -250,7 +250,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
         self._allowed_calls[JOBS_CALL_SET_USB] = self._set_usb_port
 
         self._scanning_effector_data = ScanningModelEffectorData()
-        self._rpc_client = rpc_client.get_client(admin=True)
+        self._rpc_client = rpc_client.get_client()
         self._scanner = None
 
         self._scan_cycle = {

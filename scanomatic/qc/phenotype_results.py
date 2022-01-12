@@ -1,13 +1,12 @@
 import re
 from functools import wraps
 from itertools import chain, product
-from logging import Logger
 from typing import Optional
 
 import matplotlib  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
-import pandas as pd  # type: ignore
+import pandas as pd
 import scipy.cluster.hierarchy as sch  # type: ignore
 from matplotlib import patches as mpatches
 from matplotlib.font_manager import FontProperties  # type: ignore
@@ -33,9 +32,10 @@ from scanomatic.data_processing.phases.segmentation import (
     get_linear_non_flat_extension_per_position
 )
 from scanomatic.data_processing.phenotyper import Phenotyper
+from scanomatic.io.logger import get_logger
 from scanomatic.io.movie_writer import MovieWriter
 
-_logger = Logger("Phenotype Results QC")
+_logger = get_logger("Phenotype Results QC")
 
 PHASE_PLOTTING_COLORS = {
 

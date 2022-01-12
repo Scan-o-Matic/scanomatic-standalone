@@ -72,13 +72,13 @@ import os
 import re
 from enum import Enum
 from glob import iglob
-from logging import Logger
 from typing import Any
 from uuid import uuid1
 
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
-_logger = Logger("CCC-data")
+_logger = get_logger("CCC-data")
 
 
 class CCCFormatError(Exception):

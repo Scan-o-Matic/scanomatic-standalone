@@ -44,10 +44,17 @@ def launch_server(host, port, debug):
     app = Flask("Scan-o-Matic UI", template_folder=Paths().ui_templates)
     app.config['scanstore'] = ScanStore(Config().paths.projects_root)
 
-    rpc_client = get_client(admin=True)
+    rpc_client = get_client()
 
     if rpc_client.local and rpc_client.online is False:
+        _LOGGER.warning(
+            "No local RPC Server detected launching local instance.",
+        )
         rpc_client.launch_local()
+    elif not rpc_client.online:
+        _LOGGER.error(
+            f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}",
+        )
 
     if port is None:
         port = Config().ui_server.port

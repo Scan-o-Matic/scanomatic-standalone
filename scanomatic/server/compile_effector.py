@@ -314,7 +314,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                 ),
             )
 
-        if rpc_client.get_client(admin=True).create_analysis_job(
+        if rpc_client.get_client().create_analysis_job(
             AnalysisModelFactory.to_dict(analysis_model)
         ):
             self._logger.info("Enqueued analysis")
