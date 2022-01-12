@@ -135,12 +135,6 @@ jobs:
         - uses: browser-actions/setup-geckodriver@latest
         - uses: nanasess/setup-chromedriver@master
 
-        - name: Setup Chromedriver
-          run: |
-            export DISPLAY=:99
-            chromedriver --url-base=/wd/hub &
-            sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
-
         - name: Setup Python
           uses: actions/setup-python@v2
           with:
@@ -151,9 +145,10 @@ jobs:
             python3.9 -m pip install --upgrade pip
             pip install tox
 
-        - name: Run system tests
-          run: |
-            xvfb-run -- python -m tox -e system
+        - name: Run headless system test
+          uses: GabrielBB/xvfb-action@v1
+          with:
+            run: tox -e system
 
     docker-build:
         runs-on: ubuntu-20.04
