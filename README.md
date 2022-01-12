@@ -46,7 +46,7 @@ The tox environments are `lint`, `mypy`, `unit`, `integration` and `system`. Onl
 
 ### Tox mypy type checking
 
-Currently this is not required as the code still is riddled with type errors, however there's a `typecheck-changed.sh` that filteres out errors only in files changed in the branch. It should be used to guarantee that no new errors are introduced and it is encouraged to clean up unrelated errors in the files touched.
+Currently this is not required as the code still is riddled with type errors, however there's a `typecheck-changed.sh` that filters out errors only in files changed in the branch. It should be used to guarantee that no new errors are introduced and it is encouraged to clean up unrelated errors in the files touched.
 
 ### System tests
 
