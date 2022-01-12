@@ -42,7 +42,7 @@ This section contains information relevant to those contributing to the source-c
 Scan-o-Matic has three kinds of tests: unit, integration, and system tests. In addition the Scan-o-Matic code should be lint free and pass type checking.
 Backend tests, linting and typechecking are run by `tox` while front-end tests are run with `karma` and lint with `eslint`.
 
-The tox environments are `lint`, `mypy`, `unit`, `integration` and `system`. Only the latter require additional dependencies.
+The tox environments are `lint`, `mypy`, `unit`, `integration` and `system`. Only the latter requires additional dependencies.
 
 ### Tox mypy type checking
 
