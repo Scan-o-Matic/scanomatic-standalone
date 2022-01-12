@@ -15,9 +15,10 @@ def docker_compose_file(pytestconfig):
 
 @pytest.fixture(scope='session')
 def scanomatic(docker_ip, docker_services):
-    def is_responsive(url):
+    def is_responsive(url: str) -> bool:
         try:
-            requests.get(url).raise_for_status()
+            response = requests.get(url)
+            response.raise_for_status()
         except requests.RequestException:
             return False
         else:
@@ -29,7 +30,10 @@ def scanomatic(docker_ip, docker_services):
     )
     docker_services.wait_until_responsive(
         timeout=30, pause=0.1,
-        check=lambda: is_responsive(url + '/fixtures'),
+        check=lambda: (
+            is_responsive(url + '/fixtures')
+            and is_responsive(url + '/api/status/server')
+        ),
     )
     return url
 

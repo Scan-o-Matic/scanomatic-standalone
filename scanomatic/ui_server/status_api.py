@@ -10,7 +10,12 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
     @app.route("/api/status/<status_type>/<status_query>")
     def _status_api(status_type="", status_query=None):
 
-        if not rpc_client.online:
+        if status_type == 'server':
+            if rpc_client.online:
+                return jsonify(success=True)
+            else:
+                return json_abort()
+        elif not rpc_client.online:
             return jsonify(success=False, reason="Server offline")
         elif status_type == 'queue':
             return jsonify(queue=rpc_client.get_queue_status())
