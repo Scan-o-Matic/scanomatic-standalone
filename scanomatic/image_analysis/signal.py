@@ -637,11 +637,11 @@ def get_closest_signal_pair(
             else:
                 signals.append((p, p2))
 
-    S = np.array(signals)
-    if S.size == 0:
+    signals_arr = np.array(signals)
+    if signals_arr.size == 0:
         raise SignalError("No signal pairs found")
 
-    return S[:, 0], S[:, 1]
+    return signals_arr[:, 0], signals_arr[:, 1]
 
 
 def get_signal_spikes(
