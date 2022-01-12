@@ -17,6 +17,10 @@ from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.validators.validate import validate
 
 
+def get_id() -> str:
+    return hashlib.md5(str(time.time()).encode()).hexdigest()
+
+
 class Server:
     def __init__(self):
 
@@ -187,13 +191,12 @@ class Server:
                 "Jobs will be abandoned, can't wait for ever...",
             )
 
-    def _get_job_id(self):
-
+    def _get_job_id(self) -> str:
         job_id = ""
         bad_name = True
 
         while bad_name:
-            job_id = hashlib.md5(str(time.time())).hexdigest()
+            job_id = get_id()
             bad_name = job_id in self._queue or job_id in self._jobs
 
         return job_id
