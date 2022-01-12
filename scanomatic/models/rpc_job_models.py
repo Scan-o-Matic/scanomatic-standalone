@@ -81,5 +81,9 @@ class RPCjobModel(model.Model):
         self.content_model = content_model
         super().__init__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        if self.id is None:
+            raise ValueError(
+                'Hashing a RPCjobModel without and id not allowed',
+            )
         return hash(self.id)
