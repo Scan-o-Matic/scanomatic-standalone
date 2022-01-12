@@ -37,7 +37,12 @@ def sanitize_communication(obj):
         return obj
 
 
-def get_client(host=None, port=None, admin=False, log_level=None) -> "_ClientProxy":
+def get_client(
+    host=None,
+    port=None,
+    admin=False,
+    log_level=None,
+) -> "_ClientProxy":
     config = app_config.Config()
     if port is None:
         port = config.rpc_server.port

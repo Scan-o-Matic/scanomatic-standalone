@@ -237,7 +237,6 @@ def add_routes(app, rpc_client):
         payload = AnalysisModelFactory.to_dict(model)
         success = model_valid and rpc_client.create_analysis_job(payload)
 
-
         if success:
             return jsonify()
         else:

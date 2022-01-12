@@ -47,10 +47,14 @@ def launch_server(host, port, debug):
     rpc_client = get_client(admin=True)
 
     if rpc_client.local and rpc_client.online is False:
-        _LOGGER.warning("No local RPC Server detected launching local instance.")
+        _LOGGER.warning(
+            "No local RPC Server detected launching local instance.",
+        )
         rpc_client.launch_local()
     elif not rpc_client.online:
-        _LOGGER.error(f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}")
+        _LOGGER.error(
+            f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}",
+        )
 
     if port is None:
         port = Config().ui_server.port

@@ -254,7 +254,7 @@ class SaneBase:
         return stdout.strip()
 
     def __init__(self, model, scan_mode):
-        self._logger = Logger("SANE")
+        self._logger = get_logger("SANE")
         self.next_file_name = None
         self._model = SaneBase._get_model(model, self._logger)
         self._scan_mode = SaneBase._get_mode(
