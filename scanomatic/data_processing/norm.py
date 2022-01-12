@@ -90,7 +90,10 @@ def infer_offset(arr):
 
 def get_downsampled_plates(
     data: np.ndarray,
-    subsampling: Union[List[np.ndarray], Literal['TL', 'TR', 'BL', 'BR']] = "BR",
+    subsampling: Union[
+        List[np.ndarray],
+        Literal['TL', 'TR', 'BL', 'BR'],
+    ] = "BR",
 ):
     """
     The subsampling is either supplied as a generic position for all plates
@@ -431,7 +434,9 @@ def get_normalisation_surface(
             offsets,
         )
 
-    missing_data_test = np.isnan if np.isnan(fill_value) else cast(np.ufunc, np.isinf)
+    missing_data_test = (
+        np.isnan if np.isnan(fill_value) else cast(np.ufunc, np.isinf)
+    )
 
     for id_plate in range(n_plates):
         if control_positions_filtered_data[id_plate] is None:
