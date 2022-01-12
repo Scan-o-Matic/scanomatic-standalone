@@ -2,6 +2,7 @@ from typing import Optional, cast
 
 import numpy as np
 import numpy.typing as npt
+from scanomatic.image_analysis.grayscale import Grayscale
 from scipy.ndimage import binary_dilation, binary_erosion  # type: ignore
 from scipy.signal import convolve, fftconvolve  # type: ignore
 
@@ -36,11 +37,11 @@ def get_signal(
     return np.array(get_center_of_spikes(up_spikes))
 
 
-def get_signal_data(strip_values, up_spikes, grayscale, delta_threshold):
-    expected_slice_size = grayscale['sections'] * grayscale['length']
+def get_signal_data(strip_values, up_spikes, grayscale: Grayscale, delta_threshold):
+    expected_slice_size = grayscale.sections * grayscale.length
     expected_spikes = (
-        np.arange(0, grayscale['sections'] + 1)
-        * grayscale['length']
+        np.arange(0, grayscale.sections + 1)
+        * grayscale.length
     )
 
     offset = (expected_slice_size - strip_values.size) / 2.0
