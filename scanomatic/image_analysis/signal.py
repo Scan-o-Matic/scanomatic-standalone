@@ -6,6 +6,8 @@ import numpy.typing as npt
 from scipy.ndimage import binary_dilation, binary_erosion  # type: ignore
 from scipy.signal import convolve, fftconvolve  # type: ignore
 
+from .exceptions import SignalError
+
 _logger = Logger("Resource Signal")
 
 SpikesArray = npt.NDArray[np.bool_]
@@ -609,8 +611,8 @@ def get_continious_slopes(
 
 
 def get_closest_signal_pair(
-    s1,
-    s2,
+    s1: np.ndarray,
+    s2: np.ndarray,
     s1_value: int = -1,
     s2_value: int = 1,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -622,7 +624,7 @@ def get_closest_signal_pair(
     s2_positions = np.where(s2 == s2_value)[0]
 
     # Match all
-    signals = []
+    signals: list[tuple[int, int]] = []
     for p in s1_positions:
         tmp_diff = s2_positions - p
         tmp_diff = tmp_diff[tmp_diff > 0]
@@ -637,7 +639,7 @@ def get_closest_signal_pair(
 
     S = np.array(signals)
     if S.size == 0:
-        return None, None
+        raise SignalError("No signal pairs found")
 
     return S[:, 0], S[:, 1]
 
@@ -661,7 +663,7 @@ def get_signal_spikes(
     ).astype(int)
 
     s1, s2 = get_closest_signal_pair(d_up, d_down, s1_value=-1, s2_value=1)
-    return (s1 + s2) / 2.0  # (s1 + s2) / 2.0
+    return (s1 + s2) / 2.0
 
 
 """
@@ -727,7 +729,7 @@ def get_offset_quality(
     return q.sum()
 
 
-def _get_wave_length_and_errors(s, expected_spikes: int) -> float:
+def _get_wave_length_and_errors(s) -> tuple[float, float]:
 
     diff = np.subtract.outer(s, s)
     # -1 gets step to the right
@@ -814,7 +816,7 @@ def _get_candidate_validation(
     # Get goodness of distances
     goodness1 = convolve(
         s_error,
-        np.ones(expected_spikes / 4),
+        np.ones(expected_spikes // 4),
         'same',
     )
     g = [goodness1[0]]
@@ -876,19 +878,19 @@ def get_best_signal_candidates_and_wave_length(
     s = s.copy()
 
     # Get how candidates err and what is the reasonably assumed wave-length
-    wl, s_error = _get_wave_length_and_errors(s, expected_spikes)
+    wl, s_error = _get_wave_length_and_errors(s)
 
     # Remove spikes if there seems to be bonus ones inbetween good ones
     s = _remove_false_inter_spikes(s, expected_spikes, wl)
 
     # Update s_error
-    s_error = _get_wave_length_and_errors(s, expected_spikes)[1]
+    s_error = _get_wave_length_and_errors(s)[1]
 
     # Insert spikes if there seems to be missed ones
     s = _insert_spikes_where_missed(s, s_error, expected_spikes, wl)
 
     # Update s_error
-    s_error = _get_wave_length_and_errors(s, expected_spikes)[1]
+    s_error = _get_wave_length_and_errors(s)[1]
 
     # Validate candidates
     s_val = _get_candidate_validation(s, s_error, expected_spikes, raw_signal)
