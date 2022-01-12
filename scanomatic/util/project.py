@@ -1,14 +1,14 @@
 import glob
 import os
-from logging import Logger
-from scanomatic.io.jsonizer import dump, load_first
 
 import scanomatic.io.paths as paths
+from scanomatic.io.jsonizer import dump, load_first
+from scanomatic.io.logger import get_logger
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.scanning_model import ScanningModel
 from scanomatic.models.validators.validate import validate
 
-_logger = Logger("Projects util")
+_logger = get_logger("Projects util")
 _paths = paths.Paths()
 
 

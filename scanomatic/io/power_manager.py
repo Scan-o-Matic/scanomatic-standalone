@@ -6,10 +6,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from enum import Enum
-from logging import Logger
 from subprocess import PIPE, Popen
 from typing import Any, Optional, Type
 from urllib.parse import urlencode
+
+from scanomatic.io.logger import get_logger
 
 # FURTHER LAN-specific dependenies further down
 
@@ -96,7 +97,7 @@ class PowerManagerNull:
         self._power_mode = power_mode
         self._socket = socket
         self.name = name
-        self._logger = Logger("Power Manager {0}".format(name))
+        self._logger = get_logger("Power Manager {0}".format(name))
 
     @property
     def socket(self):

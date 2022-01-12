@@ -1,11 +1,11 @@
 import os
-from logging import Logger
 
 from flask import jsonify, request
 from flask_restful import Api  # type: ignore
 
 from scanomatic.data_processing.project import remove_state_from_path
 from scanomatic.io.app_config import Config
+from scanomatic.io.logger import get_logger
 from scanomatic.models.compile_project_model import COMPILE_ACTION
 from scanomatic.models.factories.analysis_factories import AnalysisModelFactory
 from scanomatic.models.factories.compile_project_factory import (
@@ -23,7 +23,7 @@ from scanomatic.util import bioscreen
 from .general import json_abort
 from .resources import ScanCollection
 
-_logger = Logger("Experiment/Project API")
+_logger = get_logger("Experiment/Project API")
 
 
 def add_routes(app, rpc_client):
@@ -234,9 +234,9 @@ def add_routes(app, rpc_client):
         )
         model_valid = validate(model)
         _logger.info(f"Validate model {model_valid}")
-        success = model_valid and rpc_client.create_analysis_job(
-            AnalysisModelFactory.to_dict(model)
-        )
+        payload = AnalysisModelFactory.to_dict(model)
+        success = model_valid and rpc_client.create_analysis_job(payload)
+
 
         if success:
             return jsonify()

@@ -1,17 +1,17 @@
 import time
 from enum import Enum
-from logging import Logger
 from threading import Thread
-from typing import Union, cast
+from typing import Any, Union, cast
 
 import psutil
 
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.app_config as app_config
 import scanomatic.io.fixtures as fixtures
-from scanomatic.io.jsonizer import dump, load
 import scanomatic.io.paths as paths
 from scanomatic.generics.singleton import SingeltonOneInit
+from scanomatic.io.jsonizer import dump, load
+from scanomatic.io.logger import get_logger
 from scanomatic.io.power_manager import InvalidInit, PowerManagerNull
 from scanomatic.io.sane import get_alive_scanners
 from scanomatic.models.factories.scanning_factory import ScannerFactory
@@ -31,7 +31,7 @@ class STATE(Enum):
 class ScannerPowerManager(SingeltonOneInit):
     def __one_init__(self):
 
-        self._logger = Logger("Scanner Manager")
+        self._logger = get_logger("Scanner Manager")
         self._conf = app_config.Config()
         self._paths = paths.Paths()
         self._fixtures = fixtures.Fixtures()
@@ -98,7 +98,10 @@ class ScannerPowerManager(SingeltonOneInit):
         for power_socket in range(self._conf.number_of_scanners):
             yield power_socket + 1
 
-    def _get_power_manager(self, scanners) -> dict[int, PowerManagerNull]:
+    def _get_power_manager(
+        self,
+        scanners: dict[Any, ScannerModel]
+    ) -> dict[int, PowerManagerNull]:
         pm = {}
         for scanner in scanners.values():
 
@@ -111,9 +114,9 @@ class ScannerPowerManager(SingeltonOneInit):
                 pm[scanner.socket] = PowerManagerNull(scanner.socket)
 
             self._logger.info(
-                "Power Manager {0} inited for scanner {1}".format(
-                    pm[scanner.socket],
-                    scanner,
+                "Power Manager of type {0} initialized for scanner {1}".format(
+                    type(pm[scanner.socket]).__name__,
+                    scanner.scanner_name,
                 ),
             )
         return pm

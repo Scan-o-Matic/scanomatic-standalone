@@ -10,15 +10,17 @@ __email__ = "martin.zackrisson@gu.se"
 __status__ = "Development"
 import os
 import sys
-from logging import Logger
 
 import psutil
+from scanomatic.io.logger import get_logger
 import setproctitle
 
 import scanomatic.server.interface_builder as interface_builder
 
-if __name__ == "__main__":
+_LOGGER = get_logger("Scan-o-Matic server launcher")
 
+if __name__ == "__main__":
+    _LOGGER.info("Launching RPC Server")
     setproctitle.setproctitle("SoM {0}".format("Server"))
     basename = os.path.basename(sys.argv[0])[:15]
 
@@ -43,7 +45,7 @@ if __name__ == "__main__":
             if (name.startswith(basename) and
                     os.getpid() != pid):
 
-                Logger("Scan-o-Matic server launcher").critical(
+                _LOGGER.critical(
                     "There is already a Scan-o-Matic server running, " +
                     "request refused!",
                 )
@@ -52,4 +54,5 @@ if __name__ == "__main__":
         except psutil.NoSuchProcess:
             pass
 
+    _LOGGER.info("Building interface")
     interface_builder.InterfaceBuilder()

@@ -1,10 +1,10 @@
 import glob
 import os
 import re
-from logging import Logger
 from typing import Optional, Union, cast
 
 import numpy as np
+from scanomatic.io.logger import get_logger
 
 import scanomatic.io.paths as paths
 from scanomatic.io.pickler import unpickle_with_unpickler
@@ -20,7 +20,7 @@ _SECONDS_PER_HOUR = 60.0 * 60.0
 
 class ImageData:
 
-    _LOGGER = Logger("Static Image Data Class")
+    _LOGGER = get_logger("Static Image Data Class")
     _PATHS = paths.Paths()
 
     @staticmethod

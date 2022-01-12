@@ -3,12 +3,12 @@ Part of the analysis work-flow that holds the grid-cell object (A tile in a
 grid-array with a potential blob at the center).
 """
 import os
-from logging import Logger
 
 import numpy as np
 
 import scanomatic.image_analysis.grid_cell_extra as grid_cell_extra
 from scanomatic.generics.maths import mid50_mean as iqr_mean
+from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (
@@ -19,7 +19,7 @@ from scanomatic.models.factories.analysis_factories import (
 class GridCell:
     MAX_THRESHOLD = 4200
     MIN_THRESHOLD = 0
-    _logger = Logger("Grid Cell")
+    _logger = get_logger("Grid Cell")
 
     def __init__(self, identifier, polynomial_coeffs, save_extra_data=False):
 

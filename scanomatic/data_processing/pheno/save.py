@@ -2,7 +2,6 @@ import os
 import pickle
 import zipfile
 from io import StringIO
-from logging import Logger
 from typing import Optional
 
 import numpy as np
@@ -12,8 +11,9 @@ from scanomatic.data_processing.pheno.state import (
     PhenotyperSettings,
     PhenotyperState
 )
+from scanomatic.io.logger import get_logger
 
-_logger = Logger("Phenotype Saver")
+_logger = get_logger("Phenotype Saver")
 _paths = paths.Paths()
 
 

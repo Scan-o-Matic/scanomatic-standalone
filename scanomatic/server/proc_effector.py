@@ -1,7 +1,6 @@
 import os
 import socket
 import time
-from logging import Logger
 from subprocess import Popen
 from threading import Thread
 from typing import Any, Optional, Sequence, Union
@@ -22,7 +21,7 @@ class _PipeEffector:
 
     def __init__(self, pipe, loggerName="Pipe effector"):
 
-        self._logger = Logger(loggerName)
+        self._logger = get_logger(loggerName)
 
         # The actual communications object
         self._pipe = pipe
@@ -304,7 +303,7 @@ class ProcessEffector:
         self._logger = (
             get_logger(logger_name, logging_target)
             if logging_target is not None
-            else Logger(logger_name)
+            else get_logger(logger_name)
         )
         self._fail_vunerable_calls: tuple[Any, ...] = tuple()
 

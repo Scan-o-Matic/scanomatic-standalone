@@ -1,20 +1,19 @@
 import glob
 import os
 from itertools import chain, product
-from logging import Logger
 from urllib.parse import unquote
 
 from flask import jsonify, request
 
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.io.app_config import Config
-from scanomatic.io.logger import parse_log_file
+from scanomatic.io.logger import get_logger, parse_log_file
 from scanomatic.io.paths import Paths
 from scanomatic.ui_server.general import safe_directory_name
 
 from .general import convert_url_to_path, json_response, serve_zip_file
 
-_logger = Logger("Tools API")
+_logger = get_logger("Tools API")
 
 
 def valid_range(settings) -> bool:
