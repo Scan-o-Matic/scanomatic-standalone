@@ -1,3 +1,5 @@
+from http import HTTPStatus
+from json.decoder import JSONDecodeError
 from time import sleep
 from warnings import warn
 

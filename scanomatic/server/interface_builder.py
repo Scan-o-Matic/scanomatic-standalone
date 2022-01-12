@@ -315,7 +315,6 @@ class InterfaceBuilder(SingeltonOneInit):
             bool.   ``True`` if communication was allowed (user was admin and
                     title was accepted imperative) else ``False``
         """
-
         global _SOM_SERVER
 
         job: rpc_job_models.RPCjobModel = _SOM_SERVER.get_job(job_id)
@@ -691,19 +690,18 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
-
-        analysis_model = AnalysisModelFactory.create(**analysis_model)
-        if not validate(analysis_model):
+        model = AnalysisModelFactory.create(**analysis_model)
+        if not validate(model):
             _report_invalid(
                 _SOM_SERVER.logger,
-                analysis_model,
+                model,
                 "Request analysis",
             )
             return False
 
         return sanitize_communication(
             _SOM_SERVER.enqueue(
-                analysis_model,
+                model,
                 rpc_job_models.JOB_TYPE.Analysis,
             ),
         )

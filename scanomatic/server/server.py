@@ -1,9 +1,10 @@
 import hashlib
 import time
 from math import trunc
-from typing import Any
+from typing import Any, Optional, Union
 
 import scanomatic.generics.decorators as decorators
+from scanomatic.generics.model import Model
 import scanomatic.io.app_config as app_config
 import scanomatic.io.scanner_manager as scanner_manager
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -203,14 +204,19 @@ class Server:
             return self._queue[job_id]
         return self._jobs[job_id]
 
-    def enqueue(self, model, job_type):
+    def enqueue(
+        self,
+        model: Model,
+        job_type: rpc_job_models.JOB_TYPE,
+    ) -> Optional[Union[str, bool]]:
 
         rpc_job = RPC_Job_Model_Factory.create(
             id=self._get_job_id(),
             pid=None,
             type=job_type,
             status=rpc_job_models.JOB_STATUS.Requested,
-            content_model=model)
+            content_model=model,
+        )
 
         if not validate(rpc_job):
             self.logger.error("Failed to create job model")

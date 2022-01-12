@@ -1,20 +1,20 @@
-from flask import jsonify
+from flask import Flask, jsonify
 
+from ..io.rpc_client import _ClientProxy
 from .general import convert_path_to_url, json_abort
 
 
-def add_routes(app, rpc_client):
+def add_routes(app: Flask, rpc_client: _ClientProxy):
 
     @app.route("/api/status/<status_type>")
     @app.route("/api/status/<status_type>/<status_query>")
     def _status_api(status_type="", status_query=None):
 
-        if status_type != "" and not rpc_client.online:
+        if not rpc_client.online:
             return jsonify(success=False, reason="Server offline")
-
-        if status_type == 'queue':
+        elif status_type == 'queue':
             return jsonify(queue=rpc_client.get_queue_status())
-        elif 'scanners' == status_type:
+        elif status_type == 'scanners':
             if status_query is None or status_query.lower() == 'all':
                 return jsonify(scanners=rpc_client.get_scanner_status())
             elif status_query.lower() == 'free':
@@ -38,7 +38,7 @@ def add_routes(app, rpc_client):
                         400,
                         reason=f"Unknown scanner or query '{status_query}'",
                     )
-        elif 'jobs' == status_type:
+        elif status_type == 'jobs':
             data = rpc_client.get_job_status()
             for item in data:
                 if item['type'] == "Feature Extraction Job":

@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Optional
 
 import numpy as np
 
@@ -65,7 +66,7 @@ class RPCjobModelFields(Enum):
 class RPCjobModel(model.Model):
     def __init__(
         self,
-        id=None,
+        id: Optional[str] = None,
         type: JOB_TYPE = JOB_TYPE.Unknown,
         status: JOB_STATUS = JOB_STATUS.Unknown,
         content_model=None,
