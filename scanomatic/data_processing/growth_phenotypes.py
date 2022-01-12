@@ -136,7 +136,7 @@ def curve_end_average(
     curve_smooth_growth_data: np.ndarray,
     *args,
     **kwargs,
-) -> np.float:
+) -> float:
     if curve_smooth_growth_data[-3:].any():
         return curve_smooth_growth_data[-3:].mean()
     else:
@@ -144,7 +144,7 @@ def curve_end_average(
 
 
 def curve_monotonicity(
-    curve_smooth_growth_data: np.ndarray,
+    curve_smooth_growth_data: np.ma.MaskedArray,
     *args,
     **kwargs,
 ) -> float:
