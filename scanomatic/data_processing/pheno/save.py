@@ -1,7 +1,7 @@
 import os
 import pickle
 import zipfile
-from io import StringIO
+from io import BytesIO
 from typing import Optional
 
 import numpy as np
@@ -101,7 +101,7 @@ def save_state(
         or not os.path.isfile(p)
         or _do_ask_overwrite(p)
     ):
-        with open(p, 'w') as fh:
+        with open(p, 'wb') as fh:
             pickle.dump(state.phenotype_filter_undo, fh)
 
     p = os.path.join(dir_path, _paths.phenotype_times)
@@ -118,7 +118,7 @@ def save_state(
         or not os.path.isfile(p)
         or _do_ask_overwrite(p)
     ):
-        with open(p, 'w') as fh:
+        with open(p, 'wb') as fh:
             pickle.dump(state.meta_data, fh)
 
     p = os.path.join(dir_path, _paths.phenotypes_extraction_params)
@@ -137,15 +137,15 @@ def save_state_to_zip(
     settings: PhenotyperSettings,
     state: PhenotyperState,
     target: Optional[str] = None,
-) -> Optional[StringIO]:
+) -> Optional[BytesIO]:
     def zipit(save_functions, data, zip_paths):
-        zip_buffer = StringIO()
+        zip_buffer = BytesIO()
         zf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)
 
         for save_func, d, zpath in zip(save_functions, data, zip_paths):
             _logger.info("Zipping {0}".format(zpath))
 
-            file_buffer = StringIO()
+            file_buffer = BytesIO()
             save_func(file_buffer, d)
             file_buffer.flush()
             file_buffer.seek(0)
@@ -236,7 +236,7 @@ def save_state_to_zip(
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_filter_undo),
     )
-    save_functions.append(lambda x, y: pickle.dump(y, x))
+    save_functions.append(lambda fh, obj: pickle.dump(obj, fh))
     data.append(state.phenotype_filter_undo)
 
     # Time stamps
@@ -250,7 +250,7 @@ def save_state_to_zip(
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_meta_data),
     )
-    save_functions.append(lambda x, y: pickle.dump(y, x))
+    save_functions.append(lambda fh, obj: pickle.dump(obj, fh))
     data.append(state.meta_data)
 
     # Internal settings

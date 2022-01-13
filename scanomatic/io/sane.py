@@ -170,7 +170,7 @@ def jsonify_settings(settings=None, base=True):
         return ret
 
 
-def load_json_settings_repo(text):
+def load_json_settings_repo(text: str):
     data = json.loads(text)
 
     def parse_data(d):
@@ -536,7 +536,7 @@ class SaneBase:
                 stderr = b""
 
                 try:
-                    with open(filename, 'w') as im:
+                    with open(filename, 'wb') as im_fh:
                         if scanner:
                             preprend_settings: Optional[
                                 dict[SCAN_FLAGS, Any]
@@ -570,7 +570,7 @@ class SaneBase:
 
                         scan_proc = Popen(
                             scan_query,
-                            stdout=im,
+                            stdout=im_fh,
                             stderr=PIPE,
                             shell=False,
                         )
