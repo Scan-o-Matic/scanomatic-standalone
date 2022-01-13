@@ -62,7 +62,7 @@ def Quick_Scale_To_im(
     if im is None:
         if path is None:
             msg = "No image or path supplied"
-            _logger.exception(msg)
+            _logger.error(msg)
             raise LoadImageError(msg)
 
         try:
