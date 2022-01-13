@@ -76,7 +76,7 @@ def assert_has_job(scanomatic, job_settings):
         )
     )
     tries = 0
-    while tries < 25:
+    while tries < 50:
         payload = requests.get(uri).json()
         if payload.get('instructions'):
             assert (
