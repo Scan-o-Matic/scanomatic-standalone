@@ -1,5 +1,5 @@
 import $ from 'jquery';
-// import 'bootstrap';
+import 'bootstrap';
 import 'bootstrap-toggle';
 import * as d3 from 'd3';
 import 'jquery-modal';
