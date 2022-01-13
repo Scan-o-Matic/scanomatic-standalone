@@ -66,7 +66,7 @@ def move_signal(signals, shifts, frequencies=None, freq_offset=1):
         return signals
 
 
-def get_continious_slopes(
+def get_continuous_slopes(
     s: np.ndarray,
     min_slope_length: int = 20,
     noise_reduction: int = 4,
@@ -163,22 +163,7 @@ def get_signal_spikes(
     return (s1 + s2) / 2.0
 
 
-"""
 def _get_closest(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
-
-    new_list = []
-    for i in ideal_signal:
-        delta_i = np.abs(X - i)
-        delta_reciprocal = np.abs(Y - X[delta_i.argmin()])
-        if delta_i.min() == delta_reciprocal.min():
-            new_list += ([X[delta_i.argmin()],
-                Y[delta_reciprocal.argmin()]])
-
-    return np.array(new_list)
-"""
-
-
-def _get_alt_closest(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
     dist = np.abs(np.subtract.outer(X, Y))
     idx1 = np.argmin(dist, axis=0)
     idx2 = np.argmin(dist, axis=1)
@@ -203,7 +188,7 @@ def get_offset_quality(
     # Get the ideal signal from parameters
     ideal_signal = np.arange(expected_spikes) * wl + offset
 
-    Z = _get_alt_closest(s, ideal_signal)
+    Z = _get_closest(s, ideal_signal)
 
     # Making arrays
     # X  is s positions
@@ -403,7 +388,7 @@ def get_grid_signal(
     (rows or columns) on 1D raw signal"""
 
     # Get slopes
-    up_slopes, down_slopes = get_continious_slopes(
+    up_slopes, down_slopes = get_continuous_slopes(
         raw_signal,
         min_slope_length=10,
         noise_reduction=4,
