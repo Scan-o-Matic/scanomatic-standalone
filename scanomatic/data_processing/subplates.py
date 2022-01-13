@@ -1,10 +1,10 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 import numpy as np
 
 from . import mock_numpy_interface
 
 
-TUPLE_TYPE = Union[Tuple[int, int], Tuple[int, int, int]]
+TUPLE_TYPE = Union[tuple[int, int], tuple[int, int, int]]
 
 
 class SubPlates(mock_numpy_interface.NumpyArrayInterface):

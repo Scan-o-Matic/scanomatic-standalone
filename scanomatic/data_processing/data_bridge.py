@@ -1,4 +1,3 @@
-from typing import List
 import numpy as np
 
 from . import mock_numpy_interface
@@ -37,8 +36,8 @@ class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
             self.update_source = self._update_to_array
 
         elif isinstance(self._source, dict):
-            plates: List[
-                List[List[List[float]]]
+            plates: list[
+                list[list[list[float]]]
             ] = [[]] * len(self._source)  # Creates plates and 1D pos
             for p in list(self._source.values()):
 

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List, Literal, Optional, Union, cast
+from typing import Any, Literal, Optional, Union, cast
 from collections.abc import Callable, Sequence
 
 import numpy as np
@@ -330,7 +330,7 @@ def get_control_positions_average(
     plate_control_averages = []
 
     for plate in control_pos_data_array:
-        measurement_vector: List[np.ndarray] = []
+        measurement_vector: list[np.ndarray] = []
         plate_control_averages.append(measurement_vector)
 
         for id_measurement in range(plate.shape[2]):
@@ -425,7 +425,7 @@ def get_normalisation_surface(
             )
         ))
 
-    out: List[Optional[np.ndarray[Any, Any]]] = []
+    out: list[Optional[np.ndarray[Any, Any]]] = []
     n_plates = len(control_positions_filtered_data)
 
     if control_position_coordinates is None:
@@ -928,7 +928,7 @@ def normalisation(
     method: Callable = norm_by_log2_diff,
     std: tuple[Optional[float], ...] = (None,),
 ):
-    normed_data: List[Optional[np.ndarray]] = []
+    normed_data: list[Optional[np.ndarray]] = []
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
 
