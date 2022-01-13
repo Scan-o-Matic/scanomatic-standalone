@@ -429,11 +429,12 @@ def detect_grayscale(
                 )
 
                 if DEBUG_DETECTION:
-                    np.save(os.path.join(
-                        Paths().log,
-                        f"gs_segment_{i}.npy",
-                    ),
-                        im_trimmed[left: right, top: bottom],
+                    np.save(
+                        os.path.join(
+                            Paths().log,
+                            f"gs_segment_{i}.npy",
+                        ),
+                        im_trimmed[left:right, top:bottom],
                     )
 
         else:
