@@ -306,7 +306,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         return jsonify(
             success=valid,
             source_values=values,
-            target_values=grayscale_object['targets'],
+            target_values=grayscale_object.targets,
             grayscale=grayscale_area_model.name,
             reason=(
                 None if valid else
@@ -375,7 +375,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         return jsonify(
             success=True,
             source_values=values,
-            target_values=grayscale_object['targets'],
+            target_values=grayscale_object.targets,
             grayscale=valid,
             reason=None if valid else "No Grayscale",
         )
@@ -837,7 +837,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         if not grayscale_targets:
             grayscale_targets = get_grayscale_conf(
                 data_object.get("grayscale_name", ""),
-            )['targets']
+            ).targets
 
         transpose_polynomial = Image_Transpose(
             sourceValues=grayscale_values,
