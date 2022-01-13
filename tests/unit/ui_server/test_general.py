@@ -1,3 +1,4 @@
+from typing import Union
 import pytest
 from flask import Flask
 
@@ -24,3 +25,20 @@ class TestJsonAbort:
         with app.test_request_context():
             assert general.json_abort(
                 status_code, *args, **kwargs).status_code == status_code
+
+
+@pytest.mark.parametrize("data,expect", (
+    ('aGVsbG8=', b'hello'),
+    ('aGVsbG8', b'hello'),
+    (b'aGVsbG8', b'hello'),
+))
+def test_pad_decode_base64(data: Union[bytes, str], expect: bytes):
+    assert general.pad_decode_base64(data) == expect
+
+
+@pytest.mark.parametrize("data,expect", (
+    ('aGVsbG8====', b'hello'),
+    (b'aGVsbG8====', b'hello'),
+))
+def test_pad_decode_base64(data: Union[bytes, str], expect: bytes):
+    assert general.remove_pad_decode_base64(data) == expect
