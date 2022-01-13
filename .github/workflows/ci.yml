@@ -126,10 +126,14 @@ jobs:
           run: |
             tox -e integration
 
-    backend-test-system:
+    test-system:
         runs-on: ubuntu-20.04
         steps:
         - uses: actions/checkout@v2
+        - uses: browser-actions/setup-chrome@latest
+        - uses: browser-actions/setup-firefox@latest
+        - uses: browser-actions/setup-geckodriver@latest
+        - uses: nanasess/setup-chromedriver@master
 
         - name: Setup Python
           uses: actions/setup-python@v2
@@ -141,9 +145,10 @@ jobs:
             python3.9 -m pip install --upgrade pip
             pip install tox
 
-        - name: Run system tests
-          run: |
-            tox -e system
+        - name: Run headless system test
+          uses: GabrielBB/xvfb-action@v1
+          with:
+            run: tox -e system
 
     docker-build:
         runs-on: ubuntu-20.04
