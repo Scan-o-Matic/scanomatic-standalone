@@ -1,6 +1,6 @@
 import configparser
 from collections.abc import Callable
-from typing import Any
+from dataclasses import dataclass
 
 import scanomatic.io.paths as paths
 from scanomatic.io.logger import get_logger
@@ -20,7 +20,19 @@ _GRAYSCALE_VALUE_TYPES: dict[str, Callable] = {
 _logger = get_logger("Grayscale settings")
 
 
-def get_grayscales() -> list[str]:
+@dataclass
+class Grayscale:
+    default: bool
+    width: float
+    length: float
+    lower_than_half_width: float
+    higher_than_half_width: float
+    min_width: float
+    sections: int
+    targets: list[float]
+
+
+def get_grayscale_names() -> list[str]:
     if _GRAYSCALE_CONFIGS.sections() == []:
         try:
             _GRAYSCALE_CONFIGS.readfp(open(_GRAYSCALE_PATH, 'r'))
@@ -30,14 +42,14 @@ def get_grayscales() -> list[str]:
     return _GRAYSCALE_CONFIGS.sections()
 
 
-def get_grayscale(grayscale_name: str) -> dict[str, Any]:
-    if grayscale_name in get_grayscales():
-        return {
+def get_grayscale(grayscale_name: str) -> Grayscale:
+    if grayscale_name in get_grayscale_names():
+        return Grayscale(**{
             k: _GRAYSCALE_VALUE_TYPES[k](v) for k, v in
             _GRAYSCALE_CONFIGS.items(grayscale_name)
-        }
+        })
     else:
         raise Exception("{0} not among known grayscales {1}".format(
             grayscale_name,
-            get_grayscales(),
+            get_grayscale_names(),
         ))

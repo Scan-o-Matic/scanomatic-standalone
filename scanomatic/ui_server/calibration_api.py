@@ -339,7 +339,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
     success = calibration.set_image_info(
         ccc_identifier, image_identifier,
         grayscale_source_values=values,
-        grayscale_target_values=grayscale_object['targets'],
+        grayscale_target_values=grayscale_object.targets,
         access_token=data_object.get("access_token")
     )
 
@@ -347,7 +347,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
 
         return jsonify(
             source_values=values,
-            target_values=grayscale_object['targets']
+            target_values=grayscale_object.targets
         )
 
     else:

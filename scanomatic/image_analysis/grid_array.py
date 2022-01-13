@@ -518,7 +518,7 @@ class GridArray:
                 sourceValues=image_model.fixture.grayscale.values,
                 targetValues=get_grayscale(
                     image_model.fixture.grayscale.name,
-                )['targets'],
+                ).targets,
             )
 
         except Exception:

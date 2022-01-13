@@ -10,7 +10,7 @@ from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
 from . import signal
-from .grayscale import get_grayscale as get_grayscale_conf
+from .grayscale import Grayscale, get_grayscale as get_grayscale_conf
 
 ORTH_EDGE_T = 0.2
 ORTH_T1 = 0.15
@@ -31,10 +31,10 @@ DEBUG_DETECTION = False
 _logger = get_logger("Analyze Grayscale")
 
 
-def get_ortho_trimmed_slice(im, grayscale):
-    half_width = grayscale['width'] / 2
+def get_ortho_trimmed_slice(im, grayscale: Grayscale):
+    half_width = grayscale.width / 2
     im_scaled = im / im.max() - 0.5
-    kernel = np.array(grayscale['targets']).repeat(grayscale['length'])
+    kernel = np.array(grayscale.targets).repeat(grayscale.length)
     kernel = kernel.reshape((kernel.size, 1))
     if kernel.size > im.shape[0]:
         return np.array([])
@@ -48,7 +48,7 @@ def get_ortho_trimmed_slice(im, grayscale):
 
 def get_para_trimmed_slice(
     im_ortho_trimmed,
-    grayscale,
+    grayscale: Grayscale,
     kernel_part_of_segment: float = 0.6,
     permissibility_threshold: float = 20,
     acceptability_threshold: float = 0.8,
@@ -59,7 +59,7 @@ def get_para_trimmed_slice(
 
     kernel_size = tuple(
         int(kernel_part_of_segment * v) for v in
-        (grayscale['length'], grayscale['width'])
+        (grayscale.length, grayscale.width)
     )
 
     try:
@@ -98,7 +98,7 @@ def get_para_trimmed_slice(
     placement_accuracy = 0
     in_section = False
     section_start = 0
-    length = grayscale['sections'] * grayscale['length']
+    length = grayscale.sections * grayscale.length
 
     for i, val in enumerate(permissible_positions):
         if in_section and not val:
@@ -143,7 +143,7 @@ def get_para_trimmed_slice(
         # the selected segments length compare to the expected length.
         buffered_half_length = int(round(
             length / 2
-            + grayscale['length'] * padding * (1 - placement_accuracy)
+            + grayscale.length * padding * (1 - placement_accuracy)
         ))
 
         # Correct offset in the permissible signal to the image
@@ -237,7 +237,7 @@ def is_valid_grayscale(
     return poly_is_ok and measures_are_ok
 
 
-def detect_grayscale(im_trimmed, grayscale):
+def detect_grayscale(im_trimmed, grayscale: Grayscale):
     gray_scale = []
     grayscale_segment_centers = []
 
@@ -266,7 +266,7 @@ def detect_grayscale(im_trimmed, grayscale):
         )
 
     # FOUND GS-SEGMENT DIFFERENCE TO EXPECTED SIZE
-    expected_strip_size = grayscale['length'] * grayscale['sections']
+    expected_strip_size = grayscale.length * grayscale.sections
 
     gs_l_diff = abs(1 - para_signal_trimmed_im.size / expected_strip_size)
 
@@ -286,14 +286,14 @@ def detect_grayscale(im_trimmed, grayscale):
             para_signal_trimmed_im,
             up_spikes,
             grayscale,
-            grayscale["length"] * NEW_GS_ALG_L_DIFF_SPIKE_T,
+            grayscale.length * NEW_GS_ALG_L_DIFF_SPIKE_T,
         )
 
         # IF GS-SECTION SEEMS TO BE RIGHT SIZE FOR THE WHOLE GS
         # THEN THE SECTIONING PROBABLY IS A GOOD ESTIMATE FOR THE GS
         # IF SPIKES MATCHES MOST OF THE EXPECTED EDGES
         if ((np.isfinite(deltas).sum() - np.isnan(deltas[0]) -
-                np.isnan(deltas[-1])) / grayscale['sections'] >
+                np.isnan(deltas[-1])) / grayscale.sections >
                 NEW_GS_ALG_SPIKES_FRACTION):
 
             if DEBUG_DETECTION:
@@ -311,7 +311,7 @@ def detect_grayscale(im_trimmed, grayscale):
                 observed_to_expected_map,
                 deltas,
                 observed_spikes,
-                grayscale['sections'],
+                grayscale.sections,
             )
 
             fin_edges = np.isfinite(edges)
@@ -341,19 +341,19 @@ def detect_grayscale(im_trimmed, grayscale):
                 para_signal_trimmed_im.size,
             )
 
-            if edges.size != grayscale['sections'] + 1:
+            if edges.size != grayscale.sections + 1:
                 _logger.error(
                     "Number of edges doesn't correspond to the grayscale segments ({0}!={1})".format(  # noqa: E501
                         edges.size,
-                        grayscale['sections'] + 1,
+                        grayscale.sections + 1,
                     ),
                 )
                 return None, None
 
             # EXTRACTING SECTION MIDPOINTS
             grayscale_segment_centers = np.interp(
-                np.arange(grayscale['sections']) + 0.5,
-                np.arange(grayscale['sections'] + 1),
+                np.arange(grayscale.sections) + 0.5,
+                np.arange(grayscale.sections + 1),
                 edges,
             )
 
@@ -381,7 +381,7 @@ def detect_grayscale(im_trimmed, grayscale):
                     grayscale_segment_centers,
                 )
 
-            val_orth = grayscale['width'] * NEW_SAFETY_PADDING
+            val_orth = grayscale.width * NEW_SAFETY_PADDING
             val_para = frequency * NEW_SAFETY_PADDING
 
             # SETTING VALUE TOP
@@ -443,26 +443,26 @@ def detect_grayscale(im_trimmed, grayscale):
 
         best_spikes = signal.get_best_spikes(
             up_spikes,
-            grayscale['length'],
+            grayscale.length,
             tolerance=SPIKE_BEST_TOLERANCE,
             require_both_sides=False,
         )
 
         frequency = signal.get_perfect_frequency2(
             best_spikes,
-            grayscale['length'],
+            grayscale.length,
         )
 
         # Sections + 1 because actually looking at edges to sections
         offset = signal.get_best_offset(
-            grayscale['sections'] + 1,
+            grayscale.sections + 1,
             best_spikes,
             frequency=frequency,
         )
 
         s = signal.get_true_signal(
             im_trimmed.shape[0],
-            grayscale['sections'] + 1,
+            grayscale.sections + 1,
             up_spikes,
             frequency=frequency,
             offset=offset,
@@ -494,7 +494,7 @@ def detect_grayscale(im_trimmed, grayscale):
             )
             s -= frequency
 
-        ortho_half_height = grayscale['width'] / 2.0 * SAFETY_COEFF
+        ortho_half_height = grayscale.width / 2.0 * SAFETY_COEFF
 
         # SETTING TOP
         top = mid_ortho_trimmed - ortho_half_height
