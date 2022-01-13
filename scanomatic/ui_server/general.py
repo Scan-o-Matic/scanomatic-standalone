@@ -12,6 +12,7 @@ from urllib.parse import quote, unquote
 import numpy as np
 from flask import jsonify, render_template, send_file
 from PIL import Image
+from scanomatic.image_analysis.grayscale import Grayscale
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
@@ -138,10 +139,10 @@ def get_area_too_large_for_grayscale(grayscale_area_model):
     return area_size > _TOO_LARGE_GRAYSCALE_AREA
 
 
-def get_grayscale_is_valid(values, grayscale):
+def get_grayscale_is_valid(values, grayscale: Grayscale):
     if values is None:
         return False
-    return is_valid_grayscale(grayscale['targets'], values)
+    return is_valid_grayscale(grayscale.targets, values)
 
 
 def usable_plates(plates):

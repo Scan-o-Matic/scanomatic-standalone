@@ -7,6 +7,7 @@ from scanomatic.io.logger import get_logger
 from scipy.ndimage import zoom  # type: ignore
 
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
+from .exceptions import LoadImageError
 
 _logger = get_logger("Basic Image Utils")
 
@@ -59,11 +60,17 @@ def Quick_Scale_To_im(
     scale: Optional[float] = None,
 ) -> np.ndarray:
     if im is None:
+        if path is None:
+            msg = "No image or path supplied"
+            _logger.error(msg)
+            raise LoadImageError(msg)
+
         try:
             im = load_image_to_numpy(path, dtype=np.uint8)
         except Exception:
-            _logger.error("Could not open source")
-            return -1
+            msg = f"Could not open source with path {path}"
+            _logger.error(msg)
+            raise LoadImageError(msg)
 
     if scale is None:
         scale = target_dpi / source_dpi
