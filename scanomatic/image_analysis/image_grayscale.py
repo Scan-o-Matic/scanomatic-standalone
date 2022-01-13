@@ -449,7 +449,10 @@ def detect_grayscale(
             ),
         )
 
-    if grayscale_segment_centers is None:
+    if (
+        grayscale_segment_centers is None
+        or len(grayscale_segment_centers) == 0
+    ):
 
         _logger.warning("Using fallback method")
         grayscale_segment_centers_list: list[float] = []
