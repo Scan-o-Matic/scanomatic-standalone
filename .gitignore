@@ -32,7 +32,7 @@ data/config/rpc.admin
 /htmlcov
 /Scan_o_Matic.egg-info
 /docker-compose.override.yml
-/scanomatic/ui_server_data/js/build
+/scanomatic/ui_server_data/js/somlib
 /scanomatic/ui_server_data/coverage
 geckodriver.log
 /node_modules

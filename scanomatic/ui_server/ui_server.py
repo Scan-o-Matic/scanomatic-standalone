@@ -135,11 +135,6 @@ def add_resource_routes(app, rpc_client):
     def _js_external(group, js):
         return send_from_directory(os.path.join(Paths().ui_js, group), js)
 
-    @app.route("/fonts/<font>")
-    def _font_base(font=None):
-        if font:
-            return send_from_directory(Paths().ui_font, font)
-
 
 def launch_webbrowser(delay=0.0) -> None:
     if delay:

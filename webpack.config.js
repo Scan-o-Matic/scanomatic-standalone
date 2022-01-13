@@ -7,7 +7,7 @@ module.exports = {
     som: [path.join(__dirname, './scanomatic/ui_server_data/js/som/index.js')],
   },
   output: {
-    path: path.join(__dirname, 'scanomatic/ui_server_data/js/build'),
+    path: path.join(__dirname, 'scanomatic/ui_server_data/js/somlib'),
     filename: '[name].js',
     library: ['[name]'],
     libraryTarget: 'umd',
