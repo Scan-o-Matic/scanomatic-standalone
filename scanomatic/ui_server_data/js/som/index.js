@@ -55,6 +55,7 @@ export {
   setPoetry,
   updateFixture,
   updateScans,
+  validateExperiment,
   StartExperiment,
 } from './experiment';
 

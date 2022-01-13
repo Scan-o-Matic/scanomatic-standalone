@@ -23,7 +23,7 @@
             <td><label for="project-path">Project Path</label></td>
             <td colspan="5">
               <input class='long' id="project-path" name="project-path"
-                onchange="som.setExperimentRoot(this); validateExperiment();"
+                onchange="som.setExperimentRoot(this); som.validateExperiment();"
                 onfocus="som.setExperimentRoot(this);"
                 onkeyup="som.setExperimentRoot(this);"/>
             </td>
@@ -43,7 +43,7 @@
             </label></td>
             <td colspan="5">
               <textarea id="project-description" name="project-description"
-                onchange="validateExperiment();"></textarea>
+                onchange="som.validateExperiment();"></textarea>
             </td>
           </tr>
           <tr>
