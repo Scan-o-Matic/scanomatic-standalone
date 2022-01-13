@@ -22,6 +22,7 @@ _logger = get_logger("Grayscale settings")
 
 @dataclass
 class Grayscale:
+    default: bool
     width: float
     length: float
     lower_than_half_width: float
