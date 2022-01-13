@@ -36,7 +36,9 @@ class Data_Bridge(mock_numpy_interface.NumpyArrayInterface):
             self.update_source = self._update_to_array
 
         elif isinstance(self._source, dict):
-            plates = [[]] * len(self._source)  # Creates plates and 1D pos
+            plates: list[
+                list[list[list[float]]]
+            ] = [[]] * len(self._source)  # Creates plates and 1D pos
             for p in list(self._source.values()):
 
                 for d1 in p:

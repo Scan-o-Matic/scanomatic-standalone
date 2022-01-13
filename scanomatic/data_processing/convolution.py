@@ -26,7 +26,7 @@ def edge_condition(
     if not kernel_size % 2 == 1:
         raise ValueError("Only odd-size kernels supported")
 
-    origin = (kernel_size - 1) / 2
+    origin = (kernel_size - 1) // 2
     idx = 0
 
     # First edge:

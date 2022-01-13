@@ -151,7 +151,7 @@ def remove_positions_by_offset_and_flatten(
     offset: PositionOffset = PositionOffset.LowerRight,
 ) -> np.ndarray:
     out = np.zeros(
-        (plate.shape[0] * plate.shape[1] * 3 / 4, plate.shape[2]),
+        (plate.shape[0] * plate.shape[1] * 3 // 4, plate.shape[2]),
         dtype=plate.dtype,
     )
     if out.dtype == float:

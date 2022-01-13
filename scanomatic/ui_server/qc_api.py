@@ -7,7 +7,7 @@ from enum import Enum
 from glob import glob
 from itertools import chain, product
 from subprocess import call
-from typing import Any
+from typing import Any, Optional
 
 from dateutil import tz
 from flask import jsonify, request, send_from_directory
@@ -57,7 +57,7 @@ class LockState(Enum):
     """:type: LockState"""
 
 
-def owns_lock(lock_state):
+def owns_lock(lock_state: LockState) -> bool:
     return (
         lock_state is LockState.LockedByMe
         or lock_state is LockState.LockedByMeTemporary
@@ -102,20 +102,20 @@ def _get_key() -> str:
     return uuid.uuid4().hex
 
 
-def _update_lock(lock_file_path, key, ip) -> bool:
+def _update_lock(lock_file_path: str, key: str, ip: str) -> bool:
     with open(lock_file_path, 'w') as fh:
-        fh.write("|".join((str(time.time()), str(key), str(ip))))
+        fh.write("|".join((str(time.time()), key, ip)))
     return True
 
 
-def _remove_lock(path) -> bool:
+def _remove_lock(path: str) -> bool:
     lock_file_path = os.path.join(path, Paths().ui_server_phenotype_state_lock)
     os.remove(lock_file_path)
 
     return True
 
 
-def _parse_lock_file(data):
+def _parse_lock_file(data: str) -> tuple[float, str, str]:
     try:
         time_stamp, current_key, ip = data.split("|")
     except ValueError:
@@ -130,18 +130,18 @@ def _parse_lock_file(data):
     try:
         time_stamp = float(time_stamp)
     except ValueError:
-        time_stamp = 0
+        time_stamp = 0.
 
     return time_stamp, current_key, ip
 
 
-def _read_lock_file(path):
+def _read_lock_file(path: str) -> tuple[float, str, str]:
     lock_file_path = os.path.join(path, Paths().ui_server_phenotype_state_lock)
     try:
         with open(lock_file_path, 'r') as fh:
             time_stamp, current_key, ip = _parse_lock_file(fh.readline())
     except IOError:
-        time_stamp = 0
+        time_stamp = 0.
         ip = ""
         current_key = ""
 
@@ -161,8 +161,8 @@ def _get_lock_state(lock_time, lock_key, alt_key) -> LockState:
 
 def _validate_lock_key(
     path,
-    key="",
-    ip="",
+    key: Optional[str] = "",
+    ip: str = "",
     require_claim=True,
 ) -> tuple[LockState, dict]:
     if not key:

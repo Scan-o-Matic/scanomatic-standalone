@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Any, Optional, Union
 
 import numpy as np
 
@@ -111,7 +112,7 @@ class VectorPhenotypes(Enum):
 def filter_plate_custom_filter(
     plate,
     phase: CurvePhases = CurvePhases.GrowthAcceleration,
-    measure: CurvePhaseMetaPhenotypes = (
+    measure: CurvePhasePhenotypes = (
         CurvePhasePhenotypes.AsymptoteIntersection
     ),
     phases_requirement=lambda phases: len(phases) == 1,
@@ -236,7 +237,7 @@ def _py_phase_counter(phase_vector):
 _np_phase_counter = np.frompyfunc(_py_phase_counter, 1, 1)
 
 
-def _py_get_major_impulse_for_plate(phases) -> np.ndarray:
+def _py_get_major_impulse_for_plate(phases) -> Union[np.ndarray, int]:
     """Locates major impulses
 
     First the phases sort order based on yield is constructed
@@ -672,8 +673,8 @@ def get_variance_decomposition_by_phase(
     min_members=0,
 ):
     filt = phenotypes.get_curve_qc_filter(id_plate)
-    plate = np.ma.masked_array(plate_phenotype, filt)
-    ret = {None: plate.ravel().var()}
+    plate: np.ma.MaskedArray = np.ma.masked_array(plate_phenotype, filt)
+    ret: dict[Optional[CurvePhases], float] = {None: plate.ravel().var()}
     phases = phenotypes.get_curve_phases_at_time(id_plate, id_time)
     ret.update({
         phase: plate[phases == phase.value].ravel().var()
@@ -711,7 +712,7 @@ def get_phase_phenotypes_aligned(phenotypes, plate):
     # TODO: 2. Support multiple plates and files, for this the global end_time
     # should be used
 
-    phases = []
+    phases: list[dict[PhaseData, Any]] = []
 
     def current_phase(phase_ref):
 
@@ -1121,9 +1122,9 @@ def _ravel_phase_phenotypes(phases, ravel_plate, coords, shape):
                         if key in phase_phenotypes
                     ]
 
-    idx = [number_of_phenotypes(phase[PhaseData.Type]) for phase in phases]
-    idx.insert(0, 0)
-    idx = np.cumsum(idx)
+    idx_list = [number_of_phenotypes(phase[PhaseData.Type]) for phase in phases]
+    idx_list.insert(0, 0)
+    idx = np.cumsum(idx_list)
     data = np.ones(shape + (idx[-1],), dtype=float) * np.nan
 
     for id_curve, (coord, phase_vector) in enumerate(zip(coords, ravel_plate)):
