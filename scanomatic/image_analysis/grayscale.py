@@ -31,7 +31,7 @@ class Grayscale:
     targets: list[float]
 
 
-def get_grayscales() -> list[str]:
+def get_grayscale_names() -> list[str]:
     if _GRAYSCALE_CONFIGS.sections() == []:
         try:
             _GRAYSCALE_CONFIGS.readfp(open(_GRAYSCALE_PATH, 'r'))
@@ -42,7 +42,7 @@ def get_grayscales() -> list[str]:
 
 
 def get_grayscale(grayscale_name: str) -> Grayscale:
-    if grayscale_name in get_grayscales():
+    if grayscale_name in get_grayscale_names():
         return Grayscale(**{
             k: _GRAYSCALE_VALUE_TYPES[k](v) for k, v in
             _GRAYSCALE_CONFIGS.items(grayscale_name)
@@ -50,5 +50,5 @@ def get_grayscale(grayscale_name: str) -> Grayscale:
     else:
         raise Exception("{0} not among known grayscales {1}".format(
             grayscale_name,
-            get_grayscales(),
+            get_grayscale_names(),
         ))

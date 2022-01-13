@@ -19,7 +19,7 @@ from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.grayscale import (
     get_grayscale as get_grayscale_conf
 )
-from scanomatic.image_analysis.grayscale import get_grayscales
+from scanomatic.image_analysis.grayscale import get_grayscale_names
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.image_grayscale import get_grayscale
@@ -230,7 +230,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         Returns: json-object with key 'garyscales' having an array of strings.
 
         """
-        grayscales = get_grayscales()
+        grayscales = get_grayscale_names()
 
         # TODO: This should be part of app_config really
         if 'SilverFast' in grayscales:
@@ -568,7 +568,7 @@ def add_routes(app, rpc_client, is_debug_mode):
 
         if grayscale_area_model:
 
-            if grayscale_name not in get_grayscales():
+            if grayscale_name not in get_grayscale_names():
                 return jsonify(success=False, reason="Unknown grayscale type")
             if get_area_too_large_for_grayscale(grayscale_area_model):
                 return jsonify(
