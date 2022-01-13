@@ -6,7 +6,7 @@ import 'jquery-modal';
 import 'jquery-treetable';
 import 'jquery-ui';
 // CSS
-// import 'bootstrap/' css
+import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-toggle/css/bootstrap-toggle.css';
 import 'jquery-ui-dist/jquery-ui.css';
 import 'jquery-modal/jquery.modal.css';
