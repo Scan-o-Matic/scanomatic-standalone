@@ -5,6 +5,7 @@ from warnings import warn
 
 import pytest
 import requests
+from selenium.webdriver.common.by import By  # type: ignore
 from selenium.webdriver.common.keys import Keys  # type: ignore
 from selenium.webdriver.support.ui import Select  # type: ignore
 
@@ -118,7 +119,7 @@ def test_post_analysis_job_request(scanomatic, browser):
 
     browser.get(scanomatic + '/analysis')
 
-    elem = browser.find_element_by_id('compilation')
+    elem = browser.find_element(By.ID, 'compilation')
 
     # To better ensure the '/root/' is in place in the input
     elem.send_keys('', Keys.BACKSPACE)
@@ -126,18 +127,19 @@ def test_post_analysis_job_request(scanomatic, browser):
 
     elem.send_keys('testproject/testproject.project.compilation')
 
-    elem = Select(browser.find_element_by_id('ccc-selection'))
+    elem = Select(browser.find_element(By.ID, 'ccc-selection'))
     elem.select_by_visible_text('Testum Testis, Test Testare')
 
-    elem = browser.find_element_by_id('analysis-directory')
+    elem = browser.find_element(By.ID, 'analysis-directory')
     elem.send_keys('test_ccc_{}'.format(browser_name))
 
-    elem = browser.find_element_by_css_selector(
-        'label[for=chain-analysis-request]'
+    elem = browser.find_element(
+        By.CSS_SELECTOR,
+        'label[for=chain-analysis-request]',
     )
     elem.click()
 
-    browser.find_element_by_id('submit-button').click()
+    browser.find_element(By.ID, 'submit-button').click()
 
     assert_has_job(scanomatic, {
         'compilation': 'testproject/testproject.project.compilation',
