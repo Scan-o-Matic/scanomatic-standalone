@@ -37,7 +37,12 @@ def get_signal(
     return np.array(get_center_of_spikes(up_spikes))
 
 
-def get_signal_data(strip_values, up_spikes, grayscale: Grayscale, delta_threshold):
+def get_signal_data(
+    strip_values,
+    up_spikes,
+    grayscale: Grayscale,
+    delta_threshold
+):
     expected_slice_size = grayscale.sections * grayscale.length
     expected_spikes = (
         np.arange(0, grayscale.sections + 1)
