@@ -397,9 +397,9 @@ def remove_pad_decode_base64(data: Union[bytes, str]) -> bytes:
 
 
 def get_image_data_as_array(
-    image_data: Union[list, IOBase, FileStorage, str],
+    image_data: Union[list, IOBase, FileStorage, str, np.array],
     reshape: Optional[Union[list[int], tuple[int, ...]]] = None,
-):
+) -> np.array:
     if isinstance(image_data, str):
         stream = BytesIO()
         stream.write(image_data.encode())
