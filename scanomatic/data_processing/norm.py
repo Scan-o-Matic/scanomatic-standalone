@@ -91,7 +91,7 @@ def infer_offset(arr):
 def get_downsampled_plates(
     data: np.ndarray,
     subsampling: Union[
-        List[np.ndarray],
+        np.ndarray,
         Literal['TL', 'TR', 'BL', 'BR'],
     ] = "BR",
 ):
@@ -134,7 +134,7 @@ def get_downsampled_plates(
         }
 
         # Name to offset
-        subsampling = [sub_sample_lookup[s]() for s in subsamplings]
+        subsampling = np.array([sub_sample_lookup[s]() for s in subsamplings])
 
     # Create a new container for the plates. It is important that this remains
     # a list and is not converted into an array if both returned members of A

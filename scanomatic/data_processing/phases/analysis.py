@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, cast
 
 import numpy as np
 from scipy.ndimage import label  # type: ignore
@@ -15,6 +15,7 @@ from scanomatic.data_processing.phases.segmentation import (
     is_undetermined,
     segment
 )
+from scanomatic.models.phases_models import SegmentationModel
 
 
 class CurvePhasePhenotypes(Enum):
@@ -60,9 +61,9 @@ def number_of_phenotypes(phase: CurvePhases) -> int:
         return 3
 
 
-def get_phenotypes_tuple(phase: CurvePhases) -> tuple[CurvePhasePhenotypes]:
+def get_phenotypes_tuple(phase: CurvePhases) -> list[CurvePhasePhenotypes]:
     if is_detected_linear(phase):
-        return (
+        return [
             CurvePhasePhenotypes.Start,
             CurvePhasePhenotypes.Duration,
             CurvePhasePhenotypes.Yield,
@@ -70,29 +71,31 @@ def get_phenotypes_tuple(phase: CurvePhases) -> tuple[CurvePhasePhenotypes]:
             CurvePhasePhenotypes.LinearModelIntercept,
             CurvePhasePhenotypes.LinearModelSlope,
             CurvePhasePhenotypes.PopulationDoublingTime,
-        )
+        ]
     elif is_detected_non_linear(phase):
-        return (
+        return [
             CurvePhasePhenotypes.Start,
             CurvePhasePhenotypes.Duration,
             CurvePhasePhenotypes.Yield,
             CurvePhasePhenotypes.PopulationDoublings,
             CurvePhasePhenotypes.AsymptoteAngle,
             CurvePhasePhenotypes.AsymptoteIntersection,
-        )
+        ]
     else:
-        return (
+        return [
             CurvePhasePhenotypes.Start,
             CurvePhasePhenotypes.Duration,
             CurvePhasePhenotypes.Yield,
             CurvePhasePhenotypes.PopulationDoublings,
-        )
+        ]
 
 
-def _phenotype_phases(model, doublings):
+def _phenotype_phases(model: SegmentationModel, doublings):
 
-    phenotypes = []
-
+    phenotypes_type = dict[CurvePhasePhenotypes, float]
+    phenotypes: list[tuple[CurvePhases, Optional[phenotypes_type]]] = []
+    model.phases = cast(np.ndarray, model.phases)
+    model.times = cast(np.ndarray, model.times)
     for phase in CurvePhases:
 
         labels, label_count = label(model.phases == phase.value)
@@ -104,9 +107,11 @@ def _phenotype_phases(model, doublings):
 
             filt = labels == id_label
             left, right = _locate_segment(filt)
+            if left is None or right is None:
+                raise ValueError("Failed to locate segment")
             time_right = model.times[right - 1]
             time_left = model.times[left]
-            current_phase_phenotypes = {}
+            current_phase_phenotypes: phenotypes_type = {}
 
             if is_detected_non_linear(phase):
                 assign_non_linear_phase_phenotypes(
@@ -144,11 +149,13 @@ def _phenotype_phases(model, doublings):
 
 
 def assign_common_phase_phenotypes(
-    current_phase_phenotypes,
-    model,
-    left,
-    right,
+    current_phase_phenotypes: dict[CurvePhasePhenotypes, float],
+    model: SegmentationModel,
+    left: int,
+    right: int,
 ):
+    model.times = cast(np.ndarray, model.times)
+    model.log2_curve = cast(np.ndarray, model.log2_curve)
     # C. Get duration
     current_phase_phenotypes[CurvePhasePhenotypes.Duration] = (
         (
@@ -203,7 +210,13 @@ def assign_common_phase_phenotypes(
             current_phase_phenotypes[CurvePhasePhenotypes.Start] = np.nan
 
 
-def assign_linear_phase_phenotypes(current_phase_phenotypes, model, filt):
+def assign_linear_phase_phenotypes(
+    current_phase_phenotypes: dict[CurvePhasePhenotypes, float],
+    model: SegmentationModel,
+    filt: np.ndarray,
+):
+    model.times = cast(np.ndarray, model.times)
+    model.log2_curve = cast(np.ndarray, model.log2_curve)
     # B. For linear phases get the doubling time
     slope, intercept, _, _, _ = linregress(
         model.times[filt],
@@ -219,13 +232,15 @@ def assign_linear_phase_phenotypes(current_phase_phenotypes, model, filt):
 
 
 def assign_non_linear_phase_phenotypes(
-    current_phase_phenotypes,
-    model,
-    left,
-    right,
-    time_left,
-    time_right,
+    current_phase_phenotypes: dict[CurvePhasePhenotypes, float],
+    model: SegmentationModel,
+    left: int,
+    right: int,
+    time_left: float,
+    time_right: float,
 ):
+    model.dydt = cast(np.ndarray, model.dydt)
+    model.log2_curve = cast(np.ndarray, model.log2_curve)
     # A. For non-linear phases use the X^2 coefficient as curvature measure
 
     # TODO: Verify that values fall within the defined range of 0.5pi and pi
