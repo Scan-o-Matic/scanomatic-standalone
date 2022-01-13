@@ -503,7 +503,7 @@ class ProjectImage:
             return
 
         if not image_model.fixture.grayscale.values or not is_valid_grayscale(
-            get_grayscale(image_model.fixture.grayscale.name)['targets'],
+            get_grayscale(image_model.fixture.grayscale.name).targets,
             image_model.fixture.grayscale.values,
         ):
             self._logger.warning("Not a valid grayscale")
