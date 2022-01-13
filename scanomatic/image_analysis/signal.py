@@ -2,11 +2,11 @@ from typing import Optional, cast
 
 import numpy as np
 import numpy.typing as npt
-from scanomatic.image_analysis.grayscale import Grayscale
 from scipy.ndimage import binary_dilation, binary_erosion  # type: ignore
 from scipy.signal import convolve, fftconvolve  # type: ignore
 
 from scanomatic.image_analysis.exceptions import SignalError
+from scanomatic.image_analysis.grayscale import Grayscale
 from scanomatic.io.logger import get_logger
 
 _logger = get_logger("Resource Signal")
