@@ -809,6 +809,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 processing doing the conversion.
             "grayscale_values": the image values of grayscale segments
             "grayscale_targets": the manufacturer's target values.
+            "shape": format to reshape the image into
 
         Returns: json-object with keys
             "success" if successfully converted
