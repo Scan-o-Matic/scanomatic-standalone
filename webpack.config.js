@@ -11,7 +11,7 @@ module.exports = {
     filename: '[name].js',
     library: ['[name]'],
     libraryTarget: 'umd',
-    publicPath: '/js/som',
+    publicPath: '/js/somlib',
   },
   module: {
     rules: [
