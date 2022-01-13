@@ -229,7 +229,7 @@ def install_data_files(
                 os.makedirs(os.path.dirname(target_path), 0o755)
 
             if not os.path.isfile(target_path) and files[file_name] is None:
-                _logger.info("Creating file {0}".format(target_path))
+                _logger.info("Creating empty file {0}".format(target_path))
                 fh = open(target_path, 'w')
                 fh.close()
             elif (

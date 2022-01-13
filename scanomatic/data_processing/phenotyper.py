@@ -2368,7 +2368,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 ):
                     continue
 
-            with open(plate_path, 'wb') as fh:
+            with open(plate_path, 'w') as fh:
 
                 try:
                     # DATA

@@ -45,7 +45,7 @@ class _RefactoringPhases:
         self._next = None
         self.io = None
 
-    def __call__(self, line: str):
+    def __call__(self, line: bytes):
         """
         Args:
             line (str): A pickled line
@@ -54,31 +54,31 @@ class _RefactoringPhases:
             raise AttributeError("Attribute 'io' not initialized properly")
         if self._next is None:
             if line.endswith(
-                "scanomatic.data_processing.curve_phase_phenotypes",
+                b"scanomatic.data_processing.curve_phase_phenotypes",
             ):
                 tell = self.io.tell()
                 _next = self.io.readline()
                 self.io.seek(tell)
 
-                if _next.startswith('VectorPhenotypes'):
+                if _next.startswith(b'VectorPhenotypes'):
                     return (
                         line[:-49]
-                        + "scanomatic.data_processing.phases.features"
+                        + b"scanomatic.data_processing.phases.features"
                     )
-                elif _next.startswith('CurvePhasePhenotypes'):
+                elif _next.startswith(b'CurvePhasePhenotypes'):
                     return (
                         line[:-49]
-                        + "scanomatic.data_processing.phases.analysis"
+                        + b"scanomatic.data_processing.phases.analysis"
                     )
-                elif _next.startswith('CurvePhases'):
+                elif _next.startswith(b'CurvePhases'):
                     return (
                         line[:-49]
-                        + "scanomatic.data_processing.phases.segmentation"
+                        + b"scanomatic.data_processing.phases.segmentation"
                     )
-                elif _next.startswith('CurvePhaseMetaPhenotypes'):
+                elif _next.startswith(b'CurvePhaseMetaPhenotypes'):
                     return (
                         line[:-49]
-                        + "scanomatic.data_processing.phases.features"
+                        + b"scanomatic.data_processing.phases.features"
                     )
             return line
         else:
@@ -94,7 +94,7 @@ class SafeProxyFileObject:
         self.__dict__["__validation_functions"] = validation_functions
 
     def readline(self):
-        line = self.__dict__['__file'].readline().rstrip("\r\n")
+        line = self.__dict__['__file'].readline().rstrip(b"\r\n")
         for validation_func in self.__dict__['__validation_functions']:
             line = validation_func(line)
         return line + "\n"

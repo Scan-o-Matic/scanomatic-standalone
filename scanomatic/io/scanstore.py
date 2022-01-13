@@ -1,6 +1,7 @@
 import os
 
 from scanomatic.io.paths import Paths
+from scanomatic.models.scan import Scan
 
 
 class UnknownProjectError(Exception):
@@ -8,10 +9,10 @@ class UnknownProjectError(Exception):
 
 
 class ScanStore:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self._path = path
 
-    def add_scan(self, project_fullname, scan):
+    def add_scan(self, project_fullname, scan: Scan) -> None:
         project_dir = os.path.join(self._path, project_fullname)
         if not os.path.isdir(project_dir):
             raise UnknownProjectError()
