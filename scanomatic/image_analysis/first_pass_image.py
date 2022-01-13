@@ -5,6 +5,7 @@ from typing import Optional, Union
 import numpy as np
 
 from scanomatic.data_processing.calibration import get_image_json_from_ccc
+from scanomatic.image_analysis.exceptions import FixtureImageError
 from scanomatic.io.ccc_data import CCCImage
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.io.logger import get_logger
@@ -259,26 +260,23 @@ class FixtureImage:
             ),
         )
 
-        im_analysis = image_fixture.FixtureImage(
+        im_analysis = image_fixture.FixtureImage.from_image(
             image=analysis_img,
             pattern_image_path=self["reference"].get_marker_path(),
             scale=scale_factor,
         )
 
-        (
-            x_positions_correct_scale,
-            y_positions_correct_scale
-         ) = im_analysis.find_pattern(markings=markings)
+        try:
+            (
+                x_positions_correct_scale,
+                y_positions_correct_scale
+            ) = im_analysis.find_pattern(markings=markings)
+
+        except FixtureImageError:
+            _logger.error("No markers found")
 
         self["current"].model.orientation_marks_x = x_positions_correct_scale
         self["current"].model.orientation_marks_y = y_positions_correct_scale
-
-        if (
-            x_positions_correct_scale is None
-            or y_positions_correct_scale is None
-        ):
-
-            _logger.error("No markers found")
 
         _logger.debug(
             "Marker Detection complete (acc {0} s)".format(time.time() - t),

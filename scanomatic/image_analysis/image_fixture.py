@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 
 import numpy as np
@@ -9,112 +8,103 @@ from scanomatic.io.logger import get_logger
 
 from . import image_basics
 from .image_basics import load_image_to_numpy
+from .exceptions import FixtureImageError
+
+
+_logger = get_logger("Resource Image Analysis")
 
 
 class FixtureImage:
     def __init__(
         self,
-        path=None,
-        image=None,
-        pattern_image_path=None,
-        scale=1.0,
-        resource_paths=None,
+        image: np.ndarray,
+        pattern_image: np.ndarray,
+        scale: float,
     ):
-        self._path = path
-        self._img = None
-        self._pattern_img = None
-        self._load_error = None
+        self._img = image
+        self._pattern_img = pattern_image
         self._transformed = False
         self._conversion_factor = 1.0 / scale
-        self._logger = get_logger("Resource Image Analysis")
 
-        self._logger.info(
-            "Analysing image {0} using pattern file {1} and scale {2}".format(
-                path if path else (
-                    image.shape if image is not None else "NO IMAGE"
-                ),
-                pattern_image_path,
-                scale
-            ),
-        )
-
-        if (
-            os.path.isfile(pattern_image_path) is False
-            and resource_paths is not None
-        ):
-            pattern_image_path = os.path.join(
-                resource_paths.images,
-                os.path.basename(pattern_image_path),
-            )
-
-        if pattern_image_path:
-            try:
-                pattern_img = load_image_to_numpy(
-                    pattern_image_path,
-                    dtype=np.uint8,
-                )
-
-            except IOError:
-                self._logger.error(
-                    "Could not open orientation guide image at "
-                    + str(pattern_image_path),
-                )
-                self._load_error = True
-
-            if self._load_error is not True:
-                if len(pattern_img.shape) > 2:
-                    pattern_img = pattern_img[:, :, 0]
-                self._pattern_img = pattern_img
-
-        if image is not None:
-            self._img = np.asarray(image)
-
-        if path:
-            if not(self._img is None):
-                self._logger.warning(
-                    "Won't load from path since actually submitted",
-                )
-
-            else:
-                try:
-                    self._img = load_image_to_numpy(path, np.uint8)
-
-                except IOError:
-                    self._logger.error("Could not open image at " + str(path))
-                    self._load_error = True
-
-        if self._load_error is not True:
-            if len(self._img.shape) > 2:
-                self._img = self._img[:, :, 0]
-
-    def load_other_size(
-        self,
-        path: Optional[str] = None,
-        conversion_factor: float = 1.0,
-    ) -> None:
-
-        self._conversion_factor = conversion_factor
-
-        if path is None:
-            path = self._path
-
-        self._logger.info("Loading image from {0}".format(path))
+    @classmethod
+    def from_image(
+        cls,
+        image: np.ndarray,
+        pattern_image_path: str,
+        scale: float = 1.0,
+    ) -> "FixtureImage":
+        if len(image.shape) > 2:
+            image = image[:, :, 0]
 
         try:
-            self._img = load_image_to_numpy(path, dtype=np.uint8)
+            pattern_image = load_image_to_numpy(
+                pattern_image_path,
+                dtype=np.uint8,
+            )
+        except IOError:
+            msg = f"Could not open orientation guide image at {pattern_image_path}"  # noqa: E501
+            _logger.error(msg)
+            raise FixtureImageError(msg)
+
+        if len(pattern_image.shape) > 2:
+            pattern_image = pattern_image[:, :, 0]
+
+        return cls(image, pattern_image, scale)
+
+    @classmethod
+    def from_image_path(
+        cls,
+        image_path: str,
+        pattern_image_path: str,
+        scale: float = 1.0,
+    ) -> "FixtureImage":
+        try:
+            image = load_image_to_numpy(image_path, dtype=np.uint8)
 
         except IOError:
-            self._logger.error("Could not reload image at " + str(path))
-            self._load_error = True
+            msg = f"Could not open image at {image_path}"
+            _logger.error(msg)
+            raise FixtureImageError(msg)
 
-        if self._load_error is not True:
-            if len(self._img.shape) > 2:
-                self._img = self._img[:, :, 0]
+        if len(image.shape) > 2:
+            image = image[:, :, 0]
 
-        if conversion_factor != 1.0:
-            self._logger.info("Scaling to {0}".format(conversion_factor))
-            self._img = image_basics.Quick_Scale_To_im(conversion_factor)
-            self._logger.info("Scaled")
+        try:
+            pattern_image = load_image_to_numpy(
+                pattern_image_path,
+                dtype=np.uint8,
+            )
+        except IOError:
+            msg = f"Could not open orientation guide image at {pattern_image_path}"  # noqa: E501
+            _logger.error(msg)
+            raise FixtureImageError(msg)
+
+        if len(pattern_image.shape) > 2:
+            pattern_image = pattern_image[:, :, 0]
+
+        return cls(image, pattern_image, scale)
+
+    def resize(
+        self,
+        conversion_factor: float
+    ) -> None:
+        _logger.info(f"Scaling to {conversion_factor}")
+        self._conversion_factor = conversion_factor
+        self._img = image_basics.Quick_Scale_To_im(
+            im=self._img, scale=conversion_factor
+        )
+        _logger.info("Scaled")
+
+    def load_new_image(
+        self,
+        path: str,
+    ) -> None:
+        try:
+            self._img = load_image_to_numpy(path, dtype=np.uint8)
+        except IOError:
+            msg = f"Could not open image at {path}"
+            _logger.error(msg)
+            raise FixtureImageError(msg)
 
     @staticmethod
     def get_hit_refined(
@@ -187,12 +177,12 @@ class FixtureImage:
 
     @staticmethod
     def get_best_location(
-        conv_img,
-        stencil_size: tuple[int, int],
+        conv_img: np.ndarray,
+        stencil_size: tuple[int, ...],
         refine_hit_gauss_weight_size_fraction: float = 2.0,
         max_refinement_iterations: int = 20,
         min_refinement_sq_distance: float = 0.0001,
-    ):
+    ) -> tuple[Optional[np.ndarray], np.ndarray]:
         """This whas hidden and should be taken care of, is it needed"""
 
         hit = np.where(conv_img == conv_img.max())
@@ -221,7 +211,7 @@ class FixtureImage:
             )
             hit += offset
 
-            if (offset ** 2).sum() < min_refinement_sq_distance:
+            if (np.array(offset) ** 2).sum() < min_refinement_sq_distance:
                 break
 
         coordinates = {
@@ -245,11 +235,11 @@ class FixtureImage:
 
     def get_best_locations(
         self,
-        conv_img,
-        stencil_size: tuple[int, int],
+        conv_img: np.ndarray,
+        stencil_size: tuple[int, ...],
         n: int,
         refine_hit_gauss_weight_size_fraction: float = 2.0,
-    ):
+    ) -> list[Optional[np.ndarray]]:
         """This returns the best locations as a list of coordinates on the
         CURRENT IMAGE regardless of if it was scaled"""
 
@@ -278,29 +268,22 @@ class FixtureImage:
         self,
         markings: int = 3,
         img_threshold: float = 127,
-    ) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """This function returns the image positions as numpy arrays that
         are scaled to match the ORIGINAL IMAGE size"""
 
-        if self.get_loaded():
-            c1 = self.get_convolution(threshold=img_threshold)
+        c1 = self.get_convolution(threshold=img_threshold)
 
-            m1 = np.array(self.get_best_locations(
-                c1, self._pattern_img.shape,
-                markings,
-                refine_hit_gauss_weight_size_fraction=3.5,
-            )) * self._conversion_factor
+        m1 = np.array(self.get_best_locations(
+            c1,
+            self._pattern_img.shape,
+            markings,
+            refine_hit_gauss_weight_size_fraction=3.5,
+        )) * self._conversion_factor
 
-            try:
-                return m1[:, 1], m1[:, 0]
-            except (IndexError, TypeError):
-                self._logger.error(
-                    f"Detecting markings failed, location object:\n{m1}",
-                )
-                return None, None
-
-        else:
-            return None, None
-
-    def get_loaded(self) -> bool:
-        return (self._img is not None) and (self._load_error is not True)
+        try:
+            return m1[:, 1], m1[:, 0]
+        except (IndexError, TypeError):
+            msg = f"Detecting markings failed, location object:\n{m1}"
+            _logger.error(msg)
+            raise FixtureImageError(msg)
