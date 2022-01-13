@@ -1,6 +1,7 @@
 import operator
+from collections.abc import Iterator
 from enum import Enum
-from typing import Iterator, Optional, Union, cast
+from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.signal import convolve  # type: ignore
