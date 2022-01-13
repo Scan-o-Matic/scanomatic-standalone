@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
@@ -31,15 +32,18 @@ DEBUG_DETECTION = False
 _logger = get_logger("Analyze Grayscale")
 
 
-def get_ortho_trimmed_slice(im, grayscale: Grayscale):
+def get_ortho_trimmed_slice(
+    im: np.ndarray,
+    grayscale: Grayscale,
+) -> np.ndarray:
     half_width = grayscale.width / 2
-    im_scaled = im / im.max() - 0.5
-    kernel = np.array(grayscale.targets).repeat(grayscale.length)
+    im_scaled: np.ndarray = im / im.max() - 0.5
+    kernel = np.array(grayscale.targets).repeat(int(grayscale.length))
     kernel = kernel.reshape((kernel.size, 1))
     if kernel.size > im.shape[0]:
         return np.array([])
 
-    kernel_scaled = kernel / kernel.max() - 0.5
+    kernel_scaled: np.ndarray = kernel / kernel.max() - 0.5
     detection = np.abs(convolve2d(im_scaled, kernel_scaled, mode="valid"))
     peak = gaussian_filter1d(np.max(detection, axis=0), half_width).argmax()
 
@@ -47,13 +51,13 @@ def get_ortho_trimmed_slice(im, grayscale: Grayscale):
 
 
 def get_para_trimmed_slice(
-    im_ortho_trimmed,
+    im_ortho_trimmed: np.ndarray,
     grayscale: Grayscale,
     kernel_part_of_segment: float = 0.6,
     permissibility_threshold: float = 20,
     acceptability_threshold: float = 0.8,
     padding: float = 0.7,
-):
+) -> Optional[np.ndarray]:
     # Restructures the image so that local variances can be measured using a
     # kernel the scaled (default 0.7) size of the segment size
 
@@ -95,7 +99,7 @@ def get_para_trimmed_slice(
     # Selects the best stretch of permissible signal (True) compared to the
     # expected length of the grayscale
     acceptable_placement = None
-    placement_accuracy = 0
+    placement_accuracy = 0.
     in_section = False
     section_start = 0
     length = grayscale.sections * grayscale.length
@@ -136,7 +140,10 @@ def get_para_trimmed_slice(
                 acceptable_placement_length / 2
             ) + section_start
 
-    if placement_accuracy > acceptability_threshold:
+    if (
+        placement_accuracy > acceptability_threshold
+        and acceptable_placement is not None
+    ):
 
         # Using the expected length of the grayscale (which implies that
         # this has to be a good value buffering is scaled by the accuracy of
@@ -147,7 +154,7 @@ def get_para_trimmed_slice(
         ))
 
         # Correct offset in the permissible signal to the image
-        acceptable_placement += kernel_size[0] / 2
+        acceptable_placement += int(kernel_size[0] / 2)
 
         return im_ortho_trimmed[
             int(round(max(0, acceptable_placement - buffered_half_length))):
@@ -164,10 +171,10 @@ def get_grayscale(
     fixture,
     grayscale_area_model,
     debug: bool = False,
-):
+) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
     im = fixture.get_grayscale_im_section(grayscale_area_model)
     if im is None:
-        return None
+        return None, None
     return get_grayscale_image_analysis(
         im,
         grayscale_area_model.name,
@@ -176,10 +183,10 @@ def get_grayscale(
 
 
 def get_grayscale_image_analysis(
-    im,
+    im: np.ndarray,
     grayscale_name: str,
     debug: bool = False,
-):
+) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
     global DEBUG_DETECTION
 
     gs = get_grayscale_conf(grayscale_name)
@@ -196,8 +203,8 @@ def get_grayscale_image_analysis(
 
 
 def is_valid_grayscale(
-    calibration_target_values,
-    image_values,
+    calibration_target_values: np.ndarray,
+    image_values: np.ndarray,
     pixel_depth: int = 8,
 ) -> bool:
     try:
@@ -237,9 +244,12 @@ def is_valid_grayscale(
     return poly_is_ok and measures_are_ok
 
 
-def detect_grayscale(im_trimmed, grayscale: Grayscale):
-    gray_scale = []
-    grayscale_segment_centers = []
+def detect_grayscale(
+    im_trimmed: np.ndarray,
+    grayscale: Grayscale,
+) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
+    gray_scale: list[float] = []
+    grayscale_segment_centers: Optional[np.ndarray] = None
 
     if im_trimmed is None or sum(im_trimmed.shape) == 0:
         _logger.error("No image loaded or null image")
@@ -351,11 +361,11 @@ def detect_grayscale(im_trimmed, grayscale: Grayscale):
                 return None, None
 
             # EXTRACTING SECTION MIDPOINTS
-            grayscale_segment_centers = np.interp(
+            grayscale_segment_centers = np.array(np.interp(
                 np.arange(grayscale.sections) + 0.5,
                 np.arange(grayscale.sections + 1),
                 edges,
-            )
+            ))
 
             _logger.info("GRAYSCALE: Got signal with new method")
 
@@ -419,11 +429,13 @@ def detect_grayscale(im_trimmed, grayscale: Grayscale):
                 )
 
                 if DEBUG_DETECTION:
-                    np.save(os.path.join(
-                        Paths().log,
-                        f"gs_segment_{i}.npy",
-                        im_trimmed[left: right, top: bottom],
-                    ))
+                    np.save(
+                        os.path.join(
+                            Paths().log,
+                            f"gs_segment_{i}.npy",
+                        ),
+                        im_trimmed[left:right, top:bottom],
+                    )
 
         else:
             _logger.warning("New method failed, using fallback")
@@ -437,9 +449,13 @@ def detect_grayscale(im_trimmed, grayscale: Grayscale):
             ),
         )
 
-    if len(grayscale_segment_centers) == 0:
+    if (
+        grayscale_segment_centers is None
+        or len(grayscale_segment_centers) == 0
+    ):
 
         _logger.warning("Using fallback method")
+        grayscale_segment_centers_list: list[float] = []
 
         best_spikes = signal.get_best_spikes(
             up_spikes,
@@ -508,9 +524,9 @@ def detect_grayscale(im_trimmed, grayscale: Grayscale):
 
         for pos in range(s.size - 1):
             mid = s[pos:pos + 2].mean() + rect[0][0]
-            grayscale_segment_centers.append(mid)
+            grayscale_segment_centers_list.append(mid)
             left = (
-                grayscale_segment_centers[-1]
+                grayscale_segment_centers_list[-1]
                 - 0.5 * frequency * SAFETY_COEFF
             )
 
@@ -518,14 +534,18 @@ def detect_grayscale(im_trimmed, grayscale: Grayscale):
                 left = 0
 
             right = (
-                grayscale_segment_centers[-1]
+                grayscale_segment_centers_list[-1]
                 + 0.5 * frequency * SAFETY_COEFF
             )
 
             if right >= im_trimmed.shape[0]:
                 right = im_trimmed.shape[0] - 1
 
-            gray_scale.append(iqr_mean(im_trimmed[left: right, top: bottom]))
+            gray_scale.append(iqr_mean(
+                im_trimmed[int(left): int(right), int(top): int(bottom)]
+            ))
+
+        grayscale_segment_centers = np.array(grayscale_segment_centers_list)
 
     (
         gray_scale,
