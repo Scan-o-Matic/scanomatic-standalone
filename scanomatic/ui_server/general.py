@@ -1,12 +1,12 @@
 import base64
 import glob
-import io
 import os
 import re
 import zipfile
-from io import IOBase, StringIO
+from collections.abc import Sequence
+from io import BytesIO, IOBase
 from itertools import chain
-from typing import Sequence
+from typing import Optional, Union
 from urllib.parse import quote, unquote
 
 import numpy as np
@@ -324,7 +324,7 @@ def serve_zip_file(zip_name, *file_list):
     """
 
     # file_list = tuple(str(f) for f in file_list)
-    data_buffer = StringIO()
+    data_buffer = BytesIO()
     zf = zipfile.ZipFile(data_buffer, 'a', zipfile.ZIP_DEFLATED, False)
     root, local_names = get_common_root_and_relative_paths(*file_list)
     for local_file in local_names:
@@ -347,8 +347,8 @@ def serve_zip_file(zip_name, *file_list):
     )
 
 
-def serve_pil_image(pil_img):
-    img_io = StringIO()
+def serve_pil_image(pil_img: Image):
+    img_io = BytesIO()
     pil_img.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
@@ -372,7 +372,7 @@ def get_fixture_image(name, image_path):
     return fixture
 
 
-def pad_decode_base64(data):
+def pad_decode_base64(data: Union[bytes, str]) -> bytes:
     """Decode base64, padding being optional.
 
     :param data: Base64 data as an ASCII byte string
@@ -385,32 +385,35 @@ def pad_decode_base64(data):
     missing_padding = len(data) % 4
     if missing_padding != 0:
         data += b'=' * (4 - missing_padding)
-    return base64.decodestring(data)
+    return base64.b64decode(data)
 
 
-def remove_pad_decode_base64(data):
+def remove_pad_decode_base64(data: Union[bytes, str]) -> bytes:
     if isinstance(data, str):
         data = data.encode("utf-8")
 
     remainder = len(data) % 4
-    return base64.decodestring(data[:-remainder if remainder else 4])
+    return base64.b64decode(data[:-remainder if remainder else 4])
 
 
-def get_image_data_as_array(image_data, reshape=None):
+def get_image_data_as_array(
+    image_data: Union[list, IOBase, FileStorage, str, np.array],
+    reshape: Optional[Union[list[int], tuple[int, ...]]] = None,
+) -> np.array:
     if isinstance(image_data, str):
-        stream = io.StringIO()
-        stream.write(image_data)
+        stream = BytesIO()
+        stream.write(image_data.encode())
         stream.flush()
         stream.seek(0)
         try:
             return np.array(Image.open(stream))
-        except IOError:
+        except (UnicodeDecodeError, IOError):
             try:
-                s = pad_decode_base64(image_data)
+                im_bytes = pad_decode_base64(image_data)
             except Exception:
-                s = remove_pad_decode_base64(image_data)
-            stream = io.StringIO()
-            stream.write(s)
+                im_bytes = remove_pad_decode_base64(image_data)
+            stream = BytesIO()
+            stream.write(im_bytes)
             stream.flush()
             stream.seek(0)
             return np.array(Image.open(stream))
@@ -429,7 +432,10 @@ def get_image_data_as_array(image_data, reshape=None):
         return image_data
 
 
-def get_fixture_image_from_data(name, image_data):
+def get_fixture_image_from_data(
+    name: str,
+    image_data: FileStorage,
+) -> FixtureImage:
     fixture = FixtureImage(reference_overwrite_mode=True)
     fixture.name = name
     fixture.set_image(image=get_image_data_as_array(image_data))

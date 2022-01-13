@@ -3,7 +3,7 @@ import os
 from collections import deque
 from collections.abc import Callable
 from enum import Enum
-from io import StringIO
+from io import BytesIO
 from itertools import chain, product
 from typing import Any, Optional, Union
 
@@ -2444,7 +2444,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
     def save_state_to_zip(
         self,
         target: Optional[str] = None,
-    ) -> Optional[StringIO]:
+    ) -> Optional[BytesIO]:
         return save_state_to_zip(
             self._base_name,
             self._settings,
