@@ -66,9 +66,10 @@ class FixtureModel(model.Model):
         name: str = "",
         scale: float = 1.0,
     ):
+        assert grayscale is not None
         self.name: str = name
         self.path: str = path
-        self.grayscale: Optional[GrayScaleAreaModel] = grayscale
+        self.grayscale: GrayScaleAreaModel = grayscale
         self.orientation_marks_x: Sequence = orientation_marks_x
         self.orientation_marks_y: Sequence = orientation_marks_y
         self.shape: Sequence = shape
