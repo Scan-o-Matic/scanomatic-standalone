@@ -313,7 +313,7 @@ def load_cccs():
 
     for ccc_path in iglob(Paths().ccc_file_pattern.format("*")):
 
-        with open(ccc_path, mode='rb') as fh:
+        with open(ccc_path, mode='r') as fh:
             try:
                 data = json.load(fh)
             except ValueError:
