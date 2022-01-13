@@ -35,11 +35,11 @@ def get_signal(
 
 
 def get_signal_data(
-    strip_values,
-    up_spikes,
+    strip_values: np.ndarray,
+    up_spikes: np.ndarray,
     grayscale: Grayscale,
-    delta_threshold
-):
+    delta_threshold: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     expected_slice_size = grayscale.sections * grayscale.length
     expected_spikes = (
         np.arange(0, grayscale.sections + 1)
@@ -69,9 +69,9 @@ def get_signal_data(
 
 
 def get_signal_edges(
-    observed_to_expected_index_map,
-    deltas,
-    observed_spikes,
+    observed_to_expected_index_map: np.ndarray,
+    deltas: np.ndarray,
+    observed_spikes: np.ndarray,
     number_of_segments: int,
 ) -> np.ndarray:
     edges = np.ones((number_of_segments + 1,)) * np.nan
@@ -175,7 +175,7 @@ def get_best_offset(
     n: int,
     measures: SpikesArray,
     frequency: Optional[float] = None,
-):
+) -> Optional[int]:
     """
     get_best_offset returns a optimal starting-offset for a hypthetical
     signal with frequency as specified by frequency-variable
@@ -232,9 +232,7 @@ def get_best_offset(
                 quality.append(0)
         dist_results.append(np.sum(np.sort(np.asarray(quality))[:n]))
 
-    # print np.argsort(np.asarray(dist_results))
-    # print np.sort(np.asarray(dist_results))
-    return np.asarray(dist_results).argmin()
+    return int(np.asarray(dist_results).argmin())
 
 
 def get_spike_quality(
@@ -242,7 +240,7 @@ def get_spike_quality(
     n: Optional[int] = None,
     offset: Optional[int] = None,
     frequency: Optional[float] = None,
-):
+) -> Optional[list[float]]:
     """
     get_spike_quality returns a quality-index for each spike
     as to how well it fits the signal.
@@ -274,7 +272,7 @@ def get_spike_quality(
         print("*** ERROR: You must provide n if you don't provide offset")
         return None
 
-    quality_results = []
+    quality_results: list[float] = []
 
     for m in measures:
         # n_signal_dist is peak number of the closest signal peak
@@ -289,11 +287,11 @@ def get_true_signal(
     max_value: int,
     n: int,
     measures: SpikesArray,
-    measures_qualities=None,
+    measures_qualities: Optional[list[float]] = None,
     offset: Optional[int] = None,
     frequency: Optional[float] = None,
     offset_buffer_fraction: int = 0,
-):
+) -> Optional[np.ndarray]:
     """
     get_true_signal returns the best spike pattern n peaks that
     describes the signal (described by offset and frequency).
@@ -432,7 +430,7 @@ def get_true_signal(
     return ideal_signal
 
 
-def get_center_of_spikes(spikes: SpikesArray):
+def get_center_of_spikes(spikes: SpikesArray) -> SpikesArray:
     """
     The function returns the an array matching the input-array but
     for each stretch of consequtive truth-values, only the center
