@@ -19,7 +19,9 @@ from scanomatic.models.factories.fixture_factories import (
     FixturePlateFactory,
     GrayScaleAreaModelFactory
 )
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.fixture_models import FixtureModelFields
+from scanomatic.models.rpc_job_models import RPCjobModelFields
 from scanomatic.models.validators.validate import (
     get_invalid,
     get_invalid_as_text,
@@ -136,6 +138,21 @@ def test_validate(model: Model, updates: dict[str, Any], expect: bool):
             "plates": (GridModelFactory.create(),),
         },
         {FixtureModelFields.grayscale, FixtureModelFields.plates},
+    ),
+    (
+        RPC_Job_Model_Factory.create(id='aaa'),
+        {},
+        {RPCjobModelFields.content_model},
+    ),
+    (
+        RPC_Job_Model_Factory.create(
+            id='aaa',
+            content_model=AnalysisModelFactory.create(
+                compilation="som.file",
+            ),
+        ),
+        {},
+        set(),
     ),
 ))
 def test_get_invalid(model: Model, updates: dict[str, Any], expect: set[Enum]):
