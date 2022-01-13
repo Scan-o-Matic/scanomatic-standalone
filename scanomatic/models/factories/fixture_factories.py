@@ -36,7 +36,7 @@ class GrayScaleAreaModelFactory(AbstractModelFactory):
     MODEL = GrayScaleAreaModel
     STORE_SECTION_SERIALIZERS = {
         'name': str,
-        'values': float_list_serializer,
+        'section_values': float_list_serializer,
         'width': float,
         'section_length': float,
         'x1': int,
@@ -47,6 +47,7 @@ class GrayScaleAreaModelFactory(AbstractModelFactory):
 
     @classmethod
     def create(cls, **settings) -> GrayScaleAreaModel:
+        rename_setting(settings, 'values', 'section_values')
         return cast(
             GrayScaleAreaModel,
             super(GrayScaleAreaModelFactory, cls).create(**settings),

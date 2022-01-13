@@ -131,7 +131,7 @@ def test_validate(model: Model, updates: dict[str, Any], expect: bool):
         {AnalysisModelFields.compilation, AnalysisModelFields.grid_model},
     ),
     (
-        FixtureFactory.create(),
+        FixtureFactory.create(grayscale=AnalysisModelFactory.create()),
         {
             "plates": (GridModelFactory.create(),),
         },
@@ -145,7 +145,9 @@ def test_get_invalid(model: Model, updates: dict[str, Any], expect: set[Enum]):
 
 
 def test_get_invalid_names():
-    assert list(get_invalid_names(FixtureFactory.create())) == ["grayscale"]
+    assert list(get_invalid_names(FixtureFactory.create(
+        grayscale=AnalysisModelFactory.create(),
+    ))) == ["grayscale"]
 
 
 def test_get_invalid_as_text():

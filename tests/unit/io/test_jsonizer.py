@@ -229,7 +229,10 @@ def test_copy_makes_new_object(fixture: FixtureModel):
     new_fixture: FixtureModel = jsonizer.copy(fixture)
     assert new_fixture is not fixture
     assert new_fixture.grayscale is not fixture.grayscale
-    assert new_fixture.grayscale.values == fixture.grayscale.values
+    assert (
+        new_fixture.grayscale.section_values
+        == fixture.grayscale.section_values
+    )
 
 
 @pytest.mark.parametrize('filename,expect', (
@@ -291,19 +294,6 @@ def test_load_first(filename: str, expect: Optional[Type]):
             grayscale=GrayScaleAreaModelFactory.create(x1=13),
             orientation_marks_x=(10., 12., 13.),
             plates=(FixturePlateFactory.create(index=1),)
-        ),
-    ),
-    (  # Doesn't update because doesn't know where to place it
-        FixtureFactory.create(
-            grayscale=None,
-            orientation_marks_x=(10., 42., 13.),
-            plates=(FixturePlateFactory.create(index=12),)
-        ),
-        GrayScaleAreaModelFactory.create(x1=13),
-        FixtureFactory.create(
-            grayscale=None,
-            orientation_marks_x=(10., 42., 13.),
-            plates=(FixturePlateFactory.create(index=12),)
         ),
     ),
     (  # Replaces the existing model of same type
@@ -402,7 +392,10 @@ def test_purge_field(tmp_path, fixture: FixtureModel):
     assert jsonizer.purge(fixture.grayscale, path) is True
     models: list[FixtureModel] = jsonizer.load(path)
     assert len(models) == 1
-    assert models[0].grayscale is None
+    assert (
+        jsonizer.dumps(models[0].grayscale)
+        != jsonizer.dumps(fixture.grayscale)
+    )
 
 
 def test_purge_field_item(tmp_path, fixture: FixtureModel):

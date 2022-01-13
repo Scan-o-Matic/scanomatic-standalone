@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+from typing import Sequence
 
 import numpy as np
 from matplotlib import pyplot as plt  # type: ignore
@@ -28,11 +29,9 @@ def simulate_positioning(
     project_compilation: list[CompileImageAnalysisModel],
     positioning: str,
 ):
-
     assert positioning in (
         'detected', 'probable', 'one-time',
     ), "Not understood positioning mode"
-
     positions = np.array([
         (image.fixture.orientation_marks_x, image.fixture.orientation_marks_y)
         for image in project_compilation
@@ -46,8 +45,12 @@ def simulate_positioning(
 
 
 @_input_validate
-def get_grayscale_variability(project_compilation):
-    data = np.array([i.fixture.grayscale.values for i in project_compilation])
+def get_grayscale_variability(
+    project_compilation: Sequence[CompileImageAnalysisModel],
+):
+    data = np.array([
+        i.fixture.grayscale.section_values for i in project_compilation
+    ])
     return np.var(data, axis=0) / np.mean(data, axis=0)
 
 
@@ -58,7 +61,7 @@ def get_grayscale_outlier_images(
     only_image_indices=False,
 ):
     data = np.array([
-        image.fixture.grayscale.values for image in project_compilation
+        image.fixture.grayscale.section_values for image in project_compilation
     ])
     norm = np.median(data, axis=0)
     sq_distances = np.sum((data - norm) ** 2, axis=1)
@@ -78,7 +81,10 @@ def plot_grayscale_histogram(
     save_target=None,
 ):
 
-    data = [image.fixture.grayscale.values for image in project_compilation]
+    data = [
+        image.fixture.grayscale.section_values
+        for image in project_compilation
+    ]
     length = max(len(v) for v in data if v is not None)
     empty = np.zeros((length,), dtype=float) * np.inf
     data = [empty if d is None else d for d in data]

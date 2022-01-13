@@ -207,7 +207,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         # TODO: Verify that this isn't the thing causing the capping!
         if (
             image_model.fixture.grayscale is None
-            or image_model.fixture.grayscale.values is None
+            or image_model.fixture.grayscale.section_values is None
             or image_model.image is None
         ):
 

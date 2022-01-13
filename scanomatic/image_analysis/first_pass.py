@@ -56,8 +56,8 @@ def _do_image_preparation(
 
 
 def _do_markers(
-    compile_analysis_model: FixtureImage,
-    image: CompileImageAnalysisModel,
+    compile_analysis_model: CompileImageAnalysisModel,
+    image: FixtureImage,
 ) -> None:
     _logger.info(f"Running marker analysis on {compile_analysis_model}")
     image.run_marker_analysis()
@@ -75,7 +75,7 @@ def _do_grayscale(
 
     _logger.info("Grayscale analysed for {0}".format(compile_analysis_model))
 
-    if compile_analysis_model.fixture.grayscale.values is None:
+    if compile_analysis_model.fixture.grayscale.section_values is None:
         _logger.error(
             "Grayscale not properly set up (used {0})".format(
                 compile_analysis_model.fixture.grayscale.name,
