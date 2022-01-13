@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 import numpy as np
 from scipy.stats.mstats import mquantiles  # type: ignore
 
@@ -14,11 +14,7 @@ def iqr_mean(data: np.ndarray, *args, **kwargs) -> Optional[np.ndarray]:
 
 
 def mid50_mean(data: np.ndarray) -> float:
-
-    if not isinstance(data, np.ma.masked_array):
-        data = np.ma.masked_invalid(data)
-
-    data = data.data[data.mask == False]  # noqa: E712
+    data = get_finite_data(data)
     center_points = int(np.floor(data.size * 0.5))
     flank = int(np.floor((data.size - center_points) / 2))
     data.sort()
@@ -26,11 +22,17 @@ def mid50_mean(data: np.ndarray) -> float:
 
 
 def quantiles_stable(data: np.ndarray) -> tuple[float, float]:
-
-    if not isinstance(data, np.ma.masked_array):
-        data = np.ma.masked_invalid(data)
-
-    data = data[data.mask == False]  # noqa: E712
+    data = get_finite_data(data)
     threshold = int(np.floor(data.size * 0.25))
     data.sort()
     return data[threshold], data[-threshold]
+
+
+def get_finite_data(
+    data: Union[np.ndarray, np.ma.MaskedArray]
+) -> np.ndarray:
+    masked_data = (
+        np.ma.masked_invalid(data) if not isinstance(data, np.ma.MaskedArray)
+        else data
+    )
+    return masked_data[~masked_data.mask]

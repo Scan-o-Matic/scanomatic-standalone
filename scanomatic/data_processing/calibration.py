@@ -31,7 +31,7 @@ from scanomatic.io.ccc_data import (
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 
-__CCC = {}
+__CCC: dict[str, Any] = {}
 _logger = get_logger("CCC")
 
 CalibrationData = namedtuple(
@@ -211,10 +211,11 @@ def add_ccc(ccc) -> bool:
         return False
 
 
-def has_valid_polynomial(ccc) -> None:
+def has_valid_polynomial(ccc) -> bool:
     poly = ccc[CellCountCalibration.polynomial]
     try:
         validate_polynomial_format(poly)
+        return True
     except ValueError:
         message = "Checking that CCC has valid polynomial failed"
         _logger.exception(message)
@@ -624,7 +625,7 @@ def get_calibration_polynomial_residuals(
     guess,
     colony_sum_function: Callable,
     data_store
-) -> float:
+) -> np.ndarray:
     return data_store.target_value - colony_sum_function(data_store, *guess)
 
 

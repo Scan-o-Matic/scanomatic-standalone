@@ -36,14 +36,14 @@ def ccc():
 def test_get_im_slice():
     """Test that _get_im_slice handles floats"""
     image = np.arange(0, 42).reshape((6, 7))
-    model_tuple = namedtuple("Model", ['x1', 'x2', 'y1', 'y2'])
+    model_tuple = namedtuple("model_tuple", ['x1', 'x2', 'y1', 'y2'])
     model = model_tuple(1.5, 3.5, 2.5, 4.5)
     assert calibration._get_im_slice(image, model).sum() == 207
 
 
 def test_poly_as_text():
     assert (
-        calibration.poly_as_text([2, 0, -1, 0]) ==
+        calibration.poly_as_text(np.array([2, 0, -1, 0])) ==
         "y = -1.00E+00 x^1 + 2.00E+00 x^3"
     )
 
@@ -340,7 +340,7 @@ class TestActivateCCC:
     def test_has_selected_polynomial(self, finalizable_ccc):
         # The fixture needs to be included, otherwise test is not correct
         assert (
-            calibration.has_valid_polynomial(finalizable_ccc) is None
+            calibration.has_valid_polynomial(finalizable_ccc) is True
         ), "CCC does not have valid polynomial"
 
     def test_activated_status_is_set(self, finalizable_ccc):
@@ -712,7 +712,7 @@ class TestSetColonyCompressedData:
         access_token = ccc[calibration.CellCountCalibration.edit_access_token]
         image_identifier = 'image0'
         plate_id = 'plate0'
-        colony_data = {}
+        colony_data: dict = {}
         ccc[calibration.CellCountCalibration.images] = [
             {
                 calibration.CCCImage.identifier: image_identifier,

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal, Optional
+from typing import Any, Literal, Optional, Union, cast
 from collections.abc import Callable, Sequence
 
 import numpy as np
@@ -89,8 +89,11 @@ def infer_offset(arr):
 
 
 def get_downsampled_plates(
-    data,
-    subsampling: Literal['TL', 'TR', 'BL', 'BR'] = "BR",
+    data: np.ndarray,
+    subsampling: Union[
+        np.ndarray,
+        Literal['TL', 'TR', 'BL', 'BR'],
+    ] = "BR",
 ):
     """
     The subsampling is either supplied as a generic position for all plates
@@ -120,7 +123,7 @@ def get_downsampled_plates(
 
     # Generic -> Per plate
     if isinstance(subsampling, str):
-        subsampling = [subsampling for _ in range(data.shape[0])]
+        subsamplings = [subsampling for _ in range(data.shape[0])]
 
         # Lookup to translate subsamplingexpressions to coordinates
         sub_sample_lookup = {
@@ -131,7 +134,7 @@ def get_downsampled_plates(
         }
 
         # Name to offset
-        subsampling = [sub_sample_lookup[s]() for s in subsampling]
+        subsampling = np.array([sub_sample_lookup[s]() for s in subsamplings])
 
     # Create a new container for the plates. It is important that this remains
     # a list and is not converted into an array if both returned members of A
@@ -263,7 +266,7 @@ def get_coordinate_filtered(
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
 
-    filtered = []
+    filtered_list = []
     for i in range(len(data)):
         p = data[i][..., measure]
         filtered_plate = p[coordinates[i]]
@@ -271,9 +274,9 @@ def get_coordinate_filtered(
         if require_finite and not require_correlated:
             filtered_plate = filtered_plate[np.isfinite(filtered_plate)]
 
-        filtered.append(filtered_plate)
+        filtered_list.append(filtered_plate)
 
-    filtered = np.array(filtered)
+    filtered = np.array(filtered_list)
 
     if require_correlated:
         filtered = filtered[:, np.isfinite(filtered).all(axis=0)]
@@ -327,15 +330,15 @@ def get_control_positions_average(
     plate_control_averages = []
 
     for plate in control_pos_data_array:
-        measurement_vector = []
+        measurement_vector: list[np.ndarray] = []
         plate_control_averages.append(measurement_vector)
 
         for id_measurement in range(plate.shape[2]):
             if overwrite_experiment_values in (np.nan, np.inf):
-                if np.isnan(overwrite_experiment_values):
-                    valid_data_test = np.isnan
-                else:
-                    valid_data_test = np.isinf
+                valid_data_test = (
+                    np.isnan if np.isnan(overwrite_experiment_values)
+                    else cast(np.ufunc, np.isinf)
+                )
 
                 measurement_vector.append(
                     average_method(
@@ -367,7 +370,7 @@ def get_normalisation_surface(
     use_accumulated: bool = False,
     fill_value=np.nan,
     offsets=None,
-    apply_median_smoothing_kernel: Optional[int] = None,
+    apply_median_smoothing_kernel: Optional[tuple[int, int]] = None,
     apply_gaussian_smoothing_sigma: Optional[float] = None,
 ) -> np.ndarray:
     """Constructs normalisation surface using iterative runs of
@@ -422,7 +425,7 @@ def get_normalisation_surface(
             )
         ))
 
-    out = []
+    out: list[Optional[np.ndarray[Any, Any]]] = []
     n_plates = len(control_positions_filtered_data)
 
     if control_position_coordinates is None:
@@ -431,11 +434,9 @@ def get_normalisation_surface(
             offsets,
         )
 
-    if np.isnan(fill_value):
-        missing_data_test = np.isnan
-
-    else:
-        missing_data_test = np.isinf
+    missing_data_test = (
+        np.isnan if np.isnan(fill_value) else cast(np.ufunc, np.isinf)
+    )
 
     for id_plate in range(n_plates):
         if control_positions_filtered_data[id_plate] is None:
@@ -519,25 +520,25 @@ def get_normalisation_surface(
                     if not missing_data_test(plate).any():
                         break
 
-    out = np.array(out)
+    outs = np.array(out)
 
     if apply_median_smoothing_kernel is not None:
-        for id_measurement in range(out[0].shape[2]):
+        for id_measurement in range(outs[0].shape[2]):
             apply_median_smoothing(
-                out,
+                outs,
                 filter_shape=apply_median_smoothing_kernel,
                 measure=id_measurement,
             )
 
     if apply_gaussian_smoothing_sigma is not None:
-        for id_measurement in range(out[0].shape[2]):
+        for id_measurement in range(outs[0].shape[2]):
             apply_gauss_smoothing(
-                out,
+                outs,
                 sigma=apply_gaussian_smoothing_sigma,
                 measure=id_measurement,
             )
 
-    return out
+    return outs
 
 
 def apply_outlier_filter(
@@ -895,13 +896,13 @@ def get_normalized_data(
     pre_surface = get_downsampled_plates(surface, offsets)
     apply_outlier_filter(pre_surface, measure=None)
 
-    std = [None] * len(data)
+    std: tuple[Optional[float], ...] = tuple([None] * len(data))
 
     if method == norm_by_signal_to_noise:
-        std = [
+        std = tuple([
             plate[np.isfinite(plate)].std() if plate is not None else None
             for plate in pre_surface
-        ]
+        ])
 
     try:
         surface = get_normalisation_surface(surface, offsets=offsets)
@@ -927,7 +928,7 @@ def normalisation(
     method: Callable = norm_by_log2_diff,
     std: tuple[Optional[float], ...] = (None,),
 ):
-    normed_data = []
+    normed_data: list[Optional[np.ndarray]] = []
     if isinstance(data, Data_Bridge):
         data = data.get_as_array()
 

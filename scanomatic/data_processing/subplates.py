@@ -1,6 +1,10 @@
+from typing import Optional, Union
 import numpy as np
 
 from . import mock_numpy_interface
+
+
+PlateShape = Union[tuple[int, int], tuple[int, int, int]]
 
 
 class SubPlates(mock_numpy_interface.NumpyArrayInterface):
@@ -72,10 +76,9 @@ class SubPlates(mock_numpy_interface.NumpyArrayInterface):
         else:
             kernel = self._kernels[value]
             kernel_d1, kernel_d2 = (v[0] for v in np.where(kernel))
-
-            plate_shape = None
+            plate_shape: Optional[PlateShape] = None
             ravel_offset = None
-            plate_strides = None
+            plate_strides: Optional[PlateShape] = None
 
             assert plate.ndim in (2, 3), (
                 "Plate {0} has wrong number of dimensions {1}".format(

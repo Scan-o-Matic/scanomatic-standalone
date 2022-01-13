@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, SupportsInt, Union
+from typing import Any, Optional, SupportsFloat, SupportsInt, Union, cast
 
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
@@ -40,9 +40,9 @@ def loadCSV2Numpy(
     """
 
     def _putInData(
-        d: dict[tuple[int, int], list],
+        d: dict[int, dict[tuple[int, int], list[float]]],
         pos: Sequence[SupportsInt],
-        m,
+        m: Sequence[SupportsFloat],
     ):
         plateI, xI, yI = list(map(int, pos))
         if plateI not in d:
@@ -75,13 +75,17 @@ def loadCSV2Numpy(
         else:
             measure = slice(measure, measure + 1)
 
-    dataDict = {}
+    dataDict: dict[int, dict[tuple[int, int], list[float]]] = {}
     rowLength = 0
     for row in fs:
 
         rowList = row.split(delim)
         try:
-            _putInData(dataDict, rowList[:3], rowList[measure])
+            _putInData(
+                dataDict,
+                cast(Sequence[SupportsInt], rowList[:3]),
+                cast(Sequence[SupportsFloat], rowList[measure]),
+            )
             if rowLength == 0:
                 rowLength = len(rowList)
         except ValueError:
@@ -98,7 +102,7 @@ def loadCSV2Numpy(
     fs.close()
 
     nPlate = max(dataDict) + 1
-    data = []
+    data: list[Optional[np.ndarray]] = []
 
     start = measure.start is None and 0 or measure.start
     stop = measure.stop is None and rowLength or measure.stop
@@ -115,7 +119,10 @@ def loadCSV2Numpy(
         if plateI in dataDict:
             pMeasures = dataDict[plateI]
             plate = np.zeros(
-                [v + 1 for v in map(max, zip(*list(pMeasures.keys())))]
+                [
+                    cast(int, v) + 1
+                    for v in map(max, zip(*list(pMeasures.keys())))
+                ]
                 + [measures],
                 dtype=dtype,
             )
