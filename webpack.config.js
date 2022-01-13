@@ -36,6 +36,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.json', '.jsx'],
+    alias: {
+      'jquery-ui': 'jquery-ui-dist/jquery-ui.js',
+    },
   },
   plugins: [
     new webpack.ProvidePlugin({

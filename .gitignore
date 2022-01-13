@@ -34,6 +34,7 @@ data/config/rpc.admin
 /docker-compose.override.yml
 /scanomatic/ui_server_data/js/ccc.js
 /scanomatic/ui_server_data/js/som.js
+/scanomatic/ui_server_data/js/*.png
 /scanomatic/ui_server_data/coverage
 geckodriver.log
 /node_modules

@@ -5,11 +5,10 @@ import * as d3 from 'd3';
 import 'jquery-modal';
 import 'jquery-treetable';
 import 'jquery-ui';
-import 'jquery-ui/ui/widgets/autocomplete';
 // CSS
 // import 'bootstrap/' css
 import 'bootstrap-toggle/css/bootstrap-toggle.css';
-// import 'jquery-ui/' css
+import 'jquery-ui-dist/jquery-ui.css';
 import 'jquery-modal/jquery.modal.css';
 import 'jquery-treetable/css/jquery.treetable.css';
 import 'jquery-treetable/css/jquery.treetable.theme.default.css';
