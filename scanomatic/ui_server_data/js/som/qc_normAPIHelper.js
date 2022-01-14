@@ -261,59 +261,60 @@ export function GetPlateData(
     if (json.success === false) {
       alert(`Could not display the data! \n${json.reason}`);
       callback(null);
-    } else {
-      GetGtPlateData(
-        metaDataPath,
-        phenotypePlaceholderMetaDataPath,
-        key,
-        isNormalized,
-        (gtData) => {
-          GetGtWhenPlateData(
-            metaDataPath,
-            phenotypePlaceholderMetaDataPath,
-            key,
-            isNormalized,
-            (gtWhenData) => {
-              GetYieldPlateData(
-                metaDataPath,
-                phenotypePlaceholderMetaDataPath,
-                key,
-                isNormalized,
-                (yieldData) => {
-                  const qIdxCols = json.qindex_cols;
-                  const qIdxRows = json.qindex_rows;
-                  const qIdxSort = [];
-                  if (qIdxCols.length === qIdxRows.length) {
-                    let idx = 0;
-                    for (let i = 0; i < qIdxRows.length; i += 1) {
-                      qIdxSort.push({ idx, row: qIdxRows[i], col: qIdxCols[i] });
-                      idx += 1;
-                    }
-                  }
-                  const plate = {
-                    plate_data: json.data,
-                    plate_phenotype: json.phenotype,
-                    plate_qIdxSort: qIdxSort,
-                    Plate_metadata: {
-                      plate_BadData: json.BadData,
-                      plate_Empty: json.Empty,
-                      plate_NoGrowth: json.NoGrowth,
-                      plate_UndecidedProblem: json.UndecidedProblem,
-                    },
-                    Growth_metaData: {
-                      gt: isNormalized === true ? null : gtData,
-                      gtWhen: isNormalized === true ? null : gtWhenData,
-                      yld: isNormalized === true ? null : yieldData,
-                    },
-                  };
-                  callback(plate);
-                },
-              );
-            },
-          );
-        },
-      );
+      return null;
     }
+
+    GetGtPlateData(
+      metaDataPath,
+      phenotypePlaceholderMetaDataPath,
+      key,
+      isNormalized,
+      (gtData) => {
+        GetGtWhenPlateData(
+          metaDataPath,
+          phenotypePlaceholderMetaDataPath,
+          key,
+          isNormalized,
+          (gtWhenData) => {
+            GetYieldPlateData(
+              metaDataPath,
+              phenotypePlaceholderMetaDataPath,
+              key,
+              isNormalized,
+              (yieldData) => {
+                const qIdxCols = json.qindex_cols;
+                const qIdxRows = json.qindex_rows;
+                const qIdxSort = [];
+                if (qIdxCols.length === qIdxRows.length) {
+                  let idx = 0;
+                  for (let i = 0; i < qIdxRows.length; i += 1) {
+                    qIdxSort.push({ idx, row: qIdxRows[i], col: qIdxCols[i] });
+                    idx += 1;
+                  }
+                }
+                const plate = {
+                  plate_data: json.data,
+                  plate_phenotype: json.phenotype,
+                  plate_qIdxSort: qIdxSort,
+                  Plate_metadata: {
+                    plate_BadData: json.BadData,
+                    plate_Empty: json.Empty,
+                    plate_NoGrowth: json.NoGrowth,
+                    plate_UndecidedProblem: json.UndecidedProblem,
+                  },
+                  Growth_metaData: {
+                    gt: isNormalized === true ? null : gtData,
+                    gtWhen: isNormalized === true ? null : gtWhenData,
+                    yld: isNormalized === true ? null : yieldData,
+                  },
+                };
+                callback(plate);
+              },
+            );
+          },
+        );
+      },
+    );
     return null;
   });
 }
