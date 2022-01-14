@@ -293,7 +293,19 @@ def merge_into(
     model: Optional[Union[Model, list[Model]]],
     update: Union[list[Model], Model],
 ) -> Union[list[Model], Model]:
+    """Merges update with or into the model.
+
+    There's currently a limitation that when the update
+    is a list, it simply replaces model without checking
+    if there's a reasonable type match. The feature is
+    needed to cover all type cases, but should not be
+    in use in the code.
+    """
     if isinstance(update, list):
+        _LOGGER.warning(
+            f"Mergining {update} into {model} not implemented."
+            " Will simply replace."
+        )
         return update
     elif isinstance(model, list):
         ret = []

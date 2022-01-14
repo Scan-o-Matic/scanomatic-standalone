@@ -1,7 +1,7 @@
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 import numpy as np
 import pytest
@@ -13,23 +13,23 @@ from scanomatic.models.analysis_model import (
     COMPARTMENTS,
     MEASURES,
     VALUES,
-    AnalysisModel,
+    AnalysisModel
 )
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
 from scanomatic.models.factories.analysis_factories import (
     AnalysisFeaturesFactory,
-    AnalysisModelFactory,
+    AnalysisModelFactory
 )
 from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory,
     CompileImageFactory,
-    CompileProjectFactory,
+    CompileProjectFactory
 )
 from scanomatic.models.factories.features_factory import FeaturesFactory
 from scanomatic.models.factories.fixture_factories import (
     FixtureFactory,
     FixturePlateFactory,
-    GrayScaleAreaModelFactory,
+    GrayScaleAreaModelFactory
 )
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.factories.scanning_factory import (
@@ -37,7 +37,7 @@ from scanomatic.models.factories.scanning_factory import (
     ScannerFactory,
     ScannerOwnerFactory,
     ScanningAuxInfoFactory,
-    ScanningModelFactory,
+    ScanningModelFactory
 )
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory,
@@ -47,7 +47,7 @@ from scanomatic.models.factories.settings_factories import (
     PowerManagerFactory,
     RPCServerFactory,
     UIServerFactory,
-    VersionChangeFactory,
+    VersionChangeFactory
 )
 from scanomatic.models.features_model import FeatureExtractionData
 from scanomatic.models.fixture_models import FixtureModel
@@ -309,11 +309,86 @@ def test_load_first(filename: str, expect: Optional[Type]):
             plates=(FixturePlateFactory.create(index=12),)
         ),
     ),
+    (  # Lists as update assume overwrite
+        None,
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+    ),
+    (  # Updates first item if right type
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=42),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+        FixtureFactory.create(
+            grayscale=GrayScaleAreaModelFactory.create(x1=1),
+            orientation_marks_x=(10., 42., 13.),
+            plates=(FixturePlateFactory.create(index=12),)
+        ),
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=1),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+    ),
+    (  # Updates insert first item
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=42),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+        GrayScaleAreaModelFactory.create(x1=1),
+        [
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=1),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+            FixtureFactory.create(
+                grayscale=GrayScaleAreaModelFactory.create(x1=13),
+                orientation_marks_x=(10., 42., 13.),
+                plates=(FixturePlateFactory.create(index=12),)
+            ),
+        ],
+    ),
 ))
 def test_merge_into(
-    previous: Optional[Model],
-    update: Model,
-    expect: Model,
+    previous: Optional[Union[Model, list[Model]]],
+    update: Union[list[Model], Model],
+    expect: Union[list[Model], Model],
 ):
     updated = jsonizer.merge_into(previous, update)
     assert jsonizer.dumps(updated) == jsonizer.dumps(expect)
