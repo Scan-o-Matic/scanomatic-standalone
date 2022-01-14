@@ -20,6 +20,7 @@ from scanomatic.models.factories.fixture_factories import (
     GrayScaleAreaModelFactory
 )
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.fixture_models import FixtureModelFields
 from scanomatic.models.rpc_job_models import RPCjobModelFields
 from scanomatic.models.validators.validate import (
@@ -145,11 +146,14 @@ def test_validate(model: Model, updates: dict[str, Any], expect: bool):
         {RPCjobModelFields.content_model},
     ),
     (
+        ScanningModelFactory.create(project_name="NaCl"),
+        {},
+        set(),
+    ),
+    (
         RPC_Job_Model_Factory.create(
             id='aaa',
-            content_model=AnalysisModelFactory.create(
-                compilation="som.file",
-            ),
+            content_model=ScanningModelFactory.create(project_name="NaCl"),
         ),
         {},
         set(),
