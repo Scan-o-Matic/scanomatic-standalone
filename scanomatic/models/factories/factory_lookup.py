@@ -44,7 +44,6 @@ from scanomatic.models.factories.settings_factories import (
     PowerManagerFactory,
     RPCServerFactory,
     UIServerFactory,
-    VersionChangeFactory
 )
 from scanomatic.models.features_model import FeaturesModel
 from scanomatic.models.fixture_models import (
@@ -68,7 +67,6 @@ from scanomatic.models.settings_models import (
     PowerManagerModel,
     RPCServerModel,
     UIServerModel,
-    VersionChangesModel
 )
 
 _FACTORIES: dict[Type[Model], Type[AbstractModelFactory]] = {
@@ -95,7 +93,8 @@ _FACTORIES: dict[Type[Model], Type[AbstractModelFactory]] = {
     ScannerOwnerModel: ScannerOwnerFactory,
     ScannerModel: ScannerFactory,
     # From settings_factories.py
-    VersionChangesModel: VersionChangeFactory,
+    # Versions shouldn't serialize or load so excluded
+    # VersionChangesModel: VersionChangeFactory
     PowerManagerModel: PowerManagerFactory,
     RPCServerModel: RPCServerFactory,
     UIServerModel: UIServerFactory,
