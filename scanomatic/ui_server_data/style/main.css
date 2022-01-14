@@ -6,6 +6,15 @@
 
 input {
   padding: 3px;
+  color: #333333;
+}
+
+select {
+  color: #333333;
+}
+
+textarea {
+  color: #333333;
 }
 
 body {

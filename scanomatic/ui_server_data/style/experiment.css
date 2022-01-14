@@ -11,6 +11,10 @@ tr {
   margin-bottom: 6px;
 }
 
+td {
+  padding-bottom: 1px;
+}
+
 .eventable td {
  width: 16%;
 }
