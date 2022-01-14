@@ -371,7 +371,7 @@ def get_fixture_image_by_name(name, ext="tiff"):
     return get_fixture_image(name, image_path)
 
 
-def get_fixture_image(name, image_path):
+def get_fixture_image(name, image_path) -> FixtureImage:
     fixture = FixtureImage(reference_overwrite_mode=True)
     fixture.name = name
     fixture.set_image(image_path=image_path)
