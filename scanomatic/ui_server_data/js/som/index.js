@@ -17,7 +17,7 @@ import 'jquery-treetable/css/jquery.treetable.theme.default.css';
 window.$ = $;
 window.jQuery = $;
 window.d3 = d3;
-export { Spinner } from 'spin';
+export { default as Spinner } from 'spin';
 
 /* Scan-o-Matic API */
 export {

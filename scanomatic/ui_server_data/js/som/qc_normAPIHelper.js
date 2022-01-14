@@ -201,7 +201,6 @@ function GetGtPlateData(url, placeholder, key, isNormalized, callback) {
   const path = baseUrl + url.replace(placeholder, 'GenerationTime') + addKeyParameter(key);
 
   if (isNormalized === true) callback(null);
-  console.log(`Metadata GTWhen Path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
       console.warn(error);
@@ -216,7 +215,6 @@ function GetGtWhenPlateData(url, placeholder, key, isNormalized, callback) {
   const path = baseUrl + url.replace(placeholder, 'GenerationTimeWhen') + addKeyParameter(key);
 
   if (isNormalized === true) callback(null);
-  console.log(`Metadata GTWhen Path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
       console.warn(error);
@@ -231,7 +229,6 @@ function GetYieldPlateData(url, placeholder, key, isNormalized, callback) {
   const path = baseUrl + url.replace(placeholder, 'ExperimentGrowthYield') + addKeyParameter(key);
 
   if (isNormalized === true) callback(null);
-  console.log(`Metadata yield path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
       console.warn(error);
@@ -367,7 +364,6 @@ export function GetExport(url, callback) {
     dataType: 'json',
     contentType: 'application/json',
     success(data) {
-      console.log(`API:${JSON.stringify(data)}`);
       callback(data);
     },
     error(data) {

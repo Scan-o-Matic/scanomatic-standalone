@@ -352,9 +352,6 @@
         function nodeExpand() {
           var parentId = this.id;
           som.BrowsePath(parentId, function (browse) {
-            console.log("ParentID:" + parentId);
-            console.log("is project:" + browse.isProject);
-            console.log("paths len:" + browse.paths.length);
             var parentNode = $("#tblProjects").treetable("node", parentId);
             var nodeToAdd;
             var row;
@@ -376,12 +373,10 @@
                   rows += row;
                 });
               $("#tblProjects").treetable("loadBranch", parentNode, rows);
-              console.log("addedNodes rows:" + rows);
             } else if (browse.isProject) {
               nodeToAdd = $("#tblProjects").treetable("node", "project" + parentId);
               if (!nodeToAdd) {
                 row = '<tr data-tt-id="project' + parentId + '" data-tt-parent-id="' + parentId + '"  >';
-                console.log("button id: " + browse.projectDetails);
                 row += "<td><button id='" + browse.projectDetails.project + "'>Here is your project</button></td>";
                 row += "</tr>";
                 $("#tblProjects").treetable("loadBranch", parentNode, row);
@@ -391,7 +386,6 @@
               }
             }
           });
-          console.log("Expanded: " + this.id);
         }
 
         function getLock(callback) {
@@ -412,7 +406,6 @@
         }
 
         function fillProjectDetails(projectDetails) {
-          console.log("Project details:" + projectDetails.project);
           $("#spProject_name").text(projectDetails.project_name);
           $("#spProject").text(projectDetails.project);
           $("#spExtraction_date").text(projectDetails.extraction_date);
@@ -486,7 +479,6 @@
         //draw run phenotypes selection
         function drawRunPhenotypeSelection(path) {
           projectSlelectionStage("Phenotypes");
-          console.log("Phenotypes path: " + path);
           var lockKey = getLock_key();
           som.GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
             d3.select("#" + selRunPhenotypesName).remove();
@@ -506,7 +498,6 @@
         };
 
         function drawRunNormalizedPhenotypeSelection(path) {
-          console.log("Norm Phenotypes path: " + path);
           var lockKey = getLock_key();
           som.GetRunPhenotypes(path, lockKey, function (runPhenotypes) {
             d3.select("#" + selRunNormPhenotypesName).remove();
@@ -533,7 +524,6 @@
           if (!path)
             return;
           projectSlelectionStage("Plates");
-          console.log("plates: " + path);
           var lockKey = getLock_key();
           som.GetPhenotypesPlates(path, lockKey, function (phenotypePlates) {
             //plate buttons
@@ -580,7 +570,6 @@
           var plateIdx = phenotypePlates.index;
           var project = $("#spProject").text();
           currentSelectedPlate = plateIdx;
-          console.log("experiment: " + path);
           $("#currentSelection").data("plateIdx", plateIdx);
           $("#currentSelection").data("project", project);
           $("#spnPlateIdx").text((plateIdx+1));
@@ -609,7 +598,6 @@
               setExperimentByCoord(row, col);
             stopWait();
             plate.on("SelectedExperiment", function (datah) {
-                console.log("dispatched:" + datah.coord);
                 var arr = datah.coord.split(",");
                 var row = arr[0];
                 var col = arr[1];
@@ -621,7 +609,6 @@
                 $("#currentSelection").data("project", $("#spProject").text());
                 // e.g. /api/results/curves/1/31/0/Martin_wt1/analysis
                 var expPath = "/api/results/curves/" + plateIdx + "/" + row + "/" + col + "/" + project;
-                console.log("curve path:" + expPath);
                 var lockKey = getLock_key();
                 som.GetExperimentGrowthData(expPath, lockKey, function (gData) {
                   $("#graph").empty();
