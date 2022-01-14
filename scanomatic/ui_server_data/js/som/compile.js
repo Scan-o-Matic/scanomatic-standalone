@@ -5,11 +5,11 @@ import {
   getPathSuggestions,
   InputEnabled,
 } from './helpers';
+import { getSharedValue } from './shared_values';
 
 let localFixture = false;
 let path = '';
 let projectPathValid = false;
-let currentFixtureId;
 const imageListDiv = null;
 
 function toggleManualSelection(isManual) {
@@ -75,7 +75,7 @@ export function setFixtureStatus() {
   if (localFixture) {
     $.get(`/api/data/fixture/local/${path.substring(5, path.length)}`, callback).fail(errorCallback);
   } else {
-    const fixt = $(currentFixtureId).val();
+    const fixt = $(getSharedValue('currentFixtureId')).val();
     if (fixt) {
       $.get(`/api/data/fixture/get/${fixt}`, callback).fail(errorCallback);
     } else {
@@ -135,7 +135,7 @@ export function setOnAllImages(included) {
 export function compileToggleLocalFixture(caller) {
   localFixture = $(caller).prop('checked');
   setFixtureStatus();
-  InputEnabled($(currentFixtureId), !localFixture);
+  InputEnabled($(getSharedValue('currentFixtureId')), !localFixture);
 }
 
 export function Compile(button) {
@@ -143,7 +143,7 @@ export function Compile(button) {
 
   const data = {
     local: localFixture ? 1 : 0,
-    fixture: localFixture ? '' : $(currentFixtureId).val(),
+    fixture: localFixture ? '' : $(getSharedValue('currentFixtureId')).val(),
     path,
     chain: $('#chain-analysis-request').is(':checked') ? 0 : 1,
     images: GetIncludedImageList(),

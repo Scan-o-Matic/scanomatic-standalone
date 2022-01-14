@@ -47,7 +47,7 @@ export function getPathSuggestions(
   prefix,
   checkHasAnalysis,
 ) {
-  if (suffix === undefined) { suffix = ''; }
+  const theSuffix = suffix == null ? '' : suffix;
 
   let url;
   if (prefix !== undefined) {
@@ -63,7 +63,7 @@ export function getPathSuggestions(
   }
 
   $.get(
-    `${url}?suffix=${suffix
+    `${url}?suffix=${theSuffix
     }&isDirectory=${isDirectory ? 1 : 0
     }&checkHasAnalysis=${checkHasAnalysis ? 1 : 0}`,
     (data, status) => {
@@ -192,3 +192,8 @@ export function setVersionInformation(target, preface) {
       }
     });
 }
+
+const STORE = {};
+
+export const setSharedValue = (key, value) => { STORE[key] = value; };
+export const getSharedValue = key => STORE[key];

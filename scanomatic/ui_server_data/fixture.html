@@ -4,19 +4,19 @@
   <title>Scan-o-Matic</title>
   <script src="/js/somlib/som.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
-    currentFixtureId = "#current-fixture";
-    newFixtureData_id = "#new-fixture-data";
-    newFixtureDetect_id = "#new-fixture-detect";
-    newFixtureImage_id = "#new-fixture-image";
-    newFixtureMarkers_id = "#new-fixture-markers";
-    newFixtureName = "#new-fixture-name";
-    selectedFixtureDivId = "#selected-fixture";
-    selectedFixtureCanvasId = '#selected-fixture-canvas';
-    fixtureNameId = "#selected-fixture-name";
-    saveFixtureActionId = "#update-type";
-    saveFixtureButton = "#submit-button";
-    removeFixtureId = "#remove-button";
-    grayscaleTypeId = "#grayscale";
+    som.setsharedvalue("currentFixtureId", "#current-fixture");
+    som.setsharedvalue("newFixtureDataId", "#new-fixture-data");
+    som.setsharedvalue("newFixtureDetectId", "#new-fixture-detect");
+    som.setsharedvalue("newFixtureImageId", "#new-fixture-image");
+    som.setsharedvalue("newFixtureMarkersId", "#new-fixture-markers");
+    som.setsharedvalue("newFixtureName", "#new-fixture-name");
+    som.setsharedvalue("selectedFixtureDivId", "#selected-fixture");
+    som.setsharedvalue("selectedFixtureCanvasId", "#selected-fixture-canvas");
+    som.setsharedvalue("fixtureNameId", "#selected-fixture-name");
+    som.setsharedvalue("saveFixtureActionId", "#update-type");
+    som.setsharedvalue("saveFixtureButton", "#submit-button");
+    som.setsharedvalue("removeFixtureId", "#remove-button");
+    som.setsharedvalue("grayscaleTypeId", "#grayscale");
   </script>
   <link rel="stylesheet" type="text/css" href="/style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="/style/fixtures.css?ver=_-_VERSIONTAG_-_">
@@ -79,7 +79,7 @@
       <input type="hidden" name="update-type" id='update-type' value="update"/>
       <div>
         <button type="button" id="clear-areas"
-            onclick="som.clearAreas();som.drawFixture();selectedFixtureCanvasJq.focus();">
+            onclick="som.clearAreas();som.drawFixture();som.getSharedValue('selectedFixtureCanvasJq').focus();">
           Clear All Areas
         </button>
         <label for="grayscale">

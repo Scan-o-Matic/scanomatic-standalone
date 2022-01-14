@@ -1,12 +1,12 @@
 import $ from 'jquery';
+import { getSharedValue, setSharedValue } from '.';
 import { API, Dialogue, InputEnabled } from './helpers';
 
-let pmType;
 
 export function toggleVisibilities(button, state) {
   $(button).parent().nextAll().css('display', state ? '' : 'none');
   $('#scanner_section').css('display', $(button).val() !== 'notInstalled' ? '' : 'none');
-  pmType = $(button).val();
+  setSharedValue('pmType', $(button).val());
 }
 
 export function dynamicallyLimitScanners(button) {
@@ -25,7 +25,7 @@ export function UpdateSettings(button) {
     number_of_scanners: $('#number_of_scanners').val(),
     power_manager: {
       sockets: $('#number_of_sockets').val(),
-      type: pmType,
+      type: getSharedValue('pmType'),
       host: $('#power_manager_host').val(),
       mac: $('#power_manager_mac').val(),
       name: $('#power_manager_name').val(),

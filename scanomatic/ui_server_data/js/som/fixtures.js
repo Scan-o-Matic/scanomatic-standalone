@@ -14,20 +14,7 @@ import {
   SetSelectedGrayscale,
 } from './grayscales';
 import GetLinePlot from './simple_graphs';
-
-let currentFixtureId;
-let newFixtureDataId;
-let newFixtureDetectId;
-let newFixtureImageId;
-let newFixtureMarkersId;
-let newFixtureName;
-let selectedFixtureDivId;
-let selectedFixtureCanvasId;
-let fixtureNameId;
-let saveFixtureActionId;
-let saveFixtureButton;
-// let removeFixtureId;
-let grayscaleTypeId;
+import { getSharedValue, setSharedValue } from '.';
 
 let contextWarning = '';
 let fixtureImage = null;
@@ -36,26 +23,31 @@ let markers = null;
 let scale = 1;
 let areas = [];
 let creatingArea = null;
-let selectedFixtureCanvasJq;
 let selectedFixtureCanvas;
 let grayscaleGraph = null;
 let imageWidth = 0;
 let imageHeight = 0;
+
+function getPlate(plate) {
+  if (isInt(plate)) {
+    if (plate >= 0 && plate < areas.length) {
+      return areas[plate];
+    }
+    return null;
+  }
+  return plate;
+}
 
 function isArea(index) {
   return index != null && index !== undefined && index >= 0 && index < areas.length;
 }
 
 function getAreaSize(plate) {
-  if (isInt(plate)) {
-    if (plate >= 0 && plate < areas.length) {
-      plate = areas[plate];
-    } else {
-      plate = null;
-    }
-  }
+  const thePlate = getPlate(plate);
 
-  if (plate) { return Math.abs(plate.x2 - plate.x1) * Math.abs(plate.y2 - plate.y1); }
+  if (thePlate) {
+    return Math.abs(thePlate.x2 - thePlate.x1) * Math.abs(thePlate.y2 - thePlate.y1);
+  }
   return -1;
 }
 
@@ -74,18 +66,12 @@ function hasGrayScale() {
 }
 
 function getAreaCenter(plate) {
-  if (isInt(plate)) {
-    if (plate >= 0 && plate < areas.length) {
-      plate = areas[plate];
-    } else {
-      plate = null;
-    }
-  }
+  const thePlate = getPlate(plate);
 
-  if (plate) {
+  if (thePlate) {
     return {
-      x: (plate.x1 + plate.x2) / 2,
-      y: (plate.y1 + plate.y2) / 2,
+      x: (thePlate.x1 + thePlate.x2) / 2,
+      y: (thePlate.y1 + thePlate.y2) / 2,
     };
   }
   return {
@@ -241,46 +227,38 @@ export function drawFixture() {
 }
 
 function testAsGrayScale(plate) {
-  if (isInt(plate)) {
-    if (isArea(plate)) {
-      plate = areas[plate];
-    } else {
-      plate = null;
-    }
-  }
+  const thePlate = getPlate(plate);
 
-  if (plate) {
+  if (thePlate) {
     const grayscaleName = GetSelectedGrayscale();
     $.ajax({
       url: `/api/data/grayscale/fixture/${fixtureName}?grayscale_name=${grayscaleName}`,
       method: 'POST',
-      data: plate,
+      data: thePlate,
       success(data) {
-        console.log(data);
         if (data.grayscale && hasGrayScale() === false) {
-          plate.grayscale = true;
+          thePlate.grayscale = true;
           grayscaleGraph = GetLinePlot(
             data.target_values, data.source_values,
             'Grayscale', 'Targets', 'Measured values',
           );
-          InputEnabled($(grayscaleTypeId), false);
+          InputEnabled($(getSharedValue('grayscaleTypeId')), false);
         } else {
           if (!hasGrayScale() && data.reason) {
             grayscaleGraph = GetLinePlot([], [], data.reason, 'Targets', 'Measured values');
           }
-          plate.grayscale = false;
-          plate.plate = 0;
-          InputEnabled($(grayscaleTypeId), true);
+          thePlate.grayscale = false;
+          thePlate.plate = 0;
+          InputEnabled($(getSharedValue('grayscaleTypeId')), true);
           setPlateIndices();
         }
         drawFixture();
       },
-      error(data) {
-        console.log(data);
+      error() {
         contextWarning = 'Error occured detecting grayscale';
         setPlateIndices();
         drawFixture();
-        InputEnabled($(grayscaleTypeId), true);
+        InputEnabled($(getSharedValue('grayscaleTypeId')), true);
       },
 
     });
@@ -330,7 +308,7 @@ function mouseUpFunction() {
 
 
 $(document.documentElement).mouseup((event) => {
-  if (creatingArea != null && selectedFixtureCanvasJq != null) {
+  if (creatingArea != null && getSharedValue('selectedFixtureCanvasJq') != null) {
     mouseUpFunction(event);
   }
 });
@@ -373,17 +351,16 @@ function drawHoverSlice(imageCoords) {
 }
 
 export function setCanvas() {
-  selectedFixtureCanvasJq = $(selectedFixtureCanvasId);
-  selectedFixtureCanvasJq.attr('tabindex', '0');
-  [selectedFixtureCanvas] = selectedFixtureCanvasJq;
+  const canvas = $(getSharedValue('selectedFixtureCanvasId'));
+  canvas.attr('tabindex', '0');
 
-  selectedFixtureCanvasJq.mousedown((event) => {
+  canvas.mousedown((event) => {
     if (contextWarning) {
       contextWarning = null;
       return;
     }
 
-    const canvasPos = getMousePosRelative(event, selectedFixtureCanvasJq);
+    const canvasPos = getMousePosRelative(event, canvas);
     const imagePos = translateToImageCoords(canvasPos);
     creatingArea = null;
     const nextArea = getAreaByPoint(imagePos);
@@ -407,12 +384,12 @@ export function setCanvas() {
         areas[creatingArea].y2 = imagePos.y;
         areas[creatingArea].grayscale = false;
         areas[creatingArea].plate = -1;
-        InputEnabled($(grayscaleTypeId), true);
+        InputEnabled($(getSharedValue('grayscaleTypeId')), true);
       }
     } else {
       if (areas[nextArea] && areas[nextArea].grayscale) {
         grayscaleGraph = null;
-        InputEnabled($(grayscaleTypeId), true);
+        InputEnabled($(getSharedValue('grayscaleTypeId')), true);
       }
       areas.splice(nextArea, 1);
       creatingArea = null;
@@ -420,8 +397,8 @@ export function setCanvas() {
     drawFixture();
   });
 
-  selectedFixtureCanvasJq.mousemove((event) => {
-    const canvasPos = getMousePosRelative(event, selectedFixtureCanvasJq);
+  canvas.mousemove((event) => {
+    const canvasPos = getMousePosRelative(event, canvas);
     const imagePos = translateToImageCoords(canvasPos);
 
     if (event.button === 0 && isArea(creatingArea)) {
@@ -433,23 +410,27 @@ export function setCanvas() {
     drawHoverSlice(imagePos);
   });
 
-  selectedFixtureCanvasJq.mouseup(mouseUpFunction);
+  canvas.mouseup(mouseUpFunction);
+
+  setSharedValue('selectedFixtureCanvasJq', canvas);
+  setSharedValue('selectedFixtureCanvas', canvas[0]);
 }
 
 export function clearAreas() {
   areas = [];
   grayscaleGraph = null;
   contextWarning = '';
-  InputEnabled($(grayscaleTypeId), true);
+  InputEnabled($(getSharedValue('grayscaleTypeId')), true);
 }
 
 export function SetAllowDetect() {
-  const disallow = $(newFixtureImageId).val() === '' || $(newFixtureName).val() === '';
-  InputEnabled($(newFixtureDetectId), !disallow);
+  const disallow = $(getSharedValue('newFixtureImageId')).val() === ''
+    || $(getSharedValue('newFixtureName')).val() === '';
+  InputEnabled($(getSharedValue('newFixtureDetectId')), !disallow);
 }
 
 export function getFixtures() {
-  const options = $(currentFixtureId);
+  const options = $(getSharedValue('currentFixtureId'));
   options.empty();
   $.get('/api/data/fixture/names', (data) => {
     $.each(data.fixtures, () => {
@@ -457,27 +438,27 @@ export function getFixtures() {
     });
     unselect(options);
   });
-  $(newFixtureDataId).hide();
-  $(selectedFixtureDivId).hide();
+  $(getSharedValue('newFixtureDataId')).hide();
+  $(getSharedValue('selectedFixtureDivId')).hide();
 }
 
 export function addFixture() {
-  const options = $(currentFixtureId);
+  const options = $(getSharedValue('currentFixtureId'));
   unselect(options);
-  unselect($(newFixtureImageId));
-  $(saveFixtureActionId).val('create');
+  unselect($(getSharedValue('newFixtureImageId')));
+  $(getSharedValue('saveFixtureActionId')).val('create');
   SetAllowDetect();
-  $(newFixtureDetectId).val('Detect');
-  $(newFixtureDataId).show();
-  $(selectedFixtureDivId).hide();
+  $(getSharedValue('newFixtureDetectId')).val('Detect');
+  $(getSharedValue('newFixtureDataId')).show();
+  $(getSharedValue('selectedFixtureDivId')).hide();
 }
 
 function loadFixture(name) {
   fixtureName = name;
-  $(fixtureNameId).text(getFixtureAsName(name));
+  $(getSharedValue('fixtureNameId')).text(getFixtureAsName(name));
   clearAreas();
-  selectedFixtureCanvasJq.focus();
-  $(selectedFixtureDivId).show();
+  getSharedValue('selectedFixtureCanvasJq').focus();
+  $(getSharedValue('selectedFixtureDivId')).show();
   drawFixture();
 }
 
@@ -495,9 +476,9 @@ function loadFixtureImage(imageName) {
 }
 
 export function getFixture() {
-  const options = $(currentFixtureId);
-  $(newFixtureDataId).hide();
-  $(saveFixtureActionId).val('update');
+  const options = $(getSharedValue('currentFixtureId'));
+  $(getSharedValue('newFixtureDataId')).hide();
+  $(getSharedValue('saveFixtureActionId')).val('update');
   loadFixture(options.val());
   loadFixtureImage(getFixtureFromName(options.val()));
   $.ajax({
@@ -514,10 +495,10 @@ export function getFixture() {
         data.grayscale.grayscale = true;
         data.grayscale.plate = -1;
         SetSelectedGrayscale(data.grayscale.name);
-        InputEnabled($(grayscaleTypeId), false);
+        InputEnabled($(getSharedValue('grayscaleTypeId')), false);
 
         areas.push(data.grayscale);
-        markers = data.markers;
+        ({ markers } = data);
       } else if (data.reason) {
         contextWarning = data.reason;
       } else {
@@ -529,36 +510,36 @@ export function getFixture() {
 }
 
 function setFixtureMarkers(data) {
-  markers = data.markers;
+  ({ markers } = data);
   if (markers.length === 0) {
     markers = null;
     contextWarning = 'No markers were detected!';
-    $(newFixtureDataId).show();
+    $(getSharedValue('newFixtureDataId')).show();
   }
   drawFixture();
 }
 
 export function detectMarkers() {
   const formData = new FormData();
-  formData.append('markers', $(newFixtureMarkersId).val());
-  formData.append('image', $(newFixtureImageId)[0].files[0]);
-  InputEnabled($(newFixtureDetectId), false);
-  const button = $(saveFixtureButton);
+  formData.append('markers', $(getSharedValue('newFixtureMarkersId')).val());
+  formData.append('image', $(getSharedValue('newFixtureImageId'))[0].files[0]);
+  InputEnabled($(getSharedValue('newFixtureDetectId')), false);
+  const button = $(getSharedValue('saveFixtureButton'));
   InputEnabled(button, false);
-  $(newFixtureDetectId).val('...');
+  $(getSharedValue('newFixtureDetectId')).val('...');
   $.ajax({
-    url: `/api/data/markers/detect/${$(newFixtureName).val()}`,
+    url: `/api/data/markers/detect/${$(getSharedValue('newFixtureName')).val()}`,
     type: 'POST',
     contentType: false,
     enctype: 'multipart/form-data',
     data: formData,
     processData: false,
     success(data) {
-      loadFixture($(newFixtureName).val());
+      loadFixture($(getSharedValue('newFixtureName')).val());
 
       if (data.image && data.markers) {
         contextWarning = '';
-        $(newFixtureDataId).hide();
+        $(getSharedValue('newFixtureDataId')).hide();
       } else {
         contextWarning = 'Name or image refused';
       }
@@ -569,14 +550,14 @@ export function detectMarkers() {
     error() {
       contextWarning = 'Marker detection failed';
       markers = null;
-      loadFixture($(newFixtureName).val());
+      loadFixture($(getSharedValue('newFixtureName')).val());
       drawFixture();
     },
   });
 }
 
 export function SaveFixture() {
-  const button = $(saveFixtureButton);
+  const button = $(getSharedValue('saveFixtureButton'));
   InputEnabled(button, false);
   const payload = {
     markers,
@@ -592,7 +573,7 @@ export function SaveFixture() {
     method: 'POST',
     success(data) {
       if (data.success) {
-        $(selectedFixtureDivId).hide();
+        $(getSharedValue('selectedFixtureDivId')).hide();
         Dialogue('Fixture', `Fixture "${fixtureName}" saved`, '', '?');
       } else {
         if (data.reason) {
@@ -629,13 +610,12 @@ export function RemoveFixture() {
             method: 'GET',
             success(data) {
               if (data.success) {
-                $(selectedFixtureDivId).hide();
+                $(getSharedValue('selectedFixtureDivId')).hide();
                 Dialogue(
                   'Fixture', `Fixture "${fixtureName}" has been removed`,
                   '(A backup is always stored in the fixture config folder)', '?',
                 );
               } else {
-                console.log(data);
                 if (data.reason) {
                   contextWarning = data.reason;
                 } else {

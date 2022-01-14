@@ -75,7 +75,9 @@ export {
 export { LoadGrayscales } from './grayscales';
 
 export {
+  getSharedValue,
   setVersionInformation,
+  setSharedValue,
   InputEnabled,
 } from './helpers';
 

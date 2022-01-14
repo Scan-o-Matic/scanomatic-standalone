@@ -6,11 +6,11 @@ import {
   InputEnabled,
   Map,
 } from './helpers';
+import { getSharedValue } from './shared_values';
 
 let gridplates = null;
 let localFixture = true;
 let path = '';
-let currentFixtureId;
 
 function appendRegriddingUI(parent, plateIndex) {
   parent.append((
@@ -63,7 +63,7 @@ export function setFixturePlateListing() {
       errorCallback();
     }
   } else {
-    const fixt = $(currentFixtureId).val();
+    const fixt = $(getSharedValue('currentFixtureId')).val();
     if (fixt) {
       $.get(`/api/data/fixture/get/${fixt}`, callback).fail(errorCallback);
     } else {
@@ -74,7 +74,7 @@ export function setFixturePlateListing() {
 
 export function analysisToggleLocalFixture(caller) {
   localFixture = $(caller).prop('checked');
-  InputEnabled($(currentFixtureId), !localFixture);
+  InputEnabled($(getSharedValue('currentFixtureId')), !localFixture);
   setFixturePlateListing();
 }
 
