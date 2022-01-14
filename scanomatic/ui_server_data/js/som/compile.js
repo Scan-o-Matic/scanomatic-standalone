@@ -10,9 +10,9 @@ import {
 let localFixture = false;
 let path = '';
 let projectPathValid = false;
-const imageListDiv = null;
 
 function toggleManualSelection(isManual) {
+  const imageListDiv = getSharedValue('imageListDiv');
   if (isManual) {
     imageListDiv.find('#options').show();
     imageListDiv.find('#list-buttons').show();
@@ -28,6 +28,7 @@ export function toggleManualSelectionBtn(button) {
 
 function setImageSuggestions(imagePath) {
   // Only do stuff if path changed
+  const imageListDiv = getSharedValue('imageListDiv');
   if (imageListDiv.find('#hidden-path').val() !== imagePath) {
     imageListDiv.find('#hidden-path').val(imagePath);
 
@@ -85,6 +86,7 @@ export function setFixtureStatus() {
 }
 
 function GetIncludedImageList(forceList) {
+  const imageListDiv = getSharedValue('imageListDiv');
   let images = null;
   if (forceList || imageListDiv.find('#manual-selection').prop('checked')) {
     images = [];
@@ -111,11 +113,11 @@ export function setProjectDirectory(input) {
       if (projectPathValid) {
         setImageSuggestions(path);
         $('#project-directory-info').html(`Scan images in folder: ${GetIncludedImageList(true).length}`);
-        InputEnabled(imageListDiv.find('#manual-selection'), true);
+        InputEnabled(getSharedValue('imageListDiv').find('#manual-selection'), true);
       } else {
         toggleManualSelection(false);
         $('#project-directory-info').html('<em>The project directory is the directory that contains the images that were scanned.</em>');
-        InputEnabled(imageListDiv.find('#manual-selection'), false);
+        InputEnabled(getSharedValue('imageListDiv').find('#manual-selection'), false);
       }
 
       if (localFixture) {
@@ -127,7 +129,7 @@ export function setProjectDirectory(input) {
 }
 
 export function setOnAllImages(included) {
-  imageListDiv.find('#options').children().each(() => {
+  getSharedValue('imageListDiv').find('#options').children().each(() => {
     $(this).find(':input').prop('checked', included);
   });
 }

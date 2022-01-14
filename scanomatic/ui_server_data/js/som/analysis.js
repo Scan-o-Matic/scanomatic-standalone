@@ -132,10 +132,12 @@ function getRegriddingSetting(i) {
 }
 
 function regriddingSettingsData() {
-  const max = Math.max(...gridplates);
   const plates = [];
-  for (let i = 1; i <= max; i += 1) {
-    plates.push(getRegriddingSetting(i));
+  if (gridplates != null) {
+    const max = Math.max(...gridplates);
+    for (let i = 1; i <= max; i += 1) {
+      plates.push(getRegriddingSetting(i));
+    }
   }
   return plates;
 }

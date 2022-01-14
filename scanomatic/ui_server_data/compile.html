@@ -80,7 +80,7 @@
   </div>
 
   <script>
-    image_list_div = $('#manual-selection-div');
+    som.setSharedValue('imageListDiv', $('#manual-selection-div'));
     manual_btn = $('#manual-selection');
     som.InputEnabled(manual_btn, false);
     som.toggleManualSelectionBtn(manual_btn);

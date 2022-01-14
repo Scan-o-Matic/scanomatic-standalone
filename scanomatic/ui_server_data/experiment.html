@@ -5,7 +5,6 @@
   <script src="/js/somlib/som.js?ver=_-_VERSIONTAG_-_"></script>
   <script>
     som.setSharedValue("currentFixtureId", "#current-fixture");
-    som.setSharedValue("currentScannerId", "#current-scanner");
   </script>
   <link rel="stylesheet" type="text/css" href="style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="style/experiment.css?ver=_-_VERSIONTAG_-_">
@@ -293,7 +292,7 @@
     som.formatMinutes("#project-interval");
     som.updateScans("#project-scans");
     som.setExperimentRoot("#project-path");
-    som.getFreeScanners(currentScannerId);
+    som.getFreeScanners("#current-scanner");
     som.getFixtures();
     som.InputEnabled($("#submit-button"), false);
     som.createSelector($('#ccc-selection'));

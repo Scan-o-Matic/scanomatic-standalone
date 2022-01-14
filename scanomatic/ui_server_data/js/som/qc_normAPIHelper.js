@@ -9,15 +9,14 @@ const NormalizeRefOffsets = `${baseUrl}/api/results/normalize/reference/offsets`
 const NormalizeProjectUrl = `${baseUrl}/api/results/normalize`;
 const branchSymbol = '¤';
 
-// let lock;
-
 export function BrowseProjectsRoot(callback) {
   const path = BrowseRootPath;
 
   d3.json(path, (error, json) => {
     if (error) {
       callback(null);
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     const { names, urls } = json;
     const len = names.length;
@@ -42,7 +41,10 @@ export function BrowsePath(url, callback) {
   const path = baseUrl + url.replace(branchSymbol, '');
 
   d3.json(path, (error, json) => {
-    if (error) return console.warn(error);
+    if (error) {
+      console.warn(error);
+      return null;
+    }
 
     const { names, urls } = json;
     const isProject = json.is_project;
@@ -79,7 +81,10 @@ export function GetProjectRuns(url, callback) {
   const path = baseUrl + url;
 
   d3.json(path, (error, json) => {
-    if (error) return console.warn(error);
+    if (error) {
+      console.warn(error);
+      return null;
+    }
 
     const { names, urls } = json;
     const len = names.length;
@@ -104,7 +109,8 @@ export function GetAPILock(url, callback) {
     const path = `${baseUrl + url}/${addCacheBuster(true)}`;
     d3.json(path, (error, json) => {
       if (error) {
-        return console.warn(error);
+        console.warn(error);
+        return null;
       }
 
       let permissionText;
@@ -136,7 +142,8 @@ export function GetRunPhenotypePath(url, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     const phenoPath = json.phenotype_names;
     callback(phenoPath);
@@ -149,7 +156,8 @@ export function RemoveLock(url, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json.success);
     return null;
@@ -161,7 +169,8 @@ export function GetRunPhenotypes(url, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     const phenotypes = [];
     for (let i = 0; i < json.phenotypes.length; i += 1) {
@@ -177,7 +186,8 @@ export function GetPhenotypesPlates(url, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     const plates = [];
     for (let i = 0; i < json.urls.length; i += 1) {
@@ -194,7 +204,8 @@ function GetGtPlateData(url, placeholder, key, isNormalized, callback) {
   console.log(`Metadata GTWhen Path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json.data);
     return null;
@@ -208,7 +219,8 @@ function GetGtWhenPlateData(url, placeholder, key, isNormalized, callback) {
   console.log(`Metadata GTWhen Path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json.data);
     return null;
@@ -222,7 +234,8 @@ function GetYieldPlateData(url, placeholder, key, isNormalized, callback) {
   console.log(`Metadata yield path:${path}`);
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json.data);
     return null;
@@ -241,7 +254,8 @@ export function GetPlateData(
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
 
     if (json.success === false) {
@@ -309,7 +323,8 @@ export function GetExperimentGrowthData(plateUrl, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json);
     return null;
@@ -321,7 +336,8 @@ export function GetMarkExperiment(plateUrl, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json);
     return null;
@@ -333,7 +349,8 @@ export function GetNormalizeProject(projectPath, key, callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
     callback(json);
     return null;
@@ -364,7 +381,8 @@ export function GetReferenceOffsets(callback) {
 
   d3.json(path, (error, json) => {
     if (error) {
-      return console.warn(error);
+      console.warn(error);
+      return null;
     }
 
     const names = json.offset_names;
