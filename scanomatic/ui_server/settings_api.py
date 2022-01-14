@@ -1,5 +1,6 @@
 from flask import jsonify, request
 
+from scanomatic.io.jsonizer import dumps
 from scanomatic.io.app_config import Config
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE
 from scanomatic.models.validators.validate import get_invalid_names, validate
@@ -42,6 +43,6 @@ def add_routes(app):
         if validate(settings):
             app_conf.save_current_settings()
         else:
-            bad_data = get_invalid_names(settings)
+            bad_data = list(get_invalid_names(settings))
             return json_abort(400, reason="Bad data for {0}".format(bad_data))
         return jsonify()
