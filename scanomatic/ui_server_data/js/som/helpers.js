@@ -197,4 +197,10 @@ export function setVersionInformation(target, preface) {
 const STORE = {};
 
 export const setSharedValue = (key, value) => { STORE[key] = value; };
-export const getSharedValue = key => STORE[key];
+export const getSharedValue = (key) => {
+  const value = STORE[key];
+  if (value == null) {
+    console.warn(`Got no value for shared '${key}'`);
+  }
+  return value;
+};
