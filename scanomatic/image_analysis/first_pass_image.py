@@ -266,14 +266,11 @@ class FixtureImage:
             scale=scale_factor,
         )
 
-        try:
-            (
-                x_positions_correct_scale,
-                y_positions_correct_scale
-            ) = im_analysis.find_pattern(markings=markings)
 
-        except FixtureImageError:
-            _logger.error("No markers found")
+        (
+            x_positions_correct_scale,
+            y_positions_correct_scale
+        ) = im_analysis.find_pattern(markings=markings)
 
         self["current"].model.orientation_marks_x = x_positions_correct_scale
         self["current"].model.orientation_marks_y = y_positions_correct_scale
