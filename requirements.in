@@ -16,6 +16,7 @@ uuid
 setproctitle
 psutil
 chardet
+pandas-stubs
 types-requests
 types-mock
 types-chardet
