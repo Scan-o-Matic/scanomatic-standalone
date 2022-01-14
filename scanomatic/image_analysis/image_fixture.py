@@ -34,6 +34,7 @@ class FixtureImage:
         scale: float = 1.0,
     ) -> "FixtureImage":
         if len(image.shape) > 2:
+            # Use first channel of color image
             image = image[:, :, 0]
 
         try:
@@ -47,6 +48,7 @@ class FixtureImage:
             raise FixtureImageError(msg)
 
         if len(pattern_image.shape) > 2:
+            # Use first channel of color image
             pattern_image = pattern_image[:, :, 0]
 
         return cls(image, pattern_image, scale)
@@ -67,6 +69,7 @@ class FixtureImage:
             raise FixtureImageError(msg)
 
         if len(image.shape) > 2:
+            # Use first channel of color image
             image = image[:, :, 0]
 
         try:
@@ -80,6 +83,7 @@ class FixtureImage:
             raise FixtureImageError(msg)
 
         if len(pattern_image.shape) > 2:
+            # Use first channel of color image
             pattern_image = pattern_image[:, :, 0]
 
         return cls(image, pattern_image, scale)
@@ -93,7 +97,6 @@ class FixtureImage:
         self._img = image_basics.Quick_Scale_To_im(
             im=self._img, scale=conversion_factor
         )
-        _logger.info("Scaled")
 
     def load_new_image(
         self,
