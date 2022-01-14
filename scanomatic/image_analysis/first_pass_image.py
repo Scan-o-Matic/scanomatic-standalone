@@ -5,7 +5,6 @@ from typing import Optional, Union
 import numpy as np
 
 from scanomatic.data_processing.calibration import get_image_json_from_ccc
-from scanomatic.image_analysis.exceptions import FixtureImageError
 from scanomatic.io.ccc_data import CCCImage
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.io.logger import get_logger
@@ -265,7 +264,6 @@ class FixtureImage:
             pattern_image_path=self["reference"].get_marker_path(),
             scale=scale_factor,
         )
-
 
         (
             x_positions_correct_scale,
