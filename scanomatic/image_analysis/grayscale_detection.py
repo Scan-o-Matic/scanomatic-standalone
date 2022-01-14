@@ -11,9 +11,9 @@ from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
 from scanomatic.models.fixture_models import GrayScaleAreaModel
 from scanomatic.image_analysis.first_pass_image import FixtureImage
+from scanomatic.image_analysis.grayscale import Grayscale, get_grayscale
+from scanomatic.image_analysis import signal
 
-from . import signal
-from .grayscale import Grayscale, get_grayscale
 
 ORTH_EDGE_T = 0.2
 ORTH_T1 = 0.15
