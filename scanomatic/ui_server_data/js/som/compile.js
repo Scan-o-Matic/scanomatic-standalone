@@ -3,9 +3,9 @@ import {
   API,
   Dialogue,
   getPathSuggestions,
+  getSharedValue,
   InputEnabled,
 } from './helpers';
-import { getSharedValue } from './shared_values';
 
 let localFixture = false;
 let path = '';

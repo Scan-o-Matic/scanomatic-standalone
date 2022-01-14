@@ -3,10 +3,10 @@ import {
   API,
   Dialogue,
   getPathSuggestions,
+  getSharedValue,
   InputEnabled,
   Map,
 } from './helpers';
-import { getSharedValue } from './shared_values';
 
 let gridplates = null;
 let localFixture = true;
