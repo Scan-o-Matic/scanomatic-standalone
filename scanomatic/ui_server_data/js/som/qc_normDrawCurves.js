@@ -1,4 +1,4 @@
-﻿import * as d3 from 'd3';
+import * as d3 from 'd3';
 import { getExtentFromMultipleArrs, getBaseLog } from './qc_normHelper';
 
 if (!d3.scanomatic) {

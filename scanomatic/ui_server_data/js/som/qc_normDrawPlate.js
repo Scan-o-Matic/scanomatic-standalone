@@ -1,4 +1,4 @@
-﻿import * as d3 from 'd3';
+import * as d3 from 'd3';
 
 const classExperimentSelected = 'ExperimentSelected';
 const dispatcherSelectedExperiment = 'SelectedExperiment';

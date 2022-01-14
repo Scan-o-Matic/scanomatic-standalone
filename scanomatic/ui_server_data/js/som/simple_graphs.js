@@ -39,17 +39,13 @@ function DrawLine(context, X, Y, padding) {
 }
 
 function GraphText(context, text, X, Y, orientation, size) {
-  if (X == null) {
-    X = context.canvas.width / 2;
-  }
-  if (Y == null) {
-    Y = context.canvas.height / 2;
-  }
+  const newX = X == null ? context.canvas.width / 2 : X;
+  const newY = Y == null ? context.canvas.width / 2 : Y;
   const lineheight = 15;
   const rotated = orientation.toLowerCase() === 'vertical';
 
   context.save();
-  context.translate(X, Y);
+  context.translate(newX, newY);
   if (rotated) {
     context.rotate(-Math.PI / 2);
   }
@@ -66,11 +62,11 @@ export default function GetLinePlot(X, Y, Title, xLabel, yLabel) {
   canvas.width = 200;
   const padding = 20;
   const context = canvas.getContext('2d');
-  X = FixValuesIn(X, padding, canvas.width - padding);
-  Y = FixValuesIn(Y, padding, canvas.height - padding);
+  const fixedX = FixValuesIn(X, padding, canvas.width - padding);
+  const fixedY = FixValuesIn(Y, padding, canvas.height - padding);
   DrawAxis(context, padding);
 
-  DrawLine(context, X, Y, padding);
+  DrawLine(context, fixedX, fixedY, padding);
 
   if (xLabel) {
     GraphText(context, xLabel, null, canvas.height - (padding / 1.5), 'horizontal', 10);

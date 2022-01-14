@@ -71,7 +71,8 @@ export function getPathSuggestions(
       if (prefix) {
         const startIndex = (`root/${prefix.replace(/^\/?|\/?$/, '')}`).length;
         for (let i = 0; i < data.suggestions.length; i += 1) {
-          data.suggestions[i] = data.suggestions[i].substring(startIndex, data.suggestions[i].length);
+          data.suggestions[i] = data.suggestions[i]
+            .substring(startIndex, data.suggestions[i].length);
         }
       }
 

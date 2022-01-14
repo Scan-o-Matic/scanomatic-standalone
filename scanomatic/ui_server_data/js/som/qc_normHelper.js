@@ -1,4 +1,4 @@
-﻿import * as d3 from 'd3';
+import * as d3 from 'd3';
 
 export function getUrlParameter(sParam) {
   const sPageUrl = decodeURIComponent(window.location.search.substring(1));

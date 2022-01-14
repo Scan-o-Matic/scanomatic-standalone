@@ -130,13 +130,13 @@ export function jobsStatusFormatter(response) {
 }
 
 export function stopDialogue(button) {
-  button = $(button);
+  let theButton = $(button);
   const title = 'Terminate job';
-  const jobId = button.siblings('.id').first().val();
+  const jobId = theButton.siblings('.id').first().val();
   const bodyHeader = 'Are you sure?';
   const body = "This will terminate the job '', click 'Yes' to proceed.";
 
-  InputEnabled(button, false);
+  InputEnabled(theButton, false);
 
   $('<div class=\'dialog\'></div>').appendTo('body')
     .prop('title', title)
@@ -145,7 +145,7 @@ export function stopDialogue(button) {
       modal: true,
       buttons: {
         Yes() {
-          button = null;
+          theButton = null;
 
           $.ajax({
             url: `/api/job/${jobId}/stop`,
@@ -169,6 +169,6 @@ export function stopDialogue(button) {
       },
     })
     .on('dialogclose', () => {
-      if (button) { InputEnabled(button, true); }
+      if (theButton) { InputEnabled(theButton, true); }
     });
 }
