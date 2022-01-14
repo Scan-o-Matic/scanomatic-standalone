@@ -19,6 +19,9 @@ from scanomatic.models.factories.fixture_factories import (
     FixturePlateFactory,
     GrayScaleAreaModelFactory
 )
+from scanomatic.models.factories.settings_factories import (
+    ApplicationSettingsFactory
+)
 from scanomatic.models.fixture_models import FixtureModelFields
 from scanomatic.models.validators.validate import (
     get_invalid,
@@ -93,6 +96,11 @@ from scanomatic.models.validators.validate import (
         {
             "plates": (FixturePlateFactory.create(), None),
         },
+        True,
+    ),
+    (
+        ApplicationSettingsFactory.create(),
+        {},
         True,
     ),
 ))
