@@ -16,7 +16,7 @@ from scanomatic.image_analysis.grayscale import Grayscale
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.image_grayscale import is_valid_grayscale
+from scanomatic.image_analysis.grayscale_detection import is_valid_grayscale
 from scanomatic.io.app_config import Config
 from scanomatic.io.jsonizer import load_first
 from scanomatic.io.logger import get_logger, parse_log_file

@@ -9,7 +9,7 @@ from scanomatic.image_analysis import first_pass_image
 from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.image_analysis.grid_array import GridArray
 from scanomatic.image_analysis.grid_cell import GridCell
-from scanomatic.image_analysis.image_grayscale import (
+from scanomatic.image_analysis.grayscale_detection import (
     get_grayscale_image_analysis
 )
 from scanomatic.io.fixtures import Fixtures

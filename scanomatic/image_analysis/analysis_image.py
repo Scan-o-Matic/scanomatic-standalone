@@ -21,7 +21,7 @@ from scanomatic.models.factories.analysis_factories import (
 from . import grid_array
 from .grayscale import get_grayscale
 from .image_basics import load_image_to_numpy
-from .image_grayscale import is_valid_grayscale
+from .grayscale_detection import is_valid_grayscale
 
 
 def _get_init_features(

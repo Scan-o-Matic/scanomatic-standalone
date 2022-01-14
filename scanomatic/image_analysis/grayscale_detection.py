@@ -9,9 +9,11 @@ from scipy.signal import convolve2d  # type: ignore
 from scanomatic.generics.maths import mid50_mean as iqr_mean
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
+from scanomatic.models.fixture_models import GrayScaleAreaModel
+from scanomatic.image_analysis.first_pass_image import FixtureImage
 
 from . import signal
-from .grayscale import Grayscale, get_grayscale as get_grayscale_conf
+from .grayscale import Grayscale, get_grayscale
 
 ORTH_EDGE_T = 0.2
 ORTH_T1 = 0.15
@@ -167,9 +169,9 @@ def get_para_trimmed_slice(
     return im_ortho_trimmed
 
 
-def get_grayscale(
-    fixture,
-    grayscale_area_model,
+def detect_grayscale(
+    fixture: FixtureImage,
+    grayscale_area_model: GrayScaleAreaModel,
     debug: bool = False,
 ) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
     im = fixture.get_grayscale_im_section(grayscale_area_model)
@@ -189,17 +191,17 @@ def get_grayscale_image_analysis(
 ) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
     global DEBUG_DETECTION
 
-    gs = get_grayscale_conf(grayscale_name)
+    grayscale = get_grayscale(grayscale_name)
     if not im.size:
         return None, None
-    im_o = get_ortho_trimmed_slice(im, gs)
-    if not im_o.size:
+    im_ortho = get_ortho_trimmed_slice(im, grayscale)
+    if not im_ortho.size:
         return None, None
-    im_p = get_para_trimmed_slice(im_o, gs)
-    if im_p is None or not im_p.size:
+    im_para = get_para_trimmed_slice(im_ortho, grayscale)
+    if im_para is None or not im_para.size:
         return None, None
     DEBUG_DETECTION = debug
-    return detect_grayscale(im_p, gs)
+    return find_grayscale_locations(im_para, grayscale)
 
 
 def is_valid_grayscale(
@@ -244,7 +246,7 @@ def is_valid_grayscale(
     return poly_is_ok and measures_are_ok
 
 
-def detect_grayscale(
+def find_grayscale_locations(
     im_trimmed: np.ndarray,
     grayscale: Grayscale,
 ) -> tuple[Optional[np.ndarray], Optional[list[float]]]:

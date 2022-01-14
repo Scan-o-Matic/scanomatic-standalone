@@ -14,7 +14,7 @@ from scanomatic.models.fixture_models import (
     GrayScaleAreaModel
 )
 
-from . import image_basics, image_fixture, image_grayscale
+from . import grayscale_detection, image_basics, image_fixture
 from .image_basics import load_image_to_numpy
 
 
@@ -466,7 +466,7 @@ class FixtureImage:
             return False
 
         try:
-            current_model.grayscale.values = image_grayscale.get_grayscale(
+            current_model.grayscale.values = grayscale_detection.detect_grayscale(  # noqa: E501
                 self,
                 current_model.grayscale,
             )[1]

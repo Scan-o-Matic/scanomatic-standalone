@@ -22,7 +22,7 @@ from scanomatic.image_analysis.grayscale import (
 from scanomatic.image_analysis.grayscale import get_grayscale_names
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
-from scanomatic.image_analysis.image_grayscale import get_grayscale
+from scanomatic.image_analysis.grayscale_detection import detect_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.jsonizer import dump, load_first
@@ -290,7 +290,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 grayscale=None, reason="Area too large")
 
         try:
-            _, values = get_grayscale(
+            _, values = detect_grayscale(
                 fixture,
                 grayscale_area_model,
                 debug=is_debug_mode,
@@ -362,7 +362,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         fixture = get_fixture_image_by_name(fixture_name)
 
         try:
-            _, values = get_grayscale(
+            _, values = detect_grayscale(
                 fixture, grayscale_area_model, debug=is_debug_mode)
         except TypeError:
             return jsonify(
@@ -579,7 +579,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             grayscale_area_model.name = grayscale_name
 
             try:
-                _, values = get_grayscale(fixture, grayscale_area_model)
+                _, values = detect_grayscale(fixture, grayscale_area_model)
             except TypeError:
 
                 return jsonify(
