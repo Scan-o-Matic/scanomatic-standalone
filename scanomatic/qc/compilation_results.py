@@ -1,12 +1,12 @@
 import glob
 import os
 import re
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from matplotlib import pyplot as plt  # type: ignore
-from scanomatic.io.jsonizer import load
 
+from scanomatic.io.jsonizer import load
 from scanomatic.io.movie_writer import MovieWriter
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
