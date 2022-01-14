@@ -117,11 +117,19 @@ class Config(SingeltonOneInit):
         return self._settings.number_of_scanners
 
     @number_of_scanners.setter
-    def number_of_scanners(self, value: int) -> None:
+    def number_of_scanners(self, value: Any) -> None:
+        if isinstance(value, str):
+            try:
+                value = int(value)
+            except ValueError:
+                pass
         if isinstance(value, int) and value >= 0:
             self._settings.number_of_scanners = value
-            # TODO: Should update dependent values such as
-            # length of scanner names
+            if len(self._settings.scanner_names) != value:
+                self._settings.scanner_names = [
+                    self.scanner_name_pattern.format(i + 1)
+                    for i in range(value)
+                ]
         else:
             self._logger.warning(
                 "Refused to set number of scanners '{0}', only 0 or positive ints allowed".format(  # noqa: E501

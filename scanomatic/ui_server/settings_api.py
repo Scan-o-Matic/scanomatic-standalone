@@ -42,6 +42,6 @@ def add_routes(app):
         if validate(settings):
             app_conf.save_current_settings()
         else:
-            bad_data = get_invalid_names(settings)
+            bad_data = list(get_invalid_names(settings))
             return json_abort(400, reason="Bad data for {0}".format(bad_data))
         return jsonify()
