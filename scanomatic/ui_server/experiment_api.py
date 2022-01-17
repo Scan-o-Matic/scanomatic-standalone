@@ -32,6 +32,12 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
     @app.route("/api/project/feature_extract", methods=['post'])
     def _feature_extract_api():
         data_object = request.get_json(silent=True, force=True)
+        if data_object is None:
+            return json_abort(
+                400,
+                reason="Could not parse request json",
+            )
+
         _logger.info("Features json {}".format(data_object))
 
         path = data_object.get("analysis_directory")
@@ -74,6 +80,11 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
     @app.route("/api/project/feature_extract/bioscreen", methods=['post'])
     def _feature_extract_bioscreen_api():
         data_object = request.get_json(silent=True, force=True)
+        if data_object is None:
+            return json_abort(
+                400,
+                reason="Could not parse request json",
+            )
 
         path = data_object.get("bioscreen_file")
         path = os.path.abspath(
@@ -152,8 +163,12 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
 
     @app.route("/api/project/analysis", methods=['post'])
     def _analysis_api():
-
         data_object = request.get_json()
+        if data_object is None:
+            return json_abort(
+                400,
+                reason="Could not parse request json",
+            )
         _logger.info("Analysis json {}".format(data_object))
 
         path_compilation = data_object.get("compilation", '')
@@ -250,8 +265,12 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
 
     @app.route("/api/project/experiment", methods=['post'])
     def _experiment_api():
-
         data_object = request.get_json(silent=True, force=True)
+        if data_object is None:
+            return json_abort(
+                400,
+                reason="Could not parse request json",
+            )
         _logger.info("Experiment json {}".format(data_object))
         project_name = os.path.basename(
             os.path.abspath(data_object.get("project_path")),
@@ -316,8 +335,13 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
 
     @app.route("/api/project/compile", methods=['post'])
     def _compile_api():
-
         data_object = request.get_json(silent=True, force=True)
+        if data_object is None:
+            return json_abort(
+                400,
+                reason="Could not parse request json",
+            )
+
         _logger.info(f"Compile json {data_object}")
 
         if not rpc_client.online:
