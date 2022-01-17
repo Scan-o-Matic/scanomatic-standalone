@@ -96,6 +96,7 @@ class PowerManagerNull:
 
         self._power_mode = power_mode
         self._socket = socket
+        self._host = None
         self.name = name
         self._logger = get_logger("Power Manager {0}".format(name))
 
@@ -106,6 +107,10 @@ class PowerManagerNull:
     @property
     def power_mode(self) -> str:
         return str(self._power_mode)
+
+    @property
+    def host(self) -> Optional[str]:
+        return self._host
 
     def _on(self) -> bool:
         return True
@@ -302,10 +307,6 @@ class PowerManagerLan(PowerManagerNull):
                     "LAN PM, No known host and no MAC...no way to find PM",
                 )
                 raise InvalidInit()
-
-    @property
-    def host(self) -> Optional[str]:
-        return self._host
 
     def _set_urls(self) -> None:
 

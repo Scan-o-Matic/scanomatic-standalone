@@ -42,7 +42,7 @@ def _verify_admin(f):
 
             return f(interface_builder, user_id, *args, **kwargs)
 
-        else:
+        elif _RPC_SERVER is not None:
 
             _RPC_SERVER.logger.warning(
                 "User {0} unauthorized attempt at accessing {1}".format(
@@ -50,7 +50,7 @@ def _verify_admin(f):
                     f,
                 ),
             )
-            return False
+        return False
 
     return _verify_global_admin
 
@@ -146,10 +146,11 @@ class InterfaceBuilder(SingeltonOneInit):
 
         logger_instance.info("Server no longer accepting requests")
 
-    @staticmethod
-    def _remove_som_server(wait_for_jobs_to_stop):
-
+    def _remove_som_server(self, wait_for_jobs_to_stop):
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
         if wait_for_jobs_to_stop:
             successful_stop = _SOM_SERVER.shutdown()
         else:
@@ -180,6 +181,9 @@ class InterfaceBuilder(SingeltonOneInit):
     @decorators.threaded
     def _restart_server_thread(self, wait_for_jobs_to_stop):
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return
         self._remove_som_server(wait_for_jobs_to_stop=wait_for_jobs_to_stop)
 
         while _SOM_SERVER.serving:
@@ -191,8 +195,7 @@ class InterfaceBuilder(SingeltonOneInit):
         self._start_som_server()
         self._start_rpc_server()
 
-    @staticmethod
-    def _server_get_status(user_id=None):
+    def _server_get_status(self, user_id=None):
         """Gives a dictionary of the servers status
 
         Kwargs:
@@ -205,11 +208,17 @@ class InterfaceBuilder(SingeltonOneInit):
                         server status.
         """
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return {}
+
         return sanitize_communication(_SOM_SERVER.get_server_status())
 
     def _server_get_scanner_status(self, user_id=None):
-
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return []
         if not _SOM_SERVER.scanner_manager.connected_to_scanners:
             return []
         else:
@@ -223,13 +232,13 @@ class InterfaceBuilder(SingeltonOneInit):
 
     @_verify_admin
     def _server_get_power_manager_info(self, user_id=None):
+        global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return {}
 
         pm = _SOM_SERVER.scanner_manager.power_manager
-        host = None
-        try:
-            host = pm.host
-        except (TypeError, AttributeError):
-            pass
+        host = pm.host
 
         data = {
                 'pm': type(pm),
@@ -247,6 +256,9 @@ class InterfaceBuilder(SingeltonOneInit):
 
     def _server_get_queue_status(self, user_id=None):
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return []
         return sanitize_communication(_SOM_SERVER.queue.status)
 
     def _server_get_job_status(self, user_id=None):
@@ -274,6 +286,9 @@ class InterfaceBuilder(SingeltonOneInit):
 
         """
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return []
         return sanitize_communication(_SOM_SERVER.jobs.status)
 
     @_verify_admin
@@ -316,6 +331,9 @@ class InterfaceBuilder(SingeltonOneInit):
                     title was accepted imperative) else ``False``
         """
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
 
         job: rpc_job_models.RPCjobModel = _SOM_SERVER.get_job(job_id)
 
@@ -432,6 +450,9 @@ class InterfaceBuilder(SingeltonOneInit):
             Dictionary representation of model for scanning
         """
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
 
         _SOM_SERVER.logger.info(
             f"Attempting to create scanning job with {scanning_model}"
@@ -478,8 +499,10 @@ class InterfaceBuilder(SingeltonOneInit):
         user_id,
         compile_project_model,
     ):
-
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
         compile_project_model = CompileProjectFactory.create(
             **compile_project_model,
         )
@@ -529,6 +552,9 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
         return sanitize_communication(
             _SOM_SERVER.queue.remove_and_free_potential_scanner_claim(job_id),
         )
@@ -561,6 +587,9 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
         queue = _SOM_SERVER.queue
 
         while queue:
@@ -603,6 +632,9 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
 
         scanner_manager = _SOM_SERVER.scanner_manager
         operation = operation.upper()
@@ -619,7 +651,7 @@ class InterfaceBuilder(SingeltonOneInit):
 
         scanner_model = scanner_manager[scanner]
 
-        if not scanner_model.job_id != job_id:
+        if not scanner_model.owner or scanner_model.owner.id != job_id:
 
             _SOM_SERVER.logger.warning(
                 "Job '{0}' tried to manipulate someone else's scanners".format(
@@ -658,6 +690,9 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return tuple()
         return sanitize_communication(_SOM_SERVER.scanner_manager.fixtures)
 
     @_verify_admin
@@ -690,6 +725,9 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
         model = AnalysisModelFactory.create(**analysis_model)
         if not validate(model):
             _report_invalid(
@@ -735,19 +773,22 @@ class InterfaceBuilder(SingeltonOneInit):
         """
 
         global _SOM_SERVER
+        if _SOM_SERVER is None:
+            self.logger.error("Server not fully initialized")
+            return False
 
-        feature_extract_model = FeaturesFactory.create(**feature_extract_model)
-        if not validate(feature_extract_model):
+        model = FeaturesFactory.create(**feature_extract_model)
+        if not validate(model):
             _report_invalid(
                 _SOM_SERVER.logger,
-                feature_extract_model,
+                model,
                 "Request feature extraction",
             )
             return False
 
         return sanitize_communication(
             _SOM_SERVER.enqueue(
-                feature_extract_model,
+                model,
                 rpc_job_models.JOB_TYPE.Features,
             )
         )
