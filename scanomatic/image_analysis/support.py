@@ -6,7 +6,6 @@ from typing import Optional
 import numpy as np
 from PIL import Image
 
-import scanomatic.io.app_config as app_config
 from scanomatic.io.logger import get_logger
 
 _logger = get_logger("Resource Analysis Support")
@@ -56,37 +55,6 @@ def get_first_rotated(A, B):
         return A
     else:
         return A.T
-
-
-def get_active_plates(
-    meta_data,
-    suppress_analysis,
-    graph_watch,
-    config=None,
-):
-    """Makes list of only relevant plates according to how
-    analysis was started"""
-
-    if config is None:
-        config = app_config.Config()
-
-    plate_position_keys = []
-
-    if meta_data['Version'] >= config.versions.first_pass_change_1:
-        v_offset = 1
-    else:
-        v_offset = 0
-
-    for i in range(len(meta_data['Pinning Matrices'])):
-        if (
-            (suppress_analysis is False or graph_watch[0] == i)
-            and meta_data['Pinning Matrices'][i] is not None
-        ):
-            plate_position_keys.append("plate_{0}_area".format(i + v_offset))
-
-    plates = len(plate_position_keys)
-
-    return plates, plate_position_keys
 
 
 def verify_outdata_directory(outdata_directory):

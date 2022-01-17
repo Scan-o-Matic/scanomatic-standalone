@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import cast
 
 import scanomatic.models.settings_models as settings_models
 from scanomatic.generics.abstract_model_factory import (
@@ -6,18 +6,6 @@ from scanomatic.generics.abstract_model_factory import (
     SubFactoryDict,
 )
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
-
-
-class VersionChangeFactory(AbstractModelFactory):
-    MODEL = settings_models.VersionChangesModel
-    STORE_SECTION_SERIALIZERS: dict[str, Any] = {}
-
-    @classmethod
-    def create(cls, **settings) -> settings_models.VersionChangesModel:
-        return cast(
-            settings_models.VersionChangesModel,
-            super(VersionChangeFactory, cls).create(),
-        )
 
 
 class PowerManagerFactory(AbstractModelFactory):
