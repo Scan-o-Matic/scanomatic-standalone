@@ -16,11 +16,14 @@ Gothenburg University is currently buying further development and service from p
 
 Before you decide on this, the Faculty of Science at University of Gothenburg has included Scan-o-matic among its high-throughput phenomics infrastructure and it is our expressed interest that external researchers come to us. If you are interested there's some more information and contact information here: [The center for large scale cell based screeening](http://cmb.gu.se/english/research/microbiology/center-for-large-scale-cell-based-screening). It is yet to become listed on the page, but don't worry, it is part of the list.
 
-## Current focus
+# Setting up and running
 
-The ability to add new Cell Count Calibrations via UI is being developed.
-
-Completing and securing up the code for the first release of 2.x
+1. Clone this library `git@github.com:Scan-o-Matic/scanomatic-standalone.git`
+2. And change directory: `cd scanomatic-standalone`
+3. Build the image `docker-compose build`
+4. Create an environment-file or export the `SOM_PROJECTS_ROOT` and `SOM_SETTINGS` variables. Each pointing to a location where you wish to store your projects and settings respectively. See https://docs.docker.com/compose/environment-variables/#the-env-file for specifying them in an env-file, else include them in your `.bashrc`.
+5. Run `docker-compose up -d`. Omit the `-d` if you don't wish to run it in the background.
+6. In your browser navigate to `http://localhost:5000`
 
 ## Reporting issues
 
@@ -31,7 +34,6 @@ Please also include the server and ui-server log files (those will be localized 
 
 Do however please note, that if you are doing something super secret, the files will contain some information on what you are doing and it may be needed that you go through them before uploading them publically.
 In this case, only redact the sensitive information, but keep general systematic parts of these lines as intact as possible.
-
 
 # Developers
 
