@@ -466,15 +466,17 @@ class FixtureImage:
             return False
 
         try:
-            current_model.grayscale.values = grayscale_detection.detect_grayscale(  # noqa: E501
-                self,
-                current_model.grayscale,
-            )[1]
+            current_model.grayscale.section_values = (
+                grayscale_detection.detect_grayscale(
+                    self,
+                    current_model.grayscale,
+                )[1]
+            )
         except TypeError:
             self._logger.exception("Grayscale detection failed")
-            current_model.grayscale.values = None
+            current_model.grayscale.section_values = None
 
-        if current_model.grayscale.values is None:
+        if current_model.grayscale.section_values is None:
             return False
 
         return True

@@ -88,6 +88,8 @@ class CompileImageAnalysisModel(Model):
         image: Optional[CompileImageModel] = None,
         fixture: Optional[FixtureModel] = None,
     ):
-        self.image: Optional[CompileImageModel] = image
-        self.fixture: Optional[FixtureModel] = fixture
+        assert image is not None
+        assert fixture is not None
+        self.image: CompileImageModel = image
+        self.fixture: FixtureModel = fixture
         super().__init__()

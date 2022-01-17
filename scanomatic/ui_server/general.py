@@ -12,15 +12,19 @@ from urllib.parse import quote, unquote
 import numpy as np
 from flask import jsonify, render_template, send_file
 from PIL import Image
-from scanomatic.image_analysis.grayscale import Grayscale
 from werkzeug.datastructures import FileStorage
 
 from scanomatic.image_analysis.first_pass_image import FixtureImage
 from scanomatic.image_analysis.grayscale_detection import is_valid_grayscale
+from scanomatic.image_analysis.grayscale import Grayscale
 from scanomatic.io.app_config import Config
 from scanomatic.io.jsonizer import load_first
 from scanomatic.io.logger import get_logger, parse_log_file
 from scanomatic.io.paths import Paths
+from scanomatic.models.factories.fixture_factories import (
+    FixturePlateFactory,
+    GrayScaleAreaModelFactory
+)
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
     GrayScaleAreaModel
@@ -130,7 +134,9 @@ def valid_array_dimensions(dims, *arrs):
     return True
 
 
-def get_area_too_large_for_grayscale(grayscale_area_model):
+def get_area_too_large_for_grayscale(
+    grayscale_area_model: GrayScaleAreaModel,
+) -> bool:
     global _TOO_LARGE_GRAYSCALE_AREA
     area_size = (
         (grayscale_area_model.x2 - grayscale_area_model.x1)
@@ -365,7 +371,7 @@ def get_fixture_image_by_name(name, ext="tiff"):
     return get_fixture_image(name, image_path)
 
 
-def get_fixture_image(name, image_path):
+def get_fixture_image(name, image_path) -> FixtureImage:
     fixture = FixtureImage(reference_overwrite_mode=True)
     fixture.name = name
     fixture.set_image(image_path=image_path)
@@ -490,7 +496,7 @@ def split_areas_into_grayscale_and_plates(
     for area in areas:
         try:
             if area['grayscale']:
-                gs = GrayScaleAreaModel(
+                gs = GrayScaleAreaModelFactory.create(
                     x1=area['x1'],
                     x2=area['x2'],
                     y1=area['y1'],
@@ -498,7 +504,7 @@ def split_areas_into_grayscale_and_plates(
                 )
             else:
                 plates.append(
-                    FixturePlateModel(
+                    FixturePlateFactory.create(
                         x1=area['x1'],
                         x2=area['x2'],
                         y1=area['y1'],

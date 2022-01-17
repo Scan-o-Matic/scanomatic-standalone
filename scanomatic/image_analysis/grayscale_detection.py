@@ -3,6 +3,7 @@ from typing import Optional
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
+from scanomatic.models.fixture_models import GrayScaleAreaModel
 from scipy.ndimage import gaussian_filter1d  # type: ignore
 from scipy.signal import convolve2d  # type: ignore
 

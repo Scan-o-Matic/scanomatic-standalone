@@ -195,16 +195,22 @@ class ApplicationSettingsModel(model.Model):
         scanner_names: Optional[Sequence[str]] = None,
         scanner_sockets: Optional[dict[str, int]] = None,
     ):
+        assert power_manager is not None
+        assert rpc_server is not None
+        assert ui_server is not None
+        assert hardware_resource_limits is not None
+        assert paths is not None
+        assert mail is not None
         self.versions: VersionChangesModel = VersionChangesModel()
-        self.power_manager: Optional[PowerManagerModel] = power_manager
-        self.rpc_server: Optional[RPCServerModel] = rpc_server
-        self.ui_server: Optional[UIServerModel] = ui_server
-        self.hardware_resource_limits: Optional[HardwareResourceLimitsModel] = (  # noqa: E501
+        self.power_manager: PowerManagerModel = power_manager
+        self.rpc_server: RPCServerModel = rpc_server
+        self.ui_server: UIServerModel = ui_server
+        self.hardware_resource_limits: HardwareResourceLimitsModel = (
             hardware_resource_limits
         )
-        self.paths: Optional[PathsModel] = paths
+        self.paths: PathsModel = paths
         self.computer_human_name: str = computer_human_name
-        self.mail: Optional[MailModel] = mail
+        self.mail: MailModel = mail
         self.number_of_scanners: int = number_of_scanners
         self.scanner_name_pattern: str = scanner_name_pattern
 

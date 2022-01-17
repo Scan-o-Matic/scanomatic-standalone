@@ -502,9 +502,12 @@ class ProjectImage:
             self.clear_features()
             return
 
-        if not image_model.fixture.grayscale.values or not is_valid_grayscale(
-            get_grayscale(image_model.fixture.grayscale.name).targets,
-            image_model.fixture.grayscale.values,
+        if (
+            not image_model.fixture.grayscale.section_values
+            or not is_valid_grayscale(
+                get_grayscale(image_model.fixture.grayscale.name).targets,
+                image_model.fixture.grayscale.section_values,
+            )
         ):
             self._logger.warning("Not a valid grayscale")
             self.clear_features()

@@ -289,10 +289,40 @@ def _merge(model: Model, update: Model) -> bool:
     return False
 
 
-def merge_into(model: Optional[Model], update: Model) -> Model:
-    if model is None or type(model) == type(update):
+def merge_into(
+    model: Optional[Union[Model, list[Model]]],
+    update: Union[list[Model], Model],
+) -> Union[list[Model], Model]:
+    """Merges update with or into the model.
+
+    There's currently a limitation that when the update
+    is a list, it simply replaces model without checking
+    if there's a reasonable type match. The feature is
+    needed to cover all type cases, but should not be
+    in use in the code.
+    """
+    if isinstance(update, list):
+        _LOGGER.warning(
+            f"Mergining {update} into {model} not implemented."
+            " Will simply replace."
+        )
         return update
-    if not _merge(model, update):
+    elif isinstance(model, list):
+        ret = []
+        merged = False
+        for m in model:
+            if merged:
+                ret.append(m)
+            elif type(m) == type(update):
+                ret.append(update)
+                merged = True
+            else:
+                merged = _merge(m, update)
+                ret.append(m)
+        return ret
+    elif model is None or type(model) == type(update):
+        return update
+    elif not _merge(model, update):
         _LOGGER.warning(
             f"Attempted to update {model} with {update}, but found no matching part of the model",  # noqa: E501
         )
@@ -300,7 +330,7 @@ def merge_into(model: Optional[Model], update: Model) -> Model:
 
 
 def dump(
-    model: Model,
+    model: Union[Model, list[Model]],
     path: Union[str, Path],
     overwrite: bool = False,
 ) -> bool:

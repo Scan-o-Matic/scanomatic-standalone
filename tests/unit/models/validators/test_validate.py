@@ -19,10 +19,13 @@ from scanomatic.models.factories.fixture_factories import (
     FixturePlateFactory,
     GrayScaleAreaModelFactory
 )
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
+from scanomatic.models.factories.scanning_factory import ScanningModelFactory
 from scanomatic.models.factories.settings_factories import (
     ApplicationSettingsFactory
 )
 from scanomatic.models.fixture_models import FixtureModelFields
+from scanomatic.models.rpc_job_models import RPCjobModelFields
 from scanomatic.models.validators.validate import (
     get_invalid,
     get_invalid_as_text,
@@ -139,11 +142,29 @@ def test_validate(model: Model, updates: dict[str, Any], expect: bool):
         {AnalysisModelFields.compilation, AnalysisModelFields.grid_model},
     ),
     (
-        FixtureFactory.create(),
+        FixtureFactory.create(grayscale=AnalysisModelFactory.create()),
         {
             "plates": (GridModelFactory.create(),),
         },
         {FixtureModelFields.grayscale, FixtureModelFields.plates},
+    ),
+    (
+        RPC_Job_Model_Factory.create(id='aaa'),
+        {},
+        {RPCjobModelFields.content_model},
+    ),
+    (
+        ScanningModelFactory.create(project_name="NaCl"),
+        {},
+        set(),
+    ),
+    (
+        RPC_Job_Model_Factory.create(
+            id='aaa',
+            content_model=ScanningModelFactory.create(project_name="NaCl"),
+        ),
+        {},
+        set(),
     ),
 ))
 def test_get_invalid(model: Model, updates: dict[str, Any], expect: set[Enum]):
@@ -153,7 +174,9 @@ def test_get_invalid(model: Model, updates: dict[str, Any], expect: set[Enum]):
 
 
 def test_get_invalid_names():
-    assert list(get_invalid_names(FixtureFactory.create())) == ["grayscale"]
+    assert list(get_invalid_names(FixtureFactory.create(
+        grayscale=AnalysisModelFactory.create(),
+    ))) == ["grayscale"]
 
 
 def test_get_invalid_as_text():

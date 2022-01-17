@@ -109,7 +109,7 @@ class AnalysisModelFactory(AbstractModelFactory):
         fields: Optional[list[analysis_model.AnalysisModelFields]] = None,
     ) -> None:
         if cls.verify_correct_model(model):
-            default_model = cls.MODEL()
+            default_model = cls.get_default_model()
 
             for attr, val in default_model:
                 try:

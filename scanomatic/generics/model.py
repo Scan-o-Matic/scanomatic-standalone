@@ -5,7 +5,7 @@ from typing import Any
 
 class Model(Mapping):
     _INITIALIZED = "_initialized"
-    _RESERVED_WORDS = ('keys',)
+    _RESERVED_WORDS = ('keys', 'values')
     _STR_PATTERN = "<{0} {1}={2}>"
 
     def __init__(self):
