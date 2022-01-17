@@ -7,18 +7,6 @@ import scanomatic.generics.model as model
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
 
 
-class VersionChangesModelFields(Enum):
-    first_pass_change_1 = auto()
-    oldest_allow_fixture = auto()
-
-
-class VersionChangesModel(model.Model):
-    def __init__(self, **kwargs):
-        self.first_pass_change_1: float = 0.997
-        self.oldest_allow_fixture: float = 0.9991
-        super().__init__()
-
-
 class PowerManagerModelFields(Enum):
     type = auto()
     number_of_sockets = auto()
@@ -158,7 +146,6 @@ class MailModel(model.Model):
 
 
 class ApplicationSettingsModelFields(Enum):
-    versions = auto()
     power_manager = auto()
     rpc_server = auto()
     ui_server = auto()
@@ -201,7 +188,6 @@ class ApplicationSettingsModel(model.Model):
         assert hardware_resource_limits is not None
         assert paths is not None
         assert mail is not None
-        self.versions: VersionChangesModel = VersionChangesModel()
         self.power_manager: PowerManagerModel = power_manager
         self.rpc_server: RPCServerModel = rpc_server
         self.ui_server: UIServerModel = ui_server

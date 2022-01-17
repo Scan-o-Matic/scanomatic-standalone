@@ -47,7 +47,6 @@ from scanomatic.models.factories.settings_factories import (
     PowerManagerFactory,
     RPCServerFactory,
     UIServerFactory,
-    VersionChangeFactory
 )
 from scanomatic.models.features_model import FeatureExtractionData
 from scanomatic.models.fixture_models import FixtureModel
@@ -120,7 +119,6 @@ from scanomatic.models.scanning_model import CULTURE_SOURCE, PLATE_STORAGE
         owner=ScannerOwnerFactory.create(id="admin"),
         reported=True,
     ),
-    VersionChangeFactory.create(),
     PowerManagerFactory.create(
         type=POWER_MANAGER_TYPE.USB,
         power_modes=POWER_MODES.Toggle,
