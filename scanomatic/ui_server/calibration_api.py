@@ -6,11 +6,12 @@ from flask import Blueprint, current_app, jsonify, request, send_file
 from scanomatic.data_processing import calibration
 from scanomatic.data_processing.calibration import delete_ccc
 from scanomatic.image_analysis import first_pass_image
+from scanomatic.image_analysis.exceptions import GrayscaleError
 from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.image_analysis.grid_array import GridArray
 from scanomatic.image_analysis.grid_cell import GridCell
-from scanomatic.image_analysis.image_grayscale import (
-    get_grayscale_image_analysis
+from scanomatic.image_analysis.grayscale_detection import (
+    detect_grayscale
 )
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.paths import Paths
@@ -326,9 +327,18 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
             reason='Unknown image or CCC'
         )
 
-    _, values = get_grayscale_image_analysis(
-        gs_image, gs_name, debug=False)
     grayscale_object = get_grayscale(gs_name)
+    try:
+        _, values = detect_grayscale(
+            gs_image,
+            gs_name,
+            debug=False,
+        )
+    except GrayscaleError:
+        return json_abort(
+            400,
+            reason='Failed to detect grayscale'
+        )
     valid = get_grayscale_is_valid(values, grayscale_object)
     if not valid:
         return json_abort(

@@ -1,6 +1,6 @@
 import itertools
 import time
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 
@@ -13,8 +13,12 @@ from scanomatic.models.fixture_models import (
     FixturePlateModel,
     GrayScaleAreaModel
 )
+from scanomatic.image_analysis.grayscale_detection import (
+    detect_grayscale,
+)
+from scanomatic.image_analysis.exceptions import GrayscaleError
 
-from . import image_basics, image_fixture, image_grayscale
+from . import image_basics, image_fixture
 from .image_basics import load_image_to_numpy
 
 
@@ -416,63 +420,16 @@ class FixtureImage:
 
                 return None
 
-    def get_grayscale_im_section(
-        self,
-        grayscale_model: GrayScaleAreaModel,
-        scale=1.0,
-    ) -> Optional[np.ndarray]:
-        im = self.im
-        if im is not None and grayscale_model is not None:
-            try:
-                return im[
-                    int(round(max(grayscale_model.y1 * scale, 0))):
-                    int(round(min(grayscale_model.y2 * scale, im.shape[0]))),
-                    int(round(max(grayscale_model.x1 * scale, 0))):
-                    int(round(min(grayscale_model.x2 * scale, im.shape[1])))
-                ]
-            except (IndexError, TypeError):
-                return None
-
-    def analyse_grayscale(self):
+    def analyse_grayscale(self) -> None:
         current_model = self["current"].model
-        im = self.get_grayscale_im_section(current_model.grayscale, scale=1.0)
-
-        if im is None or 0 in im.shape:
-            err = "No valid grayscale area. "
-            if self.im is None:
-                self._logger.error(err + "No image loaded")
-            elif current_model.grayscale is None:
-                self._logger.error(err + "Grayscale area model not set")
-            elif im is None:
-                self._logger.error(
-                    err
-                    + "Image (shape {0}) could not be sliced according to {1}".format(  # noqa: E501
-                        self.im.shape,
-                        dict(**current_model.grayscale)
-                    ),
-                )
-            elif 0 in im.shape:
-                self._logger.error(
-                    err
-                    + "Grayscale area has bad shape ({0})".format(im.shape),
-                )
-            return False
-
         try:
-            current_model.grayscale.section_values = (
-                image_grayscale.get_grayscale(
-                    self,
-                    current_model.grayscale,
-                )[1]
-            )
-        except TypeError:
-            self._logger.exception("Grayscale detection failed")
-            current_model.grayscale.section_values = None
+            current_model.grayscale.section_values = detect_grayscale(
+                self.im,
+                current_model.grayscale,
+            )[1]
 
-        if current_model.grayscale.section_values is None:
-            return False
-
-        return True
+        except GrayscaleError:
+            self._logger.warning("Failed analysing grayscale")
 
     def _set_area_relative(
         self,
