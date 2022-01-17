@@ -21,7 +21,7 @@ Before you decide on this, the Faculty of Science at University of Gothenburg ha
 1. Clone this library `git@github.com:Scan-o-Matic/scanomatic-standalone.git`
 2. And change directory: `cd scanomatic-standalone`
 3. Build the image `docker-compose build`
-4. Create an environment-file or export the `SOM_PROJECTS_ROOT` and `SOM_SETTINGS` variables. Each pointing to a location where you wish to store your projects and settings respectively. See https://docs.docker.com/compose/environment-variables/#the-env-file for specifying them in an env-file, else include them in your `.bashrc`.
+4. Create an environment-file or export the `SOM_PROJECTS_ROOT` and `SOM_SETTINGS` variables. Each pointing to a location where you wish to store your projects and settings respectively. See https://docs.docker.com/compose/environment-variables/#the-env-file for specifying them in an env-file, else include them in e.g. your `.bashrc`.
 5. Run `docker-compose up -d`. Omit the `-d` if you don't wish to run it in the background.
 6. In your browser navigate to `http://localhost:5000`
 
