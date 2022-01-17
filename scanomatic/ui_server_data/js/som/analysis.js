@@ -14,7 +14,7 @@ let path = '';
 
 function appendRegriddingUI(parent, plateIndex) {
   parent.append((
-    `<div class='plate-regridding' id='plate-regridding-${plateIndex}' onmouseleave='hidegridimage();'>`
+    `<div class='plate-regridding' id='plate-regridding-${plateIndex}' onmouseleave='hideGridImage();'>`
       + '<fieldset>'
       + `<img class='grid_icon' src='/images/grid_icon.png' onmouseenter='loadGridImage(${plateIndex - 1});'>`
       + `<legend>Plate ${plateIndex}</legend>`
@@ -104,7 +104,7 @@ export function loadGridImage(i) {
     if (showGridImage) {
       $('#manual-regridding-image').show();
     } else {
-      $('#manual-regridding-image').hide();
+      hideGridImage();
     }
   });
 }
