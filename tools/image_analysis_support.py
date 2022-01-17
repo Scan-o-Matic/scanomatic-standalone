@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from scanomatic.generics import Model
 
 
