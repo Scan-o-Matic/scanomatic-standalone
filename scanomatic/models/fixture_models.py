@@ -20,7 +20,7 @@ class GrayScaleAreaModel(model.Model):
     def __init__(
         self,
         name: str = "",
-        values: Sequence = tuple(),
+        section_values: Sequence[float] = tuple(),
         width: float = -1.0,
         section_length: float = -1.0,
         x1: int = 0,
@@ -29,7 +29,7 @@ class GrayScaleAreaModel(model.Model):
         y2: int = 0,
     ):
         self.name: str = name
-        self.values: Sequence = values
+        self.section_values: Sequence[float] = section_values
         self.width: float = width
         self.section_length: float = section_length
         self.x1: int = x1
@@ -66,9 +66,10 @@ class FixtureModel(model.Model):
         name: str = "",
         scale: float = 1.0,
     ):
+        assert grayscale is not None
         self.name: str = name
         self.path: str = path
-        self.grayscale: Optional[GrayScaleAreaModel] = grayscale
+        self.grayscale: GrayScaleAreaModel = grayscale
         self.orientation_marks_x: Sequence = orientation_marks_x
         self.orientation_marks_y: Sequence = orientation_marks_y
         self.shape: Sequence = shape

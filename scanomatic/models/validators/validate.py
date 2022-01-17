@@ -33,11 +33,13 @@ def _get_validation_results(model: Model) -> ValidationResults:
             yield _produce_validation_error(fields, k)
             continue
         should_verify, sub_validation = factory.contains_model_type(k)
+        item = getattr(model, k)
+        item_type = type(item)
+        if not should_verify and get_factory(item):
+            yield _produce_validation_error(fields, k)
         if not should_verify or sub_validation is None:
             yield True
             continue
-        item = getattr(model, k)
-        item_type = type(item)
         if isinstance(sub_validation, dict):
             if (item_type in sub_validation and validate(item)):
                 yield True

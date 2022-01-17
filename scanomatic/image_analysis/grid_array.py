@@ -515,7 +515,7 @@ class GridArray:
 
         try:
             transpose_polynomial = image_basics.Image_Transpose(
-                sourceValues=image_model.fixture.grayscale.values,
+                sourceValues=image_model.fixture.grayscale.section_values,
                 targetValues=get_grayscale(
                     image_model.fixture.grayscale.name,
                 ).targets,

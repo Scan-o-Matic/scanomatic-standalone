@@ -16,9 +16,8 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.data_processing.norm import NormState
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.grayscale import (
+from scanomatic.image_analysis.grayscale import \
     get_grayscale as get_grayscale_conf
-)
 from scanomatic.image_analysis.grayscale import get_grayscale_names
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
@@ -32,7 +31,10 @@ from scanomatic.models.analysis_model import COMPARTMENTS, VALUES
 from scanomatic.models.factories.analysis_factories import (
     AnalysisFeaturesFactory
 )
-from scanomatic.models.factories.fixture_factories import FixtureFactory
+from scanomatic.models.factories.fixture_factories import (
+    FixtureFactory,
+    GrayScaleAreaModelFactory
+)
 from scanomatic.models.fixture_models import GrayScaleAreaModel
 from scanomatic.models.validators.validate import validate
 
@@ -336,7 +338,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 why not.
         """
 
-        grayscale_area_model = GrayScaleAreaModel(
+        grayscale_area_model = GrayScaleAreaModelFactory.create(
             name=request.args.get("grayscale_name", "", type=str),
             x1=request.values.get("x1", type=float),
             x2=request.values.get("x2", type=float),
@@ -596,7 +598,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                     reason="Could not detect valid grayscale",
                 )
 
-            grayscale_area_model.values = values
+            grayscale_area_model.section_values = values
 
         if not usable_plates(plates):
             return jsonify(success=False, reason="Bad plate selections")
