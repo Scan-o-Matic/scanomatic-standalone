@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Scan-o-Matic/scanomatic.svg?branch=master)](https://travis-ci.org/Scan-o-Matic/scanomatic)
+[![Scan-o-Matic CI](https://github.com/Scan-o-Matic/scanomatic-standalone/actions/workflows/ci.yml/badge.svg)](https://github.com/Scan-o-Matic/scanomatic-standalone/actions/workflows/ci.yml)
 
 # Scan-o-matic (program) and scanomatic (python module)
 
@@ -6,15 +6,7 @@ This project contains the code for the massive microbial phenotyping platform Sc
 
 Scan-o-matic was published in [G3 September 2016](http://g3journal.org/content/6/9/3003.full).
 
-Please refer to the [Wiki](https://github.com/local-minimum/scanomatic/wiki) for instructions on use, installation and so on.
-
-We have a newsletter that informs about important changes and updates to Scan-o-matic, you can sign up [here](http://cmb.us13.list-manage1.com/subscribe?u=a6a16e48af209606d0f418c95&id=2ebf1ce16f).
-
-If you are considering setting up Scan-o-matic at your lab, we would be very happy and would love to hear from you.
-
-Gothenburg University is currently buying further development and service from private company Molflow. Expect to hear more about this soon.
-
-Before you decide on this, the Faculty of Science at University of Gothenburg has included Scan-o-matic among its high-throughput phenomics infrastructure and it is our expressed interest that external researchers come to us. If you are interested there's some more information and contact information here: [The center for large scale cell based screeening](http://cmb.gu.se/english/research/microbiology/center-for-large-scale-cell-based-screening). It is yet to become listed on the page, but don't worry, it is part of the list.
+Please refer to the general [Scan-o-Matic Wiki](https://github.com/Scan-o-Matic/scanomatic/wiki) for further instructions, though setup and starting should like described below.
 
 # Setting up and running
 
