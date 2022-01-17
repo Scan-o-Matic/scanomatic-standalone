@@ -259,7 +259,7 @@ class FixtureImage:
             ),
         )
 
-        im_analysis = image_fixture.FixtureImage(
+        im_analysis = image_fixture.FixtureImage.from_image(
             image=analysis_img,
             pattern_image_path=self["reference"].get_marker_path(),
             scale=scale_factor,
@@ -268,17 +268,10 @@ class FixtureImage:
         (
             x_positions_correct_scale,
             y_positions_correct_scale
-         ) = im_analysis.find_pattern(markings=markings)
+        ) = im_analysis.find_pattern(markings=markings)
 
         self["current"].model.orientation_marks_x = x_positions_correct_scale
         self["current"].model.orientation_marks_y = y_positions_correct_scale
-
-        if (
-            x_positions_correct_scale is None
-            or y_positions_correct_scale is None
-        ):
-
-            _logger.error("No markers found")
 
         _logger.debug(
             "Marker Detection complete (acc {0} s)".format(time.time() - t),
@@ -466,15 +459,17 @@ class FixtureImage:
             return False
 
         try:
-            current_model.grayscale.values = image_grayscale.get_grayscale(
-                self,
-                current_model.grayscale,
-            )[1]
+            current_model.grayscale.section_values = (
+                image_grayscale.get_grayscale(
+                    self,
+                    current_model.grayscale,
+                )[1]
+            )
         except TypeError:
             self._logger.exception("Grayscale detection failed")
-            current_model.grayscale.values = None
+            current_model.grayscale.section_values = None
 
-        if current_model.grayscale.values is None:
+        if current_model.grayscale.section_values is None:
             return False
 
         return True

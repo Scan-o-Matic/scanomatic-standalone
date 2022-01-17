@@ -150,7 +150,19 @@ class AbstractModelFactory:
 
     @classmethod
     def get_default_model(cls) -> Model:
-        return cls.MODEL()
+        def is_model(obj: Any):
+            try:
+                return issubclass(obj, Model) and obj is not Model
+            except TypeError:
+                return False
+
+        defaults = {
+            k: cls._SUB_FACTORIES[v].create()
+            for k, v in
+            cls.STORE_SECTION_SERIALIZERS.items()
+            if is_model(v)
+        }
+        return cls.MODEL(**defaults)
 
     @classmethod
     def verify_correct_model(cls, model) -> bool:
@@ -170,6 +182,7 @@ class AbstractModelFactory:
             settings,
             set(valid_keys).intersection(cls.STORE_SECTION_SERIALIZERS.keys()),
         )
+        cls.populate_with_default_submodels(settings)
         return cls.MODEL(**settings)
 
     @classmethod

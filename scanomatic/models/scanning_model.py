@@ -130,7 +130,7 @@ class ScanningModel(model.Model):
         scanner_hardware: str = "EPSON V700",
         mode: str = "TPU",
         computer: str = "",
-        auxillary_info: ScanningAuxInfoModel = ScanningAuxInfoModel(),
+        auxillary_info: Optional[ScanningAuxInfoModel] = None,
         plate_descriptions: tuple["PlateDescription", ...] = tuple(),
         version: str = scanomatic.__version__,
         scanning_program: str = "",
@@ -138,6 +138,7 @@ class ScanningModel(model.Model):
         scanning_program_params: Sequence[str] = tuple(),
         cell_count_calibration_id=None,
     ):
+        assert auxillary_info is not None
         self.number_of_scans: int = number_of_scans
         self.time_between_scans: float = time_between_scans
         self.project_name: str = project_name
@@ -295,7 +296,7 @@ class ScanningModelEffectorData(model.Model):
         informed_close_to_end: bool = False,
         compilation_state: COMPILE_STATE = COMPILE_STATE.NotInitialized,
     ):
-
+        assert compile_project_model is not None
         self.current_cycle_step: SCAN_CYCLE = current_cycle_step
         self.current_step_start_time: float = current_step_start_time
         self.current_image: int = current_image
