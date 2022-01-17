@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Optional
 from collections.abc import Sequence
 
 from scanomatic.generics.model import Model
@@ -85,11 +84,9 @@ class CompileImageAnalysisModelFields(Enum):
 class CompileImageAnalysisModel(Model):
     def __init__(
         self,
-        image: Optional[CompileImageModel] = None,
-        fixture: Optional[FixtureModel] = None,
+        image: CompileImageModel,
+        fixture: FixtureModel,
     ):
-        assert image is not None
-        assert fixture is not None
         self.image: CompileImageModel = image
         self.fixture: FixtureModel = fixture
         super().__init__()
