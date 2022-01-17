@@ -9,9 +9,9 @@ class VersionChangesModel(Model):
 
 
 def get_active_plates(
-    meta_data,
-    suppress_analysis,
-    graph_watch,
+    meta_data: dict,
+    suppress_analysis: bool,
+    graph_watch: Sequence,
     versions: VersionChangesModel,
 ):
     """Makes list of only relevant plates according to how
