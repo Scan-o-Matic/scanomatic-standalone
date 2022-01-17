@@ -218,10 +218,10 @@ class Jobs(SingeltonOneInit):
         ))
         return True
 
-    def _set_initialized_job(self, job_process, job):
+    def _set_initialized_job(self, job_process, job: rpc_job_models.RPCjobModel):
         self._jobs[job] = job_process
         job.status = rpc_job_models.JOB_STATUS.Running
-        dump(job, self._paths.rpc_jobs)
+        dump([j for j in self._jobs], self._paths.rpc_jobs)
 
     def _initialize_job_process(
         self,

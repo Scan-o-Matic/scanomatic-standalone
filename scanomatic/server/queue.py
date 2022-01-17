@@ -56,7 +56,7 @@ class Queue(SingeltonOneInit):
         if job:
             job.priority = priority
             dump(
-                job,
+                self._queue,
                 self._paths.rpc_queue,
             )
             return True
@@ -89,7 +89,7 @@ class Queue(SingeltonOneInit):
             job.status = rpc_job_models.JOB_STATUS.Queued
             self._queue.append(job)
             dump(
-                job,
+                self._queue,
                 self._paths.rpc_queue,
             )
             return True

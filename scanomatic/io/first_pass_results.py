@@ -99,8 +99,12 @@ class CompilationResults:
         path: str,
         sort_mode: FIRST_PASS_SORTING = FIRST_PASS_SORTING.Time
     ):
-        images: list[CompileImageAnalysisModel] = load(path)
-        self._logger.info("Loaded {0} compiled images".format(len(images)))
+        images: Optional[list[CompileImageAnalysisModel]] = load(path)
+        if images is None:
+            self._logger.error(f"Could not load any images from {path}")
+            images = []
+        else:
+            self._logger.info(f"Loaded {len(images)} compiled images")
 
         self._reindex_plates(images)
 

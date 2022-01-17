@@ -319,7 +319,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 raise StopIteration
 
         if (
-            len(self._first_pass_results.plates)
+            self._first_pass_results.plates is not None
+            or len(self._first_pass_results.plates)
             != len(self._analysis_job.pinning_matrices)
         ):
             self._filter_pinning_on_included_plates()

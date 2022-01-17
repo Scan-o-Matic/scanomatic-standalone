@@ -259,7 +259,7 @@ def load(path: Union[str, Path]) -> Any:
         path = Path(path)
     try:
         return loads(path.read_text())
-    except IOError:
+    except (IOError, json.JSONDecodeError):
         _LOGGER.warning(
             f"Attempted to load model from '{path}', but failed",
         )
