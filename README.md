@@ -6,7 +6,7 @@ This project contains the code for the massive microbial phenotyping platform Sc
 
 Scan-o-matic was published in [G3 September 2016](http://g3journal.org/content/6/9/3003.full).
 
-Please refer to the general [Scan-o-Matic Wiki](https://github.com/Scan-o-Matic/scanomatic/wiki) for further instructions, though setup and starting should like described below.
+Please refer to the general [Scan-o-Matic Wiki](https://github.com/Scan-o-Matic/scanomatic/wiki) for further instructions, though setup and starting should be as described below.
 
 # Setting up and running
 
