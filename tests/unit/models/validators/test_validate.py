@@ -21,6 +21,9 @@ from scanomatic.models.factories.fixture_factories import (
 )
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.factories.scanning_factory import ScanningModelFactory
+from scanomatic.models.factories.settings_factories import (
+    ApplicationSettingsFactory
+)
 from scanomatic.models.fixture_models import FixtureModelFields
 from scanomatic.models.rpc_job_models import RPCjobModelFields
 from scanomatic.models.validators.validate import (
@@ -96,6 +99,11 @@ from scanomatic.models.validators.validate import (
         {
             "plates": (FixturePlateFactory.create(), None),
         },
+        True,
+    ),
+    (
+        ApplicationSettingsFactory.create(),
+        {},
         True,
     ),
 ))

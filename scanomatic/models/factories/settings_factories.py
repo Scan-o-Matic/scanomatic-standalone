@@ -145,7 +145,7 @@ class ApplicationSettingsFactory(AbstractModelFactory):
         settings_models.PowerManagerModel: PowerManagerFactory,
         settings_models.RPCServerModel: RPCServerFactory,
         settings_models.UIServerModel: UIServerFactory,
-        settings_models.MailModel: MailFactory
+        settings_models.MailModel: MailFactory,
     }
 
     STORE_SECTION_SERIALIZERS = {
