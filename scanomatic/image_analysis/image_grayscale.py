@@ -3,6 +3,7 @@ from typing import Optional
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
+from scanomatic.models.fixture_models import GrayScaleAreaModel
 from scipy.ndimage import gaussian_filter1d  # type: ignore
 from scipy.signal import convolve2d  # type: ignore
 
@@ -168,8 +169,8 @@ def get_para_trimmed_slice(
 
 
 def get_grayscale(
-    fixture,
-    grayscale_area_model,
+    fixture,  # FixtureImage (but circular import)
+    grayscale_area_model: GrayScaleAreaModel,
     debug: bool = False,
 ) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
     im = fixture.get_grayscale_im_section(grayscale_area_model)

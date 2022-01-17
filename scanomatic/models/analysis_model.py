@@ -97,9 +97,7 @@ class AnalysisModel(model.Model):
         cell_count_calibration=None,
         cell_count_calibration_id=None,
     ):
-
-        if grid_model is None:
-            grid_model = GridModel()
+        assert grid_model is not None
 
         self.cell_count_calibration = cell_count_calibration
         self.cell_count_calibration_id = cell_count_calibration_id
