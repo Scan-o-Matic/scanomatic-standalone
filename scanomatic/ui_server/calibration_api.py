@@ -10,7 +10,7 @@ from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.image_analysis.grid_array import GridArray
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.grayscale_detection import (
-    get_grayscale_image_analysis
+    detect_grayscale
 )
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.paths import Paths
@@ -326,9 +326,9 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
             reason='Unknown image or CCC'
         )
 
-    _, values = get_grayscale_image_analysis(
-        gs_image, gs_name, debug=False)
     grayscale_object = get_grayscale(gs_name)
+    _, values = detect_grayscale(
+        gs_image, gs_name, debug=False)
     valid = get_grayscale_is_valid(values, grayscale_object)
     if not valid:
         return json_abort(

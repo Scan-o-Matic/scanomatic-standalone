@@ -23,6 +23,7 @@ from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
 from scanomatic.image_analysis.grayscale_detection import detect_grayscale
 from scanomatic.image_analysis.support import save_image_as_png
+from scanomatic.image_analysis.exceptions import GrayscaleError
 from scanomatic.io.fixtures import Fixtures
 from scanomatic.io.jsonizer import dump, load_first
 from scanomatic.io.logger import get_logger
@@ -271,7 +272,6 @@ def add_routes(app, rpc_client, is_debug_mode):
                 Getting the names of the known grayscales
         """
         raise NotImplementedError("This endpoint is not complete")
-        fixture = None
         data_object = request.get_json(silent=True, force=True)
         if not data_object:
             data_object = request.values
@@ -293,11 +293,11 @@ def add_routes(app, rpc_client, is_debug_mode):
 
         try:
             _, values = detect_grayscale(
-                fixture,
+                image,
                 grayscale_area_model,
                 debug=is_debug_mode,
             )
-        except TypeError:
+        except (TypeError, GrayscaleError):
             return jsonify(
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
@@ -365,8 +365,8 @@ def add_routes(app, rpc_client, is_debug_mode):
 
         try:
             _, values = detect_grayscale(
-                fixture, grayscale_area_model, debug=is_debug_mode)
-        except TypeError:
+                fixture.im, grayscale_area_model, debug=is_debug_mode)
+        except (TypeError, GrayscaleError):
             return jsonify(
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
@@ -581,8 +581,8 @@ def add_routes(app, rpc_client, is_debug_mode):
             grayscale_area_model.name = grayscale_name
 
             try:
-                _, values = detect_grayscale(fixture, grayscale_area_model)
-            except TypeError:
+                _, values = detect_grayscale(fixture.im, grayscale_area_model)
+            except (TypeError, GrayscaleError):
 
                 return jsonify(
                     success=False,
