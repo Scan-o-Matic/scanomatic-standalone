@@ -21,7 +21,6 @@ from scanomatic.models.settings_models import (
     PowerManagerModel,
     RPCServerModel,
     UIServerModel,
-    VersionChangesModel
 )
 
 from . import paths, power_manager
@@ -75,10 +74,6 @@ class Config(SingeltonOneInit):
             return type(conf_parser.get(section, key))
         except (NoOptionError, NoSectionError):
             return default
-
-    @property
-    def versions(self) -> VersionChangesModel:
-        return self._settings.versions
 
     @property
     def power_manager(self) -> PowerManagerModel:

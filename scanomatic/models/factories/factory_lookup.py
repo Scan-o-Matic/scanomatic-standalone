@@ -93,8 +93,6 @@ _FACTORIES: dict[Type[Model], Type[AbstractModelFactory]] = {
     ScannerOwnerModel: ScannerOwnerFactory,
     ScannerModel: ScannerFactory,
     # From settings_factories.py
-    # Versions shouldn't serialize or load so excluded
-    # VersionChangesModel: VersionChangeFactory
     PowerManagerModel: PowerManagerFactory,
     RPCServerModel: RPCServerFactory,
     UIServerModel: UIServerFactory,

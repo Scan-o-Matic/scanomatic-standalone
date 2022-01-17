@@ -43,7 +43,6 @@ from scanomatic.models.factories.settings_factories import (
     PowerManagerFactory,
     RPCServerFactory,
     UIServerFactory,
-    VersionChangeFactory
 )
 from scanomatic.models.features_model import FeatureExtractionData
 from scanomatic.models.rpc_job_models import JOB_STATUS, JOB_TYPE
@@ -90,7 +89,6 @@ MODEL_CLASSES: dict[str, Callable[..., Model]] = {
     "ScannerOwnerModel": ScannerOwnerFactory.create,
     "ScannerModel": ScannerFactory.create,
     # From settings_factories.py
-    "VersionChangesModel": VersionChangeFactory.create,
     "PowerManagerModel": PowerManagerFactory.create,
     "RPCServerModel": RPCServerFactory.create,
     "UIServerModel": UIServerFactory.create,

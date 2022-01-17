@@ -61,8 +61,6 @@ from scanomatic.models.settings_models import (
     RPCServerModelFields,
     UIServerModel,
     UIServerModelFields,
-    VersionChangesModel,
-    VersionChangesModelFields
 )
 
 _FIELDS: dict[Type[Model], Type[Enum]] = {
@@ -84,7 +82,6 @@ _FIELDS: dict[Type[Model], Type[Enum]] = {
     ScannerOwnerModel: ScannerOwnerModelFields,
     ScannerModel: ScannerModelFields,
     ScanningModelEffectorData: ScanningModelEffectorDataFields,
-    VersionChangesModel: VersionChangesModelFields,
     PowerManagerModel: PowerManagerModelFields,
     RPCServerModel: RPCServerModelFields,
     UIServerModel: UIServerModelFields,
