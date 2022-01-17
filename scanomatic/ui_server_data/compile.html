@@ -81,9 +81,9 @@
 
   <script>
     som.setSharedValue('imageListDiv', $('#manual-selection-div'));
-    manual_btn = $('#manual-selection');
-    som.InputEnabled(manual_btn, false);
-    som.toggleManualSelectionBtn(manual_btn);
+    manualBtn = $('#manual-selection');
+    som.InputEnabled(manualBtn, false);
+    som.toggleManualSelectionBtn(manualBtn);
     som.getFixtures();
     som.compileToggleLocalFixture("#local-fixture");
     som.InputEnabled($("#submit-button"), false);
