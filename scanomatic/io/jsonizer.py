@@ -372,33 +372,41 @@ def _models_equal(a: Any, b: Model) -> bool:
         return False
 
 
-def _purge(original: Any, model: Any) -> Any:
+def _purge(
+    original: Any,
+    model: Model,
+    equality: Callable[[Model, Model], bool],
+) -> Any:
     if isinstance(original, list):
         return [
-            _purge(item, model) for item in original
-            if not _models_equal(item, model)
+            _purge(item, model, equality) for item in original
+            if not isinstance(item, Model) or not equality(item, model)
         ]
     elif isinstance(original, tuple):
         return tuple(
-            _purge(item, model) for item in original
-            if not _models_equal(item, model)
+            _purge(item, model, equality) for item in original
+            if not isinstance(item, Model) or not equality(item, model)
         )
     elif isinstance(original, Model):
-        if _models_equal(original, model):
+        if equality(original, model):
             return None
         elif type(original) != type(model):
             for key in original.keys():
-                original[key] = _purge(original[key], model)
+                original[key] = _purge(original[key], model, equality)
     return original
 
 
-def purge(model: Model, path: Union[str, Path]) -> bool:
+def purge(
+    model: Model,
+    path: Union[str, Path],
+    equality: Callable[[Model, Model], bool] = _models_equal,
+) -> bool:
     try:
         original = load(path)
     except IOError:
         return False
 
-    updated = _purge(original, model)
+    updated = _purge(original, model, equality)
     if _models_equal(updated, original):
         return False
     else:

@@ -12,6 +12,7 @@ from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io import scanner_manager
 from scanomatic.io.jsonizer import dump, dumps, load, purge
 from scanomatic.io.logger import get_logger
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 
 
 class Jobs(SingeltonOneInit):
@@ -61,7 +62,11 @@ class Jobs(SingeltonOneInit):
                 self._scanner_manager.release_scanner(job.id)
             del self._jobs[job]
             self._logger.info("Job '{0}' not active/removed".format(job))
-            if not purge(job, self._paths.rpc_jobs):
+            if not purge(
+                job,
+                self._paths.rpc_jobs,
+                RPC_Job_Model_Factory.is_same_job,
+            ):
                 self._logger.warning(
                     "Failed to remove references to job in config file",
                 )

@@ -9,10 +9,12 @@ import pytest
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io import jsonizer
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
+from scanomatic.models import analysis_model
 from scanomatic.models.analysis_model import (
     COMPARTMENTS,
     MEASURES,
     VALUES,
+    AnalysisFeatures,
     AnalysisModel
 )
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
@@ -457,6 +459,30 @@ def test_purge(tmp_path, fixture: FixtureModel):
     jsonizer.dump([fixture], path)
     assert jsonizer.purge(fixture, path) is True
     assert jsonizer.load(path) == []
+
+
+def test_purge_custom_equality(tmp_path):
+    path = tmp_path / 'jobs.cfg'
+    job = RPC_Job_Model_Factory.create(
+        id="hello",
+        content_model=AnalysisFeaturesFactory.create(),
+    )
+    analysis_model: AnalysisFeatures = job.content_model
+    other_job = RPC_Job_Model_Factory.create(id='other-id'),
+    # Rogue job with same id of different type shouldn't happen
+    rogue_job = RPC_Job_Model_Factory.create(
+        id='hello',
+        content_model=ScannerFactory.create(),
+    )
+    jobs = [other_job, job, rogue_job]
+    jsonizer.dump(jobs, path)
+    # Update conentent model
+    analysis_model.index = 42
+    assert jsonizer.purge(job, path, RPC_Job_Model_Factory.is_same_job) is True
+    saved_jobs = jsonizer.load(path)
+    assert len(saved_jobs) == 2
+    assert jsonizer.dumps(saved_jobs) == jsonizer.dumps([other_job, rogue_job])
+
 
 
 def test_purge_field(tmp_path, fixture: FixtureModel):

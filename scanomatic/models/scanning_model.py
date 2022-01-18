@@ -225,7 +225,7 @@ class ScannerModel(model.Model):
         power: bool = False,
         last_on=-1,
         last_off=-1,
-        expected_interval=0,
+        expected_interval: float = 0.,
         email: str = "",
         warned: bool = False,
         claiming: bool = False,

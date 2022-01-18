@@ -67,7 +67,11 @@ class Queue(SingeltonOneInit):
         if job.id in self:
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
-            return purge(job, self._paths.rpc_queue)
+            return purge(
+                job,
+                self._paths.rpc_queue,
+                RPC_Job_Model_Factory.is_same_job,
+            )
 
         self._logger.warning(f"No known job {job.id} in queue, can't remove")
         return False

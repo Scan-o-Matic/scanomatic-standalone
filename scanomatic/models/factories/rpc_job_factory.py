@@ -39,3 +39,17 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
             rpc_job_models.RPCjobModel,
             super(RPC_Job_Model_Factory, cls).create(**settings),
         )
+
+    @classmethod
+    def is_same_job(
+        cls,
+        a: Model,
+        b: Model,
+    ) -> bool:
+        return (
+            isinstance(a, rpc_job_models.RPCjobModel)
+            and isinstance(b, rpc_job_models.RPCjobModel)
+            and bool(a.id)
+            and a.id == b.id
+            and type(a.content_model) is type(b.content_model)
+        )
