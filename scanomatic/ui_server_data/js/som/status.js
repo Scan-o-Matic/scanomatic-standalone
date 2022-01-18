@@ -73,7 +73,7 @@ function jobStatusAsHTML(job) {
     ret += `<span class='log-link'><a href='${job.log_file}'><img src='/images/log_icon.png' height=24px></a></span>`;
   }
 
-  ret += "<button type='button' class='stop-button' onclick='stopDialogue(this);'></button>";
+  ret += "<button type='button' class='stop-button' onclick='som.stopDialogue(this);'></button>";
   return `${ret}</div>`;
 }
 
@@ -100,7 +100,7 @@ function queueItemAsHTML(job) {
   }
   ret += shortHash(job);
 
-  ret += "<button type='button' class='stop-button' onclick='stopDialogue(this);'></button>";
+  ret += "<button type='button' class='stop-button' onclick='som.stopDialogue(this);'></button>";
   return `${ret}</div>`;
 }
 
