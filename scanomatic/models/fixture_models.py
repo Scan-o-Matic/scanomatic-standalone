@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Optional
 from collections.abc import Sequence
 
 from scanomatic.generics import model
@@ -55,8 +54,9 @@ class FixtureModelFields(Enum):
 class FixtureModel(model.Model):
     def __init__(
         self,
+        *,
         path: str = "",
-        grayscale: Optional[GrayScaleAreaModel] = None,
+        grayscale: GrayScaleAreaModel,
         orientation_mark_path: str = "",
         orientation_marks_x: Sequence[float] = [],
         orientation_marks_y: Sequence[float] = [],
@@ -66,7 +66,6 @@ class FixtureModel(model.Model):
         name: str = "",
         scale: float = 1.0,
     ):
-        assert grayscale is not None
         self.name: str = name
         self.path: str = path
         self.grayscale: GrayScaleAreaModel = grayscale
