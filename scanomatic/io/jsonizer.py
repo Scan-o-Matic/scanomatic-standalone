@@ -1,5 +1,5 @@
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from enum import Enum, unique
 from typing import Any, Optional, TextIO, Type, TypeVar, Union
 from pathlib import Path
@@ -259,7 +259,7 @@ def load(path: Union[str, Path]) -> Any:
         path = Path(path)
     try:
         return loads(path.read_text())
-    except IOError:
+    except (IOError, json.JSONDecodeError):
         _LOGGER.warning(
             f"Attempted to load model from '{path}', but failed",
         )
@@ -288,9 +288,9 @@ def _merge(model: Model, update: Model) -> bool:
 
 
 def merge_into(
-    model: Optional[Union[Model, list[Model]]],
-    update: Union[list[Model], Model],
-) -> Union[list[Model], Model]:
+    model: Optional[Union[Model, Sequence[Model]]],
+    update: Union[Sequence[Model], Model],
+) -> Union[Sequence[Model], Model]:
     """Merges update with or into the model.
 
     There's currently a limitation that when the update
@@ -328,7 +328,7 @@ def merge_into(
 
 
 def dump(
-    model: Union[Model, list[Model]],
+    model: Union[Model, Sequence[Model]],
     path: Union[str, Path],
     overwrite: bool = False,
 ) -> bool:
@@ -372,33 +372,41 @@ def _models_equal(a: Any, b: Model) -> bool:
         return False
 
 
-def _purge(original: Any, model: Any) -> Any:
+def _purge(
+    original: Any,
+    model: Model,
+    equality: Callable[[Model, Model], bool],
+) -> Any:
     if isinstance(original, list):
         return [
-            _purge(item, model) for item in original
-            if not _models_equal(item, model)
+            _purge(item, model, equality) for item in original
+            if not isinstance(item, Model) or not equality(item, model)
         ]
     elif isinstance(original, tuple):
         return tuple(
-            _purge(item, model) for item in original
-            if not _models_equal(item, model)
+            _purge(item, model, equality) for item in original
+            if not isinstance(item, Model) or not equality(item, model)
         )
     elif isinstance(original, Model):
-        if _models_equal(original, model):
+        if equality(original, model):
             return None
         elif type(original) != type(model):
             for key in original.keys():
-                original[key] = _purge(original[key], model)
+                original[key] = _purge(original[key], model, equality)
     return original
 
 
-def purge(model: Model, path: Union[str, Path]) -> bool:
+def purge(
+    model: Model,
+    path: Union[str, Path],
+    equality: Callable[[Model, Model], bool] = _models_equal,
+) -> bool:
     try:
         original = load(path)
     except IOError:
         return False
 
-    updated = _purge(original, model)
+    updated = _purge(original, model, equality)
     if _models_equal(updated, original):
         return False
     else:

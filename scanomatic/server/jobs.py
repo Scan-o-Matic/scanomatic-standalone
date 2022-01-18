@@ -12,6 +12,7 @@ from scanomatic.generics.singleton import SingeltonOneInit
 from scanomatic.io import scanner_manager
 from scanomatic.io.jsonizer import dump, dumps, load, purge
 from scanomatic.io.logger import get_logger
+from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 
 
 class Jobs(SingeltonOneInit):
@@ -20,7 +21,10 @@ class Jobs(SingeltonOneInit):
         self._logger = get_logger("Jobs Handler")
         self._paths = paths.Paths()
         self._scanner_manager = scanner_manager.ScannerPowerManager()
-        self._jobs: dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}
+        self._jobs: dict[
+            rpc_job_models.RPCjobModel,
+            rpc_job.RPCJobInterface
+        ] = {}
         self._load_from_file()
         self._forcingStop = False
         self._statuses = []
@@ -61,7 +65,11 @@ class Jobs(SingeltonOneInit):
                 self._scanner_manager.release_scanner(job.id)
             del self._jobs[job]
             self._logger.info("Job '{0}' not active/removed".format(job))
-            if not purge(job, self._paths.rpc_jobs):
+            if not purge(
+                job,
+                self._paths.rpc_jobs,
+                RPC_Job_Model_Factory.is_same_job,
+            ):
                 self._logger.warning(
                     "Failed to remove references to job in config file",
                 )
@@ -110,7 +118,7 @@ class Jobs(SingeltonOneInit):
                         self._logger.error(
                             "Can't communicate with job, process will be orphaned",  # noqa: E501
                         )
-                        self._jobs[job].abandoned = True
+                        self._jobs[job].abandon()
 
         self._forcingStop = value
 
@@ -218,10 +226,14 @@ class Jobs(SingeltonOneInit):
         ))
         return True
 
-    def _set_initialized_job(self, job_process, job):
+    def _set_initialized_job(
+        self,
+        job_process: rpc_job.RpcJob,
+        job: rpc_job_models.RPCjobModel,
+    ):
         self._jobs[job] = job_process
         job.status = rpc_job_models.JOB_STATUS.Running
-        dump(job, self._paths.rpc_jobs)
+        dump([j for j in self._jobs], self._paths.rpc_jobs)
 
     def _initialize_job_process(
         self,
