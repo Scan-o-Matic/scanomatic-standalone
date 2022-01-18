@@ -84,6 +84,7 @@ class CompileImageAnalysisModelFields(Enum):
 class CompileImageAnalysisModel(Model):
     def __init__(
         self,
+        *,
         image: CompileImageModel,
         fixture: FixtureModel,
     ):
