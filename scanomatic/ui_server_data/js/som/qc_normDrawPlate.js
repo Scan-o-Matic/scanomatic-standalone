@@ -90,7 +90,7 @@ function addSymbolsToSVG(svgRoot) {
 function addSelectionHandling(svgRoot) {
   svgRoot.on(
     'mousedown',
-    () => {
+    function handleMouseDown() {
       if (!allowMarking) return;
 
       if (!d3.event.ctrlKey) {
@@ -113,7 +113,7 @@ function addSelectionHandling(svgRoot) {
   )
     .on(
       'mousemove',
-      () => {
+      function handleMouseMove() {
         if (!allowMarking) return;
         const s = svgRoot.select('rect.selection');
         if (!s.empty()) {
@@ -142,7 +142,7 @@ function addSelectionHandling(svgRoot) {
           d3.selectAll('g.expNode.selection.selected').classed('selected', false);
 
           d3.selectAll('.plateWell')
-            .each((stateData) => {
+            .each(function handleSelect(stateData) {
               if (
                 !d3.select(this).classed('selected')
                   && stateData.celStartX >= d.x
@@ -809,9 +809,11 @@ d3.scanomatic.plateHeatmap = () => {
       .enter()
       .append('g')
       .attr('class', 'expNode')
-      .on('mouseover', () => { onMouseOver(d3.select(this)); })
-      .on('mouseout', () => { onMouseOut(d3.select(this)); })
-      .on('click', (element) => { onClick(d3.select(this.parentNode), d3.select(this), element); });
+      .on('mouseover', function handleMouseOver() { onMouseOver(d3.select(this)); })
+      .on('mouseout', function handleMouseOut() { onMouseOut(d3.select(this)); })
+      .on('click', function handleClick(element) {
+        onClick(d3.select(this.parentNode), d3.select(this), element);
+      });
 
     addShapes(nodes);
     addSymbols(nodes);

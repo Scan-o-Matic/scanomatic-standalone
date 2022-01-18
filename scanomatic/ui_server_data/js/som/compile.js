@@ -129,7 +129,7 @@ export function setProjectDirectory(input) {
 }
 
 export function setOnAllImages(included) {
-  getSharedValue('imageListDiv').find('#options').children().each(() => {
+  getSharedValue('imageListDiv').find('#options').children().each(function handleSet() {
     $(this).find(':input').prop('checked', included);
   });
 }

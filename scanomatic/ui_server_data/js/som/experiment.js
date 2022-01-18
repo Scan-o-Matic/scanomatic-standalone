@@ -173,9 +173,11 @@ function setPinningOptionsFromPlates(plates) {
     pinnings.html('');
   }
 
-  pinningList.each(() => {
-    const index = parseInt($(this).select("input[type='hidden']").val(), 10);
-    if (!(index in activeIndices)) { $(this).remove(); } else {
+  pinningList.each(function handleSet() {
+    const index = parseInt($(this).on('select', "input[type='hidden']").val(), 10);
+    if (!(index in activeIndices)) {
+      $(this).remove();
+    } else {
       while (plates.length > 0 && plates[0].index <= index) {
         const plate = plates.shift();
         if (plate.index !== index) {

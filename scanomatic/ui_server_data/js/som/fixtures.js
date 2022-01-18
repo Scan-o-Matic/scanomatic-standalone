@@ -433,7 +433,7 @@ export function getFixtures() {
   const options = $(getSharedValue('currentFixtureId'));
   options.empty();
   $.get('/api/data/fixture/names', (data) => {
-    $.each(data.fixtures, () => {
+    $.each(data.fixtures, function handleAppend() {
       options.append($('<option />').val(this).text(getFixtureAsName(this)));
     });
     unselect(options);
