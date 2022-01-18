@@ -1,6 +1,5 @@
 import re
 from enum import Enum, auto
-from typing import Optional
 
 import scanomatic.generics.model as model
 
@@ -74,6 +73,7 @@ class AnalysisModelFields(Enum):
 class AnalysisModel(model.Model):
     def __init__(
         self,
+        *,
         compilation: str = "",
         compile_instructions: str = "",
         pinning_matrices: tuple[tuple[int, int], ...] = (
@@ -89,7 +89,7 @@ class AnalysisModel(model.Model):
         one_time_positioning: bool = True,
         one_time_grayscale: bool = False,
         grid_images=None,
-        grid_model: Optional["GridModel"] = None,
+        grid_model: "GridModel",
         image_data_output_item: COMPARTMENTS = COMPARTMENTS.Blob,
         image_data_output_measure: MEASURES = MEASURES.Sum,
         chain: bool = True,
@@ -97,8 +97,6 @@ class AnalysisModel(model.Model):
         cell_count_calibration=None,
         cell_count_calibration_id=None,
     ):
-        assert grid_model is not None
-
         self.cell_count_calibration = cell_count_calibration
         self.cell_count_calibration_id = cell_count_calibration_id
         self.compilation: str = compilation

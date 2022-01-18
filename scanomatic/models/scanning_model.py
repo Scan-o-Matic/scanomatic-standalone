@@ -116,6 +116,7 @@ class ScanningModelFields(Enum):
 class ScanningModel(model.Model):
     def __init__(
         self,
+        *,
         number_of_scans: int = 217,
         time_between_scans: float = 20,
         project_name: str = "",
@@ -130,7 +131,7 @@ class ScanningModel(model.Model):
         scanner_hardware: str = "EPSON V700",
         mode: str = "TPU",
         computer: str = "",
-        auxillary_info: Optional[ScanningAuxInfoModel] = None,
+        auxillary_info: ScanningAuxInfoModel,
         plate_descriptions: tuple["PlateDescription", ...] = tuple(),
         version: str = scanomatic.__version__,
         scanning_program: str = "",
@@ -138,7 +139,6 @@ class ScanningModel(model.Model):
         scanning_program_params: Sequence[str] = tuple(),
         cell_count_calibration_id=None,
     ):
-        assert auxillary_info is not None
         self.number_of_scans: int = number_of_scans
         self.time_between_scans: float = time_between_scans
         self.project_name: str = project_name
@@ -274,6 +274,7 @@ class ScanningModelEffectorDataFields(Enum):
 class ScanningModelEffectorData(model.Model):
     def __init__(
         self,
+        *,
         current_cycle_step: SCAN_CYCLE = SCAN_CYCLE.Wait,
         current_step_start_time: float = -1,
         current_image: int = -1,
@@ -286,7 +287,7 @@ class ScanningModelEffectorData(model.Model):
         usb_port: str = "",
         scanning_thread=None,
         scan_success: bool = False,
-        compile_project_model: Optional[CompileInstructionsModel] = None,
+        compile_project_model: CompileInstructionsModel,
         known_file_size=0,
         warned_file_size: bool = False,
         warned_scanner_error: bool = False,
@@ -296,7 +297,6 @@ class ScanningModelEffectorData(model.Model):
         informed_close_to_end: bool = False,
         compilation_state: COMPILE_STATE = COMPILE_STATE.NotInitialized,
     ):
-        assert compile_project_model is not None
         self.current_cycle_step: SCAN_CYCLE = current_cycle_step
         self.current_step_start_time: float = current_step_start_time
         self.current_image: int = current_image
