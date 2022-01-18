@@ -74,15 +74,15 @@ export function validateExperiment() {
 export function setPoetry(input) {
   $(input).html(poetry).css('font-style', 'italic');
 
-  $(input).on('focus', () => {
-    if ($(input).html() === poetry) {
-      $(input).html('').css('font-style', 'normal');
+  $(input).on('focus', function handleFocus() {
+    if ($(this).html() === poetry) {
+      $(this).html('').css('font-style', 'normal');
     }
   });
 
-  $(input).on('blur', () => {
-    if ($(input).html() === '') {
-      $(input).html(poetry).css('font-style', 'italic');
+  $(input).on('blur', function handleBlur() {
+    if ($(this).html() === '') {
+      $(this).html(poetry).css('font-style', 'italic');
     }
   });
 }
