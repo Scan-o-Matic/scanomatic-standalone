@@ -323,7 +323,7 @@ export function setAuxTime(input, key, factor) {
   auxillaryInfoTimeData[key][factor] = parseFloat($(input).val());
 
   let total = 0;
-  auxillaryInfoTimeData[key].forEach((k) => {
+  Object.keys(auxillaryInfoTimeData[key]).forEach((k) => {
     total += parseFloat(k) * auxillaryInfoTimeData[key][k];
   });
 
