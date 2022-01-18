@@ -1,10 +1,11 @@
 import pytest
-from scanomatic.generics.model import Model
-from scanomatic.models.factories.analysis_factories import AnalysisFeaturesFactory
 
+from scanomatic.generics.model import Model
+from scanomatic.models.factories.analysis_factories import (
+    AnalysisFeaturesFactory
+)
 from scanomatic.models.factories.rpc_job_factory import RPC_Job_Model_Factory
 from scanomatic.models.factories.scanning_factory import ScannerFactory
-from scanomatic.models.rpc_job_models import RPCjobModel
 
 
 def test_can_hash():

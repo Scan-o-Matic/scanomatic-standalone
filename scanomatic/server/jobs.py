@@ -21,7 +21,10 @@ class Jobs(SingeltonOneInit):
         self._logger = get_logger("Jobs Handler")
         self._paths = paths.Paths()
         self._scanner_manager = scanner_manager.ScannerPowerManager()
-        self._jobs: dict[rpc_job_models.RPCjobModel, rpc_job.RpcJob] = {}
+        self._jobs: dict[
+            rpc_job_models.RPCjobModel,
+            rpc_job.RPCJobInterface
+        ] = {}
         self._load_from_file()
         self._forcingStop = False
         self._statuses = []
@@ -115,7 +118,7 @@ class Jobs(SingeltonOneInit):
                         self._logger.error(
                             "Can't communicate with job, process will be orphaned",  # noqa: E501
                         )
-                        self._jobs[job].abandoned = True
+                        self._jobs[job].abandon()
 
         self._forcingStop = value
 
@@ -223,7 +226,11 @@ class Jobs(SingeltonOneInit):
         ))
         return True
 
-    def _set_initialized_job(self, job_process, job: rpc_job_models.RPCjobModel):
+    def _set_initialized_job(
+        self,
+        job_process: rpc_job.RpcJob,
+        job: rpc_job_models.RPCjobModel,
+    ):
         self._jobs[job] = job_process
         job.status = rpc_job_models.JOB_STATUS.Running
         dump([j for j in self._jobs], self._paths.rpc_jobs)

@@ -51,5 +51,5 @@ class RPC_Job_Model_Factory(AbstractModelFactory):
             and isinstance(b, rpc_job_models.RPCjobModel)
             and bool(a.id)
             and a.id == b.id
-            and type(a.content_model) is type(b.content_model)
+            and isinstance(a.content_model, type(b.content_model))
         )

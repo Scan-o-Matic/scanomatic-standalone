@@ -6,6 +6,7 @@ from time import sleep
 import psutil
 import setproctitle  # type: ignore
 
+from abc import ABC, abstractmethod, abstractproperty
 from scanomatic.io.logger import get_logger
 from scanomatic.server.proc_effector import (
     ChildPipeEffector,
@@ -14,7 +15,33 @@ from scanomatic.server.proc_effector import (
 )
 
 
-class Fake:
+class RPCJobInterface(ABC):
+    @abstractproperty
+    def pipe(self) -> _PipeEffector:
+        raise NotImplementedError()
+
+    @abstractproperty
+    def abandoned(self) -> bool:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def abandon(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def status(self) -> dict:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_alive(self) -> bool:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def update_pid(self) -> None:
+        raise NotImplementedError()
+
+
+class Fake(RPCJobInterface):
     def __init__(self, job, parent_pipe):
 
         self._job = job
@@ -22,8 +49,11 @@ class Fake:
         self._logger = get_logger("Fake Process {0}".format(job.id))
         self._logger.info("Running ({0}) with pid {1}".format(
             self.is_alive(), job.pid))
+        self._abandoned = False
 
-        self.abandoned = False
+    @property
+    def abandoned(self) -> bool:
+        return self._abandoned
 
     @property
     def pipe(self) -> _PipeEffector:
@@ -45,6 +75,9 @@ class Fake:
 
         return s
 
+    def abandon(self) -> None:
+        self._abandoned = True
+
     def is_alive(self) -> bool:
         if not self._job.pid:
             return False
@@ -64,7 +97,7 @@ class RpcJob(Process, Fake):
         self._parent_pipe = ParentPipeEffector(parent_pipe)
         self._childPipe = child_pipe
         self._logger = get_logger("Job {0} Process".format(job.id))
-        self.abandoned = False
+        self._abandoned = False
 
     def run(self):
 
@@ -80,7 +113,10 @@ class RpcJob(Process, Fake):
         _logger = get_logger("RPC Job {0} (proc-side)".format(self._job.id))
 
         pipe_effector = ChildPipeEffector(
-            self._childPipe, self._job_effector(self._job))
+            self._childPipe,
+            self._job_effector(self._job),
+        )
+        assert pipe_effector.procEffector is not None
 
         setproctitle.setproctitle("SoM {0}".format(
             pipe_effector.procEffector.TYPE.name))
