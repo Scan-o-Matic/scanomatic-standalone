@@ -331,7 +331,7 @@ class ProcessEffector:
         self._iteration_index = None
         self._pid = os.getpid()
         self._pipe_effector: Optional[ChildPipeEffector] = None
-        self._start_time = None
+        self._start_time: Optional[float] = None
         decorators.register_type_lock(self)
 
     def email(

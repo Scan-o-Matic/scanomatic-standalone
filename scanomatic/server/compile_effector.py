@@ -1,6 +1,6 @@
 import os
 import time
-from typing import cast
+from typing import Any, Optional, cast
 from scanomatic.io.jsonizer import dump, dump_to_stream, loads
 
 import scanomatic.io.rpc_client as rpc_client
@@ -63,8 +63,8 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
         )
         self._job_label = os.path.basename(self._compile_job.path)
         self._image_to_analyse = 0
-        self._fixture_settings = None
-        self._compile_instructions_path = None
+        self._fixture_settings: Optional[FixtureSettings] = None
+        self._compile_instructions_path: Optional[str] = None
         self._has_mailed_issues = False
         self._allowed_calls['progress'] = self.progress
 
@@ -78,10 +78,13 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
 
         self._logger.info("Setup called")
 
-        self._compile_job: CompileInstructionsModel = cast(
-            RPCjobModel,
-            loads(job),
-        ).content_model
+        self._compile_job = cast(
+            CompileInstructionsModel,
+            cast(
+                RPCjobModel,
+                loads(job),
+            ).content_model,
+        )
         self._job.content_model = self._compile_job
 
         if self._compile_job.images is None:
@@ -184,9 +187,10 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             raise StopIteration
 
     def _analyse_image(self, compile_image_model: CompileImageModel):
+        assert self._fixture_settings is not None
         try:
             with self._compile_output_filehandle as fh:
-                issues = {}
+                issues: dict[str, Any] = {}
                 try:
                     image_model = first_pass.analyse(
                         compile_image_model,
@@ -220,7 +224,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                 f"Could not write to project file {self._compile_job.path}",
             )
 
-    def _mail_issues(self, issues):
+    def _mail_issues(self, issues: dict[str, Any]):
         self._has_mailed_issues = True
         self._mail(
             "Scan-o-Matic: Problems compiling project '{path}'",
@@ -272,7 +276,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
         )
 
     def _spawn_analysis(self) -> bool:
-
+        assert self._fixture_settings is not None
         analysis_model = AnalysisModelFactory.create(
             chain=True,
             compile_instructions=self._compile_instructions_path,
@@ -304,10 +308,10 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
             accepted_indices = tuple(
                 p.index for p in self._fixture_settings.model.plates
             )
-            analysis_model.pinning_matrices = [
+            analysis_model.pinning_matrices = tuple(
                 pm for i, pm in enumerate(analysis_model.pinning_matrices)
                 if i + 1 in accepted_indices
-            ]
+            )
             self._logger.warning(
                 "Reduced pinning matrices instructions to {0} because lacking plates in fixture".format(  # noqa: E501
                     analysis_model.pinning_matrices,
