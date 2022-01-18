@@ -468,7 +468,7 @@ def test_purge_custom_equality(tmp_path):
         content_model=AnalysisFeaturesFactory.create(),
     )
     content_model: AnalysisFeatures = job.content_model
-    other_job = RPC_Job_Model_Factory.create(id='other-id'),
+    other_job = RPC_Job_Model_Factory.create(id='other-id')
     # Rogue job with same id of different type shouldn't happen
     rogue_job = RPC_Job_Model_Factory.create(
         id='hello',

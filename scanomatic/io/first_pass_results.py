@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from glob import glob
 from typing import Optional, cast
-from collections.abc import Sequence, Sized
+from collections.abc import Sequence
 from scanomatic.io.jsonizer import copy, dump, dump_to_stream, load, load_first
 from scanomatic.io.logger import get_logger
 
@@ -30,7 +30,7 @@ class CompilationResults:
     ):
         self._logger = get_logger("Compilation results")
         self._compilation_path = compilation_path
-        self._compile_instructions = None
+        self._compile_instructions: Optional[CompileInstructionsModel] = None
         self._scanner_instructions: Optional[ScanningModel] = None
         self.load_scanner_instructions(scanner_instructions_path)
         self._plates = None
@@ -208,7 +208,7 @@ class CompilationResults:
         return self._compile_instructions
 
     @property
-    def plates(self) -> Optional[Sized]:
+    def plates(self) -> Optional[Sequence]:
         res = self[-1]
         if res:
             return res.fixture.plates

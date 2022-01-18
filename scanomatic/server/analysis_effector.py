@@ -150,7 +150,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             raise StopIteration
 
     def _finalize_analysis(self):
-        assert self._analysis_job is not None
         if (self._start_time is None):
             self._logger.warning("ANALYSIS, Analysis was never started")
         else:
@@ -199,11 +198,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         scan_start_time = time.time()
         image_model = self._first_pass_results.get_next_image_model()
 
-        if (
-            image_model is None
-            or self._reference_compilation_image_model is None
-            or self._analysis_job is None
-        ):
+        if image_model is None:
             self._stopping = True
             return False
         elif self._reference_compilation_image_model is None:
@@ -304,8 +299,6 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         return True
 
     def _setup_first_iteration(self):
-        assert self._analysis_job is not None
-
         self._start_time = time.time()
         self._first_pass_results = first_pass_results.CompilationResults(
             self._analysis_job.compilation,
@@ -328,8 +321,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 raise StopIteration
 
         if (
-            self._first_pass_results.plates is None
-            or len(self._first_pass_results.plates)
+            self._first_pass_results.plates is not None
+            and len(self._first_pass_results.plates)
             != len(self._analysis_job.pinning_matrices)
         ):
             self._filter_pinning_on_included_plates()
@@ -367,8 +360,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         return True
 
     def _filter_pinning_on_included_plates(self):
-        assert self._analysis_job is not None
-
+        assert self._original_model is not None
         included_indices = (
             tuple()
             if self._first_pass_results.plates is None
@@ -376,11 +368,11 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 p.index for p in self._first_pass_results.plates
             )
         )
-        self._analysis_job.pinning_matrices = [
+        self._analysis_job.pinning_matrices = tuple(
             pm for i, pm in
             enumerate(self._analysis_job.pinning_matrices)
             if i in included_indices
-        ]
+        )
         self._logger.warning(
             "Inconsistency in number of plates reported in analysis instruction and compilation."  # noqa: E501
             f" Asuming pinning to be {self._analysis_job.pinning_matrices}"
