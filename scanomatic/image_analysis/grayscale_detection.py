@@ -3,16 +3,17 @@ from typing import Optional
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
-from scanomatic.models.fixture_models import GrayScaleAreaModel
 from scipy.ndimage import gaussian_filter1d  # type: ignore
 from scipy.signal import convolve2d  # type: ignore
 
 from scanomatic.generics.maths import mid50_mean as iqr_mean
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
+from scanomatic.models.fixture_models import GrayScaleAreaModel
+from scanomatic.image_analysis.grayscale import Grayscale
+from scanomatic.image_analysis import signal
+from scanomatic.image_analysis.exceptions import GrayscaleError
 
-from . import signal
-from .grayscale import Grayscale, get_grayscale as get_grayscale_conf
 
 ORTH_EDGE_T = 0.2
 ORTH_T1 = 0.15
@@ -168,39 +169,41 @@ def get_para_trimmed_slice(
     return im_ortho_trimmed
 
 
-def get_grayscale(
-    fixture,  # FixtureImage (but circular import)
-    grayscale_area_model: GrayScaleAreaModel,
-    debug: bool = False,
-) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
-    im = fixture.get_grayscale_im_section(grayscale_area_model)
-    if im is None:
-        return None, None
-    return get_grayscale_image_analysis(
-        im,
-        grayscale_area_model.name,
-        debug=debug,
-    )
-
-
-def get_grayscale_image_analysis(
+def get_grayscale_im_section(
     im: np.ndarray,
-    grayscale_name: str,
+    grayscale_model: GrayScaleAreaModel,
+    scale=1.0,
+) -> np.ndarray:
+    try:
+        return im[
+            int(round(max(grayscale_model.y1 * scale, 0))):
+            int(round(min(grayscale_model.y2 * scale, im.shape[0]))),
+            int(round(max(grayscale_model.x1 * scale, 0))):
+            int(round(min(grayscale_model.x2 * scale, im.shape[1])))
+        ]
+    except (IndexError, TypeError):
+        msg = "Could not extract grayscale section"
+        raise GrayscaleError(msg)
+
+
+def detect_grayscale(
+    image: np.ndarray,
+    grayscale: GrayScaleAreaModel,
     debug: bool = False,
-) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
+) -> tuple[np.ndarray, list[float]]:
     global DEBUG_DETECTION
 
-    gs = get_grayscale_conf(grayscale_name)
-    if not im.size:
-        return None, None
-    im_o = get_ortho_trimmed_slice(im, gs)
-    if not im_o.size:
-        return None, None
-    im_p = get_para_trimmed_slice(im_o, gs)
-    if im_p is None or not im_p.size:
-        return None, None
+    grayscale_im = get_grayscale_im_section(image, grayscale)
+
+    im_ortho = get_ortho_trimmed_slice(grayscale_im, grayscale)
+    if not im_ortho.size:
+        raise GrayscaleError("Failed to get orthogonal trimmed slice")
+    im_para = get_para_trimmed_slice(im_ortho, grayscale)
+    if im_para is None or not im_para.size:
+        raise GrayscaleError("Failed to get parallel trimmed slice")
+
     DEBUG_DETECTION = debug
-    return detect_grayscale(im_p, gs)
+    return find_grayscale_locations(im_para, grayscale)
 
 
 def is_valid_grayscale(
@@ -245,16 +248,17 @@ def is_valid_grayscale(
     return poly_is_ok and measures_are_ok
 
 
-def detect_grayscale(
+def find_grayscale_locations(
     im_trimmed: np.ndarray,
     grayscale: Grayscale,
-) -> tuple[Optional[np.ndarray], Optional[list[float]]]:
+) -> tuple[np.ndarray, list[float]]:
     gray_scale: list[float] = []
     grayscale_segment_centers: Optional[np.ndarray] = None
 
     if im_trimmed is None or sum(im_trimmed.shape) == 0:
-        _logger.error("No image loaded or null image")
-        return None, None
+        msg = "No image loaded or null image"
+        _logger.error(msg)
+        raise GrayscaleError(msg)
 
     rect = ([0, 0], im_trimmed.shape)
     mid_ortho_slice = (rect[1][1] + rect[0][1]) / 2.0
@@ -327,8 +331,9 @@ def detect_grayscale(
 
             fin_edges = np.isfinite(edges)
             if not fin_edges.any():
-                _logger.error("No finite edges found")
-                return None, None
+                msg = "No finite edges found"
+                _logger.error(msg)
+                raise GrayscaleError(msg)
 
             where_fin_edges = np.where(fin_edges)[0]
 
@@ -343,8 +348,9 @@ def detect_grayscale(
             frequency = frequency[np.isfinite(frequency)].mean()
 
             if not np.isfinite(frequency):
-                _logger.error("No frequency was detected, thus no grayscale")
-                return None, None
+                msg = "No frequency was detected, thus no grayscale"
+                _logger.error(msg)
+                raise GrayscaleError(msg)
 
             edges = signal.extrapolate_edges(
                 edges,
@@ -353,13 +359,12 @@ def detect_grayscale(
             )
 
             if edges.size != grayscale.sections + 1:
-                _logger.error(
-                    "Number of edges doesn't correspond to the grayscale segments ({0}!={1})".format(  # noqa: E501
+                msg = "Number of edges doesn't correspond to the grayscale segments ({0}!={1})".format(  # noqa: E501
                         edges.size,
                         grayscale.sections + 1,
-                    ),
-                )
-                return None, None
+                    )
+                _logger.error(msg)
+                raise GrayscaleError(msg)
 
             # EXTRACTING SECTION MIDPOINTS
             grayscale_segment_centers = np.array(np.interp(
@@ -486,7 +491,7 @@ def detect_grayscale(
         )
 
         if s is None:
-            _logger.warning((
+            msg = (
                 "GRAYSCALE, no signal detected for f={0} and"
                 " offset={1} in best_spikes={2} from spikes={3}").format(
                     frequency,
@@ -494,8 +499,8 @@ def detect_grayscale(
                     best_spikes,
                     up_spikes,
                 )
-            )
-            return None, None
+            _logger.warning(msg)
+            raise GrayscaleError(msg)
 
         if s[0] - frequency * SAFETY_PADDING < 0:
             _logger.warning(

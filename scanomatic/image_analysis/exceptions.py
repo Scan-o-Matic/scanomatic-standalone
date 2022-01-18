@@ -4,3 +4,7 @@ class LoadImageError(Exception):
 
 class FixtureImageError(Exception):
     pass
+
+
+class GrayscaleError(Exception):
+    pass
