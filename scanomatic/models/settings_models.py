@@ -165,29 +165,22 @@ class ApplicationSettingsModelFields(Enum):
 class ApplicationSettingsModel(model.Model):
     def __init__(
         self,
+        *,
         number_of_scanners: int = 3,
         scanner_name_pattern: str = "Scanner {0}",
         scan_program: str = "scanimage",
         scan_program_version_flag: str = "-V",
         scanner_models: Union[tuple[str, ...], dict[str, str]] = tuple(),
-        power_manager: Optional[PowerManagerModel] = None,
-        rpc_server: Optional[RPCServerModel] = None,
-        ui_server: Optional[UIServerModel] = None,
-        hardware_resource_limits: Optional[HardwareResourceLimitsModel] = (
-            None
-        ),
+        power_manager: PowerManagerModel,
+        rpc_server: RPCServerModel,
+        ui_server: UIServerModel,
+        hardware_resource_limits: HardwareResourceLimitsModel,
         computer_human_name: str = "Unnamed Computer",
-        mail: Optional[MailModel] = None,
-        paths: Optional[PathsModel] = None,
+        mail: MailModel,
+        paths: PathsModel,
         scanner_names: Optional[Sequence[str]] = None,
         scanner_sockets: Optional[dict[str, int]] = None,
     ):
-        assert power_manager is not None
-        assert rpc_server is not None
-        assert ui_server is not None
-        assert hardware_resource_limits is not None
-        assert paths is not None
-        assert mail is not None
         self.power_manager: PowerManagerModel = power_manager
         self.rpc_server: RPCServerModel = rpc_server
         self.ui_server: UIServerModel = ui_server
