@@ -414,6 +414,7 @@
           $("#spLock").data("lock_path", projectDetails.add_lock);
           $("#spLock").data("unLock_path", projectDetails.remove_lock);
           $("#spQidx").data("qIdx", "");
+          var baseUrl = som.getSharedValue('baseUrl');
           var inner = "";
           inner += "<li><a href='" + baseUrl + "/api/results/export/phenotypes/Absolute/" + projectDetails.project + "'>Absolute</a></li>";
           inner += "<li><a href='" + baseUrl + "/api/results/export/phenotypes/NormalizedRelative/" + projectDetails.project + "'>Normalized Relative</a></li>";
@@ -559,7 +560,7 @@
           var plateIdx = $("#currentSelection").data("plateIdx");
           var project = $("#currentSelection").data("project");
           var path = "/api/results/gridding/" + plateIdx + "/" + project;
-          $("#imgGridding").attr("src", baseUrl + path);
+          $("#imgGridding").attr("src", som.getSharedValue('baseUrl') + path);
           $("#dialogGrid").show();
           $("#dialogGrid").dialog();
         };
