@@ -74,11 +74,13 @@ export function validateExperiment() {
 export function setPoetry(input) {
   $(input).html(poetry).css('font-style', 'italic');
 
-  $(input).focus(() => {
-    if ($(this).html() === poetry) { $(this).html('').css('font-style', 'normal'); }
+  $(input).on('focus', () => {
+    if ($(this).html() === poetry) {
+      $(this).html('').css('font-style', 'normal');
+    }
   });
 
-  $(input).blur(() => {
+  $(input).on('blur', () => {
     if ($(this).html() === '') {
       $(this).html(poetry).css('font-style', 'italic');
     }
