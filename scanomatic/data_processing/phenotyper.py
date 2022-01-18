@@ -1,7 +1,7 @@
 import csv
 import os
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from enum import Enum
 from io import BytesIO
 from itertools import chain, product
@@ -643,7 +643,10 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
         )
 
-    def iterate_extraction(self, keep_filter=False) -> None:
+    def iterate_extraction(
+        self,
+        keep_filter=False,
+    ) -> Generator[float, None, None]:
         self._logger.info(
             "Iteration started, will extract {0} phenotypes".format(
                 self.get_number_of_phenotypes(),

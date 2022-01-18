@@ -45,7 +45,7 @@ class CompileInstructionsModel(Model):
         cell_count_calibration_id="default",
     ):
         self.compile_action: COMPILE_ACTION = compile_action
-        self.images: Sequence[CompileImageModelFields] = images
+        self.images: Sequence[CompileImageModel] = images
         self.path: str = path
         self.start_time: float = start_time
         self.start_condition: str = start_condition

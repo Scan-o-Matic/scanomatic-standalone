@@ -1,6 +1,6 @@
 import itertools
 import time
-from typing import Union
+from typing import Any, Union
 
 import numpy as np
 
@@ -436,7 +436,7 @@ class FixtureImage:
         area: Union[FixturePlateModel, GrayScaleAreaModel],
         rotation=None,
         offset: tuple[int, int] = (0, 0),
-        issues: dict = {},
+        issues: dict[str, Any] = {},
     ):
 
         if area is None:
@@ -482,7 +482,7 @@ class FixtureImage:
                         area.index if hasattr(area, "index") else "Grayscale"
                     )
 
-    def set_current_areas(self, issues: dict):
+    def set_current_areas(self, issues: dict[str, Any]):
         """
         :param issues: reported issues
         """

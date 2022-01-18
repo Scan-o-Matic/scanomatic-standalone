@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Optional, cast
 
 import scanomatic.data_processing.phenotyper as phenotyper
 import scanomatic.io.image_data as image_data
@@ -44,11 +45,11 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
         )
 
         self._job_label = self._feature_job.analysis_directory
-        self._progress: float = 0.
+        self._progress: Optional[float] = 0.
         self._times = None
         self._data = None
         self._analysis_base_path = None
-        self._phenotyper = None
+        self._phenotyper: Optional[phenotyper.Phenotyper] = None
 
     @property
     def progress(self) -> float:
@@ -59,8 +60,8 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
             self._logger.warning("Can't setup when started")
             return False
 
-        job: RPCjobModel = loads(job)
-        self._feature_job: FeaturesModel = job.content_model
+        model: RPCjobModel = loads(job)
+        self._feature_job = cast(FeaturesModel, model.content_model)
         self._job.content_model = self._feature_job
 
         if validate(self._feature_job):
@@ -141,14 +142,15 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
 
         if not self._running:
             if not self._stopping:
-                self._phenotyper.save_state(
-                    self._analysis_base_path,
-                    ask_if_overwrite=False,
-                )
-                self._phenotyper.save_phenotypes(
-                    dir_path=self._analysis_base_path,
-                    ask_if_overwrite=False,
-                )
+                if (self._phenotyper is not None):
+                    self._phenotyper.save_state(
+                        self._analysis_base_path,
+                        ask_if_overwrite=False,
+                    )
+                    self._phenotyper.save_phenotypes(
+                        dir_path=self._analysis_base_path,
+                        ask_if_overwrite=False,
+                    )
 
             self._mail(
                 "Scan-o-Matic: Feature extraction of '{analysis_directory}' completed",  # noqa: E501

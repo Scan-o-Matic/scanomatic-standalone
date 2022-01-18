@@ -332,7 +332,7 @@ class ProcessEffector:
 
         self._messages: list[str] = []
 
-        self._iteration_index = None
+        self._iteration_index: Optional[int] = None
         self._pid = os.getpid()
         self._pipe_effector: Optional[ChildPipeEffector] = None
         self._start_time: Optional[float] = None

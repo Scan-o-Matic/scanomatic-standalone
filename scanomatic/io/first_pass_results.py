@@ -117,8 +117,8 @@ class CompilationResults:
                 m.image.index = index
             self._image_models = models
         else:
-            inject_time = 0
-            previous_time = 0
+            inject_time = 0.
+            previous_time = 0.
             for (index, m) in enumerate(models):
                 m.image.index = index
                 if m.image.time_stamp < previous_time:
