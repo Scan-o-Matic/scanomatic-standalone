@@ -79,6 +79,8 @@ class AnalysisEffector(proc_effector.ProcessEffector):
             self._analysis_job = AnalysisModelFactory.create()
             self._logger.warning("No job instructions")
         self._config = None
+        if job.id is None:
+            raise ValueError("Attempted to start job without id")
         self._job_label = get_label_from_analysis_model(
             job.content_model,
             job.id,
@@ -88,7 +90,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         self._specific_statuses['current_image_index'] = 'current_image_index'
         self._allowed_calls['setup'] = self.setup
 
-        self._reference_compilation_image_model = None
+        self._reference_compilation_image_model: Optional[CompileImageAnalysisModel] = None  # noqa: E501
 
         self._original_model: Optional[AnalysisModel] = None
         self._job.content_model = self._analysis_job
@@ -319,18 +321,20 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 raise StopIteration
 
         if (
-            len(self._first_pass_results.plates)
+            self._first_pass_results.plates is not None
+            and len(self._first_pass_results.plates)
             != len(self._analysis_job.pinning_matrices)
         ):
             self._filter_pinning_on_included_plates()
 
-        dump(
-            self._original_model,
-            os.path.join(
-                self._analysis_job.output_directory,
-                Paths().analysis_model_file,
-            ),
-        )
+        if self._original_model:
+            dump(
+                self._original_model,
+                os.path.join(
+                    self._analysis_job.output_directory,
+                    Paths().analysis_model_file,
+                ),
+            )
 
         self._logger.info("Will remove previous files")
 
@@ -356,7 +360,7 @@ class AnalysisEffector(proc_effector.ProcessEffector):
         return True
 
     def _filter_pinning_on_included_plates(self):
-
+        assert self._original_model is not None
         included_indices = (
             tuple()
             if self._first_pass_results.plates is None
@@ -364,11 +368,11 @@ class AnalysisEffector(proc_effector.ProcessEffector):
                 p.index for p in self._first_pass_results.plates
             )
         )
-        self._analysis_job.pinning_matrices = [
+        self._analysis_job.pinning_matrices = tuple(
             pm for i, pm in
             enumerate(self._analysis_job.pinning_matrices)
             if i in included_indices
-        ]
+        )
         self._logger.warning(
             "Inconsistency in number of plates reported in analysis instruction and compilation."  # noqa: E501
             f" Asuming pinning to be {self._analysis_job.pinning_matrices}"

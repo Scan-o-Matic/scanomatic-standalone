@@ -44,6 +44,10 @@ class _PipeEffector:
 
         self._pid = os.getpid()
 
+    @property
+    def status(self) -> dict:
+        return {}
+
     def setFailVunerableCalls(self, *calls):
         self._failVunerableCalls = calls
 

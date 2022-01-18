@@ -39,19 +39,15 @@ class JOB_TYPE(CycleEnum):
         return cls.Unknown
 
 
-JOB_STATUS = Enum(
-    "JOB_STATUS",
-    names=(
-        "Requested",
-        "Queued",
-        "Running",
-        "Restoring",
-        "Done",
-        "Aborted",
-        "Crashed",
-        "Unknown",
-    ),
-)
+class JOB_STATUS(Enum):
+    Requested = auto()
+    Queued = auto()
+    Running = auto()
+    Restoring = auto()
+    Done = auto()
+    Aborted = auto()
+    Crashed = auto()
+    Unknown = auto()
 
 
 class RPCjobModelFields(Enum):

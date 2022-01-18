@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from enum import Enum
 from io import StringIO
 from pathlib import Path
@@ -13,6 +14,7 @@ from scanomatic.models.analysis_model import (
     COMPARTMENTS,
     MEASURES,
     VALUES,
+    AnalysisFeatures,
     AnalysisModel
 )
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
@@ -46,7 +48,7 @@ from scanomatic.models.factories.settings_factories import (
     PathsFactory,
     PowerManagerFactory,
     RPCServerFactory,
-    UIServerFactory,
+    UIServerFactory
 )
 from scanomatic.models.features_model import FeatureExtractionData
 from scanomatic.models.fixture_models import FixtureModel
@@ -384,9 +386,9 @@ def test_load_first(filename: str, expect: Optional[Type]):
     ),
 ))
 def test_merge_into(
-    previous: Optional[Union[Model, list[Model]]],
-    update: Union[list[Model], Model],
-    expect: Union[list[Model], Model],
+    previous: Optional[Union[Model, Sequence[Model]]],
+    update: Union[Sequence[Model], Model],
+    expect: Union[Sequence[Model], Model],
 ):
     updated = jsonizer.merge_into(previous, update)
     assert jsonizer.dumps(updated) == jsonizer.dumps(expect)
@@ -457,6 +459,29 @@ def test_purge(tmp_path, fixture: FixtureModel):
     jsonizer.dump([fixture], path)
     assert jsonizer.purge(fixture, path) is True
     assert jsonizer.load(path) == []
+
+
+def test_purge_custom_equality(tmp_path):
+    path = tmp_path / 'jobs.cfg'
+    job = RPC_Job_Model_Factory.create(
+        id="hello",
+        content_model=AnalysisFeaturesFactory.create(),
+    )
+    content_model: AnalysisFeatures = job.content_model
+    other_job = RPC_Job_Model_Factory.create(id='other-id')
+    # Rogue job with same id of different type shouldn't happen
+    rogue_job = RPC_Job_Model_Factory.create(
+        id='hello',
+        content_model=ScannerFactory.create(),
+    )
+    jobs: Sequence[Model] = [other_job, job, rogue_job]
+    jsonizer.dump(jobs, path)
+    # Update conentent model
+    content_model.index = 42
+    assert jsonizer.purge(job, path, RPC_Job_Model_Factory.is_same_job) is True
+    saved_jobs = jsonizer.load(path)
+    assert len(saved_jobs) == 2
+    assert jsonizer.dumps(saved_jobs) == jsonizer.dumps([other_job, rogue_job])
 
 
 def test_purge_field(tmp_path, fixture: FixtureModel):

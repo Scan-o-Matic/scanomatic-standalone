@@ -1,3 +1,5 @@
+from typing import cast
+
 import scanomatic.generics.decorators as decorators
 import scanomatic.io.paths as paths
 import scanomatic.models.rpc_job_models as rpc_job_models
@@ -56,7 +58,7 @@ class Queue(SingeltonOneInit):
         if job:
             job.priority = priority
             dump(
-                job,
+                self._queue,
                 self._paths.rpc_queue,
             )
             return True
@@ -67,7 +69,11 @@ class Queue(SingeltonOneInit):
         if job.id in self:
             self._logger.info("Removing job {0} from queue".format(job.id))
             self._queue.remove(job)
-            return purge(job, self._paths.rpc_queue)
+            return purge(
+                job,
+                self._paths.rpc_queue,
+                RPC_Job_Model_Factory.is_same_job,
+            )
 
         self._logger.warning(f"No known job {job.id} in queue, can't remove")
         return False
@@ -89,7 +95,7 @@ class Queue(SingeltonOneInit):
             job.status = rpc_job_models.JOB_STATUS.Queued
             self._queue.append(job)
             dump(
-                job,
+                self._queue,
                 self._paths.rpc_queue,
             )
             return True
@@ -147,7 +153,10 @@ class Queue(SingeltonOneInit):
             not self._has_job_of_type(self._next_priority)
             and attempts < len(rpc_job_models.JOB_TYPE)
         ):
-            self._next_priority = self._next_priority.cycle
+            self._next_priority = cast(
+                rpc_job_models.JOB_TYPE,
+                self._next_priority.cycle,
+            )
             attempts += 1
 
         return self._next_priority
