@@ -14,7 +14,10 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
             if rpc_client.online:
                 return jsonify(success=True)
             else:
-                return json_abort()
+                return json_abort(
+                    503,
+                    reason="System not yet ready, probably starting up",
+                )
         elif not rpc_client.online:
             return jsonify(success=False, reason="Server offline")
         elif status_type == 'queue':

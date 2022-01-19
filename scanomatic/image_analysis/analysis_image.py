@@ -106,7 +106,7 @@ class ProjectImage:
     @property
     def image_inclusions(self):
         all_images = set(self._first_pass_results.keys())
-        highest_index_plus_one = max(all_images) + 1
+        highest_index_plus_one = 0 if not all_images else max(all_images) + 1
 
         if self._analysis_model.plate_image_inclusion is None:
 
