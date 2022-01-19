@@ -25,9 +25,9 @@ export default class CCCEditorContainer extends React.Component {
   }
 
   handleFinishUpload(newImage) {
-    const prevState = this.state;
-    const plates = [...prevState.plates];
-    for (let i = 1; i <= prevState.platesPerImage; i += 1) {
+    const currentState = this.state;
+    const plates = [...currentState.plates];
+    for (let i = 1; i <= currentState.platesPerImage; i += 1) {
       const newPlate = {
         imageId: newImage.id,
         imageName: newImage.name,
@@ -36,9 +36,9 @@ export default class CCCEditorContainer extends React.Component {
       plates.push(newPlate);
     }
     const currentPlate = (
-      prevState.currentPlate == null
-        ? prevState.plates.length
-        : prevState.currentPlate
+      currentState.currentPlate == null
+        ? currentState.plates.length
+        : currentState.currentPlate
     );
     this.setState({
       plates,
