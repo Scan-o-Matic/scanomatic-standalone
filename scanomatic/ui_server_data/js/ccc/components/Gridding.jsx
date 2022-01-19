@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-
 export default class Gridding extends React.Component {
   constructor(props) {
     super(props);
@@ -21,53 +20,58 @@ export default class Gridding extends React.Component {
     return (
       <div>
         <h4>Gridding</h4>
-        {this.props.loading &&
-        <div className="progress">
-          <div
-            className="progress-bar progress-bar-striped active"
-            style={{ width: '100%' }}
-          />
-        </div>
-        }
-        {!this.props.loading &&
-        <form>
-          {this.props.error &&
-          <div className="alert alert-danger" >
-            {this.props.error}
-          </div>
-          }
-          {!this.props.error &&
-          <div className="alert alert-success" >
-            Gridding was succesful!
-          </div>
-          }
-          <div className="form-group">
-            <label>Rows</label>
-            <input
-              className="row-offset form-control"
-              type="number"
-              value={this.props.rowOffset}
-              onChange={this.handleRowOffsetChange}
+        {this.props.loading
+        && (
+          <div className="progress">
+            <div
+              className="progress-bar progress-bar-striped active"
+              style={{ width: '100%' }}
             />
           </div>
-          <div className="form-group">
-            <label>Columns</label>
-            <input
-              className="col-offset form-control"
-              type="number"
-              value={this.props.colOffset}
-              onChange={this.handleColOffsetChange}
-            />
-          </div>
-          <div className="text-right">
-            <button
-              className="btn btn-default btn-regrid"
-              onClick={this.props.onRegrid}
-            >Re-grid
-            </button>
-          </div>
-        </form>
-        }
+        )}
+        {!this.props.loading
+        && (
+          <form>
+            {this.props.error
+            && (
+              <div className="alert alert-danger">
+                {this.props.error}
+              </div>
+            )}
+            {!this.props.error
+            && (
+              <div className="alert alert-success">
+                Gridding was succesful!
+              </div>
+            )}
+            <div className="form-group">
+              <label>Rows</label>
+              <input
+                className="row-offset form-control"
+                type="number"
+                value={this.props.rowOffset}
+                onChange={this.handleRowOffsetChange}
+              />
+            </div>
+            <div className="form-group">
+              <label>Columns</label>
+              <input
+                className="col-offset form-control"
+                type="number"
+                value={this.props.colOffset}
+                onChange={this.handleColOffsetChange}
+              />
+            </div>
+            <div className="text-right">
+              <button
+                className="btn btn-default btn-regrid"
+                onClick={this.props.onRegrid}
+              >
+                Re-grid
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     );
   }

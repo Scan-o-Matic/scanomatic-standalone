@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-const arrayOf2D = propType => PropTypes.arrayOf(PropTypes.arrayOf(propType));
+const arrayOf2D = (propType) => PropTypes.arrayOf(PropTypes.arrayOf(propType));
 
 const pinningFormat = PropTypes.shape({
   name: PropTypes.string.isRequired,

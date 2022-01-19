@@ -7,7 +7,6 @@ import * as helpers from '../../ccc/helpers';
 import cccMetadata from '../fixtures/cccMetadata';
 import FakePromise from '../helpers/FakePromise';
 
-
 describe('<ImageUploadContainer />', () => {
   const imageId = 'IMG0';
   const onFinish = jasmine.createSpy('onFinish');
@@ -34,8 +33,11 @@ describe('<ImageUploadContainer />', () => {
     const wrapper = mount(<ImageUploadContainer {...props} />);
     wrapper.find('ImageUpload').prop('onImageChange')(image);
     expect(helpers.uploadImage).toHaveBeenCalledWith(
-      cccMetadata.id, image, cccMetadata.fixtureName,
-      cccMetadata.accessToken, jasmine.any(Function),
+      cccMetadata.id,
+      image,
+      cccMetadata.fixtureName,
+      cccMetadata.accessToken,
+      jasmine.any(Function),
     );
   });
 

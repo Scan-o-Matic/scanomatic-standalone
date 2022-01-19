@@ -5,7 +5,6 @@ import PlateEditor from '../components/PlateEditor';
 import { SetGrayScaleTransform, SetGridding } from '../api';
 import CCCPropTypes from '../prop-types';
 
-
 export default class PlateEditorContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -35,8 +34,12 @@ export default class PlateEditorContainer extends React.Component {
       this.props.cccMetadata.pinningFormat.nRows,
     ];
     SetGridding(
-      this.props.cccMetadata.id, this.props.imageId, this.props.plateId,
-      pinFormat, [0, 0], this.props.cccMetadata.accessToken,
+      this.props.cccMetadata.id,
+      this.props.imageId,
+      this.props.plateId,
+      pinFormat,
+      [0, 0],
+      this.props.cccMetadata.accessToken,
     ).then(
       this.handleSetGriddingSuccess.bind(this),
       this.handleSetGriddingError.bind(this),
@@ -58,8 +61,11 @@ export default class PlateEditorContainer extends React.Component {
       this.props.cccMetadata.pinningFormat.nRows,
     ];
     SetGridding(
-      this.props.cccMetadata.id, this.props.imageId, this.props.plateId,
-      pinFormat, [this.state.rowOffset, this.state.colOffset],
+      this.props.cccMetadata.id,
+      this.props.imageId,
+      this.props.plateId,
+      pinFormat,
+      [this.state.rowOffset, this.state.colOffset],
       this.props.cccMetadata.accessToken,
     ).then(
       this.handleSetGriddingSuccess.bind(this),

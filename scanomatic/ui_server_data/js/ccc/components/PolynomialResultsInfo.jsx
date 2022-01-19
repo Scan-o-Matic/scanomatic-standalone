@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import CCCPropTypes from '../prop-types';
 
-
 export default function PolynomialResultsInfo({ polynomial }) {
   return (
     <div className="results">
@@ -20,7 +19,8 @@ export default function PolynomialResultsInfo({ polynomial }) {
           <h4 className="list-group-item-heading">
             Colonies included
           </h4>
-          {polynomial.colonies} colonies
+          {polynomial.colonies}
+          colonies
         </li>
       </ul>
     </div>
@@ -46,7 +46,7 @@ export function PolynomialEquation({ coefficients }) {
       poly.push((
         <span key={`power-${power}`}>
           <ScientificNotation value={coeff} precision={4} />
-          {x}{pwr}
+          {`${x}${pwr}`}
         </span>
       ));
     }
@@ -62,7 +62,9 @@ export function PolynomialEquation({ coefficients }) {
 
   return (
     <p className="math">
-      <span className="variable">y</span> = {poly}
+      <span className="variable">y</span>
+      =
+      {poly}
     </p>
   );
 }
@@ -88,7 +90,11 @@ export function ScientificNotation({ value, precision }) {
   return (
     <span>
       {coefficient.toPrecision(precision)}
-      &times;<span>10<sup>{exponent.toFixed(0)}</sup></span>
+      &times;
+      <span>
+        10
+        <sup>{exponent.toFixed(0)}</sup>
+      </span>
     </span>
   );
 }

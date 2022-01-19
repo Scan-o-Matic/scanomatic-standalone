@@ -47,7 +47,9 @@ export default class Plate extends React.Component {
         const x = xs[row][col];
         const y = ys[row][col];
         drawCircle(
-          this.canvas, x, y,
+          this.canvas,
+          x,
+          y,
           SELECTED_COLONY_MARKER_RADIUS,
           SELECTED_COLONY_MARKER_STROKE_WIDTH,
           SELECTED_COLONY_MARKER_COLOR,

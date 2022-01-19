@@ -5,7 +5,6 @@ import { GetFixturePlates } from '../api';
 import CCCPropTypes from '../prop-types';
 import CCCEditor from '../components/CCCEditor';
 
-
 export default class CCCEditorContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -35,10 +34,11 @@ export default class CCCEditorContainer extends React.Component {
       };
       plates.push(newPlate);
     }
-    const currentPlate =
-            this.state.currentPlate == null
-              ? this.state.plates.length
-              : this.state.currentPlate;
+    const currentPlate = (
+      this.state.currentPlate == null
+        ? this.state.plates.length
+        : this.state.currentPlate
+    );
     this.setState({
       plates,
       currentPlate,
@@ -46,10 +46,11 @@ export default class CCCEditorContainer extends React.Component {
   }
 
   handleFinishPlate() {
-    const currentPlate =
-            this.state.currentPlate < this.state.plates.length - 1
-              ? this.state.currentPlate + 1
-              : null;
+    const currentPlate = (
+      this.state.currentPlate < this.state.plates.length - 1
+        ? this.state.currentPlate + 1
+        : null
+    );
     this.setState({ currentPlate });
   }
 

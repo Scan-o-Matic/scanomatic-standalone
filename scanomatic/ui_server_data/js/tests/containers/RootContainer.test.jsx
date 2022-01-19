@@ -7,7 +7,6 @@ import * as API from '../../ccc/api';
 import cccMetadata from '../fixtures/cccMetadata';
 import FakePromise from '../helpers/FakePromise';
 
-
 describe('<RootContainer />', () => {
   beforeEach(() => {
     spyOn(API, 'InitiateCCC').and.returnValue(new FakePromise());

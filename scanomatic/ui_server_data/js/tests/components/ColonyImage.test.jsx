@@ -23,7 +23,6 @@ describe('<ColonyImage/>', () => {
     expect(wrapper.find('button').length).toEqual(0);
   });
 
-
   describe('when draw=true', () => {
     it('should render 2 <canvas/>', () => {
       const wrapper = mount(<ColonyImage data={data} draw />);

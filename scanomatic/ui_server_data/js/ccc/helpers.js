@@ -195,8 +195,8 @@ export function uploadImage(ccc, file, fixture, token, progress) {
   let imageId;
   progress(0, 5, 'Getting markers');
   return API.GetMarkers(fixture, file).then((data) => {
-    markers[0] = data.markers.map(xy => xy[0]);
-    markers[1] = data.markers.map(xy => xy[1]);
+    markers[0] = data.markers.map((xy) => xy[0]);
+    markers[1] = data.markers.map((xy) => xy[1]);
     progress(1, 5, 'Uploading image');
     return API.GetImageId(ccc, file, token);
   }).then((data) => {

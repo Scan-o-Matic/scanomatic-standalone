@@ -5,7 +5,6 @@ import './enzyme-setup';
 import Root from '../../ccc/components/Root';
 import cccMetadata from '../fixtures/cccMetadata';
 
-
 describe('<Root />', () => {
   const onInitializeCCC = jasmine.createSpy('onInitialzeCCC');
   const onFinalizeCCC = jasmine.createSpy('onFinalizeCCC');

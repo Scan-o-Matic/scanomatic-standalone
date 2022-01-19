@@ -5,7 +5,6 @@ import './enzyme-setup';
 import ColonyFeatures from '../../ccc/components/ColonyFeatures';
 import data from '../fixtures/colonyData';
 
-
 describe('<ColonyFeatures />', () => {
   it('should render a <canvas />', () => {
     const wrapper = mount(<ColonyFeatures data={data} />);

@@ -40,7 +40,6 @@ export default class ColonyEditor extends React.Component {
     }
   }
 
-
   render() {
     const cellCountValue = this.props.cellCount == null ? '' : this.props.cellCount;
     const cellCountFormGroupClass = `form-group${this.props.cellCountError ? ' has-error' : ''}`;
@@ -55,7 +54,7 @@ export default class ColonyEditor extends React.Component {
         <div><br /></div>
         <div><span>Colony MetaData</span></div>
         <ColonyFeatures data={this.state.data} />
-        <div className={cellCountFormGroupClass} >
+        <div className={cellCountFormGroupClass}>
           <label className="control-label" htmlFor="cell-count">Cell Count</label>
           <input
             className="form-control"

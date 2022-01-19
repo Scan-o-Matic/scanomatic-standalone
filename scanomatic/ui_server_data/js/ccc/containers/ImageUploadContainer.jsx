@@ -14,10 +14,6 @@ export default class ImageUploadContainer extends React.Component {
     this.handleUploadSuccess = this.handleUploadSuccess.bind(this);
   }
 
-  setProgress(now, max, text) {
-    this.setState({ progress: { now, max, text } });
-  }
-
   handleImageChange(image) {
     this.setState({ image });
     if (image) {
@@ -37,6 +33,10 @@ export default class ImageUploadContainer extends React.Component {
     this.setState({ image: null, progress: null });
     // eslint-disable-next-line no-alert
     alert(`An error occured while uploading the image: ${reason}`);
+  }
+
+  setProgress(now, max, text) {
+    this.setState({ progress: { now, max, text } });
   }
 
   render() {

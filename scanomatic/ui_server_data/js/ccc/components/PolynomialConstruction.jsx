@@ -58,7 +58,7 @@ export default function PolynomialConstruction(props) {
             onChange={props.onDegreeOfPolynomialChange}
             value={props.degreeOfPolynomial}
           >
-            {degrees.map(d => <option key={d} value={d}>{d}</option>)}
+            {degrees.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>
         {' '}

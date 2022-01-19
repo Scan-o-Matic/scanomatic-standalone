@@ -34,7 +34,8 @@ export default function CanvasState(canvas) {
 
   canvas.addEventListener(
     'selectstart',
-    (e) => { e.preventDefault(); return false; }, false,
+    (e) => { e.preventDefault(); return false; },
+    false,
   );
 
   canvas.addEventListener('mousedown', (e) => {

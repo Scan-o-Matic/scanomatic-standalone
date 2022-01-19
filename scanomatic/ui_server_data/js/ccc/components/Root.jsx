@@ -6,7 +6,6 @@ import CCCInitializationContainer from '../containers/CCCInitializationContainer
 import CCCEditorContainer from '../containers/CCCEditorContainer';
 import FinalizedCCC from './FinalizedCCC';
 
-
 export default function Root(props) {
   let view;
   if (props.cccMetadata && props.finalized) {

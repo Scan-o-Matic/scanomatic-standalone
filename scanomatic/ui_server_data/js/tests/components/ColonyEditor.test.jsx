@@ -4,7 +4,6 @@ import React from 'react';
 import './enzyme-setup';
 import ColonyEditor from '../../ccc/components/ColonyEditor';
 
-
 describe('<ColonyEditor />', () => {
   const data = {
     image: [[0, 1], [1, 0]],
@@ -16,7 +15,6 @@ describe('<ColonyEditor />', () => {
   const onUpdate = jasmine.createSpy('onUpdate');
   const onCellCountChange = jasmine.createSpy('onCellCountChange');
   let wrapper;
-
 
   beforeEach(() => {
     onSet.calls.reset();

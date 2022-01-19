@@ -6,7 +6,7 @@ import 'c3/c3.min.css';
 
 import { valueFormatter } from '../helpers.js';
 
-const labelFormatter = value => value.toFixed(0);
+const labelFormatter = (value) => value.toFixed(0);
 
 export default class PolynomialResultsColonyHistogram extends React.Component {
   constructor(props) {
@@ -105,7 +105,10 @@ export default class PolynomialResultsColonyHistogram extends React.Component {
           ref={this.refBinder}
           id={`poly-colony-chart-${colonyIdx}`}
         />
-        <span className="poly-colony-txt">{valueFormatter(independentMeasurements, 2)} cells</span>
+        <span className="poly-colony-txt">
+          {valueFormatter(independentMeasurements, 2)}
+          cells
+        </span>
       </div>
     );
   }

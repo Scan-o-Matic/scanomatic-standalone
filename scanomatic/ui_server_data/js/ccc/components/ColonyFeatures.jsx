@@ -28,7 +28,7 @@ export default class ColonyFeatures extends React.Component {
     };
 
     return (
-      <div style={style} >
+      <div style={style}>
         <canvas ref={(canvas) => { this.canvas = canvas; }} />
         <ul className="colonyPlot">
           {legend.map(({ color, text }) => (

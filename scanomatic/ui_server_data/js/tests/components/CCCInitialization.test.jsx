@@ -4,7 +4,6 @@ import React from 'react';
 import './enzyme-setup';
 import CCCInitialization from '../../ccc/components/CCCInitialization';
 
-
 describe('<CCCInitialization />', () => {
   const onSpeciesChange = jasmine.createSpy('onSpeciesChange');
   const onReferenceChange = jasmine.createSpy('onReferenceChange');

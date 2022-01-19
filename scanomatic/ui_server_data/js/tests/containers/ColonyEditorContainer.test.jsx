@@ -39,8 +39,13 @@ describe('</ColonyEditorContainer />', () => {
   it('should load the colony data from the api', () => {
     mount(<ColonyEditorContainer {...props} />);
     expect(API.SetColonyDetection).toHaveBeenCalledWith(
-      props.ccc, props.image, props.plateId,
-      props.accessToken, props.row, props.col, jasmine.any(Function),
+      props.ccc,
+      props.image,
+      props.plateId,
+      props.accessToken,
+      props.row,
+      props.col,
+      jasmine.any(Function),
       jasmine.any(Function),
     );
   });
@@ -49,8 +54,13 @@ describe('</ColonyEditorContainer />', () => {
     const wrapper = mount(<ColonyEditorContainer {...props} />);
     wrapper.setProps({ col: 2 });
     expect(API.SetColonyDetection).toHaveBeenCalledWith(
-      props.ccc, props.image, props.plateId,
-      props.accessToken, props.row, 2, jasmine.any(Function),
+      props.ccc,
+      props.image,
+      props.plateId,
+      props.accessToken,
+      props.row,
+      2,
+      jasmine.any(Function),
       jasmine.any(Function),
     );
   });
@@ -124,16 +134,30 @@ describe('</ColonyEditorContainer />', () => {
       wrapper.setState({ cellCount: 666 });
       wrapper.find('ColonyEditor').prop('onSet')();
       expect(API.SetColonyCompression).toHaveBeenCalledWith(
-        props.ccc, props.image, props.plateId, props.accessToken,
-        colonyData, 666, props.row, props.col,
-        jasmine.any(Function), jasmine.any(Function),
+        props.ccc,
+        props.image,
+        props.plateId,
+        props.accessToken,
+        colonyData,
+        666,
+        props.row,
+        props.col,
+        jasmine.any(Function),
+        jasmine.any(Function),
       );
     });
 
     it('should call the onFinish callback on success', () => {
       API.SetColonyCompression
         .and.callFake((
-          ccc, image, plateId, accessToken, row, col, data, cellCount,
+          ccc,
+          image,
+          plateId,
+          accessToken,
+          row,
+          col,
+          data,
+          cellCount,
           onSuccess,
         ) => {
           onSuccess();
@@ -147,8 +171,16 @@ describe('</ColonyEditorContainer />', () => {
     it('should show an alert on error', () => {
       API.SetColonyCompression
         .and.callFake((
-          ccc, image, plateId, accessToken, row, col, data, cellCount,
-          onSuccess, onError,
+          ccc,
+          image,
+          plateId,
+          accessToken,
+          row,
+          col,
+          data,
+          cellCount,
+          onSuccess,
+          onError,
         ) => {
           onError({ reason: 'Whoops' });
         });

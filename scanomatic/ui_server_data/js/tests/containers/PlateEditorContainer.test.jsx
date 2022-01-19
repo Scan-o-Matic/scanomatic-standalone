@@ -43,7 +43,9 @@ describe('<PlateEditorContainer />', () => {
       shallow(<PlateEditorContainer {...props} />);
       expect(API.SetGrayScaleTransform)
         .toHaveBeenCalledWith(
-          props.cccMetadata.id, props.imageId, props.plateId,
+          props.cccMetadata.id,
+          props.imageId,
+          props.plateId,
           props.cccMetadata.accessToken,
         );
     });
@@ -62,15 +64,18 @@ describe('<PlateEditorContainer />', () => {
 
   describe('gridding', () => {
     beforeEach(() => {
-      API.SetGrayScaleTransform.and.returnValue({ then: f => f() });
+      API.SetGrayScaleTransform.and.returnValue({ then: (f) => f() });
     });
 
     it('should call SetGridding with offset 0,0', () => {
       shallow(<PlateEditorContainer {...props} />);
       expect(API.SetGridding).toHaveBeenCalledWith(
-        props.cccMetadata.id, props.imageId, props.plateId,
+        props.cccMetadata.id,
+        props.imageId,
+        props.plateId,
         [props.cccMetadata.pinningFormat.nCols, props.cccMetadata.pinningFormat.nRows],
-        [0, 0], props.cccMetadata.accessToken,
+        [0, 0],
+        props.cccMetadata.accessToken,
       );
     });
 
@@ -86,9 +91,12 @@ describe('<PlateEditorContainer />', () => {
       wrapper.setState({ rowOffset: 2, colOffset: 3 });
       wrapper.prop('onRegrid')();
       expect(API.SetGridding).toHaveBeenCalledWith(
-        props.cccMetadata.id, props.imageId, props.plateId,
+        props.cccMetadata.id,
+        props.imageId,
+        props.plateId,
         [props.cccMetadata.pinningFormat.nCols, props.cccMetadata.pinningFormat.nRows],
-        [2, 3], props.cccMetadata.accessToken,
+        [2, 3],
+        props.cccMetadata.accessToken,
       );
     });
 
@@ -134,9 +142,8 @@ describe('<PlateEditorContainer />', () => {
       const grid = [[[0]], [[0]]];
 
       beforeEach(() => {
-        API.SetGridding.and.returnValue({ then: f => f({ grid }) });
+        API.SetGridding.and.returnValue({ then: (f) => f({ grid }) });
       });
-
 
       it('should set griddingLoading to false', () => {
         const wrapper = shallow(<PlateEditorContainer {...props} />);

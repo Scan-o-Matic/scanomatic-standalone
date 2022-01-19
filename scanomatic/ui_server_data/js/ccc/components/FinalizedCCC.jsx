@@ -10,7 +10,7 @@ export default function FinalizedCCC(props) {
         <p>
           Calibration activated and ready to use.
           It will be available as
-          &ldquo;{props.cccMetadata.species}, {props.cccMetadata.reference}&rdquo;
+          {`&ldquo;${props.cccMetadata.species}, ${props.cccMetadata.reference}&rdquo;`}
           in new experiments.
         </p>
         <div className="text-center">

@@ -5,7 +5,6 @@ import 'c3/c3.min.css';
 import { valueFormatter } from '../helpers.js';
 import CCCPropTypes from '../prop-types';
 
-
 export default class PolynomialResultsPlotScatter extends React.Component {
   componentDidMount() {
     this.drawSVG();
@@ -18,7 +17,7 @@ export default class PolynomialResultsPlotScatter extends React.Component {
   drawSVG() {
     const { calculated, independentMeasurements } = this.props.resultsData;
     const { slope, intercept } = this.props.correlation;
-    const corr = x => (slope * x) + intercept;
+    const corr = (x) => (slope * x) + intercept;
     const yMax = Math.max(...calculated);
     const xMax = Math.max(...independentMeasurements);
     const rangeMax = Math.ceil(Math.max(xMax, yMax) * 1.1);
@@ -81,8 +80,8 @@ export default class PolynomialResultsPlotScatter extends React.Component {
       },
       tooltip: {
         format: {
-          title: d => `Measured ${valueFormatter(d, 2)}`,
-          value: value => valueFormatter(value, 2),
+          title: (d) => `Measured ${valueFormatter(d, 2)}`,
+          value: (value) => valueFormatter(value, 2),
           name: () => 'Calculated',
         },
       },
@@ -98,9 +97,11 @@ export default class PolynomialResultsPlotScatter extends React.Component {
           className="poly-corr-chart"
           ref={(ref) => { this.divRef = ref; }}
         />
-        <p>Correlation:
-          y = {slope.toFixed(2)}x + {intercept.toFixed(0)} {' '}
-          (standard error {stderr.toFixed(2)})
+        <p>
+          Correlation:
+          {`y = ${slope.toFixed(2)}x + ${intercept.toFixed(0)}`}
+          {' '}
+          {`(standard error ${stderr.toFixed(2)})`}
         </p>
       </div>
     );

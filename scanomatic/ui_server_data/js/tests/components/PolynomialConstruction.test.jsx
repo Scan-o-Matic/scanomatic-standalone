@@ -42,7 +42,6 @@ describe('<PolynomialConstruction />', () => {
     props.onConstruction.calls.reset();
   });
 
-
   it('should render a button to construct the polynomial', () => {
     const wrapper = shallow(<PolynomialConstruction {...props} />);
     expect(wrapper.find('button.btn-construct').exists()).toBeTruthy();
@@ -193,8 +192,8 @@ describe('<PolynomialConstruction />', () => {
     const wrapper = shallow(<PolynomialConstruction {...props} />);
     const options = wrapper.find('select.degree').find('option');
     const degrees = ['2', '3', '4', '5'];
-    expect(options.map(x => x.prop('value'))).toEqual(degrees);
-    expect(options.map(x => x.text())).toEqual(degrees);
+    expect(options.map((x) => x.prop('value'))).toEqual(degrees);
+    expect(options.map((x) => x.text())).toEqual(degrees);
   });
 
   it('should call onDegreeOfPolynomialChange when the selected degree changes', () => {

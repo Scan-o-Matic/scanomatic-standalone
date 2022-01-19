@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-
 export default function PlateProgress(props) {
   const width = `${Math.round((props.now / props.max) * 100)}%`;
   return (
@@ -14,7 +13,7 @@ export default function PlateProgress(props) {
         aria-valuemax={props.max}
         style={{ width, minWidth: '3em' }}
       >
-        {props.now}/{props.max}
+        {`${props.now}/${props.max}`}
       </div>
     </div>
   );

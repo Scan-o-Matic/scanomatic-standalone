@@ -4,7 +4,6 @@ import React from 'react';
 import CCCInitialization from '../components/CCCInitialization';
 import { GetFixtures, GetPinningFormats } from '../api';
 
-
 export default class CCCInitializationContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -32,19 +31,6 @@ export default class CCCInitializationContainer extends React.Component {
       this.handleGetPinningFormatsSuccess.bind(this),
       this.setError.bind(this, 'Error getting pinning formats'),
     );
-  }
-
-  setError(prefix, reason) {
-    this.props.onError(`${prefix}: ${reason}`);
-  }
-
-  getPinningFormatByName(name) {
-    for (let i = 0; i < this.state.pinningFormats.length; i += 1) {
-      if (this.state.pinningFormats[i].name === name) {
-        return this.state.pinningFormats[i];
-      }
-    }
-    return null;
   }
 
   handleGetFixturesSuccess(fixtureNames) {
@@ -99,17 +85,32 @@ export default class CCCInitializationContainer extends React.Component {
     this.props.onInitialize(species, reference, fixtureName, pinningFormat);
   }
 
+  setError(prefix, reason) {
+    this.props.onError(`${prefix}: ${reason}`);
+  }
+
+  getPinningFormatByName(name) {
+    for (let i = 0; i < this.state.pinningFormats.length; i += 1) {
+      if (this.state.pinningFormats[i].name === name) {
+        return this.state.pinningFormats[i];
+      }
+    }
+    return null;
+  }
+
   render() {
-    return (<CCCInitialization
-      {...this.state}
-      pinningFormatName={this.state.pinningFormat ? this.state.pinningFormat.name : ''}
-      pinningFormatNames={this.state.pinningFormats.map(f => f.name)}
-      onSpeciesChange={this.handleSpeciesChange}
-      onReferenceChange={this.handleReferenceChange}
-      onFixtureNameChange={this.handleFixtureNameChange}
-      onPinningFormatNameChange={this.handlePinningFormatNameChange}
-      onSubmit={this.handleSumbit}
-    />);
+    return (
+      <CCCInitialization
+        {...this.state}
+        pinningFormatName={this.state.pinningFormat ? this.state.pinningFormat.name : ''}
+        pinningFormatNames={this.state.pinningFormats.map((f) => f.name)}
+        onSpeciesChange={this.handleSpeciesChange}
+        onReferenceChange={this.handleReferenceChange}
+        onFixtureNameChange={this.handleFixtureNameChange}
+        onPinningFormatNameChange={this.handlePinningFormatNameChange}
+        onSubmit={this.handleSumbit}
+      />
+    );
   }
 }
 

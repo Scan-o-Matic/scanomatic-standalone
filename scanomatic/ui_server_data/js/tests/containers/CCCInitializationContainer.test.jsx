@@ -6,7 +6,6 @@ import CCCInitializationContainer from '../../ccc/containers/CCCInitializationCo
 import * as API from '../../ccc/api';
 import FakePromise from '../helpers/FakePromise';
 
-
 describe('<CCCInitializationContainer />', () => {
   const onInitialize = jasmine.createSpy('onInitialize');
   const onError = jasmine.createSpy('onError');

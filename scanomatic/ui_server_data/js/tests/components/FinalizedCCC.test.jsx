@@ -5,7 +5,6 @@ import './enzyme-setup';
 import FinalizedCCC from '../../ccc/components/FinalizedCCC';
 import cccMetadata from '../fixtures/cccMetadata';
 
-
 describe('<FinalizedCCC />', () => {
   const props = { cccMetadata };
 

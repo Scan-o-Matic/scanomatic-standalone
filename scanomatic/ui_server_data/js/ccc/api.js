@@ -10,7 +10,7 @@ class API {
       url,
       type: 'GET',
       success: resolve,
-      error: jqXHR => reject(JSON.parse(jqXHR.responseText).reason),
+      error: (jqXHR) => reject(JSON.parse(jqXHR.responseText).reason),
     }));
   }
 
@@ -23,7 +23,7 @@ class API {
       data: formData,
       processData: false,
       success: resolve,
-      error: jqXHR => reject(JSON.parse(jqXHR.responseText).reason),
+      error: (jqXHR) => reject(JSON.parse(jqXHR.responseText).reason),
     }));
   }
 
@@ -36,7 +36,7 @@ class API {
     })
       .then(
         resolve,
-        jqXHR => reject(JSON.parse(jqXHR.responseText).reason),
+        (jqXHR) => reject(JSON.parse(jqXHR.responseText).reason),
       ));
   }
 }
@@ -52,9 +52,8 @@ export function GetSliceImage(cccId, imageId, slice, successCallback, errorCallb
   $.get(path, successCallback).fail(errorCallback);
 }
 
-
 export function GetFixtures() {
-  return API.get('/api/data/fixture/names').then(data => data.fixtures);
+  return API.get('/api/data/fixture/names').then((data) => data.fixtures);
 }
 
 function GetFixtureData(fixtureName) {
@@ -63,12 +62,12 @@ function GetFixtureData(fixtureName) {
 }
 
 export function GetFixturePlates(fixtureName) {
-  return GetFixtureData(fixtureName).then(data => data.plates);
+  return GetFixtureData(fixtureName).then((data) => data.plates);
 }
 
 export function GetPinningFormats() {
   return API.get('/api/analysis/pinning/formats')
-    .then(data => data.pinning_formats.map(({ name, value }) => (
+    .then((data) => data.pinning_formats.map(({ name, value }) => (
       { name, nCols: value[0], nRows: value[1] }
     )));
 }
@@ -142,13 +141,19 @@ export function SetGridding(cccId, imageId, plate, pinningFormat, offSet, access
       access_token: accessToken,
     }),
     success: resolve,
-    error: jqXHR => reject(JSON.parse(jqXHR.responseText)),
+    error: (jqXHR) => reject(JSON.parse(jqXHR.responseText)),
   }));
 }
 
 export function SetColonyDetection(
-  cccId, imageId, plate, accessToken, row, col,
-  successCallback, errorCallback,
+  cccId,
+  imageId,
+  plate,
+  accessToken,
+  row,
+  col,
+  successCallback,
+  errorCallback,
 ) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/detect/colony/${col}/${row}`;
 
@@ -161,14 +166,22 @@ export function SetColonyDetection(
     enctype: 'multipart/form-data',
     data: formData,
     processData: false,
-    success: data => successCallback(data),
-    error: jqXHR => errorCallback(JSON.parse(jqXHR.responseText)),
+    success: (data) => successCallback(data),
+    error: (jqXHR) => errorCallback(JSON.parse(jqXHR.responseText)),
   });
 }
 
 export function SetColonyCompression(
-  cccId, imageId, plate, accessToken, colony, cellCount, row, col,
-  successCallback, errorCallback,
+  cccId,
+  imageId,
+  plate,
+  accessToken,
+  colony,
+  cellCount,
+  row,
+  col,
+  successCallback,
+  errorCallback,
 ) {
   const path = `/api/calibration/${cccId}/image/${imageId}/plate/${plate}/compress/colony/${col}/${row}`;
 
@@ -188,7 +201,7 @@ export function SetColonyCompression(
     success(payload) {
       successCallback(payload);
     },
-    error: jqXHR => errorCallback(JSON.parse(jqXHR.responseText)),
+    error: (jqXHR) => errorCallback(JSON.parse(jqXHR.responseText)),
   });
 }
 

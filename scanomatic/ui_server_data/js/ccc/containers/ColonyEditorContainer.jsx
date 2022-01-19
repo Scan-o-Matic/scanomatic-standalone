@@ -31,16 +31,6 @@ export default class ColonyEditorContainer extends React.Component {
     this.getColonyData(newProps);
   }
 
-  getColonyData({
-    ccc, image, plateId, row, col, accessToken,
-  }) {
-    SetColonyDetection(
-      ccc, image, plateId, accessToken, row, col,
-      this.handleColonyDetectionSuccess.bind(this),
-      () => {},
-    );
-  }
-
   handleCellCountChange(cellCount) {
     this.setState({ cellCount, cellCountError: cellCount < 0 });
   }
@@ -72,7 +62,14 @@ export default class ColonyEditorContainer extends React.Component {
     } = this.props;
     const { cellCount, colonyData } = this.state;
     SetColonyCompression(
-      ccc, image, plateId, accessToken, colonyData, cellCount, row, col,
+      ccc,
+      image,
+      plateId,
+      accessToken,
+      colonyData,
+      cellCount,
+      row,
+      col,
       () => this.handleSkip(),
       // eslint-disable-next-line no-alert
       (data) => { alert(`Set Colony compression Error: ${data.reason}`); },
@@ -82,6 +79,21 @@ export default class ColonyEditorContainer extends React.Component {
   handleSkip() {
     const { onFinish } = this.props;
     if (onFinish != null) onFinish();
+  }
+
+  getColonyData({
+    ccc, image, plateId, row, col, accessToken,
+  }) {
+    SetColonyDetection(
+      ccc,
+      image,
+      plateId,
+      accessToken,
+      row,
+      col,
+      this.handleColonyDetectionSuccess.bind(this),
+      () => {},
+    );
   }
 
   render() {

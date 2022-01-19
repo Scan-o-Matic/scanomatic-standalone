@@ -1,6 +1,11 @@
 import 'jasmine-ajax';
 
-import { SetColonyCompression, SetColonyDetection, SetGridding, HasJquery } from '../ccc/api';
+import {
+  SetColonyCompression,
+  SetColonyDetection,
+  SetGridding,
+  HasJquery,
+} from '../ccc/api';
 import * as API from '../ccc/api';
 
 const toHaveMethod = (util, customEqualityTesters) => ({

@@ -64,7 +64,7 @@ export default function PlateEditor(props) {
           max={max}
           griddingError={props.griddingError}
         />
-        {props.imageName}, Plate {props.plateId}
+        {`${props.imageName}, Plate ${props.plateId}`}
       </div>
       <div
         className={props.collapse ? 'panel-body collapse' : 'panel-body'}
@@ -81,60 +81,65 @@ export default function PlateEditor(props) {
             />
           </div>
           <div className="col-md-6">
-            {props.step === 'gridding' &&
-            <div className="well">
-              <Gridding
-                rowOffset={props.rowOffset}
-                colOffset={props.colOffset}
-                onRowOffsetChange={props.onRowOffsetChange}
-                onColOffsetChange={props.onColOffsetChange}
-                onRegrid={props.onRegrid}
-                error={props.griddingError}
-                loading={props.griddingLoading}
+            {props.step === 'gridding'
+            && (
+              <div className="well">
+                <Gridding
+                  rowOffset={props.rowOffset}
+                  colOffset={props.colOffset}
+                  onRowOffsetChange={props.onRowOffsetChange}
+                  onColOffsetChange={props.onColOffsetChange}
+                  onRegrid={props.onRegrid}
+                  error={props.griddingError}
+                  loading={props.griddingLoading}
+                />
+              </div>
+            )}
+            {props.step === 'colony-detection'
+            && (
+              <ColonyEditorContainer
+                accessToken={props.cccMetadata.accessToken}
+                ccc={props.cccMetadata.id}
+                image={props.imageId}
+                plateId={props.plateId}
+                onFinish={props.onColonyFinish}
+                row={props.selectedColony.row}
+                col={props.selectedColony.col}
               />
-            </div>
-            }
-            {props.step === 'colony-detection' &&
-            <ColonyEditorContainer
-              accessToken={props.cccMetadata.accessToken}
-              ccc={props.cccMetadata.id}
-              image={props.imageId}
-              plateId={props.plateId}
-              onFinish={props.onColonyFinish}
-              row={props.selectedColony.row}
-              col={props.selectedColony.col}
-            />
-            }
+            )}
           </div>
         </div>
         <div className="row">
           <div className="col-md-12 text-right">
-            {props.step === 'gridding' &&
-            <button
-              className="btn btn-primary btn-next"
-              disabled={!!props.griddingError || props.griddingLoading}
-              onClick={props.onClickNext}
-            >
-              Next
-            </button>
-            }
-            {props.step === 'colony-detection' &&
-            <button
-              className="btn btn-success"
-              onClick={props.onClickNext}
-            >
-              Done
-            </button>
-            }
+            {props.step === 'gridding'
+            && (
+              <button
+                className="btn btn-primary btn-next"
+                disabled={!!props.griddingError || props.griddingLoading}
+                onClick={props.onClickNext}
+              >
+                Next
+              </button>
+            )}
+            {props.step === 'colony-detection'
+            && (
+              <button
+                className="btn btn-success"
+                onClick={props.onClickNext}
+              >
+                Done
+              </button>
+            )}
           </div>
         </div>
-        {props.step === 'colony-detection' &&
-        <div className="row">
-          <div className="col-md-12">
-            <PlateProgress now={now} max={max} />
+        {props.step === 'colony-detection'
+        && (
+          <div className="row">
+            <div className="col-md-12">
+              <PlateProgress now={now} max={max} />
+            </div>
           </div>
-        </div>
-        }
+        )}
       </div>
     </div>
 

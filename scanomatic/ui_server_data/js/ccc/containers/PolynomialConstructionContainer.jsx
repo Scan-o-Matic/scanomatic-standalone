@@ -6,7 +6,6 @@ import PolynomialConstruction from '../components/PolynomialConstruction';
 import * as API from '../api';
 import CCCPropTypes from '../prop-types';
 
-
 export default class PolynomialConstructionContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -74,18 +73,20 @@ export default class PolynomialConstructionContainer extends React.Component {
   }
 
   render() {
-    return (<PolynomialConstruction
-      degreeOfPolynomial={this.state.degreeOfPolynomial}
-      polynomial={this.state.polynomial}
-      resultsData={this.state.resultsData}
-      correlation={this.state.correlation}
-      colonies={this.state.colonies}
-      error={this.state.error}
-      onClearError={this.handleClearError}
-      onConstruction={this.handleConstruction}
-      onDegreeOfPolynomialChange={this.handleDegreeOfPolynomialChange}
-      onFinalizeCCC={this.props.onFinalizeCCC}
-    />);
+    return (
+      <PolynomialConstruction
+        degreeOfPolynomial={this.state.degreeOfPolynomial}
+        polynomial={this.state.polynomial}
+        resultsData={this.state.resultsData}
+        correlation={this.state.correlation}
+        colonies={this.state.colonies}
+        error={this.state.error}
+        onClearError={this.handleClearError}
+        onConstruction={this.handleConstruction}
+        onDegreeOfPolynomialChange={this.handleDegreeOfPolynomialChange}
+        onFinalizeCCC={this.props.onFinalizeCCC}
+      />
+    );
   }
 }
 

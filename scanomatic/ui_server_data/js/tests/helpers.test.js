@@ -1,4 +1,9 @@
-import { RGBColor, loadImage, uploadImage, valueFormatter } from '../ccc/helpers';
+import {
+  RGBColor,
+  loadImage,
+  uploadImage,
+  valueFormatter,
+} from '../ccc/helpers';
 import testPlateImageURL from './fixtures/testPlate.png';
 import * as API from '../ccc/api';
 

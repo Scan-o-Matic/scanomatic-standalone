@@ -17,8 +17,9 @@ export default class ImageUpload extends React.Component {
   render() {
     let inputOrProgress;
     if (this.props.progress) {
-      const progressWidth =
-                100 * (this.props.progress.now / this.props.progress.max);
+      const progressWidth = (
+        100 * (this.props.progress.now / this.props.progress.max)
+      );
       inputOrProgress = (
         <div>
           <div className="progress">

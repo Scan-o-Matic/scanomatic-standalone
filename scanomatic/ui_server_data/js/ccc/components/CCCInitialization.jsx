@@ -35,7 +35,7 @@ export default function CCCInitialization(props) {
                 onChange={props.onFixtureNameChange}
                 value={props.fixtureName}
               >
-                {props.fixtureNames.map(v => (
+                {props.fixtureNames.map((v) => (
                   <option key={v} value={v}>{v}</option>
                 ))}
               </select>
@@ -47,7 +47,7 @@ export default function CCCInitialization(props) {
                 onChange={props.onPinningFormatNameChange}
                 value={props.pinningFormatName}
               >
-                {props.pinningFormatNames.map(v => (
+                {props.pinningFormatNames.map((v) => (
                   <option key={v} value={v}>{v}</option>
                 ))}
               </select>
