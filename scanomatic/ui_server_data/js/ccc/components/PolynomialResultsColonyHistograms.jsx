@@ -2,7 +2,7 @@ import React from 'react';
 import PolynomialResultsColonyHistogram from './PolynomialResultsColonyHistogram';
 import CCCPropTypes from '../prop-types';
 
-const PolynomialResultsColonyHistograms = (props) => {
+function PolynomialResultsColonyHistograms(props) {
   const colonies = [];
   const {
     independentMeasurements, pixelValues, pixelCounts, maxCount,
@@ -29,7 +29,7 @@ const PolynomialResultsColonyHistograms = (props) => {
       {colonies}
     </div>
   );
-};
+}
 
 PolynomialResultsColonyHistograms.propTypes = {
   colonies: CCCPropTypes.coloniesShape.isRequired,
