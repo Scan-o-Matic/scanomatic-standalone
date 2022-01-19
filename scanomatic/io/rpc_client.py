@@ -2,7 +2,7 @@ import enum
 import socket
 import xmlrpc.client
 from collections.abc import Callable
-from http.client import CannotSendRequest
+from http.client import CannotSendRequest, ResponseNotReady
 from subprocess import Popen
 from types import GeneratorType
 from typing import Optional
@@ -173,7 +173,7 @@ class _ClientProxy:
         if self._client is not None:
             try:
                 return bool(dir(self._client.system.listMethods()))
-            except (socket.error, CannotSendRequest):
+            except (socket.error, CannotSendRequest, ResponseNotReady):
                 return False
         return False
 
