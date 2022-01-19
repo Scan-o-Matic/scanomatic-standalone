@@ -19,7 +19,7 @@ export default function PolynomialResultsInfo({ polynomial }) {
           <h4 className="list-group-item-heading">
             Colonies included
           </h4>
-          {polynomial.colonies}
+          {` ${polynomial.colonies} `}
           colonies
         </li>
       </ul>
@@ -46,7 +46,8 @@ export function PolynomialEquation({ coefficients }) {
       poly.push((
         <span key={`power-${power}`}>
           <ScientificNotation value={coeff} precision={4} />
-          {`${x}${pwr}`}
+          {x}
+          {pwr}
         </span>
       ));
     }
@@ -63,7 +64,7 @@ export function PolynomialEquation({ coefficients }) {
   return (
     <p className="math">
       <span className="variable">y</span>
-      =
+      {' = '}
       {poly}
     </p>
   );

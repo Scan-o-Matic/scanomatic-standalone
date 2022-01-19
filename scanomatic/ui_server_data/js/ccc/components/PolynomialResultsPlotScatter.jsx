@@ -99,6 +99,7 @@ export default class PolynomialResultsPlotScatter extends React.Component {
         />
         <p>
           Correlation:
+          {' '}
           {`y = ${slope.toFixed(2)}x + ${intercept.toFixed(0)}`}
           {' '}
           {`(standard error ${stderr.toFixed(2)})`}

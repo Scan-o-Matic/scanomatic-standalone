@@ -107,7 +107,7 @@ export default class PolynomialResultsColonyHistogram extends React.Component {
         />
         <span className="poly-colony-txt">
           {valueFormatter(independentMeasurements, 2)}
-          cells
+          {' cells'}
         </span>
       </div>
     );
