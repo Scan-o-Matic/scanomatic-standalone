@@ -2,8 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import './enzyme-setup';
-import PolynomialResultsColonyHistograms from
-  '../../ccc/components/PolynomialResultsColonyHistograms';
+import PolynomialResultsColonyHistograms from '../../ccc/components/PolynomialResultsColonyHistograms';
 
 describe('<PolynomialResultsColonyHistograms />', () => {
   const props = {

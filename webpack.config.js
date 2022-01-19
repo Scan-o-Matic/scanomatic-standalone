@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
+  mode: 'production',
   entry: {
     ccc: [path.join(__dirname, 'scanomatic/ui_server_data/js/ccc/index.jsx')],
     som: [path.join(__dirname, './scanomatic/ui_server_data/js/som/index.js')],

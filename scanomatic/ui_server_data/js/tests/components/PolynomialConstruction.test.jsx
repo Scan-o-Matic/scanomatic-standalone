@@ -2,8 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import './enzyme-setup';
-import PolynomialConstruction from
-  '../../ccc/components/PolynomialConstruction';
+import PolynomialConstruction from '../../ccc/components/PolynomialConstruction';
 
 describe('<PolynomialConstruction />', () => {
   const onDegreeOfPolynomialChange = jasmine.createSpy('onDegreeOfPolynomialChange');

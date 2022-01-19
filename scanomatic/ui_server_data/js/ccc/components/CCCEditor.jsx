@@ -3,8 +3,7 @@ import React from 'react';
 
 import PlateEditorContainer from '../containers/PlateEditorContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
-import PolynomialConstructionContainer from
-  '../containers/PolynomialConstructionContainer';
+import PolynomialConstructionContainer from '../containers/PolynomialConstructionContainer';
 import CCCPropTypes from '../prop-types';
 import CCCInfoBox from './CCCInfoBox';
 

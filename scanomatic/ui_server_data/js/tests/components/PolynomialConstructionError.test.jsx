@@ -2,8 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import './enzyme-setup';
-import PolynomialConstructionError
-  from '../../ccc/components/PolynomialConstructionError';
+import PolynomialConstructionError from '../../ccc/components/PolynomialConstructionError';
 
 describe('<PolynomialConstructionError />', () => {
   const props = {

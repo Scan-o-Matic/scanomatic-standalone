@@ -1,4 +1,4 @@
-FROM node:8 as npmbuilder
+FROM node:16 as npmbuilder
 COPY . /src
 WORKDIR /src
 RUN npm install
