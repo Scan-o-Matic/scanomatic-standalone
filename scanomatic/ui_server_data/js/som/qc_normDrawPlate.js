@@ -196,8 +196,6 @@ export function DrawPlate(container, data, growthMetaData, plateMetaData, phenot
   const legendWidth = 25;
   const legendMargin = 5;
 
-  // SetDebugText(data, cols, rows);
-
   const grid = d3.select(container)
     .append('svg')
     .attr({
@@ -227,9 +225,6 @@ export function DrawPlate(container, data, growthMetaData, plateMetaData, phenot
   heatMap.displayLegend(true);
   heatMap.dispatch2(dispatch);
   heatMap(plateGroup);
-  // heatMap.on(dispatcherSelectedExperiment, function (datah) {
-  //    console.log("dispatched:" + datah);
-  // });
   return d3.rebind(DrawPlate, heatMap, 'on');
 }
 
@@ -249,18 +244,6 @@ export function getValidSymbol(type) {
   default:
     return null;
   }
-}
-
-function SetDebugText(data, cols, rows) { // eslint-disable-line no-unused-vars
-  d3.select('#text').append('p').text(`cols = ${cols}`);
-  d3.select('#text').append('p').text(`rows = ${rows}`);
-
-  const min = d3.min(data[0]);
-  const max = d3.max(data[0]);
-  const mean = d3.mean(data[0]);
-  d3.select('#text').append('p').text(`min = ${min}`);
-  d3.select('#text').append('p').text(`max = ${max}`);
-  d3.select('#text').append('p').text(`mean = ${mean}`);
 }
 
 d3.scanomatic.plateHeatmap = () => {

@@ -4,7 +4,6 @@ import * as d3 from 'd3';
 import { getLastSegmentOfPath } from './qc_normHelper';
 import { setSharedValue } from './helpers';
 
-// var baseUrl = "http://localhost:5000";
 const baseUrl = '';
 setSharedValue('baseUrl', baseUrl);
 const BrowseRootPath = `${baseUrl}/api/results/browse`;

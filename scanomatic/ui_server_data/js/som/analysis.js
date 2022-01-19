@@ -14,21 +14,21 @@ let path = '';
 
 function appendRegriddingUI(parent, plateIndex) {
   parent.append((
-    `<div class='plate-regridding' id='plate-regridding-${plateIndex}' onmouseleave='hideGridImage();'>`
+    `<div class='plate-regridding' id='plate-regridding-${plateIndex}' onmouseleave='som.hideGridImage();'>`
       + '<fieldset>'
-      + `<img class='grid_icon' src='/images/grid_icon.png' onmouseenter='loadGridImage(${plateIndex - 1});'>`
+      + `<img class='grid_icon' src='/images/grid_icon.png' onmouseenter='som.loadGridImage(${plateIndex - 1});'>`
       + `<legend>Plate ${plateIndex}</legend>`
 
       + `<input type='radio' name='plate-regridding-radio-${plateIndex}' value='Keep' checked='checked'>`
       + `<label id='plate-regridding-keep${plateIndex}'>Keep previous</label><br>`
 
       + `<input type='radio' name='plate-regridding-radio-${plateIndex}' value='Offset'>`
-      + `<label id='plate-regridding-offset${plateIndex}'>Offset</label>`
+      + `<label id='plate-regridding-offset-${plateIndex}'>Offset</label>`
       + `<input type='number' class='plate-offset' id='plate-regridding-offset-d1-${plateIndex}' value='0' name='Offset-d1'>`
       + `<input type='number' class='plate-offset' id='plate-regridding-offset-d2-${plateIndex}' value='0' name='Offset-d2'><br>`
 
       + `<input type='radio' name='plate-regridding-radio-${plateIndex}' value='New'>`
-      + `<label id='plate-regridding-new${plateIndex}'>New grid from scratch</label><br>`
+      + `<label id='plate-regridding-new-${plateIndex}'>New grid from scratch</label><br>`
       + '</fieldset>'
     + '</div>'
   ));

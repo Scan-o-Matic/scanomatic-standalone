@@ -117,7 +117,7 @@ function getDescription(index, description) {
         "<input type='hidden' value='"}${index}'>` +
         `<label for='plate-description-${index}'>Plate ${index}</label>` +
         `<input class='long' id='plate-description-${index}' value='${description
-        }' placeholder='Enter medium and, if relevant, what experiment this plate is.' onchange='cacheDescription(this);'></div>`;
+        }' placeholder='Enter medium and, if relevant, what experiment this plate is.' onchange='som.cacheDescription(this);'></div>`;
 }
 
 function setVisiblePlateDescriptions() {
@@ -143,7 +143,7 @@ function getPlateSelector(plate) {
   return (
     `<div class='pinning'><input type='hidden' value='${plate.index}'>`
       + `<label for='pinning-plate-${plate.index}'>Plate ${plate.index}</label>`
-      + `<select id='pinning-plate-${plate.index}' class='pinning-selector' onchange='setActivePlate(this); validateExperiment();'>`
+      + `<select id='pinning-plate-${plate.index}' class='pinning-selector' onchange='som.setActivePlate(this); som.validateExperiment();'>`
         + '<option value=\'\'>Not used</option>'
         + '<option value=\'(8, 12)\'>8 x 12 (96)</option>'
         + '<option value=\'(16, 24)\'>16 x 24 (384)</option>'
