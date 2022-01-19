@@ -52,7 +52,11 @@ export default function CCCInitialization(props) {
                 ))}
               </select>
             </div>
-            <button className="btn btn-primary" onClick={props.onSubmit}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              onClick={props.onSubmit}
+            >
               Initiate new CCC
             </button>
           </div>

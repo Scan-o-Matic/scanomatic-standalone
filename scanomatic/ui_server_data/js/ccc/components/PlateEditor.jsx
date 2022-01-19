@@ -114,6 +114,7 @@ export default function PlateEditor(props) {
             {props.step === 'gridding'
             && (
               <button
+                type="button"
                 className="btn btn-primary btn-next"
                 disabled={!!props.griddingError || props.griddingLoading}
                 onClick={props.onClickNext}
@@ -124,6 +125,7 @@ export default function PlateEditor(props) {
             {props.step === 'colony-detection'
             && (
               <button
+                type="submit"
                 className="btn btn-success"
                 onClick={props.onClickNext}
               >

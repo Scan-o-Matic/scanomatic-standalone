@@ -88,6 +88,7 @@ export default class ColonyImage extends React.Component {
         && (
           <div>
             <button
+              type="button"
               className="btn btn-default btn-plus"
               style={buttonStyle}
               onClick={this.handleClickPlus}
@@ -95,6 +96,7 @@ export default class ColonyImage extends React.Component {
               +
             </button>
             <button
+              type="button"
               className="btn btn-default btn-minus"
               style={buttonStyle}
               onClick={this.handleClickMinus}
@@ -102,6 +104,7 @@ export default class ColonyImage extends React.Component {
               -
             </button>
             <button
+              type="submit"
               className="btn btn-default btn-update"
               style={buttonStyle}
               onClick={this.handleClickUpdate}

@@ -63,6 +63,7 @@ export default function PolynomialConstruction(props) {
         </div>
         {' '}
         <button
+          type="button"
           className="btn btn-default btn-construct"
           onClick={props.onConstruction}
         >
@@ -70,6 +71,7 @@ export default function PolynomialConstruction(props) {
         </button>
       </div>
       <button
+        type="submit"
         className="btn btn-success btn-finalize"
         disabled={!props.polynomial}
         onClick={props.onFinalizeCCC}

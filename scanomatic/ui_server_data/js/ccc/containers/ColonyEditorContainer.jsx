@@ -22,7 +22,8 @@ export default class ColonyEditorContainer extends React.Component {
     this.getColonyData(this.props);
   }
 
-  componentWillReceiveProps(newProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(newProps) {
     this.setState({
       cellCount: null,
       cellCountError: false,
@@ -48,7 +49,9 @@ export default class ColonyEditorContainer extends React.Component {
   }
 
   handleUpdate(data) {
-    const colonyData = Object.assign({}, this.state.colonyData, data);
+    const prevState = this.state;
+    const colonyData = {};
+    Object.assign(colonyData, prevState.colonyData, data);
     this.setState({ colonyData });
   }
 

@@ -17,7 +17,8 @@ export default class ColonyEditor extends React.Component {
     this.handleUpdate = this.handleUpdate.bind(this);
   }
 
-  componentWillReceiveProps(props) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(props) {
     this.setState({
       drawing: false,
       data: props.data,
@@ -67,18 +68,21 @@ export default class ColonyEditor extends React.Component {
         <div className="text-center">
           <div className="btn-group">
             <button
+              type="button"
               className="btn btn-default btn-fix"
               onClick={this.handleClickFix}
             >
               Fix
             </button>
             <button
+              type="button"
               className="btn btn-default btn-skip"
               onClick={this.props.onSkip}
             >
               Skip
             </button>
             <button
+              type="button"
               className="btn btn-primary btn-set"
               onClick={this.props.onSet}
             >
