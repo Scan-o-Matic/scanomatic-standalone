@@ -49,9 +49,9 @@ export default class ColonyEditorContainer extends React.Component {
   }
 
   handleUpdate(data) {
-    const prevState = this.state;
+    const currentState = this.state;
     const colonyData = {};
-    Object.assign(colonyData, prevState.colonyData, data);
+    Object.assign(colonyData, currentState.colonyData, data);
     this.setState({ colonyData });
   }
 

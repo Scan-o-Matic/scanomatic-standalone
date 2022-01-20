@@ -47,10 +47,10 @@ export default class CCCEditorContainer extends React.Component {
   }
 
   handleFinishPlate() {
-    const prevState = this.state;
+    const currentState = this.state;
     const currentPlate = (
-      prevState.currentPlate < prevState.plates.length - 1
-        ? prevState.currentPlate + 1
+      currentState.currentPlate < currentState.plates.length - 1
+        ? currentState.currentPlate + 1
         : null
     );
     this.setState({ currentPlate });
