@@ -8,7 +8,7 @@ matplotlib
 requests
 xlrd
 enum34
-pillow
+pillow>=9.0.0
 odfpy
 sh
 scikit-image
