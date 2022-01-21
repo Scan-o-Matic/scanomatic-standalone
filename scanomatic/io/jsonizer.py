@@ -5,6 +5,7 @@ from typing import Any, Optional, TextIO, Type, TypeVar, Union
 from pathlib import Path
 
 import numpy as np
+from scanomatic.data_processing.phenotypes import PhenotypeDataType
 
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io.logger import get_logger
@@ -138,6 +139,7 @@ ENUM_CLASSES: dict[str, Type[Enum]] = {
     "CULTURE_SOURCE": CULTURE_SOURCE,
     "POWER_MANAGER_TYPE": POWER_MANAGER_TYPE,
     "POWER_MODES": POWER_MODES,
+    "PhenotypeDataType": PhenotypeDataType,
 }
 
 

@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 from collections import deque
 from collections.abc import Callable, Generator
@@ -13,6 +14,7 @@ from scipy.signal import convolve  # type: ignore
 from scipy.stats import norm  # type: ignore
 
 import scanomatic.io.image_data as image_data
+import scanomatic.io.jsonizer as jsonizer
 import scanomatic.io.paths as paths
 from scanomatic.data_processing.convolution import (
     EdgeCondition,
@@ -269,14 +271,16 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         """
         _p = paths.Paths()
 
-        raw_growth_data = unpickle_with_unpickler(np.load, os.path.join(
-            directory_path,
-            _p.phenotypes_input_data
-        ))
+        raw_growth_data = unpickle_with_unpickler(
+            np.load,
+            os.path.join(directory_path, _p.phenotypes_input_data),
+            allow_pickle=True,
+        )
 
         times = unpickle_with_unpickler(
             np.load,
             os.path.join(directory_path, _p.phenotype_times),
+            allow_pickle=True,
         )
 
         phenotyper = cls(
@@ -290,6 +294,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             phenotypes = unpickle_with_unpickler(
                 np.load,
                 os.path.join(directory_path, _p.phenotypes_raw_npy),
+                allow_pickle=True,
             )
         except (IOError, ValueError):
             phenotyper._logger.warning(
@@ -301,6 +306,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             vector_phenotypes = unpickle_with_unpickler(
                 np.load,
                 os.path.join(directory_path, _p.vector_phenotypes_raw),
+                allow_pickle=True,
             )
         except (IOError, ValueError):
             phenotyper._logger.warning(
@@ -312,6 +318,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             vector_meta_phenotypes = unpickle_with_unpickler(
                 np.load,
                 os.path.join(directory_path, _p.vector_meta_phenotypes_raw),
+                allow_pickle=True,
             )
         except (IOError, ValueError):
             phenotyper._logger.warning(
@@ -322,73 +329,63 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         smooth_growth_data = unpickle_with_unpickler(
             np.load,
             os.path.join(directory_path, _p.phenotypes_input_smooth),
+            allow_pickle=True,
         )
 
         try:
-            extraction_params = unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.phenotypes_extraction_params),
-            )
+            
+            extraction_params = jsonizer.load(os.path.join(
+                directory_path,
+                _p.phenotypes_extraction_params,
+            ))
         except IOError:
             phenotyper._logger.warning(
                 "Could not find stored extraction parameters, assuming defaults were used",  # noqa: E501
             )
         else:
-            if extraction_params.size > 0:
-                if extraction_params.size == 3:
-                    (
-                        median_filt_size,
-                        gauss_sigma,
-                        linear_reg_size,
-                    ) = extraction_params
-                elif extraction_params.size == 4:
-                    (
-                        median_filt_size,
-                        gauss_sigma,
-                        linear_reg_size,
-                        inclusion_name,
-                    ) = extraction_params
-                    if inclusion_name is None:
-                        inclusion_name = 'Trusted'
+            try:
+                phenotype_inclusion = extraction_params.get(
+                    "phenotype_inclusion",
+                )
+                if phenotype_inclusion is not None:
                     phenotyper.set_phenotype_inclusion_level(
-                        PhenotypeDataType[inclusion_name],
+                        phenotype_inclusion,
                     )
-                elif extraction_params.size == 6:
-                    (
-                        median_filt_size,
-                        gauss_sigma,
-                        linear_reg_size,
-                        inclusion_name,
-                        no_growth_monotonicity_threshold,
-                        no_growth_pop_doublings_threshold,
-                     ) = extraction_params
-                    if inclusion_name is None:
-                        inclusion_name = 'Trusted'
-
-                    phenotyper._settings.no_growth_monotonicity_threshold = (
-                        float(no_growth_monotonicity_threshold)
-                    )
-                    phenotyper._settings.no_growth_pop_doublings_threshold = (
-                        float(no_growth_pop_doublings_threshold)
-                    )
-                    phenotyper.set_phenotype_inclusion_level(
-                        PhenotypeDataType[inclusion_name],
-                    )
-
                 else:
-                    raise ValueError(
-                        "Stored parameters in {0} can't be understood".format(
-                            os.path.join(
-                                directory_path,
-                                _p.phenotypes_extraction_params,
-                            )
-                        ),
+                    phenotyper.set_phenotype_inclusion_level(
+                        PhenotypeDataType.Trusted,
                     )
-
-                phenotyper._settings.median_kernel_size = int(median_filt_size)
-                phenotyper._settings.gaussian_filter_sigma = float(gauss_sigma)
-                phenotyper._settings.linear_regression_size = int(
-                    linear_reg_size,
+                no_growth_monotonicity_threshold = extraction_params.get(
+                    "no_growth_monotonicity_threshold",
+                )
+                if no_growth_monotonicity_threshold is not None:
+                    phenotyper._settings.no_growth_monotonicity_threshold = (
+                        no_growth_monotonicity_threshold
+                    )
+                no_growth_pop_doublings_threshold = extraction_params.get(
+                    "no_growth_pop_doublings_threshold",
+                )
+                if no_growth_pop_doublings_threshold is not None:
+                    phenotyper._settings.no_growth_pop_doublings_threshold = (
+                        no_growth_pop_doublings_threshold
+                    )
+                phenotyper._settings.median_kernel_size = (
+                    extraction_params["median_kernel_size"]
+                )
+                phenotyper._settings.gaussian_filter_sigma = (
+                    extraction_params["gaussian_filter_sigma"],
+                )
+                phenotyper._settings.linear_regression_size = (
+                    extraction_params["linear_regression_size"],
+                )
+            except (ValueError, KeyError):
+                raise ValueError(
+                    "Stored parameters in {0} can't be understood".format(
+                        os.path.join(
+                            directory_path,
+                            _p.phenotypes_extraction_params,
+                        )
+                    ),
                 )
 
         phenotyper.set('smooth_growth_data', smooth_growth_data)
@@ -404,7 +401,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "phenotype_filter",
-                    unpickle_with_unpickler(np.load, filter_path),
+                    unpickle_with_unpickler(
+                        np.load,
+                        filter_path,
+                        allow_pickle=True,
+                    ),
                 )
             except (ValueError, IOError):
                 phenotyper._logger.warning(
@@ -418,7 +419,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         if os.path.isfile(offsets_path):
             phenotyper.set(
                 "reference_offsets",
-                unpickle_with_unpickler(np.load, offsets_path),
+                unpickle_with_unpickler(
+                    np.load,
+                    offsets_path,
+                    allow_pickle=True,
+                ),
             )
 
         normalized_phenotypes = os.path.join(
@@ -429,7 +434,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "normalized_phenotypes",
-                    unpickle_with_unpickler(np.load, normalized_phenotypes),
+                    unpickle_with_unpickler(
+                        np.load,
+                        normalized_phenotypes,
+                        allow_pickle=True,
+                    ),
                 )
             except (ValueError, IOError):
                 phenotyper._logger.warning(
@@ -537,8 +546,16 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 times_data_path += ".npy"
 
         return cls(
-            unpickle_with_unpickler(np.load, data_directory),
-            unpickle_with_unpickler(np.load, times_data_path),
+            unpickle_with_unpickler(
+                np.load,
+                data_directory,
+                allow_pickle=True,
+            ),
+            unpickle_with_unpickler(
+                np.load,
+                times_data_path,
+                allow_pickle=True,
+            ),
             base_name=path,
             run_extraction=True,
             **kwargs

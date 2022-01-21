@@ -1,5 +1,5 @@
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -35,8 +35,8 @@ class PhenotyperSettings:
     gaussian_filter_sigma: float
     linear_regression_size: int
     phenotypes_inclusion: Optional[PhenotypeDataType]
-    no_growth_monotonicity_threshold: float
-    no_growth_pop_doublings_threshold: float
+    no_growth_monotonicity_threshold: Optional[float]
+    no_growth_pop_doublings_threshold: Optional[float]
 
     def __post_init__(self):
         assert (
@@ -50,9 +50,14 @@ class PhenotyperSettings:
             self.linear_regression_size,
             None if self.phenotypes_inclusion is None
             else self.phenotypes_inclusion.name,
-            self.no_growth_monotonicity_threshold,
-            self.no_growth_pop_doublings_threshold
+            None if self.no_growth_monotonicity_threshold is None
+            else self.no_growth_monotonicity_threshold,
+            None if self.no_growth_pop_doublings_threshold is None
+            else self.no_growth_pop_doublings_threshold,
         ]
+
+    def asdict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass

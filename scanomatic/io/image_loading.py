@@ -92,6 +92,7 @@ def _load_grid_info(analysis_directory, plate):
             analysis_directory,
             Paths().grid_pattern.format(plate + 1),
         ),
+        allow_pickle=True,
     )
     grid_size = unpickle_with_unpickler(
         np.load,
@@ -99,6 +100,7 @@ def _load_grid_info(analysis_directory, plate):
             analysis_directory,
             Paths().grid_size_pattern.format((plate + 1)),
         ),
+        allow_pickle=True,
     )
     return grid, grid_size
 

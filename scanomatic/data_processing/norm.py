@@ -224,7 +224,7 @@ def _get_positions(data, offsets):
         offset = offsets[id_plate]
         filt = np.tile(
             offset,
-            [a / b for a, b in zip(plate.shape, offset.shape)],
+            [a // b for a, b in zip(plate.shape, offset.shape)],
         )
         filt = filt.reshape(
             filt.shape + tuple(1 for _ in range(plate.ndim - filt.ndim)),
@@ -648,12 +648,12 @@ def apply_outlier_filter(
 
                     if measure is None:
                         plate[
-                            pos / plate.shape[1],
+                            pos // plate.shape[1],
                             pos % plate.shape[1]
                         ] = np.nan
                     else:
                         plate[
-                            pos / plate.shape[1],
+                            pos // plate.shape[1],
                             pos % plate.shape[1],
                             measure
                         ] = np.nan

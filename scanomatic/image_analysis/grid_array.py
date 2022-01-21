@@ -244,7 +244,11 @@ class GridArray:
                 )
 
         try:
-            grid = unpickle_with_unpickler(np.load, grid)
+            grid = unpickle_with_unpickler(
+                np.load,
+                grid,
+                allow_pickle=True,
+            )
         except IOError:
             self._LOGGER.error("No grid file named '{0}'".format(grid))
             self._LOGGER.info("Invoking grid detection instead")

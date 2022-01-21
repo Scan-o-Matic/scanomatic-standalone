@@ -95,7 +95,11 @@ def produce_grid_images(
         grid_path = os.path.join(
             path, Paths().grid_pattern.format(plate.index))
         try:
-            grid = unpickle_with_unpickler(np.load, grid_path)
+            grid = unpickle_with_unpickler(
+                np.load,
+                grid_path,
+                allow_pickle=True,
+            )
         except IOError:
             _logger.warning("Could not find any grid: " + grid_path)
             grid = None

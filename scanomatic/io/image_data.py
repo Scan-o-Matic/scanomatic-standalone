@@ -159,7 +159,11 @@ class ImageData:
             path,
         ))
         if os.path.isfile(path):
-            return unpickle_with_unpickler(np.load, path)
+            return unpickle_with_unpickler(
+                np.load,
+                path,
+                allow_pickle=True,
+            )
         else:
             ImageData._LOGGER.warning("Times data file not found")
             return np.array([], dtype=float)
@@ -167,7 +171,11 @@ class ImageData:
     @staticmethod
     def read_image(path: str):
         if os.path.isfile(path):
-            return unpickle_with_unpickler(np.load, path)
+            return unpickle_with_unpickler(
+                np.load,
+                path,
+                allow_pickle=True,
+            )
         else:
             return None
 
@@ -306,7 +314,11 @@ class ImageData:
 
             try:
                 time_indices.append(int(re.findall(r"\d+", p)[-1]))
-                data.append(unpickle_with_unpickler(np.load, p))
+                data.append(unpickle_with_unpickler(
+                    np.load,
+                    p,
+                    allow_pickle=True,
+                ))
             except AttributeError:
                 ImageData._LOGGER.warning(
                     f"File '{p}' has no index number in it, need that!",

@@ -1,3 +1,4 @@
+import json
 import os
 import pickle
 import zipfile
@@ -7,6 +8,7 @@ from typing import Optional
 import numpy as np
 
 import scanomatic.io.paths as paths
+import scanomatic.io.jsonizer as jsonizer
 from scanomatic.data_processing.pheno.state import (
     PhenotyperSettings,
     PhenotyperState
@@ -127,7 +129,10 @@ def save_state(
         or not os.path.isfile(p)
         or _do_ask_overwrite(p)
     ):
-        np.save(p, settings.serialized())
+        with open(p, 'w') as fp:
+            json.dump(json.loads(
+                jsonizer.dumps(settings.asdict()),
+            ), fp)
 
     _logger.info("State saved to '{0}'".format(dir_path))
 

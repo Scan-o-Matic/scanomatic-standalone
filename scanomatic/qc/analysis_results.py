@@ -45,19 +45,43 @@ def calculate_growth_curve(data_paths, blob_paths, background_paths=None):
     if background_paths is not None:
         return np.array([
             (
-                unpickle_with_unpickler(np.load, data)
+                unpickle_with_unpickler(
+                    np.load,
+                    data,
+                    allow_pickle=True,
+                )
                 - mid50_mean(
-                    unpickle_with_unpickler(np.load, data)[
-                        unpickle_with_unpickler(np.load, bg)
+                    unpickle_with_unpickler(
+                        np.load,
+                        data,
+                        allow_pickle=True,
+                    )[
+                        unpickle_with_unpickler(
+                            np.load,
+                            bg,
+                            allow_pickle=True,
+                        )
                     ]
                 )
-            )[unpickle_with_unpickler(np.load, blob)].sum()
+            )[unpickle_with_unpickler(
+                np.load,
+                blob,
+                allow_pickle=True,
+            )].sum()
             for data, blob, bg in zip(data_paths, blob_paths, background_paths)
         ])
     else:
         return np.array([
-            unpickle_with_unpickler(np.load, data)[
-                unpickle_with_unpickler(np.load, blob)
+            unpickle_with_unpickler(
+                np.load,
+                data,
+                allow_pickle=True,
+            )[
+                unpickle_with_unpickler(
+                    np.load,
+                    blob,
+                    allow_pickle=True,
+                )
             ].sum()
             for data, blob in zip(data_paths, blob_paths)
         ])
@@ -219,7 +243,11 @@ def animate_blob_detection(
     def _plotter():
 
         for idx, index in enumerate(image_indices):
-            ims[0].set_data(unpickle_with_unpickler(np.load, files[idx]))
+            ims[0].set_data(unpickle_with_unpickler(
+                np.load,
+                files[idx],
+                allow_pickle=True,
+            ))
             base_name = files[idx][:-21]
             image_ax.set_title(
                 "Image (t={0:.1f}h)".format(
@@ -234,11 +262,16 @@ def animate_blob_detection(
                 '.blob.trash.current.npy',
                 '.blob.trash.old.npy',
             )):
-                im_data = unpickle_with_unpickler(np.load, base_name + ending)
+                im_data = unpickle_with_unpickler(
+                    np.load,
+                    base_name + ending,
+                    allow_pickle=True,
+                )
                 if im_data.ndim == 2:
                     ims[j + 1].set_data(unpickle_with_unpickler(
                         np.load,
                         base_name + ending,
+                        allow_pickle=True,
                     ))
 
             set_axvspan_width(polygon, curve_times[idx])
@@ -276,7 +309,11 @@ def animate_3d_colony(
 
     image_ax, curve_ax = fig.axes
 
-    data = unpickle_with_unpickler(np.load, files[0])
+    data = unpickle_with_unpickler(
+        np.load,
+        files[0],
+        allow_pickle=True,
+    )
     im = image_ax.imshow(data, interpolation='nearest', vmin=0, vmax=100)
 
     coords_x, coords_y = np.mgrid[0:data.shape[0], 0:data.shape[1]]
@@ -297,7 +334,11 @@ def animate_3d_colony(
         ax3d = None
 
         for idx, index in enumerate(image_indices):
-            im.set_data(unpickle_with_unpickler(np.load, files[idx]))
+            im.set_data(unpickle_with_unpickler(
+                np.load,
+                files[idx],
+                allow_pickle=True,
+            ))
 
             # Added suffix length too
             base_name = files[idx][:-(10 + 11)]
@@ -310,7 +351,9 @@ def animate_3d_colony(
             )
 
             cells = unpickle_with_unpickler(
-                np.load, base_name + ".image.cells.npy",
+                np.load,
+                base_name + ".image.cells.npy",
+                allow_pickle=True,
             )
             if cells.ndim != 2:
                 cells = np.zeros_like(coords_y)

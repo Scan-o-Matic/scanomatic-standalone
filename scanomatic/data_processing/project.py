@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 
 import numpy as np
@@ -24,6 +25,7 @@ def path_has_saved_project_state(
             unpickle_with_unpickler(
                 np.load,
                 os.path.join(directory_path, _p.phenotypes_raw_npy),
+                allow_pickle=True,
             )
         except IOError:
             return False
@@ -32,19 +34,23 @@ def path_has_saved_project_state(
         unpickle_with_unpickler(
             np.load,
             os.path.join(directory_path,  _p.phenotypes_input_data),
+            allow_pickle=True,
         )
         unpickle_with_unpickler(
             np.load,
             os.path.join(directory_path, _p.phenotype_times),
+            allow_pickle=True,
         )
         unpickle_with_unpickler(
             np.load,
             os.path.join(directory_path, _p.phenotypes_input_smooth),
+            allow_pickle=True,
         )
-        unpickle_with_unpickler(
-            np.load,
+        with open(
             os.path.join(directory_path, _p.phenotypes_extraction_params),
-        )
+            'r',
+        ) as fp:
+            json.load(fp)
     except IOError:
         return False
     return True
