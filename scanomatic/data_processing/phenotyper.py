@@ -332,7 +332,6 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         )
 
         try:
-            
             extraction_params = jsonizer.load(os.path.join(
                 directory_path,
                 _p.phenotypes_extraction_params,
