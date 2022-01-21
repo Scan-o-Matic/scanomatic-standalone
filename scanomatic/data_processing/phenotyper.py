@@ -1,5 +1,4 @@
 import csv
-import json
 import os
 from collections import deque
 from collections.abc import Callable, Generator
