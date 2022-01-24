@@ -262,8 +262,8 @@ def save_state_to_zip(
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_extraction_params),
     )
-    save_functions.append(np.save)
-    data.append(settings.serialized())
+    save_functions.append(lambda fh, obj: json.dump(obj, fh))
+    data.append(json.loads(jsonizer.dumps(settings.asdict())))
 
     zip_stream = zipit(save_functions, data, zip_paths)
     if target:

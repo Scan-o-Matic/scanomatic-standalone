@@ -13,7 +13,7 @@ from scanomatic.io.image_loading import load_colony_images_for_animation
 from scanomatic.io.logger import get_logger
 from scanomatic.io.movie_writer import MovieWriter
 from scanomatic.io.paths import Paths
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 
 _pattern = re.compile(r".*_([0-9]+)_[0-9]+_[0-9]+_[0-9]+\..*")
 _logger = get_logger("Phenotype Results QC")
@@ -45,41 +45,35 @@ def calculate_growth_curve(data_paths, blob_paths, background_paths=None):
     if background_paths is not None:
         return np.array([
             (
-                unpickle_with_unpickler(
-                    np.load,
-                    data,
+                np.load(
+                    safe_load(data),
                     allow_pickle=True,
                 )
                 - mid50_mean(
-                    unpickle_with_unpickler(
-                        np.load,
-                        data,
+                    np.load(
+                        safe_load(data),
                         allow_pickle=True,
                     )[
-                        unpickle_with_unpickler(
-                            np.load,
-                            bg,
+                        np.load(
+                            safe_load(bg),
                             allow_pickle=True,
                         )
                     ]
                 )
-            )[unpickle_with_unpickler(
-                np.load,
-                blob,
+            )[np.load(
+                safe_load(blob),
                 allow_pickle=True,
             )].sum()
             for data, blob, bg in zip(data_paths, blob_paths, background_paths)
         ])
     else:
         return np.array([
-            unpickle_with_unpickler(
-                np.load,
-                data,
+            np.load(
+                safe_load(data),
                 allow_pickle=True,
             )[
-                unpickle_with_unpickler(
-                    np.load,
-                    blob,
+                np.load(
+                    safe_load(blob),
                     allow_pickle=True,
                 )
             ].sum()
@@ -230,7 +224,10 @@ def animate_blob_detection(
 
     image_ax = fig.axes[0]
     ims = []
-    data = unpickle_with_unpickler(np.load, files[0]).astype(np.float64)
+    data = np.load(
+        safe_load(files[0]),
+        allow_pickle=True,
+    ).astype(np.float64)
     for i, ax in enumerate(fig.axes[:-1]):
         ims.append(ax.imshow(
             data,
@@ -243,9 +240,8 @@ def animate_blob_detection(
     def _plotter():
 
         for idx, index in enumerate(image_indices):
-            ims[0].set_data(unpickle_with_unpickler(
-                np.load,
-                files[idx],
+            ims[0].set_data(np.load(
+                safe_load(files[idx]),
                 allow_pickle=True,
             ))
             base_name = files[idx][:-21]
@@ -262,15 +258,13 @@ def animate_blob_detection(
                 '.blob.trash.current.npy',
                 '.blob.trash.old.npy',
             )):
-                im_data = unpickle_with_unpickler(
-                    np.load,
-                    base_name + ending,
+                im_data = np.load(
+                    safe_load(base_name + ending),
                     allow_pickle=True,
                 )
                 if im_data.ndim == 2:
-                    ims[j + 1].set_data(unpickle_with_unpickler(
-                        np.load,
-                        base_name + ending,
+                    ims[j + 1].set_data(np.load(
+                        safe_load(base_name + ending),
                         allow_pickle=True,
                     ))
 
@@ -309,9 +303,8 @@ def animate_3d_colony(
 
     image_ax, curve_ax = fig.axes
 
-    data = unpickle_with_unpickler(
-        np.load,
-        files[0],
+    data = np.load(
+        safe_load(files[0]),
         allow_pickle=True,
     )
     im = image_ax.imshow(data, interpolation='nearest', vmin=0, vmax=100)
@@ -334,9 +327,8 @@ def animate_3d_colony(
         ax3d = None
 
         for idx, index in enumerate(image_indices):
-            im.set_data(unpickle_with_unpickler(
-                np.load,
-                files[idx],
+            im.set_data(np.load(
+                safe_load(files[idx]),
                 allow_pickle=True,
             ))
 
@@ -350,9 +342,8 @@ def animate_3d_colony(
                 ),
             )
 
-            cells = unpickle_with_unpickler(
-                np.load,
-                base_name + ".image.cells.npy",
+            cells = np.load(
+                safe_load(base_name + ".image.cells.npy"),
                 allow_pickle=True,
             )
             if cells.ndim != 2:

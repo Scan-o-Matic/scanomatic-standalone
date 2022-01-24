@@ -1,5 +1,5 @@
 from collections import deque
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -42,22 +42,6 @@ class PhenotyperSettings:
         assert (
             self.median_kernel_size % 2 == 1
         ), "Median kernel size must be odd"
-
-    def serialized(self) -> list[Union[str, int, float]]:
-        return [
-            self.median_kernel_size,
-            self.gaussian_filter_sigma,
-            self.linear_regression_size,
-            None if self.phenotypes_inclusion is None
-            else self.phenotypes_inclusion.name,
-            None if self.no_growth_monotonicity_threshold is None
-            else self.no_growth_monotonicity_threshold,
-            None if self.no_growth_pop_doublings_threshold is None
-            else self.no_growth_pop_doublings_threshold,
-        ]
-
-    def asdict(self) -> dict[str, Any]:
-        return asdict(self)
 
 
 @dataclass

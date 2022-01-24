@@ -6,7 +6,7 @@ import numpy as np
 
 import scanomatic.io.paths as paths
 from scanomatic.io.logger import get_logger
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 
 _logger = get_logger("Project")
 
@@ -22,28 +22,24 @@ def path_has_saved_project_state(
 
     if require_phenotypes:
         try:
-            unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.phenotypes_raw_npy),
+            np.load(
+                safe_load(os.path.join(directory_path, _p.phenotypes_raw_npy)),
                 allow_pickle=True,
             )
         except IOError:
             return False
 
     try:
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path,  _p.phenotypes_input_data),
+        np.load(
+            safe_load(os.path.join(directory_path,  _p.phenotypes_input_data)),
             allow_pickle=True,
         )
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotype_times),
+        np.load(
+            safe_load(os.path.join(directory_path, _p.phenotype_times)),
             allow_pickle=True,
         )
-        unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotypes_input_smooth),
+        np.load(
+            safe_load(os.path.join(directory_path, _p.phenotypes_input_smooth)),
             allow_pickle=True,
         )
         with open(

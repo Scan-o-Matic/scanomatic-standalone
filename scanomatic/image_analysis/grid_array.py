@@ -7,7 +7,7 @@ from scanomatic.io.logger import get_logger
 
 import scanomatic.io.paths as paths
 from scanomatic.image_analysis.grayscale import get_grayscale
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 from scanomatic.models.analysis_model import IMAGE_ROTATIONS
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 from scanomatic.models.factories.analysis_factories import (
@@ -244,9 +244,8 @@ class GridArray:
                 )
 
         try:
-            grid = unpickle_with_unpickler(
-                np.load,
-                grid,
+            grid = np.load(
+                safe_load(grid),
                 allow_pickle=True,
             )
         except IOError:

@@ -55,8 +55,7 @@ from scanomatic.data_processing.strain_selector import StrainSelector
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
 from scanomatic.io.logger import get_logger
 from scanomatic.io.meta_data import MetaData2
-from scanomatic.io.pickler import unpickle, unpickle_with_unpickler
-
+from scanomatic.io.pickler import safe_load, unpickle
 from . import mock_numpy_interface
 
 # TODO: Something is wrong with phase features again
@@ -270,15 +269,19 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         """
         _p = paths.Paths()
 
-        raw_growth_data = unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotypes_input_data),
+        raw_growth_data = np.load(
+            safe_load(os.path.join(
+                directory_path,
+                _p.phenotypes_input_data,
+            )),
             allow_pickle=True,
         )
 
-        times = unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotype_times),
+        times = np.load(
+            safe_load(os.path.join(
+                directory_path,
+                _p.phenotype_times,
+            )),
             allow_pickle=True,
         )
 
@@ -290,9 +293,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         )
 
         try:
-            phenotypes = unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.phenotypes_raw_npy),
+            phenotypes = np.load(
+                safe_load(os.path.join(
+                    directory_path,
+                    _p.phenotypes_raw_npy,
+                )),
                 allow_pickle=True,
             )
         except (IOError, ValueError):
@@ -302,9 +307,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             phenotypes = None
 
         try:
-            vector_phenotypes = unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.vector_phenotypes_raw),
+            vector_phenotypes = np.load(
+                safe_load(os.path.join(
+                    directory_path,
+                    _p.vector_phenotypes_raw,
+                )),
                 allow_pickle=True,
             )
         except (IOError, ValueError):
@@ -314,9 +321,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             vector_phenotypes = None
 
         try:
-            vector_meta_phenotypes = unpickle_with_unpickler(
-                np.load,
-                os.path.join(directory_path, _p.vector_meta_phenotypes_raw),
+            vector_meta_phenotypes = np.load(
+                safe_load(os.path.join(
+                    directory_path,
+                    _p.vector_meta_phenotypes_raw,
+                )),
                 allow_pickle=True,
             )
         except (IOError, ValueError):
@@ -325,9 +334,11 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
             vector_meta_phenotypes = None
 
-        smooth_growth_data = unpickle_with_unpickler(
-            np.load,
-            os.path.join(directory_path, _p.phenotypes_input_smooth),
+        smooth_growth_data = np.load(
+            safe_load(os.path.join(
+                directory_path,
+                _p.phenotypes_input_smooth,
+            )),
             allow_pickle=True,
         )
 
@@ -399,9 +410,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "phenotype_filter",
-                    unpickle_with_unpickler(
-                        np.load,
-                        filter_path,
+                    np.load(
+                        safe_load(filter_path),
                         allow_pickle=True,
                     ),
                 )
@@ -417,9 +427,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         if os.path.isfile(offsets_path):
             phenotyper.set(
                 "reference_offsets",
-                unpickle_with_unpickler(
-                    np.load,
-                    offsets_path,
+                np.load(
+                    safe_load(offsets_path),
                     allow_pickle=True,
                 ),
             )
@@ -432,9 +441,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "normalized_phenotypes",
-                    unpickle_with_unpickler(
-                        np.load,
-                        normalized_phenotypes,
+                    np.load(
+                        safe_load(normalized_phenotypes),
                         allow_pickle=True,
                     ),
                 )
@@ -544,14 +552,12 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 times_data_path += ".npy"
 
         return cls(
-            unpickle_with_unpickler(
-                np.load,
-                data_directory,
+            np.load(
+                safe_load(data_directory),
                 allow_pickle=True,
             ),
-            unpickle_with_unpickler(
-                np.load,
-                times_data_path,
+            np.load(
+                safe_load(times_data_path),
                 allow_pickle=True,
             ),
             base_name=path,

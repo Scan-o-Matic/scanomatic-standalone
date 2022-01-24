@@ -7,7 +7,7 @@ import numpy as np
 from scanomatic.io.logger import get_logger
 
 import scanomatic.io.paths as paths
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 from scanomatic.models.analysis_model import (
     COMPARTMENTS,
     MEASURES,
@@ -159,9 +159,8 @@ class ImageData:
             path,
         ))
         if os.path.isfile(path):
-            return unpickle_with_unpickler(
-                np.load,
-                path,
+            return np.load(
+                safe_load(path),
                 allow_pickle=True,
             )
         else:
@@ -171,9 +170,8 @@ class ImageData:
     @staticmethod
     def read_image(path: str):
         if os.path.isfile(path):
-            return unpickle_with_unpickler(
-                np.load,
-                path,
+            return np.load(
+                safe_load(path),
                 allow_pickle=True,
             )
         else:
@@ -314,9 +312,8 @@ class ImageData:
 
             try:
                 time_indices.append(int(re.findall(r"\d+", p)[-1]))
-                data.append(unpickle_with_unpickler(
-                    np.load,
-                    p,
+                data.append(np.load(
+                    safe_load(p),
                     allow_pickle=True,
                 ))
             except AttributeError:
