@@ -353,10 +353,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             )
         else:
             try:
-                phenotype_inclusion = extraction_params.get(
+                if (phenotype_inclusion := extraction_params.get(
                     "phenotype_inclusion",
-                )
-                if phenotype_inclusion is not None:
+                )) is not None:
                     phenotyper.set_phenotype_inclusion_level(
                         phenotype_inclusion,
                     )
@@ -364,17 +363,16 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                     phenotyper.set_phenotype_inclusion_level(
                         PhenotypeDataType.Trusted,
                     )
-                no_growth_monotonicity_threshold = extraction_params.get(
+                if (no_growth_monotonicity_threshold := extraction_params.get(
                     "no_growth_monotonicity_threshold",
-                )
-                if no_growth_monotonicity_threshold is not None:
+
+                )) is not None:
                     phenotyper._settings.no_growth_monotonicity_threshold = (
                         no_growth_monotonicity_threshold
                     )
-                no_growth_pop_doublings_threshold = extraction_params.get(
+                if (no_growth_pop_doublings_threshold := extraction_params.get(
                     "no_growth_pop_doublings_threshold",
-                )
-                if no_growth_pop_doublings_threshold is not None:
+                )) is not None:
                     phenotyper._settings.no_growth_pop_doublings_threshold = (
                         no_growth_pop_doublings_threshold
                     )
