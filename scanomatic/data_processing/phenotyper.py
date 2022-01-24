@@ -150,7 +150,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             phenotypes_inclusion=phenotypes_inclusion,
             no_growth_monotonicity_threshold=no_growth_monotonocity_threshold,
             no_growth_pop_doublings_threshold=(
-                no_growth_pop_doublings_threshold,
+                no_growth_pop_doublings_threshold
             ),
         )
         self._state = PhenotyperState(
@@ -380,10 +380,10 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                     extraction_params["median_kernel_size"]
                 )
                 phenotyper._settings.gaussian_filter_sigma = (
-                    extraction_params["gaussian_filter_sigma"],
+                    extraction_params["gaussian_filter_sigma"]
                 )
                 phenotyper._settings.linear_regression_size = (
-                    extraction_params["linear_regression_size"],
+                    extraction_params["linear_regression_size"]
                 )
             except (ValueError, KeyError):
                 raise ValueError(

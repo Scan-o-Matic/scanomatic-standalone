@@ -42,7 +42,9 @@ def path_has_saved_project_state(
             safe_load(os.path.join(directory_path, _p.phenotypes_input_smooth)),
             allow_pickle=True,
         )
-        jsonizer.load(os.path.join(directory_path, _p.phenotypes_extraction_params))
+        jsonizer.load(
+            os.path.join(directory_path, _p.phenotypes_extraction_params),
+        )
     except IOError:
         return False
     return True
