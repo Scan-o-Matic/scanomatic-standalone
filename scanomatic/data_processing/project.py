@@ -1,10 +1,10 @@
 import glob
-import json
 import os
 
 import numpy as np
 
 import scanomatic.io.paths as paths
+from scanomatic.io import jsonizer
 from scanomatic.io.logger import get_logger
 from scanomatic.io.pickler import safe_load
 
@@ -42,11 +42,7 @@ def path_has_saved_project_state(
             safe_load(os.path.join(directory_path, _p.phenotypes_input_smooth)),
             allow_pickle=True,
         )
-        with open(
-            os.path.join(directory_path, _p.phenotypes_extraction_params),
-            'r',
-        ) as fp:
-            json.load(fp)
+        jsonizer.load(os.path.join(directory_path, _p.phenotypes_extraction_params))
     except IOError:
         return False
     return True
