@@ -6,6 +6,7 @@ from io import BytesIO
 from typing import Optional
 
 import numpy as np
+from dataclasses import asdict
 
 import scanomatic.io.paths as paths
 import scanomatic.io.jsonizer as jsonizer
@@ -131,7 +132,7 @@ def save_state(
     ):
         with open(p, 'w') as fp:
             json.dump(json.loads(
-                jsonizer.dumps(settings.asdict()),
+                jsonizer.dumps(asdict(settings)),
             ), fp)
 
     _logger.info("State saved to '{0}'".format(dir_path))
