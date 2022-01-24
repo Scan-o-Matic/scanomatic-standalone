@@ -34,9 +34,11 @@ class PhenotyperSettings:
     median_kernel_size: int
     gaussian_filter_sigma: float
     linear_regression_size: int
-    phenotypes_inclusion: Optional[PhenotypeDataType]
-    no_growth_monotonicity_threshold: Optional[float]
-    no_growth_pop_doublings_threshold: Optional[float]
+    phenotypes_inclusion: Optional[PhenotypeDataType] = (
+        PhenotypeDataType.Trusted
+    )
+    no_growth_monotonicity_threshold: Optional[float] = None
+    no_growth_pop_doublings_threshold: Optional[float] = None
 
     def __post_init__(self):
         assert (
