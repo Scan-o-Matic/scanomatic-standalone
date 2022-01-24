@@ -1,4 +1,5 @@
 import csv
+import pickle
 import os
 from collections import deque
 from collections.abc import Callable, Generator
@@ -55,7 +56,7 @@ from scanomatic.data_processing.strain_selector import StrainSelector
 from scanomatic.generics.phenotype_filter import Filter, FilterArray
 from scanomatic.io.logger import get_logger
 from scanomatic.io.meta_data import MetaData2
-from scanomatic.io.pickler import safe_load, unpickle
+from scanomatic.io.pickler import safe_load
 from . import mock_numpy_interface
 
 # TODO: Something is wrong with phase features again
@@ -457,7 +458,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "phenotype_filter_undo",
-                    unpickle(filter_undo_path),
+                    pickle.load(safe_load(filter_undo_path)),
                 )
             except EOFError:
                 phenotyper._logger.warning(
@@ -472,7 +473,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             try:
                 phenotyper.set(
                     "meta_data",
-                    unpickle(meta_data_path),
+                    pickle.load(safe_load(meta_data_path)),
                 )
             except EOFError:
                 phenotyper._logger.warning(

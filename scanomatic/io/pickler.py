@@ -3,13 +3,6 @@ from pickle import load
 from typing import IO
 
 
-def unpickle(path: str):
-    """Unpickles data safely
-    Returns: Unpickled object
-    """
-    return load(safe_load(path))
-
-
 def safe_load(path, return_string=False):
     version_compatibility = _RefactoringPhases()
     fh = SafeProxyFileObject(path, version_compatibility)
