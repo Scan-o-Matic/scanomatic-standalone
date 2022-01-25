@@ -6,6 +6,8 @@ from typing import Optional, Type, Union
 
 import numpy as np
 import pytest
+from scanomatic.data_processing.pheno.state import PhenotyperSettings
+from scanomatic.data_processing.phenotypes import PhenotypeDataType
 
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io import jsonizer
@@ -161,7 +163,7 @@ def test_preserves_arrays(arr: np.ndarray):
 
 
 def test_preserves_object_array():
-    arr = np.array([None, 4, np.array([2, 1])])
+    arr = np.array([None, 4, np.array([2, 1])], dtype=object)
     arr2 = jsonizer.loads(jsonizer.dumps(arr))
     assert arr2.dtype == arr.dtype
     assert arr[0] is arr2[0]
@@ -174,6 +176,7 @@ def test_preserves_object_array():
     COMPARTMENTS.Blob,
     VALUES.Pixels,
     MEASURES.Centroid,
+    PhenotypeDataType.Trusted,
 ))
 def test_preserves_enums(test_enum: Enum):
     assert jsonizer.loads(jsonizer.dumps(test_enum)) is test_enum
@@ -212,6 +215,15 @@ def test_raises_on_unkown_model_loading(s: str):
         jsonizer.loads(s)
 
 
+@pytest.mark.parametrize('s', (
+    '{"__DATACLASS__": "DataClass", "__CONTENT__": {}}',
+    '{"__DATACLASS__": "DataClass", "__CONTENT__": null}',
+))
+def test_raises_on_unkown_dataclass_loading(s: str):
+    with pytest.raises(jsonizer.JSONDecodingError):
+        jsonizer.loads(s)
+
+
 @pytest.fixture
 def fixture() -> FixtureModel:
     return FixtureFactory.create(
@@ -239,6 +251,7 @@ def test_copy_makes_new_object(fixture: FixtureModel):
     ('analysis.model', AnalysisModel),
     ('analysis.model-list', list),
     ('not-a-file', None),
+    ('phenotype_params.json', PhenotyperSettings),
 ))
 def test_load(filename: str, expect: Optional[Type]):
     data = jsonizer.load(
@@ -254,6 +267,7 @@ def test_load(filename: str, expect: Optional[Type]):
     ('analysis.model', AnalysisModel),
     ('analysis.model-list', AnalysisModel),
     ('not-a-file', None),
+    ('phenotype_params.json', PhenotyperSettings),
 ))
 def test_load_first(filename: str, expect: Optional[Type]):
     data = jsonizer.load_first(
