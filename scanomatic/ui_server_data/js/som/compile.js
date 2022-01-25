@@ -90,8 +90,8 @@ function GetIncludedImageList(forceList) {
   let images = null;
   if (forceList || imageListDiv.find('#manual-selection').prop('checked')) {
     images = [];
-    imageListDiv.find('#options').children().each(() => {
-      const imp = $(this).find(':input');
+    imageListDiv.find('#options').children().each((_, child) => {
+      const imp = $(child).find(':input');
       if (imp.prop('checked') === true) {
         images.push(imp.val());
       }
