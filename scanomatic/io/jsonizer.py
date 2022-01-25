@@ -223,7 +223,7 @@ class SOMSerializers(Enum):
     MODEL = ("__MODEL__", decode_model)
     ENUM = ("__ENUM__", decode_enum)
     ARRAY = ("__ARRAY__", decode_array)
-    DATACLASS = ("__ARRAY__", decode_dataclass)
+    DATACLASS = ("__DATACLASS__", decode_dataclass)
 
     @property
     def encoding(self) -> str:
