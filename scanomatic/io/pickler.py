@@ -1,5 +1,4 @@
 import os
-from pickle import load
 from typing import IO
 
 

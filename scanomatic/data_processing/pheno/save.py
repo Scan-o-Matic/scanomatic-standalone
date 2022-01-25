@@ -1,12 +1,11 @@
-import json
 import os
 import pickle
 import zipfile
-from io import BytesIO
-from typing import Optional
+from collections.abc import Callable
+from io import BufferedWriter, BytesIO
+from typing import Any, Optional
 
 import numpy as np
-from dataclasses import asdict
 
 import scanomatic.io.paths as paths
 import scanomatic.io.jsonizer as jsonizer
@@ -130,10 +129,7 @@ def save_state(
         or not os.path.isfile(p)
         or _do_ask_overwrite(p)
     ):
-        with open(p, 'w') as fp:
-            json.dump(json.loads(
-                jsonizer.dumps(asdict(settings)),
-            ), fp)
+        jsonizer.dump(settings, p)
 
     _logger.info("State saved to '{0}'".format(dir_path))
 
@@ -144,6 +140,13 @@ def save_state_to_zip(
     state: PhenotyperState,
     target: Optional[str] = None,
 ) -> Optional[BytesIO]:
+    JsonizerStateWriter = Callable[[BufferedWriter, Any], int]
+    PickleStateWriter = Callable[[BufferedWriter, Any], None]
+    save_jsonizer: JsonizerStateWriter = (
+        lambda fh, obj: fh.write(jsonizer.dumps(obj).encode())
+    )
+    save_pickle: PickleStateWriter = lambda fh, obj: pickle.dump(obj, fh)
+
     def zipit(save_functions, data, zip_paths):
         zip_buffer = BytesIO()
         zf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)
@@ -178,8 +181,8 @@ def save_state_to_zip(
     if not dir_path or not dir_path.strip() or dir_path == ".":
         dir_path = "analysis"
 
-    save_functions = []
-    data = []
+    save_functions: list[Callable] = []
+    data: list[Any] = []
     zip_paths = []
 
     # Phenotypes
@@ -242,7 +245,7 @@ def save_state_to_zip(
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_filter_undo),
     )
-    save_functions.append(lambda fh, obj: pickle.dump(obj, fh))
+    save_functions.append(save_pickle)
     data.append(state.phenotype_filter_undo)
 
     # Time stamps
@@ -256,15 +259,15 @@ def save_state_to_zip(
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_meta_data),
     )
-    save_functions.append(lambda fh, obj: pickle.dump(obj, fh))
+    save_functions.append(save_pickle)
     data.append(state.meta_data)
 
     # Internal settings
     zip_paths.append(
         os.path.join(dir_path, _paths.phenotypes_extraction_params),
     )
-    save_functions.append(lambda fh, obj: json.dump(obj, fh))
-    data.append(json.loads(jsonizer.dumps(settings.asdict())))
+    save_functions.append(save_jsonizer)
+    data.append(settings)
 
     zip_stream = zipit(save_functions, data, zip_paths)
     if target:
@@ -272,5 +275,6 @@ def save_state_to_zip(
             fh.write(zip_stream.read())
         zip_stream.close()
         _logger.info("Zip file saved to {0}".format(target))
+        return None
     else:
         return zip_stream

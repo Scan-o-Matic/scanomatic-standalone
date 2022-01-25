@@ -344,7 +344,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         )
 
         try:
-            extraction_params = jsonizer.load(os.path.join(
+            phenotyper._settings = jsonizer.load(os.path.join(
                 directory_path,
                 _p.phenotypes_extraction_params,
             ))
@@ -352,49 +352,6 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             phenotyper._logger.warning(
                 "Could not find stored extraction parameters, assuming defaults were used",  # noqa: E501
             )
-        else:
-            try:
-                if (phenotype_inclusion := extraction_params.get(
-                    "phenotype_inclusion",
-                )) is not None:
-                    phenotyper.set_phenotype_inclusion_level(
-                        phenotype_inclusion,
-                    )
-                else:
-                    phenotyper.set_phenotype_inclusion_level(
-                        PhenotypeDataType.Trusted,
-                    )
-                if (no_growth_monotonicity_threshold := extraction_params.get(
-                    "no_growth_monotonicity_threshold",
-
-                )) is not None:
-                    phenotyper._settings.no_growth_monotonicity_threshold = (
-                        no_growth_monotonicity_threshold
-                    )
-                if (no_growth_pop_doublings_threshold := extraction_params.get(
-                    "no_growth_pop_doublings_threshold",
-                )) is not None:
-                    phenotyper._settings.no_growth_pop_doublings_threshold = (
-                        no_growth_pop_doublings_threshold
-                    )
-                phenotyper._settings.median_kernel_size = (
-                    extraction_params["median_kernel_size"]
-                )
-                phenotyper._settings.gaussian_filter_sigma = (
-                    extraction_params["gaussian_filter_sigma"]
-                )
-                phenotyper._settings.linear_regression_size = (
-                    extraction_params["linear_regression_size"]
-                )
-            except (ValueError, KeyError):
-                raise ValueError(
-                    "Stored parameters in {0} can't be understood".format(
-                        os.path.join(
-                            directory_path,
-                            _p.phenotypes_extraction_params,
-                        )
-                    ),
-                )
 
         phenotyper.set('smooth_growth_data', smooth_growth_data)
         phenotyper.set('phenotypes', phenotypes)
