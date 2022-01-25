@@ -140,12 +140,11 @@ def save_state_to_zip(
     state: PhenotyperState,
     target: Optional[str] = None,
 ) -> Optional[BytesIO]:
-    JsonizerStateWriter = Callable[[BufferedWriter, Any], int]
-    PickleStateWriter = Callable[[BufferedWriter, Any], None]
-    save_jsonizer: JsonizerStateWriter = (
+    StateWriter = Callable[[BufferedWriter, Any], Any]
+    save_jsonizer: StateWriter = (
         lambda fh, obj: fh.write(jsonizer.dumps(obj).encode())
     )
-    save_pickle: PickleStateWriter = lambda fh, obj: pickle.dump(obj, fh)
+    save_pickle: StateWriter = lambda fh, obj: pickle.dump(obj, fh)
 
     def zipit(save_functions, data, zip_paths):
         zip_buffer = BytesIO()
@@ -181,9 +180,9 @@ def save_state_to_zip(
     if not dir_path or not dir_path.strip() or dir_path == ".":
         dir_path = "analysis"
 
-    save_functions: list[Callable] = []
+    save_functions: list[StateWriter] = []
     data: list[Any] = []
-    zip_paths = []
+    zip_paths: list[str] = []
 
     # Phenotypes
     zip_paths.append(

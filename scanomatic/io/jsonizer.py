@@ -188,7 +188,7 @@ def decode_array(obj: dict) -> np.ndarray:
         raise JSONDecodingError(msg)
 
 
-DATA_CLASSES: dict[str, Any] = {
+DATA_CLASSES: dict[str, Type[PhenotyperSettings]] = {
     "PhenotyperSettings": PhenotyperSettings,
 }
 
@@ -329,7 +329,7 @@ def _merge(model: Model, update: Model) -> bool:
 
 def merge_into(
     model: Optional[Union[Model, Sequence[Model]]],
-    update: Union[Sequence[Model], Model],
+    update: Any,
 ) -> Union[Sequence[Model], Model]:
     """Merges update with or into the model.
 
