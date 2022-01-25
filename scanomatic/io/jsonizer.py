@@ -330,11 +330,11 @@ def merge_into(
 
 
 def dump(
-    model: Union[Model, Sequence[Model]],
+    model: Any,
     path: Union[str, Path],
-    overwrite: bool = False,
+    merge: bool = False,
 ) -> bool:
-    if overwrite:
+    if merge:
         model = merge_into(load(path), model)
     try:
         with open(path, 'w') as fh:

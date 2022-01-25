@@ -86,7 +86,7 @@ class FixtureSettings:
         dump(
             self.model,
             self.path,
-            overwrite=True,
+            merge=True,
         )
 
 

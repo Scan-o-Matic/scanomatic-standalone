@@ -253,7 +253,7 @@ class Config(SingeltonOneInit):
             dump(
                 self._settings,
                 self._paths.config_main_app,
-                overwrite=True,
+                merge=True,
             )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
