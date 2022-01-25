@@ -60,12 +60,12 @@ def produce_grid_images(
         )
     )
 
-    compilation: list[CompileImageAnalysisModel] = load(compilation)
+    compilation_list: list[CompileImageAnalysisModel] = load(compilation)
 
-    image_path = compilation[-1].image.path
-    all_plates = compilation[-1].fixture.plates
+    image_path = compilation_list[-1].image.path
+    all_plates = compilation_list[-1].fixture.plates
     if image is not None:
-        for c in compilation:
+        for c in compilation_list:
             if os.path.basename(c.image.path) == os.path.basename(image):
                 image_path = c.image.path
                 all_plates = c.fixture.plates

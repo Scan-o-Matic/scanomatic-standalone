@@ -1,6 +1,7 @@
 import os
 from glob import glob
 from itertools import chain, product
+from typing import Optional
 
 from flask import jsonify, request
 
@@ -48,8 +49,8 @@ def add_routes(app):
     @app.route("/api/analysis/image/grid", methods=['POST'])
     def get_gridding_image():
 
-        pinning_format = request.values.get_list('pinning_format')
-        correction = request.values.getlist('gridding_correction')
+        pinning_format = request.values.getlist('pinning_format')
+        correction: Optional[list[str]] = request.values.getlist('gridding_correction')
         if not correction:
             correction = None
         im = get_image_data_as_array(request.files.get('image'))
