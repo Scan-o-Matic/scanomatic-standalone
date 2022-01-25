@@ -50,7 +50,9 @@ def add_routes(app):
     def get_gridding_image():
 
         pinning_format = request.values.getlist('pinning_format')
-        correction: Optional[list[str]] = request.values.getlist('gridding_correction')
+        correction: Optional[list[str]] = request.values.getlist(
+            'gridding_correction',
+        )
         if not correction:
             correction = None
         im = get_image_data_as_array(request.files.get('image'))
