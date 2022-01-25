@@ -24,7 +24,7 @@
     "fix": "^0.0.6",
     "jasmine-ajax": "^4.0.0",
     "jasmine-core": "^4.0.0",
-    "karma": "^6.3.11",
+    "karma": "^6.3.12",
     "karma-chrome-launcher": "^3.1.0",
     "karma-coverage": "^2.1.0",
     "karma-jasmine": "^4.0.1",
@@ -33,7 +33,7 @@
     "react-test-renderer": "^16.0.0",
     "style-loader": "^2.0.0",
     "webpack": "^4.46.0",
-    "webpack-cli": "^4.9.1"
+    "webpack-cli": "^4.9.2"
   },
   "dependencies": {
     "bootstrap": "^3.4.0",
