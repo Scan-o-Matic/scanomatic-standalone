@@ -6,9 +6,10 @@ from typing import Optional, Type, Union
 
 import numpy as np
 import pytest
+from dataclasses import asdict
+
 from scanomatic.data_processing.pheno.state import PhenotyperSettings
 from scanomatic.data_processing.phenotypes import PhenotypeDataType
-
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io import jsonizer
 from scanomatic.io.power_manager import POWER_MANAGER_TYPE, POWER_MODES
@@ -182,6 +183,17 @@ def test_preserves_enums(test_enum: Enum):
     assert jsonizer.loads(jsonizer.dumps(test_enum)) is test_enum
 
 
+@pytest.mark.parametrize("test_dataclass", (
+    PhenotyperSettings(1, 2, 3),
+    PhenotyperSettings(1, 2, 3, PhenotypeDataType.Phases, 4, 5),
+))
+def test_preserves_dataclasses(test_dataclass):
+    assert (
+        asdict(jsonizer.loads(jsonizer.dumps(test_dataclass)))
+        == asdict(test_dataclass)
+    )
+
+
 def test_raises_on_unknown_enum_dumping():
     class E(Enum):
         A = 1
@@ -252,6 +264,7 @@ def test_copy_makes_new_object(fixture: FixtureModel):
     ('analysis.model-list', list),
     ('not-a-file', None),
     ('phenotype_params.json', PhenotyperSettings),
+    ('phenotype_params.no-optional.json', PhenotyperSettings),
 ))
 def test_load(filename: str, expect: Optional[Type]):
     data = jsonizer.load(
