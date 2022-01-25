@@ -44,3 +44,8 @@
   height: 320px;
   display: block;
 }
+
+#submit-button {
+  padding: 3px;
+  color: #333;
+}

@@ -43,3 +43,8 @@ label.image-list-label {
   padding: 5px;
   background: #541f0f !important;
 }
+
+#submit-button {
+  padding: 3px;
+  color: #333;
+}
