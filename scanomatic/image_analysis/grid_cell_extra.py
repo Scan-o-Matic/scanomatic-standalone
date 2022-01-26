@@ -602,7 +602,7 @@ class Blob(CellItem):
             if self.filter_array.sum() == 0:
                 self.filter_array = self.old_filter.copy()
 
-            blob_diff = (np.abs(self.old_filter ^ self.filter_array)).sum()
+            blob_diff = (self.old_filter ^ self.filter_array).sum()
 
             sqrt_of_oldsum = self.old_filter.sum() ** 0.5
 
