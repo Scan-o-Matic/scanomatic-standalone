@@ -1,5 +1,6 @@
 from typing import Any
 from scanomatic.image_analysis.first_pass_image import FixtureImage
+from scanomatic.io import jsonizer
 from scanomatic.io.fixtures import FixtureSettings
 from scanomatic.io.logger import get_logger
 from scanomatic.models.compile_project_model import (
@@ -9,7 +10,6 @@ from scanomatic.models.compile_project_model import (
 from scanomatic.models.factories.compile_project_factory import (
     CompileImageAnalysisFactory
 )
-from scanomatic.models.factories.fixture_factories import FixtureFactory
 
 _logger = get_logger("1st Pass Analysis")
 
@@ -25,7 +25,7 @@ def analyse(
 ) -> CompileImageAnalysisModel:
     compile_analysis_model = CompileImageAnalysisFactory.create(
         image=compile_image_model,
-        fixture=FixtureFactory.copy(fixture_settings.model),
+        fixture=jsonizer.copy(fixture_settings.model),
     )
 
     fixture_image = FixtureImage(fixture=fixture_settings)

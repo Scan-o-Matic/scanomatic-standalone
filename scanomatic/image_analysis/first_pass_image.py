@@ -6,10 +6,10 @@ import numpy as np
 
 from scanomatic.data_processing.calibration import get_image_json_from_ccc
 from scanomatic.image_analysis.grayscale import get_grayscale
+from scanomatic.io import jsonizer
 from scanomatic.io.ccc_data import CCCImage
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.io.logger import get_logger
-from scanomatic.models.factories.fixture_factories import FixturePlateFactory
 from scanomatic.models.fixture_models import (
     FixturePlateModel,
     GrayScaleAreaModel
@@ -509,7 +509,7 @@ class FixtureImage:
         )
 
         current_model.plates = type(current_model.plates)(
-            FixturePlateFactory.copy(plate) for plate in ref_model.plates
+            jsonizer.copy(plate) for plate in ref_model.plates
         )
 
         for plate in current_model.plates:
