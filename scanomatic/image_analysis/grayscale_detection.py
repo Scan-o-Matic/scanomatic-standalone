@@ -1,5 +1,5 @@
 import os
-from typing import Optional, cast
+from typing import Optional
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
