@@ -371,7 +371,8 @@ def add_routes(app, rpc_client, is_debug_mode):
                 grayscale_config,
             )
             _, values = detect_grayscale(
-                grayscale_im, grayscale_config, debug=is_debug_mode)
+                grayscale_im, grayscale_config, debug=is_debug_mode,
+            )
         except (TypeError, GrayscaleError):
             return jsonify(
                 success=False, is_endpoint=True,
