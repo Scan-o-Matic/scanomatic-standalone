@@ -5,7 +5,6 @@
     "lint": "eslint --ext mjs,jsx,js scanomatic/ui_server_data/js/ccc scanomatic/ui_server_data/js/tests"
   },
   "devDependencies": {
-    "audit": "^0.0.6",
     "babel-core": "^6.26.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^7.1.2",
