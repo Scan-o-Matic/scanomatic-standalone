@@ -16,12 +16,14 @@ from scanomatic.data_processing.calibration import (
 from scanomatic.data_processing.norm import NormState
 from scanomatic.data_processing.project import path_has_saved_project_state
 from scanomatic.image_analysis.first_pass_image import FixtureImage
-from scanomatic.image_analysis.grayscale import \
-    get_grayscale as get_grayscale_conf
+from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.image_analysis.grayscale import get_grayscale_names
 from scanomatic.image_analysis.grid_cell import GridCell
 from scanomatic.image_analysis.image_basics import Image_Transpose
-from scanomatic.image_analysis.grayscale_detection import detect_grayscale
+from scanomatic.image_analysis.grayscale_detection import (
+    detect_grayscale,
+    get_grayscale_im_section,
+)
 from scanomatic.image_analysis.support import save_image_as_png
 from scanomatic.image_analysis.exceptions import GrayscaleError
 from scanomatic.io.fixtures import Fixtures
@@ -362,22 +364,22 @@ def add_routes(app, rpc_client, is_debug_mode):
         )
 
         fixture = get_fixture_image_by_name(fixture_name)
-
+        grayscale_config = get_grayscale(grayscale_area_model.name)
         try:
+            grayscale_im = get_grayscale_im_section(fixture.im, grayscale_config)
             _, values = detect_grayscale(
-                fixture.im, grayscale_area_model, debug=is_debug_mode)
+                grayscale_im, grayscale_config, debug=is_debug_mode)
         except (TypeError, GrayscaleError):
             return jsonify(
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
-        valid = get_grayscale_is_valid(values, grayscale_object)
+        valid = get_grayscale_is_valid(values, grayscale_config)
 
         return jsonify(
             success=True,
             source_values=values,
-            target_values=grayscale_object.targets,
+            target_values=grayscale_config.targets,
             grayscale=valid,
             reason=None if valid else "No Grayscale",
         )
@@ -579,9 +581,11 @@ def add_routes(app, rpc_client, is_debug_mode):
                 )
 
             grayscale_area_model.name = grayscale_name
+            grayscale_config = get_grayscale(grayscale_area_model.name)
 
             try:
-                _, values = detect_grayscale(fixture.im, grayscale_area_model)
+                grayscale_im = get_grayscale_im_section(fixture.im, grayscale_config)
+                _, values = detect_grayscale(grayscale_im, grayscale_config)
             except (TypeError, GrayscaleError):
 
                 return jsonify(
@@ -589,8 +593,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                     reason="Could not detect grayscale",
                 )
 
-            grayscale_object = get_grayscale_conf(grayscale_area_model.name)
-            valid = get_grayscale_is_valid(values, grayscale_object)
+            valid = get_grayscale_is_valid(values, grayscale_config)
 
             if not valid:
                 return jsonify(
@@ -838,7 +841,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         grayscale_targets = np.array(data_object.get("grayscale_targets", []))
 
         if not grayscale_targets:
-            grayscale_targets = get_grayscale_conf(
+            grayscale_targets = get_grayscale(
                 data_object.get("grayscale_name", ""),
             ).targets
 

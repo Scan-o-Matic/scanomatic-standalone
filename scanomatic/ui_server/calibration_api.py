@@ -315,7 +315,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
     if not data_object:
         data_object = request.values
 
-    gs_image = calibration.get_grayscale_slice(
+    grayscale_image = calibration.get_grayscale_slice(
         ccc_identifier, image_identifier)
     image_data = calibration.get_image_json_from_ccc(
         ccc_identifier, image_identifier)
@@ -327,11 +327,11 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
             reason='Unknown image or CCC'
         )
 
-    grayscale_object = get_grayscale(gs_name)
+    grayscale_config = get_grayscale(gs_name)
     try:
         _, values = detect_grayscale(
-            gs_image,
-            gs_name,
+            grayscale_image,
+            grayscale_config,
             debug=False,
         )
     except GrayscaleError:
@@ -339,7 +339,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
             400,
             reason='Failed to detect grayscale'
         )
-    valid = get_grayscale_is_valid(values, grayscale_object)
+    valid = get_grayscale_is_valid(values, grayscale_config)
     if not valid:
         return json_abort(
             400,
@@ -349,7 +349,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
     success = calibration.set_image_info(
         ccc_identifier, image_identifier,
         grayscale_source_values=values,
-        grayscale_target_values=grayscale_object.targets,
+        grayscale_target_values=grayscale_config.targets,
         access_token=data_object.get("access_token")
     )
 
@@ -357,7 +357,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
 
         return jsonify(
             source_values=values,
-            target_values=grayscale_object.targets
+            target_values=grayscale_config.targets
         )
 
     else:

@@ -5,6 +5,7 @@ from typing import Any, Union
 import numpy as np
 
 from scanomatic.data_processing.calibration import get_image_json_from_ccc
+from scanomatic.image_analysis.grayscale import get_grayscale
 from scanomatic.io.ccc_data import CCCImage
 from scanomatic.io.fixtures import Fixtures, FixtureSettings
 from scanomatic.io.logger import get_logger
@@ -15,6 +16,7 @@ from scanomatic.models.fixture_models import (
 )
 from scanomatic.image_analysis.grayscale_detection import (
     detect_grayscale,
+    get_grayscale_im_section,
 )
 from scanomatic.image_analysis.exceptions import GrayscaleError
 
@@ -423,9 +425,11 @@ class FixtureImage:
     def analyse_grayscale(self) -> None:
         current_model = self["current"].model
         try:
+            grayscale_im = get_grayscale_im_section(self.im, current_model.grayscale)
+            grayscale_config = get_grayscale(current_model.grayscale.name)
             current_model.grayscale.section_values = detect_grayscale(
-                self.im,
-                current_model.grayscale,
+                grayscale_im,
+                grayscale_config,
             )[1]
 
         except GrayscaleError:
