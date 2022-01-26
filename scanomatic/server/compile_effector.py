@@ -250,7 +250,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
 
     @property
     def _compile_output_filehandle(self):
-        fh_mode = 'r+w'
+        fh_mode = 'r+'
         if (
             (
                 self._compile_job.compile_action is COMPILE_ACTION.Initiate
