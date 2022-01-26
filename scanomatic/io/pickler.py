@@ -1,13 +1,5 @@
 import os
-from pickle import load
 from typing import IO
-
-
-def unpickle(path: str):
-    """Unpickles data safely
-    Returns: Unpickled object
-    """
-    return load(safe_load(path))
 
 
 def safe_load(path, return_string=False):
@@ -18,25 +10,6 @@ def safe_load(path, return_string=False):
         return os.linesep.join(fh.readlines())
     else:
         return fh
-
-
-def unpickle_with_unpickler(unpickler, path, *args, **kwargs):
-    """Compatibility unpickler that handles problems
-
-    This is used for
-
-    1) Dealing with errors in line-endings in data sent between different OS
-    2) Dealing with SoM refactoring import errors
-
-    Args:
-        unpickler (func): A function that unpickles a string of data
-        path (str): Path to the data to be unpickled
-        *args: Optional extra arguments for the unpickler
-        **kwargs: Opional extra keyword arguments for the unpickler
-
-    Returns: Unpickled object
-    """
-    return unpickler(safe_load(path), *args, **kwargs)
 
 
 class _RefactoringPhases:

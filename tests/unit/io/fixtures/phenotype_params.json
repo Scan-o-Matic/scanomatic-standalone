@@ -1,0 +1,14 @@
+{
+  "__DATACLASS__": "PhenotyperSettings",
+  "__CONTENT__": {
+    "no_growth_pop_doublings_threshold": 1.0,
+    "phenotypes_inclusion": {
+      "__CONTENT__": "Trusted",
+      "__ENUM__": "PhenotypeDataType"
+    },
+    "median_kernel_size": 5,
+    "linear_regression_size": 5,
+    "no_growth_monotonicity_threshold": 0.6,
+    "gaussian_filter_sigma": 1.5
+  }
+}

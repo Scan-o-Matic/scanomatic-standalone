@@ -1,0 +1,8 @@
+{
+  "__DATACLASS__": "PhenotyperSettings",
+  "__CONTENT__": {
+    "median_kernel_size": 5,
+    "linear_regression_size": 5,
+    "gaussian_filter_sigma": 1.5
+  }
+}

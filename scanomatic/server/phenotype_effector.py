@@ -71,7 +71,7 @@ class PhenotypeExtractionEffector(proc_effector.ProcessEffector):
                     self._feature_job.analysis_directory,
                     paths.Paths().phenotypes_extraction_instructions,
                 ),
-                overwrite=True,
+                merge=True,
             )
         else:
             self._logger.warning("Can't setup, instructions don't validate")

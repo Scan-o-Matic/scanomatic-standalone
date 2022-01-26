@@ -4,7 +4,10 @@ from enum import Enum, unique
 from typing import Any, Optional, TextIO, Type, TypeVar, Union
 from pathlib import Path
 
+from dataclasses import asdict, is_dataclass
 import numpy as np
+from scanomatic.data_processing.pheno.state import PhenotyperSettings
+from scanomatic.data_processing.phenotypes import PhenotypeDataType
 
 from scanomatic.generics.model import Model, assert_models_deeply_equal
 from scanomatic.io.logger import get_logger
@@ -138,6 +141,7 @@ ENUM_CLASSES: dict[str, Type[Enum]] = {
     "CULTURE_SOURCE": CULTURE_SOURCE,
     "POWER_MANAGER_TYPE": POWER_MANAGER_TYPE,
     "POWER_MODES": POWER_MODES,
+    "PhenotypeDataType": PhenotypeDataType,
 }
 
 
@@ -176,11 +180,37 @@ def decode_array(obj: dict) -> np.ndarray:
         msg = "Array data missing from serialized object"
         _LOGGER.error(msg)
         raise JSONDecodingError(msg)
-
     try:
         return np.array(content, dtype=dtype)
     except TypeError:
         msg = f"Array could not be created with {dtype}"
+        _LOGGER.error(msg)
+        raise JSONDecodingError(msg)
+
+
+DATA_CLASSES: dict[str, Type[PhenotyperSettings]] = {
+    "PhenotyperSettings": PhenotyperSettings,
+}
+
+
+def decode_dataclass(obj: dict) -> Any:
+    encoding = SOMSerializers.DATACLASS.encoding
+    try:
+        d = DATA_CLASSES[obj[encoding]]
+    except KeyError:
+        msg = f"'{obj.get(encoding)}' is not a recognized dataclass"
+        _LOGGER.error(msg)
+        raise JSONDecodingError(msg)
+    try:
+        content = obj[CONTENT]
+    except KeyError:
+        msg = "Dataclass data missing from serialized object"
+        _LOGGER.error(msg)
+        raise JSONDecodingError(msg)
+    try:
+        return d(**content)
+    except TypeError:
+        msg = f"Dataclass {encoding} could not be created from {content}"
         _LOGGER.error(msg)
         raise JSONDecodingError(msg)
 
@@ -193,6 +223,7 @@ class SOMSerializers(Enum):
     MODEL = ("__MODEL__", decode_model)
     ENUM = ("__ENUM__", decode_enum)
     ARRAY = ("__ARRAY__", decode_array)
+    DATACLASS = ("__DATACLASS__", decode_dataclass)
 
     @property
     def encoding(self) -> str:
@@ -228,6 +259,15 @@ class SOMEncoder(json.JSONEncoder):
             return {
                 SOMSerializers.ARRAY.encoding: o.dtype.name,
                 CONTENT: o.tolist()
+            }
+        elif is_dataclass(o):
+            if name not in DATA_CLASSES:
+                msg = f"'{name}' not a recognized serializable dataclass"
+                _LOGGER.error(msg)
+                raise JSONEncodingError(msg)
+            return {
+                SOMSerializers.DATACLASS.encoding: name,
+                CONTENT: asdict(o),
             }
         return super().default(o)
 
@@ -289,7 +329,7 @@ def _merge(model: Model, update: Model) -> bool:
 
 def merge_into(
     model: Optional[Union[Model, Sequence[Model]]],
-    update: Union[Sequence[Model], Model],
+    update: Any,
 ) -> Union[Sequence[Model], Model]:
     """Merges update with or into the model.
 
@@ -299,13 +339,13 @@ def merge_into(
     needed to cover all type cases, but should not be
     in use in the code.
     """
-    if isinstance(update, list):
+    if isinstance(update, Sequence):
         _LOGGER.warning(
             f"Mergining {update} into {model} not implemented."
             " Will simply replace."
         )
         return update
-    elif isinstance(model, list):
+    elif isinstance(model, Sequence):
         ret = []
         merged = False
         for m in model:
@@ -328,11 +368,11 @@ def merge_into(
 
 
 def dump(
-    model: Union[Model, Sequence[Model]],
+    model: Any,
     path: Union[str, Path],
-    overwrite: bool = False,
+    merge: bool = False,
 ) -> bool:
-    if overwrite:
+    if merge:
         model = merge_into(load(path), model)
     try:
         with open(path, 'w') as fh:

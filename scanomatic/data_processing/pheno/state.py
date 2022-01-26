@@ -34,25 +34,16 @@ class PhenotyperSettings:
     median_kernel_size: int
     gaussian_filter_sigma: float
     linear_regression_size: int
-    phenotypes_inclusion: Optional[PhenotypeDataType]
-    no_growth_monotonicity_threshold: float
-    no_growth_pop_doublings_threshold: float
+    phenotypes_inclusion: Optional[PhenotypeDataType] = (
+        PhenotypeDataType.Trusted
+    )
+    no_growth_monotonicity_threshold: Optional[float] = None
+    no_growth_pop_doublings_threshold: Optional[float] = None
 
     def __post_init__(self):
         assert (
             self.median_kernel_size % 2 == 1
         ), "Median kernel size must be odd"
-
-    def serialized(self) -> list[Union[str, int, float]]:
-        return [
-            self.median_kernel_size,
-            self.gaussian_filter_sigma,
-            self.linear_regression_size,
-            None if self.phenotypes_inclusion is None
-            else self.phenotypes_inclusion.name,
-            self.no_growth_monotonicity_threshold,
-            self.no_growth_pop_doublings_threshold
-        ]
 
 
 @dataclass

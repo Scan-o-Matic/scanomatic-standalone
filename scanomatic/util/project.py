@@ -106,7 +106,7 @@ def rename_scan_instructions(new_name, old_name=None, **model_updates):
             dump(
                 m,
                 destination,
-                overwrite=True,
+                merge=True,
             )
 
             _logger.info("Updated the contents of {0}".format(destination))

@@ -9,7 +9,7 @@ from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.jsonizer import load
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _logger = get_logger("Image loader")
@@ -86,19 +86,19 @@ def slice_im(plate_im, colony_position, colony_size):
 
 def _load_grid_info(analysis_directory, plate):
     # grids number +1
-    grid = unpickle_with_unpickler(
-        np.load,
-        os.path.join(
+    grid = np.load(
+        safe_load(os.path.join(
             analysis_directory,
             Paths().grid_pattern.format(plate + 1),
-        ),
+        )),
+        allow_pickle=True,
     )
-    grid_size = unpickle_with_unpickler(
-        np.load,
-        os.path.join(
+    grid_size = np.load(
+        safe_load(os.path.join(
             analysis_directory,
             Paths().grid_size_pattern.format((plate + 1)),
-        ),
+        )),
+        allow_pickle=True,
     )
     return grid, grid_size
 

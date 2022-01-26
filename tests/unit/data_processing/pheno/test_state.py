@@ -42,33 +42,6 @@ class TestPhenotyperSettings:
         with pytest.raises(AssertionError):
             PhenotyperSettings(4, 1.0, 3, None, 2.0, 3.0)
 
-    def test_serialized_no_inclusion(self):
-        assert PhenotyperSettings(5, 1.0, 3, None, 2.0, 3.0).serialized() == [
-            5,
-            1.0,
-            3,
-            None,
-            2.0,
-            3.0,
-        ]
-
-    def test_serialized_with_inclusion(self):
-        assert PhenotyperSettings(
-            5,
-            1.0,
-            3,
-            PhenotypeDataType.All,
-            2.0,
-            3.0,
-        ).serialized() == [
-            5,
-            1.0,
-            3,
-            "All",
-            2.0,
-            3.0,
-        ]
-
 
 class TestPhenotyperState:
     @pytest.fixture

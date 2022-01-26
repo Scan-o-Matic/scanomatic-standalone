@@ -204,7 +204,6 @@ export function DrawPlate(container, data, growthMetaData, plateMetaData, phenot
       class: 'PlateHeatMap',
     });
 
-
   addSelectionHandling(grid);
   addSymbolsToSVG(grid);
 
@@ -409,7 +408,7 @@ d3.scanomatic.plateHeatmap = () => {
     function setShapes(node) {
       // ok metadata
       node
-        .filter(d => d.metaType === plateMetaDataType.OK)
+        .filter((d) => d.metaType === plateMetaDataType.OK)
         .append('circle')
         .attr({
           class: 'plateWell OK',
@@ -419,16 +418,16 @@ d3.scanomatic.plateHeatmap = () => {
           r: cellRadius,
           cy(d) { return d.celStartY + cellRadius; },
           cx(d) { return d.celStartX + cellRadius; },
-          'data-col': d => d.col,
-          'data-meta-gt': d => d.metaGT,
-          'data-meta-gtWhen': d => d.metaGtWhen,
-          'data-meta-yield': d => d.metaYield,
-          'data-meta-type': d => d.metaType,
+          'data-col': (d) => d.col,
+          'data-meta-gt': (d) => d.metaGT,
+          'data-meta-gtWhen': (d) => d.metaGtWhen,
+          'data-meta-yield': (d) => d.metaYield,
+          'data-meta-type': (d) => d.metaType,
         });
 
       // bad metadata
       node
-        .filter(d => d.metaType !== plateMetaDataType.OK)
+        .filter((d) => d.metaType !== plateMetaDataType.OK)
         .append('rect')
         .attr({
           class: 'plateWell Marked',
@@ -439,22 +438,22 @@ d3.scanomatic.plateHeatmap = () => {
           x(d) { return d.celStartX; },
           width: heatMapCelWidth,
           height: heatMapCelHeight,
-          'data-col': d => d.col,
-          'data-meta-gt': d => d.metaGT,
-          'data-meta-gtWhen': d => d.metaGtWhen,
-          'data-meta-yield': d => d.metaYield,
-          'data-meta-type': d => d.metaType,
+          'data-col': (d) => d.col,
+          'data-meta-gt': (d) => d.metaGT,
+          'data-meta-gtWhen': (d) => d.metaGtWhen,
+          'data-meta-yield': (d) => d.metaYield,
+          'data-meta-type': (d) => d.metaType,
         });
     }
 
     function setSymbols(node) {
       // Empty
       node
-        .filter(d => d.metaType === plateMetaDataType.Empty)
+        .filter((d) => d.metaType === plateMetaDataType.Empty)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY - 0.8; },
           width: cellRadius * 3,
@@ -463,11 +462,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // UndecidedProblem
       node
-        .filter(d => d.metaType === plateMetaDataType.UndecidedProblem)
+        .filter((d) => d.metaType === plateMetaDataType.UndecidedProblem)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY; },
           width: cellRadius * 3,
@@ -476,11 +475,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // BadData
       node
-        .filter(d => d.metaType === plateMetaDataType.BadData)
+        .filter((d) => d.metaType === plateMetaDataType.BadData)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY; },
           width: cellRadius * 3,
@@ -489,11 +488,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // NoGrowth
       node
-        .filter(d => d.metaType === plateMetaDataType.NoGrowth)
+        .filter((d) => d.metaType === plateMetaDataType.NoGrowth)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 1; },
           y(d) { return d.celStartY; },
           width: cellRadius * 2.5,
@@ -550,7 +549,7 @@ d3.scanomatic.plateHeatmap = () => {
     }
 
     function onMouseOut(node) {
-      node.select('.plateWell').attr('fill', d => getValidColor(d.phenotype, d.metaType));
+      node.select('.plateWell').attr('fill', (d) => getValidColor(d.phenotype, d.metaType));
       node.select('.plateWellSymbol').attr('fill', 'black');
 
       toolTipDiv.transition()
@@ -684,11 +683,11 @@ d3.scanomatic.plateHeatmap = () => {
     function addSymbols(nodes) {
       // Empty
       nodes
-        .filter(d => d.metaType === plateMetaDataType.Empty)
+        .filter((d) => d.metaType === plateMetaDataType.Empty)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY - 0.8; },
           width: cellRadius * 3,
@@ -697,11 +696,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // UndecidedProblem
       nodes
-        .filter(d => d.metaType === plateMetaDataType.UndecidedProblem)
+        .filter((d) => d.metaType === plateMetaDataType.UndecidedProblem)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY; },
           width: cellRadius * 3,
@@ -710,11 +709,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // BadData
       nodes
-        .filter(d => d.metaType === plateMetaDataType.BadData)
+        .filter((d) => d.metaType === plateMetaDataType.BadData)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 2; },
           y(d) { return d.celStartY; },
           width: cellRadius * 3,
@@ -723,11 +722,11 @@ d3.scanomatic.plateHeatmap = () => {
 
       // NoGrowth
       nodes
-        .filter(d => d.metaType === plateMetaDataType.NoGrowth)
+        .filter((d) => d.metaType === plateMetaDataType.NoGrowth)
         .append('use')
         .attr({
           class: 'plateWellSymbol',
-          'xlink:href': d => `#${getValidSymbol(d.metaType)}`,
+          'xlink:href': (d) => `#${getValidSymbol(d.metaType)}`,
           x(d) { return d.celStartX - 1; },
           y(d) { return d.celStartY; },
           width: cellRadius * 2.5,
@@ -738,7 +737,7 @@ d3.scanomatic.plateHeatmap = () => {
     function addShapes(nodes) {
       // ok metadata
       nodes
-        .filter(d => d.metaType === plateMetaDataType.OK)
+        .filter((d) => d.metaType === plateMetaDataType.OK)
         .append('circle')
         .attr({
           class: 'plateWell OK',
@@ -748,16 +747,16 @@ d3.scanomatic.plateHeatmap = () => {
           r: cellRadius,
           cy(d) { return d.celStartY + cellRadius; },
           cx(d) { return d.celStartX + cellRadius; },
-          'data-col': d => d.col,
-          'data-meta-gt': d => d.metaGT,
-          'data-meta-gtWhen': d => d.metaGtWhen,
-          'data-meta-yield': d => d.metaYield,
-          'data-meta-type': d => d.metaType,
+          'data-col': (d) => d.col,
+          'data-meta-gt': (d) => d.metaGT,
+          'data-meta-gtWhen': (d) => d.metaGtWhen,
+          'data-meta-yield': (d) => d.metaYield,
+          'data-meta-type': (d) => d.metaType,
         });
 
       // bad metadata
       nodes
-        .filter(d => d.metaType !== plateMetaDataType.OK)
+        .filter((d) => d.metaType !== plateMetaDataType.OK)
         .append('rect')
         .attr({
           class: 'plateWell Marked',
@@ -768,14 +767,13 @@ d3.scanomatic.plateHeatmap = () => {
           x(d) { return d.celStartX; },
           width: heatMapCelWidth,
           height: heatMapCelHeight,
-          'data-col': d => d.col,
-          'data-meta-gt': d => d.metaGT,
-          'data-meta-gtWhen': d => d.metaGtWhen,
-          'data-meta-yield': d => d.metaYield,
-          'data-meta-type': d => d.metaType,
+          'data-col': (d) => d.col,
+          'data-meta-gt': (d) => d.metaGT,
+          'data-meta-gtWhen': (d) => d.metaGtWhen,
+          'data-meta-yield': (d) => d.metaYield,
+          'data-meta-type': (d) => d.metaType,
         });
     }
-
 
     dispatch2.on('setExp', setExperiment);
     dispatch2.on('reDrawExp', reDrawExperiment);
@@ -788,7 +786,7 @@ d3.scanomatic.plateHeatmap = () => {
       });
 
     const nodes = gHeatMap.selectAll('nodes')
-      .data(d => d)
+      .data((d) => d)
       .enter()
       .append('g')
       .attr('class', 'expNode')

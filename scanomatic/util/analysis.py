@@ -8,7 +8,7 @@ from scanomatic.image_analysis.image_basics import load_image_to_numpy
 from scanomatic.io.jsonizer import load
 from scanomatic.io.logger import get_logger
 from scanomatic.io.paths import Paths
-from scanomatic.io.pickler import unpickle_with_unpickler
+from scanomatic.io.pickler import safe_load
 from scanomatic.models.compile_project_model import CompileImageAnalysisModel
 
 _logger = get_logger("Analysis Utils")
@@ -60,12 +60,12 @@ def produce_grid_images(
         )
     )
 
-    compilation: list[CompileImageAnalysisModel] = load(compilation)
+    compilation_list: list[CompileImageAnalysisModel] = load(compilation)
 
-    image_path = compilation[-1].image.path
-    all_plates = compilation[-1].fixture.plates
+    image_path = compilation_list[-1].image.path
+    all_plates = compilation_list[-1].fixture.plates
     if image is not None:
-        for c in compilation:
+        for c in compilation_list:
             if os.path.basename(c.image.path) == os.path.basename(image):
                 image_path = c.image.path
                 all_plates = c.fixture.plates
@@ -95,7 +95,10 @@ def produce_grid_images(
         grid_path = os.path.join(
             path, Paths().grid_pattern.format(plate.index))
         try:
-            grid = unpickle_with_unpickler(np.load, grid_path)
+            grid = np.load(
+                safe_load(grid_path),
+                allow_pickle=True,
+            )
         except IOError:
             _logger.warning("Could not find any grid: " + grid_path)
             grid = None
