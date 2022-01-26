@@ -813,7 +813,7 @@ class Blob(CellItem):
                 None,
             )
 
-        self.filter_array[(x_slice, y_slice)] += (
+        self.filter_array[(x_slice, y_slice)] |= (
             stencil[(x_stencil_slice, y_stencil_slice)]
         )
 
