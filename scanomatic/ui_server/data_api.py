@@ -304,13 +304,13 @@ def add_routes(app, rpc_client, is_debug_mode):
                 success=False, is_endpoint=True,
                 reason="Grayscale detection failed")
 
-        grayscale_object = get_grayscale_conf(grayscale_area_model.name)
-        valid = get_grayscale_is_valid(values, grayscale_object)
+        grayscale_config = get_grayscale(grayscale_area_model.name)
+        valid = get_grayscale_is_valid(values, grayscale_config)
 
         return jsonify(
             success=valid,
             source_values=values,
-            target_values=grayscale_object.targets,
+            target_values=grayscale_config.targets,
             grayscale=grayscale_area_model.name,
             reason=(
                 None if valid else
@@ -366,7 +366,10 @@ def add_routes(app, rpc_client, is_debug_mode):
         fixture = get_fixture_image_by_name(fixture_name)
         grayscale_config = get_grayscale(grayscale_area_model.name)
         try:
-            grayscale_im = get_grayscale_im_section(fixture.im, grayscale_config)
+            grayscale_im = get_grayscale_im_section(
+                fixture.im,
+                grayscale_config,
+            )
             _, values = detect_grayscale(
                 grayscale_im, grayscale_config, debug=is_debug_mode)
         except (TypeError, GrayscaleError):
@@ -584,7 +587,10 @@ def add_routes(app, rpc_client, is_debug_mode):
             grayscale_config = get_grayscale(grayscale_area_model.name)
 
             try:
-                grayscale_im = get_grayscale_im_section(fixture.im, grayscale_config)
+                grayscale_im = get_grayscale_im_section(
+                    fixture.im,
+                    grayscale_config,
+                )
                 _, values = detect_grayscale(grayscale_im, grayscale_config)
             except (TypeError, GrayscaleError):
 

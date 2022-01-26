@@ -425,7 +425,10 @@ class FixtureImage:
     def analyse_grayscale(self) -> None:
         current_model = self["current"].model
         try:
-            grayscale_im = get_grayscale_im_section(self.im, current_model.grayscale)
+            grayscale_im = get_grayscale_im_section(
+                self.im,
+                current_model.grayscale,
+            )
             grayscale_config = get_grayscale(current_model.grayscale.name)
             current_model.grayscale.section_values = detect_grayscale(
                 grayscale_im,
