@@ -602,7 +602,7 @@ class Blob(CellItem):
             if self.filter_array.sum() == 0:
                 self.filter_array = self.old_filter.copy()
 
-            blob_diff = (np.abs(self.old_filter - self.filter_array)).sum()
+            blob_diff = (np.abs(self.old_filter ^ self.filter_array)).sum()
 
             sqrt_of_oldsum = self.old_filter.sum() ** 0.5
 
@@ -625,59 +625,59 @@ class Blob(CellItem):
 
                         diff_filter = (
                             self.old_filter[dim_1_offset:, dim_2_offset:]
-                            - self.filter_array[:-dim_1_offset, :-dim_2_offset]
+                            ^ self.filter_array[:-dim_1_offset, :-dim_2_offset]
                         )
 
                     elif dim_1_offset < 0 and dim_2_offset < 0:
 
                         diff_filter = (
                             self.old_filter[: dim_1_offset, : dim_2_offset]
-                            - self.filter_array[-dim_1_offset:, -dim_2_offset:]
+                            ^ self.filter_array[-dim_1_offset:, -dim_2_offset:]
                         )
 
                     elif dim_1_offset > 0 > dim_2_offset:
 
                         diff_filter = (
                             self.old_filter[dim_1_offset:, : dim_2_offset]
-                            - self.filter_array[:-dim_1_offset, -dim_2_offset:]
+                            ^ self.filter_array[:-dim_1_offset, -dim_2_offset:]
                         )
 
                     elif dim_1_offset < 0 < dim_2_offset:
 
                         diff_filter = (
                             self.old_filter[: dim_1_offset, dim_2_offset:]
-                            - self.filter_array[-dim_1_offset:, :-dim_2_offset]
+                            ^ self.filter_array[-dim_1_offset:, :-dim_2_offset]
                         )
 
                     elif dim_1_offset == 0 and dim_2_offset < 0:
 
                         diff_filter = (
                             self.old_filter[:, : dim_2_offset]
-                            - self.filter_array[:, -dim_2_offset:]
+                            ^ self.filter_array[:, -dim_2_offset:]
                         )
 
                     elif dim_1_offset == 0 and dim_2_offset > 0:
 
                         diff_filter = (
                             self.old_filter[:, dim_2_offset:]
-                            - self.filter_array[:, :-dim_2_offset]
+                            ^ self.filter_array[:, :-dim_2_offset]
                         )
 
                     elif dim_1_offset < 0 and dim_2_offset == 0:
 
                         diff_filter = (
                             self.old_filter[: dim_1_offset, :]
-                            - self.filter_array[-dim_1_offset:, :]
+                            ^ self.filter_array[-dim_1_offset:, :]
                         )
 
                     elif dim_1_offset > 0 == dim_2_offset:
                         diff_filter = (
                             self.old_filter[dim_1_offset:, :]
-                            - self.filter_array[:-dim_1_offset, :]
+                            ^ self.filter_array[:-dim_1_offset, :]
                         )
 
                     else:
-                        diff_filter = self.old_filter - self.filter_array
+                        diff_filter = self.old_filter ^ self.filter_array
 
                     blob_diff = diff_filter.sum()
 
