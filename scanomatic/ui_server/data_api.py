@@ -370,7 +370,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                 fixture.im,
                 grayscale_config,
             )
-            _, values = detect_grayscale(
+            values = detect_grayscale(
                 grayscale_im, grayscale_config, debug=is_debug_mode,
             )
         except (TypeError, GrayscaleError):
@@ -592,7 +592,7 @@ def add_routes(app, rpc_client, is_debug_mode):
                     fixture.im,
                     grayscale_config,
                 )
-                _, values = detect_grayscale(grayscale_im, grayscale_config)
+                values = detect_grayscale(grayscale_im, grayscale_config)
             except (TypeError, GrayscaleError):
 
                 return jsonify(

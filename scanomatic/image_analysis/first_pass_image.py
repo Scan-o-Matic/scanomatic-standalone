@@ -433,7 +433,7 @@ class FixtureImage:
             current_model.grayscale.section_values = detect_grayscale(
                 grayscale_im,
                 grayscale_config,
-            )[1]
+            )
 
         except GrayscaleError:
             self._logger.warning("Failed analysing grayscale")

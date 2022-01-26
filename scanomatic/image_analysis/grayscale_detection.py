@@ -190,7 +190,7 @@ def detect_grayscale(
     grayscale_image: np.ndarray,
     grayscale: Grayscale,
     debug: bool = False,
-) -> tuple[np.ndarray, list[float]]:
+) -> list[float]:
     global DEBUG_DETECTION
 
     im_ortho = get_ortho_trimmed_slice(grayscale_image, grayscale)
@@ -249,7 +249,7 @@ def is_valid_grayscale(
 def find_grayscale_locations(
     im_trimmed: np.ndarray,
     grayscale: Grayscale,
-) -> tuple[np.ndarray, list[float]]:
+) -> list[float]:
     gray_scale: list[float] = []
     grayscale_segment_centers: Optional[np.ndarray] = None
 
@@ -565,4 +565,4 @@ def find_grayscale_locations(
             gray_scale,
         )
 
-    return cast(np.ndarray, grayscale_segment_centers), gray_scale
+    return gray_scale

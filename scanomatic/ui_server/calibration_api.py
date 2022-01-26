@@ -329,7 +329,7 @@ def analyse_ccc_image_grayscale(ccc_identifier, image_identifier):
 
     grayscale_config = get_grayscale(gs_name)
     try:
-        _, values = detect_grayscale(
+        values = detect_grayscale(
             grayscale_image,
             grayscale_config,
             debug=False,
