@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+const d3 = require('d3/d3.js');
 
 const classExperimentSelected = 'ExperimentSelected';
 const dispatcherSelectedExperiment = 'SelectedExperiment';
@@ -170,7 +170,11 @@ function addSelectionHandling(svgRoot) {
     .on(
       'mouseout',
       () => {
-        if (d3.event.relatedTarget != null && d3.event.relatedTarget.tagName === 'HTML') {
+        if (
+          d3.event != null
+          && d3.event.relatedTarget != null
+          && d3.event.relatedTarget.tagName === 'HTML'
+        ) {
           svgRoot.selectAll('rect.selection').remove();
           d3.selectAll('g.expNode.selection').classed('selection', false);
         }
