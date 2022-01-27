@@ -816,9 +816,9 @@ d3.scanomatic.plateHeatmap = () => {
     data = value;
     cols = data[0].length;
     rows = data.length;
-    phenotypeMin = d3.min(data, array => d3.min(array));
-    phenotypeMax = d3.max(data, array => d3.max(array));
-    phenotypeMean = d3.mean(data, array => d3.mean(array));
+    phenotypeMin = d3.min(data, (array) => d3.min(array));
+    phenotypeMax = d3.max(data, (array) => d3.max(array));
+    phenotypeMean = d3.mean(data, (array) => d3.mean(array));
     return heatmap;
   };
 
