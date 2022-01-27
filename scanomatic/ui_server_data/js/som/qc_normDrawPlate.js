@@ -652,13 +652,13 @@ d3.scanomatic.plateHeatmap = () => {
           const x = margin + (j * cellSize);
           const y = margin + (i * cellSize);
           const metaGt = (
-            growthMetaData.gt === undefined ? null : growthMetaData.gt[i][j]
+            growthMetaData.gt == null ? null : growthMetaData.gt[i][j]
           );
           const metaGtWhen = (
-            growthMetaData.gtWhen === undefined ? null : growthMetaData.gtWhen[i][j]
+            growthMetaData.gtWhen == null ? null : growthMetaData.gtWhen[i][j]
           );
           const metaYield = (
-            growthMetaData.yld === undefined ? null : growthMetaData.yld[i][j]
+            growthMetaData.yld == null ? null : growthMetaData.yld[i][j]
           );
           const col = {
             col: j,
