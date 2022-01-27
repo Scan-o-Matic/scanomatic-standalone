@@ -441,3 +441,8 @@ label {
   background: #f8e03e !important;
   margin: 6px 6px 0px 0px;
 }
+
+.submit-button {
+  padding: 3px;
+  color: #333;
+}
