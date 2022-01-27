@@ -1077,7 +1077,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 plate_flat_regression_strided,
             ):
                 id1 = pos_index % plate.shape[1]
-                id0 = pos_index / plate.shape[1]
+                id0 = int(pos_index / plate.shape[1])
 
                 curve_data = get_preprocessed_data_for_phenotypes(
                     curve=plate[id0, id1],

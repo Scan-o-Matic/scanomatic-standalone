@@ -363,7 +363,7 @@ def generation_time_when(
     linregress_extent: int,
     **kwargs,
 ) -> float:
-    pos = index + linregress_extent
+    pos = int(index + linregress_extent)
     if pos < 0:
         _logger.warning("No GT When because no finite slopes in data")
         return np.nan
