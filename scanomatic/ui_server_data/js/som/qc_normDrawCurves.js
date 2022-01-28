@@ -1,5 +1,6 @@
-import * as d3 from 'd3';
 import { getExtentFromMultipleArrs, getBaseLog } from './qc_normHelper';
+
+const d3 = require('d3/d3.js');
 
 if (!d3.scanomatic) {
   d3.scanomatic = {};
@@ -74,7 +75,6 @@ d3.scanomatic.growthChart = () => {
   let generationTimeWhen;
   let generationTime;
   let growthYield;
-
 
   // local variables
   let g;

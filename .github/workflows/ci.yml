@@ -10,7 +10,7 @@ jobs:
 
         - name: Install
           run: |
-            npm install
+            npm ci
 
         - name: Lint
           run: |
@@ -31,7 +31,7 @@ jobs:
 
         - name: Install
           run: |
-            npm install
+            npm ci
 
         - name: Test
           run: |
@@ -44,7 +44,7 @@ jobs:
 
         - name: Install
           run: |
-            npm install
+            npm ci
 
         - name: Builds
           run: |
