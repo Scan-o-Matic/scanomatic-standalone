@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+const d3 = require('d3/d3.js');
 
 const classExperimentSelected = 'ExperimentSelected';
 const dispatcherSelectedExperiment = 'SelectedExperiment';
@@ -170,7 +170,11 @@ function addSelectionHandling(svgRoot) {
     .on(
       'mouseout',
       () => {
-        if (d3.event.relatedTarget != null && d3.event.relatedTarget.tagName === 'HTML') {
+        if (
+          d3.event != null
+          && d3.event.relatedTarget != null
+          && d3.event.relatedTarget.tagName === 'HTML'
+        ) {
           svgRoot.selectAll('rect.selection').remove();
           d3.selectAll('g.expNode.selection').classed('selection', false);
         }
@@ -652,13 +656,13 @@ d3.scanomatic.plateHeatmap = () => {
           const x = margin + (j * cellSize);
           const y = margin + (i * cellSize);
           const metaGt = (
-            growthMetaData.gt === undefined ? null : growthMetaData.gt[i][j]
+            growthMetaData.gt == null ? null : growthMetaData.gt[i][j]
           );
           const metaGtWhen = (
-            growthMetaData.gtWhen === undefined ? null : growthMetaData.gtWhen[i][j]
+            growthMetaData.gtWhen == null ? null : growthMetaData.gtWhen[i][j]
           );
           const metaYield = (
-            growthMetaData.yld === undefined ? null : growthMetaData.yld[i][j]
+            growthMetaData.yld == null ? null : growthMetaData.yld[i][j]
           );
           const col = {
             col: j,
