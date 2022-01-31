@@ -368,7 +368,7 @@ def add_routes(app, rpc_client, is_debug_mode):
         try:
             grayscale_im = get_grayscale_im_section(
                 fixture.im,
-                grayscale_config,
+                grayscale_area_model,
             )
             values = detect_grayscale(
                 grayscale_im, grayscale_config, debug=is_debug_mode,
@@ -590,7 +590,7 @@ def add_routes(app, rpc_client, is_debug_mode):
             try:
                 grayscale_im = get_grayscale_im_section(
                     fixture.im,
-                    grayscale_config,
+                    grayscale_area_model,
                 )
                 values = detect_grayscale(grayscale_im, grayscale_config)
             except (TypeError, GrayscaleError):
