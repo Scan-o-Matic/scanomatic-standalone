@@ -1021,7 +1021,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         all_vector_meta_phenotypes = []
 
         regression_size = self._settings.linear_regression_size
-        position_offset = (regression_size - 1) / 2
+        position_offset = (regression_size - 1) // 2
         phenotypes_count = self.get_number_of_phenotypes()
 
         total_curves = float(self.number_of_curves)
@@ -1077,7 +1077,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 plate_flat_regression_strided,
             ):
                 id1 = pos_index % plate.shape[1]
-                id0 = pos_index / plate.shape[1]
+                id0 = pos_index // plate.shape[1]
 
                 curve_data = get_preprocessed_data_for_phenotypes(
                     curve=plate[id0, id1],

@@ -1,7 +1,7 @@
 FROM node:16 as npmbuilder
 COPY . /src
 WORKDIR /src
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 FROM python:3.9

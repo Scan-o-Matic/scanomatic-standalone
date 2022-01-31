@@ -1,8 +1,9 @@
 import $ from 'jquery';
-import * as d3 from 'd3';
 
 import { getLastSegmentOfPath } from './qc_normHelper';
 import { setSharedValue } from './helpers';
+
+const d3 = require('d3/d3.js');
 
 const baseUrl = '';
 setSharedValue('baseUrl', baseUrl);
