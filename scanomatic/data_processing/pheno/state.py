@@ -29,6 +29,10 @@ PlateByCurveMetaPhenotypeArrays = npt.NDArray[
 ]
 
 
+DEFAULT_NO_GROWTH_THRESHOLD = 0.6
+DEFAULT_DOUBLING_THRESHOLD = 1.0
+
+
 @dataclass
 class PhenotyperSettings:
     median_kernel_size: int
@@ -37,8 +41,8 @@ class PhenotyperSettings:
     phenotypes_inclusion: Optional[PhenotypeDataType] = (
         PhenotypeDataType.Trusted
     )
-    no_growth_monotonicity_threshold: Optional[float] = None
-    no_growth_pop_doublings_threshold: Optional[float] = None
+    no_growth_monotonicity_threshold: float = DEFAULT_NO_GROWTH_THRESHOLD
+    no_growth_pop_doublings_threshold: float = DEFAULT_DOUBLING_THRESHOLD
 
     def __post_init__(self):
         assert (

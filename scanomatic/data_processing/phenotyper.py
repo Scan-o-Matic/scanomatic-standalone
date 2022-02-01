@@ -48,6 +48,8 @@ from scanomatic.data_processing.phases.features import (
 )
 from scanomatic.data_processing.pheno.save import save_state, save_state_to_zip
 from scanomatic.data_processing.pheno.state import (
+    DEFAULT_NO_GROWTH_THRESHOLD,
+    DEFAULT_DOUBLING_THRESHOLD,
     PhenotyperSettings,
     PhenotyperState
 )
@@ -135,8 +137,8 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
         median_kernel_size: int = 5,
         gaussian_filter_sigma: float = 1.5,
         linear_regression_size: int = 5,
-        no_growth_monotonocity_threshold: float = 0.6,
-        no_growth_pop_doublings_threshold: float = 1.0,
+        no_growth_monotonicity_threshold: float = DEFAULT_NO_GROWTH_THRESHOLD,
+        no_growth_pop_doublings_threshold: float = DEFAULT_DOUBLING_THRESHOLD,
         base_name=None,
         run_extraction=False,
         phenotypes=None,
@@ -149,7 +151,7 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
             gaussian_filter_sigma=gaussian_filter_sigma,
             linear_regression_size=linear_regression_size,
             phenotypes_inclusion=phenotypes_inclusion,
-            no_growth_monotonicity_threshold=no_growth_monotonocity_threshold,
+            no_growth_monotonicity_threshold=no_growth_monotonicity_threshold,
             no_growth_pop_doublings_threshold=(
                 no_growth_pop_doublings_threshold
             ),
