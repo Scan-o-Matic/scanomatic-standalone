@@ -212,8 +212,9 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                     )
                 except IOError:
                     self._logger.error(
-                        "Could not output analysis to file {0}".format(
+                        "Could not output analysis of {0} to {1}".format(
                             compile_image_model.path,
+                            fh.name,
                         ),
                     )
                 if issues and not self._has_mailed_issues:
