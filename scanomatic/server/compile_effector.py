@@ -259,7 +259,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                 is COMPILE_ACTION.InitiateAndSpawnAnalysis
             ) and self._image_to_analyse == 0
         ):
-            fh_mode = 'w'
+            fh_mode = 'w+'
 
         try:
             return open(self._compile_job.path, fh_mode)
