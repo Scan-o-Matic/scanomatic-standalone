@@ -221,7 +221,9 @@ def _get_wave_length_and_errors(s) -> tuple[float, float]:
 
     # Getting wl from IQR-mean of proximate signal step lengths
     ps_order = proxy_step.argsort()
-    wl = proxy_step[ps_order[ps_order.size / 4: ps_order.size * 3 / 4]].mean()
+    wl = proxy_step[
+        ps_order[ps_order.size // 4: ps_order.size * 3 // 4]
+    ].mean()
 
     # Get the errors in step sizes
     ps_error = np.abs(proxy_step - wl)
