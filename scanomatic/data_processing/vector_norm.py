@@ -41,7 +41,7 @@ def get_reference_position_filter(
     return np.tile(
         position_selector,
         tuple(
-            plate_shape[i] / position_selector.shape[i]
+            plate_shape[i] // position_selector.shape[i]
             for i in range(len(plate_shape))
         ),
     )

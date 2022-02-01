@@ -212,8 +212,9 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                     )
                 except IOError:
                     self._logger.error(
-                        "Could not output analysis to file {0}".format(
+                        "Could not output analysis of {0} to {1}".format(
                             compile_image_model.path,
+                            fh.name,
                         ),
                     )
                 if issues and not self._has_mailed_issues:
@@ -258,7 +259,7 @@ class CompileProjectEffector(proc_effector.ProcessEffector):
                 is COMPILE_ACTION.InitiateAndSpawnAnalysis
             ) and self._image_to_analyse == 0
         ):
-            fh_mode = 'w'
+            fh_mode = 'w+'
 
         try:
             return open(self._compile_job.path, fh_mode)
