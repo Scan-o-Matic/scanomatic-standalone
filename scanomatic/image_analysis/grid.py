@@ -26,11 +26,11 @@ def get_adaptive_threshold(
     if segments is None or segments == 5:
         # TODO: Hack solution, make nice
         segmented_image = np.zeros(im.shape)
-        segmented_image[im.shape[0] / 4, im.shape[1] / 4] = 1
-        segmented_image[im.shape[0] / 4, im.shape[1] * 3 / 4] = 1
-        segmented_image[im.shape[0] * 3 / 4, im.shape[1] / 4] = 1
-        segmented_image[im.shape[0] * 3 / 4, im.shape[1] * 3 / 4] = 1
-        segmented_image[im.shape[0] / 2, im.shape[1] / 2] = 1
+        segmented_image[im.shape[0] // 4, im.shape[1] // 4] = 1
+        segmented_image[im.shape[0] // 4, im.shape[1] * 3 // 4] = 1
+        segmented_image[im.shape[0] * 3 // 4, im.shape[1] // 4] = 1
+        segmented_image[im.shape[0] * 3 // 4, im.shape[1] * 3 // 4] = 1
+        segmented_image[im.shape[0] // 2, im.shape[1] // 2] = 1
     else:
         p = 1 - segments / im.size
         segmented_image = (np.random.random(im.shape) > p).astype(np.uint8)

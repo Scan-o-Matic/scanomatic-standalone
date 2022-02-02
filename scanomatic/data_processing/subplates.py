@@ -90,8 +90,8 @@ class SubPlates(mock_numpy_interface.NumpyArrayInterface):
             if plate.ndim == 2:
                 ravel_offset = plate.shape[1] * kernel_d1 + kernel_d2
                 plate_shape = (
-                    plate.shape[0] / kernel.shape[0],
-                    plate.shape[1] / kernel.shape[1],
+                    plate.shape[0] // kernel.shape[0],
+                    plate.shape[1] // kernel.shape[1],
                 )
                 plate_strides = (
                     plate.strides[0] * kernel.shape[0],
@@ -104,8 +104,8 @@ class SubPlates(mock_numpy_interface.NumpyArrayInterface):
                     + plate.shape[2] * kernel_d2
                 )
                 plate_shape = (
-                    plate.shape[0] / kernel.shape[0],
-                    plate.shape[1] / kernel.shape[1],
+                    plate.shape[0] // kernel.shape[0],
+                    plate.shape[1] // kernel.shape[1],
                     plate.shape[2],
                 )
                 plate_strides = (

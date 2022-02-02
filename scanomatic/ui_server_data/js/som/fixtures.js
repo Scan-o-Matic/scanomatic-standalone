@@ -67,7 +67,7 @@ function hasGrayScale() {
 
 function getAreaCenter(plate) {
   const thePlate = getPlate(plate);
-
+  const canvas = getSharedValue('selectedFixtureCanvas');
   if (thePlate) {
     return {
       x: (thePlate.x1 + thePlate.x2) / 2,
@@ -75,8 +75,8 @@ function getAreaCenter(plate) {
     };
   }
   return {
-    x: selectedFixtureCanvas.width / 2,
-    y: selectedFixtureCanvas.height / 2,
+    x: canvas.width / 2,
+    y: canvas.height / 2,
   };
 }
 
@@ -181,7 +181,7 @@ function drawPlate(context, plate) {
 }
 
 export function drawFixture() {
-  const canvas = selectedFixtureCanvas;
+  const canvas = getSharedValue('selectedFixtureCanvas');
   const context = canvas.getContext('2d');
 
   context.clearRect(0, 0, canvas.width, canvas.height);
@@ -328,7 +328,7 @@ function getAreaByPoint(point) {
 
 function drawHoverSlice(imageCoords) {
   if (fixtureImage) {
-    const canvas = selectedFixtureCanvas;
+    const canvas = getSharedValue('selectedFixtureCanvas');
     const context = canvas.getContext('2d');
 
     const imageHalfSize = 90;

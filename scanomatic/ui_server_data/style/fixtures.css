@@ -5,6 +5,12 @@ canvas {
   background-color: #e7d2b7;
 }
 
+button {
+  padding: 3px;
+  color: #333333;
+  background: #FFFFFF;
+}
+
 #new-fixture-markers {
   width: 50px;
   padding: 2px;
