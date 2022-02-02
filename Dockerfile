@@ -23,7 +23,9 @@ RUN echo "usb 0x4b8 0x151" >> /etc/sane.d/epson2.conf
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-COPY data/ /tmp/data/
+ENV DEFAULT_CONFIG=/tmp/data/config/
+
+COPY data/config/ ${DEFAULT_CONFIG}
 COPY scripts/ /tmp/scripts/
 COPY scanomatic/ /tmp/scanomatic/
 COPY setup.py /tmp/setup.py

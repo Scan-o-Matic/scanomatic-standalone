@@ -24,7 +24,7 @@ class Paths(SingeltonOneInit):
                 os.path.join(os.path.expanduser("~"), ".scan-o-matic"),
             ),
         )
-        self.default_config = "/tmp/data/config"
+        self.default_config = os.environ.get("DEFAULT_CONFIG", "/config")
 
         Paths._make_directory(self.root)
         self.config = os.path.join(self.root, "config")
