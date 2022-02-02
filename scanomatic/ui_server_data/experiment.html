@@ -5,8 +5,6 @@
   <script src="/js/somlib/som.js"></script>
   <script>
     som.setSharedValue("currentFixtureId", "#current-fixture");
-    som.setSharedValue("newFixtureDataId", "#new-fixture-data");
-    som.setSharedValue("selectedFixtureDivId", "#selected-fixture");
   </script>
   <link rel="stylesheet" type="text/css" href="style/main.css?ver=_-_VERSIONTAG_-_">
   <link rel="stylesheet" type="text/css" href="style/experiment.css?ver=_-_VERSIONTAG_-_">
@@ -289,13 +287,13 @@
   </div>
   <script>
     $(document).ready(() => {
+    som.getFixtures();
     som.setPoetry("#project-description");
     som.formatTime("#project-duration");
     som.formatMinutes("#project-interval");
     som.updateScans("#project-scans");
     som.setExperimentRoot("#project-path");
     som.getFreeScanners("#current-scanner");
-    som.getFixtures();
     som.InputEnabled($("#submit-button"), false);
     som.createSelector($('#ccc-selection'));
     });
