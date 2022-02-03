@@ -3,8 +3,6 @@ import os
 import sys
 import glob
 import stat
-import re
-from io import BytesIO
 from hashlib import sha256
 from subprocess import PIPE, call
 from itertools import chain
