@@ -1745,7 +1745,9 @@ class Phenotyper(mock_numpy_interface.NumpyArrayInterface):
                 else:
                     raise ValueError("Any check failed")
             except ValueError:
-                return arr.ravel().any()
+                return any(
+                    e.any() for e in arr.ravel() if isinstance(e, np.ndarray)
+                )
 
         def _plate_tester(p):
             if p is None:

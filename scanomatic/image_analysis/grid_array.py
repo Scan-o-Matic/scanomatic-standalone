@@ -32,14 +32,16 @@ def _analyse_grid_cell(
 ):
     save_extra_data = grid_cell.save_extra_data
     source = _get_image_slice(im, grid_cell)
-    if source is None:
+    grid_cell.source = (
+        source.astype(np.float64) if source is not None else None
+    )
+    if grid_cell.source is None:
         GridArray._LOGGER.error(
             "Tried to analyse grid cell that doesn't have any area",
         )
         if semaphore is not None:
             semaphore.release()
         return
-    grid_cell.source = source.astype(np.float64)
 
     grid_cell.image_index = image_index
 
