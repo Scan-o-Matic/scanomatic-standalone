@@ -24,7 +24,6 @@ class Paths(SingeltonOneInit):
                 os.path.join(os.path.expanduser("~"), ".scan-o-matic"),
             ),
         )
-        self.default_config = os.environ.get("DEFAULT_CONFIG", "/config")
 
         Paths._make_directory(self.root)
         self.config = os.path.join(self.root, "config")
@@ -109,7 +108,7 @@ class Paths(SingeltonOneInit):
         self.experiment_scan_image_pattern = "{0}_{1}_{2:.4f}.tiff"
         self.experiment_analysis_relative_path = "analysis"
 
-        self.analysis_grayscales = self.config_path("grayscales.cfg")
+        self.analysis_grayscales = os.path.join(self.config, "grayscales.cfg")
 
         self.ccc_folder = os.path.join(self.config, "ccc")
         Paths._make_directory(self.ccc_folder)
@@ -187,12 +186,6 @@ class Paths(SingeltonOneInit):
     def _make_directory(path: str) -> None:
         if not os.path.isdir(path):
             os.makedirs(path)
-
-    def config_path(self, filename: str) -> str:
-        config_file = os.path.join(self.config, filename)
-        if not os.path.isfile(config_file):
-            config_file = os.path.join(self.default_config, filename)
-        return config_file
 
     def join(self, attr, *other) -> str:
         if hasattr(self, attr):
