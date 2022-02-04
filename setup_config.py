@@ -13,7 +13,10 @@ def setup_config():
     for filename in os.listdir(DEFAULT_CONFIG_DIR):
         source_path = os.path.join(DEFAULT_CONFIG_DIR, filename)
         destination_path = os.path.join(CONFIG_DIR, filename)
-        if not os.path.isfile(destination_path):
+        if (
+            os.path.isfile(source_path)
+            and not os.path.isfile(destination_path)
+        ):
             copyfile(source_path, destination_path)
 
 
