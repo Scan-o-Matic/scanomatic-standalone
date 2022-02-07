@@ -29,7 +29,7 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
                 return jsonify(
                     scanners={
                         s['socket']: s['scanner_name']
-                        for s in rpc_client.get_scanner_status()
+                        for s in list(rpc_client.get_scanner_status())
                         if 'owner' not in s or not s['owner']
                     },
                 )
