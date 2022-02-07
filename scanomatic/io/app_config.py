@@ -249,12 +249,11 @@ class Config(SingeltonOneInit):
         return val
 
     def save_current_settings(self) -> None:
-        if self.validate():
-            dump(
-                self._settings,
-                self._paths.config_main_app,
-                merge=True,
-            )
+        dump(
+            self._settings,
+            self._paths.config_main_app,
+            merge=True,
+        )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
         scanner_name = self.get_scanner_name(scanner)
