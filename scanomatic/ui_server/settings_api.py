@@ -38,7 +38,6 @@ def add_routes(app):
             "mail"
         ]["warn_scanning_done_minutes_before"]
         settings = app_conf.application_settings
-        app_conf.reload_settings()
         if validate(settings):
             app_conf.save_current_settings()
         else:
