@@ -25,10 +25,7 @@ from scanomatic.models.settings_models import (
 
 from . import paths, power_manager
 
-MinMaxModelSettings = dict[
-    Type[Model],
-    dict[Literal['min', 'max'], dict[str, Any]]
-]
+MinMaxModelSettings = "dict[Type[Model], dict[Literal['min', 'max'], dict[str, Any]]]"
 
 
 class Config(SingeltonOneInit):
@@ -153,11 +150,11 @@ class Config(SingeltonOneInit):
         return self._settings.scan_program_version_flag
 
     @property
-    def scanner_models(self) -> dict[str, str]:
+    def scanner_models(self) -> "dict[str, str]":
         return self._settings.scanner_models
 
     @property
-    def scanner_sockets(self) -> dict[str, int]:
+    def scanner_sockets(self) -> "dict[str, int]":
         return self._settings.scanner_sockets
 
     @property
@@ -177,6 +174,7 @@ class Config(SingeltonOneInit):
         return None
 
     def reload_settings(self) -> None:
+        self._logger.info('reloading app_config')
         if os.path.isfile(self._paths.config_main_app):
             self._settings = load_first(self._paths.config_main_app)
             if self._settings is None:
@@ -249,12 +247,12 @@ class Config(SingeltonOneInit):
         return val
 
     def save_current_settings(self) -> None:
-        if self.validate():
-            dump(
-                self._settings,
-                self._paths.config_main_app,
-                merge=True,
-            )
+        self._logger.info('saving settings')
+        dump(
+            self._settings,
+            self._paths.config_main_app,
+            merge=True,
+        )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
         scanner_name = self.get_scanner_name(scanner)

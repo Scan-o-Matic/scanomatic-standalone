@@ -68,7 +68,7 @@ _LOGGER = get_logger("Jsonizer")
 CONTENT = "__CONTENT__"
 
 
-MODEL_CLASSES: dict[str, Callable[..., Model]] = {
+MODEL_CLASSES: "dict[str, Callable[..., Model]]" = {
     # From analysis_factories.py
     "GridModel": GridModelFactory.create,
     "AnalysisModel": AnalysisModelFactory.create,
@@ -128,7 +128,7 @@ def decode_model(obj: dict) -> Model:
         raise JSONDecodingError(msg)
 
 
-ENUM_CLASSES: dict[str, Type[Enum]] = {
+ENUM_CLASSES: "dict[str, Type[Enum]]" = {
     "COMPARTMENTS": COMPARTMENTS,
     "VALUES": VALUES,
     "MEASURES": MEASURES,
@@ -188,7 +188,7 @@ def decode_array(obj: dict) -> np.ndarray:
         raise JSONDecodingError(msg)
 
 
-DATA_CLASSES: dict[str, Type[PhenotyperSettings]] = {
+DATA_CLASSES: "dict[str, Type[PhenotyperSettings]]" = {
     "PhenotyperSettings": PhenotyperSettings,
 }
 

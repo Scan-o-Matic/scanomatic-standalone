@@ -139,7 +139,7 @@ class _ClientProxy:
 
     def _allowed_methods(self):
 
-        ret: tuple[str, ...] = tuple()
+        ret: "tuple[str, ...]" = tuple()
 
         if not(
             self._client is None

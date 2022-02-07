@@ -68,13 +68,13 @@ class ScannerPowerManager(SingeltonOneInit):
                 for scanner in self._scanners.values()
             )
 
-    def _initiate_scanners(self) -> dict[int, ScannerModel]:
+    def _initiate_scanners(self) -> "dict[int, ScannerModel]":
         scanners: dict[int, ScannerModel] = {}
 
         # Load saved scanner data
         scanner_configs = load(self._paths.config_scanners)
         for scanner in cast(
-            list[ScannerModel],
+            "list[ScannerModel]",
             [] if scanner_configs is None else scanner_configs,
         ):
             if 0 < scanner.socket <= self._conf.number_of_scanners:
@@ -100,8 +100,8 @@ class ScannerPowerManager(SingeltonOneInit):
 
     def _get_power_manager(
         self,
-        scanners: dict[Any, ScannerModel]
-    ) -> dict[int, PowerManagerNull]:
+        scanners: "dict[Any, ScannerModel]"
+    ) -> "dict[int, PowerManagerNull]":
         pm = {}
         for scanner in scanners.values():
 
