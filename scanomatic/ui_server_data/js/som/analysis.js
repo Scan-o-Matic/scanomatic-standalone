@@ -145,6 +145,7 @@ function regriddingSettingsData() {
 export function toggleManualRegridding(chkbox) {
   const isActive = $(chkbox).prop('checked');
   if (isActive) {
+    setFixturePlateListing();
     $('#manual-regridding-settings').show();
   } else {
     $('#manual-regridding-settings').hide();
@@ -190,7 +191,7 @@ export function setAnalysisDirectory(input, validate) {
 export function setFilePath(input, suffix, suffixPattern, toggleRegriddingIfNotExists) {
   getPathSuggestions(
     input,
-    false,
+    true,
     suffix,
     suffixPattern,
     (data) => {
