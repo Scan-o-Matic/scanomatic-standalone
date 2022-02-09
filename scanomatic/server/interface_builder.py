@@ -248,15 +248,14 @@ class InterfaceBuilder(SingeltonOneInit):
         host = pm.host
 
         data = {
-                'pm': type(pm),
-                'host': host,
-                'unasigned_usbs': (
-                    _SOM_SERVER.scanner_manager.non_reported_usbs
-                ),
-                'power_status': _SOM_SERVER.scanner_manager.power_statuses,
-                'modes': _SOM_SERVER.scanner_manager.pm_types,
-             }
-
+            'pm': type(pm),
+            'host': host,
+            'unasigned_usbs': (
+                _SOM_SERVER.scanner_manager.non_reported_usbs
+            ),
+            'power_status': _SOM_SERVER.scanner_manager.power_statuses,
+            'modes': _SOM_SERVER.scanner_manager.pm_types,
+        }
         _SOM_SERVER.logger.info(f"PM Status is {data}")
 
         return sanitize_communication(data)
