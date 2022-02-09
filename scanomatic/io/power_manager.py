@@ -454,7 +454,7 @@ class PowerManagerLan(PowerManagerNull):
 
         if not self._verify_name or self._pm_server_str in u.read().decode():
             self._logger.info(
-                'USB PM, Turning on socket {0}'.format(self._socket),
+                'LAN PM, Turning on socket {0}'.format(self._socket),
             )
             if self._run_url(
                 self._ctrl_panel_url,
