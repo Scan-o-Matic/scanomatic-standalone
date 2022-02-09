@@ -413,7 +413,7 @@ class PowerManagerLan(PowerManagerNull):
             self._logger.debug("LAN PM, Logging in")
             return self._run_url(
                 self._login_out_url,
-                self._pwd_params,
+                self._pwd_params.encode(),
                 timeout=URL_TIMEOUT,
             )
 
@@ -458,7 +458,7 @@ class PowerManagerLan(PowerManagerNull):
             )
             if self._run_url(
                 self._ctrl_panel_url,
-                self._on_params,
+                self._on_params.encode(),
                 timeout=URL_TIMEOUT
             ) is None:
                 return False
@@ -483,7 +483,7 @@ class PowerManagerLan(PowerManagerNull):
 
             if self._run_url(
                 self._ctrl_panel_url,
-                self._off_params,
+                self._off_params.encode(),
                 timeout=URL_TIMEOUT,
             ) is None:
                 return False
