@@ -238,6 +238,11 @@ class InterfaceBuilder(SingeltonOneInit):
             return {}
 
         pm = _SOM_SERVER.scanner_manager.power_manager
+        keys = list(pm.keys())
+        if (n_keys := len(keys)) != 1:
+            self.logger.error(f"Found {n_keys} power managers, should be 1")
+            return {}
+        pm = pm[keys[0]]
         host = pm.host
 
         data = {
