@@ -1,7 +1,7 @@
 import time
 from enum import Enum
 from threading import Thread
-from typing import Any, Union, cast
+from typing import Any, Optional, Union, cast
 
 import psutil
 
@@ -75,7 +75,9 @@ class ScannerPowerManager(SingeltonOneInit):
         scanner_configs = load(self._paths.config_scanners)
         for scanner in cast(
             list[ScannerModel],
-            [] if scanner_configs is None else scanner_configs,
+            [] if scanner_configs is None else
+            [scanner_configs] if not isinstance(scanner_configs, list) else
+            scanner_configs,
         ):
             if 0 < scanner.socket <= self._conf.number_of_scanners:
                 scanners[scanner.socket] = scanner
@@ -170,7 +172,7 @@ class ScannerPowerManager(SingeltonOneInit):
         return self._pm
 
     @property
-    def _claimer(self) -> ScannerModel:
+    def _claimer(self) -> Optional[ScannerModel]:
         for scanner in list(self._scanners.values()):
             if scanner.claiming:
                 return scanner
