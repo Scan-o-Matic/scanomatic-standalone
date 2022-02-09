@@ -1,6 +1,6 @@
 import logging
 import re
-from os import makedirs
+from os import makedirs, getenv
 from pathlib import Path
 from typing import Optional
 from collections.abc import Sequence
@@ -14,7 +14,7 @@ _LOG_PARSING_EXPRESSION = re.compile(
 )
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=int(getenv("LOGGING_LEVEL", logging.INFO)),
     datefmt=_DATEFMT,
     format=_FORMAT
 )
