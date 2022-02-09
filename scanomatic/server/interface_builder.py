@@ -220,8 +220,10 @@ class InterfaceBuilder(SingeltonOneInit):
             self.logger.error("Server not fully initialized")
             return []
         if not _SOM_SERVER.scanner_manager.connected_to_scanners:
+            self.logger.error("Scanner manager not connected to scanner")
             return []
         else:
+            self.logger.debug(f"Scanner manager status: {_SOM_SERVER.scanner_manager.status}")
             return sanitize_communication(sorted(
                 [
                     ScannerFactory.to_dict(scanner_model)

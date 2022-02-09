@@ -271,7 +271,7 @@ class Config(SingeltonOneInit):
             return power_manager.PowerManagerNull(0)
 
         self._logger.info(
-            "Creating scanner PM for socked {0} and settings {1}".format(
+            "Creating scanner PM for socket {0} and settings {1}".format(
                 socket,
                 dict(**self.power_manager),
             ),

@@ -89,7 +89,7 @@ class ScannerPowerManager(SingeltonOneInit):
                 )
                 scanners[scanner.socket] = scanner
 
-        self._logger.info("Scanners inited: {0}".format(scanners))
+        self._logger.info("Scanners initiated: {0}".format(scanners))
 
         return scanners
 
