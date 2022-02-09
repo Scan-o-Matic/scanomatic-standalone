@@ -191,7 +191,7 @@ export function setAnalysisDirectory(input, validate) {
 export function setFilePath(input, suffix, suffixPattern, toggleRegriddingIfNotExists) {
   getPathSuggestions(
     input,
-    true,
+    false,
     suffix,
     suffixPattern,
     (data) => {
