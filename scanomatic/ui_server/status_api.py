@@ -10,19 +10,13 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
     def status_server():
         if rpc_client.online:
             return jsonify(**rpc_client.get_status())
-        return json_abort(
-            503,
-            reason="System not yet ready",
-        )
+        return json_abort(503, reason="System not ready")
 
     @app.route("/api/status/queue")
     def status_queue():
         if rpc_client.online:
             return jsonify(queue=rpc_client.get_queue_status())
-        return json_abort(
-            503,
-            reason="System not yet ready",
-        )
+        return json_abort(503, reason="System not ready")
 
     @app.route("/api/status/jobs")
     def status_jobs():
@@ -37,10 +31,7 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
                         item['log_file'],
                     )
             return jsonify(jobs=data)
-        return json_abort(
-            503,
-            reason="System not yet ready",
-        )
+        return json_abort(503, reason="System not ready")
 
     @app.route("/api/status/scanners")
     @app.route("/api/status/scanners/<status_query>")
@@ -68,7 +59,4 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
                     400,
                     reason=f"Unknown scanner or query '{status_query}'",
                 )
-        return json_abort(
-            503,
-            reason="System not yet ready",
-        )
+        return json_abort(503, reason="System not ready")
