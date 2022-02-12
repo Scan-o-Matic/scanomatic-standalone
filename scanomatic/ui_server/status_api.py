@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
-from matplotlib.pyplot import get
 
-from ..io.rpc_client import _ClientProxy, get_client
+from ..io.rpc_client import get_client
 
 from .general import convert_path_to_url, json_abort
 from flask import g
