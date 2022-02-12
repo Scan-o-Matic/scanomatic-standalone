@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from collections.abc import Sequence
 
-_FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(msg)s'
+_FORMAT = '%(asctime)s -- %(levelname)s\t**%(name)s** %(message)s'
 _DATEFMT = '%Y-%m-%d %H:%M:%S'
 _FORMATTER = logging.Formatter(fmt=_FORMAT, datefmt=_DATEFMT)
 _HANDLERS: dict[str, logging.FileHandler] = {}

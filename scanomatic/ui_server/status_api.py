@@ -1,27 +1,35 @@
 from flask import Flask, jsonify
+from matplotlib.pyplot import get
 
-from ..io.rpc_client import _ClientProxy
+from ..io.rpc_client import _ClientProxy, get_client
+
 from .general import convert_path_to_url, json_abort
+from flask import g
 
 
-def add_routes(app: Flask, rpc_client: _ClientProxy):
+def add_routes(app: Flask):
+
+    @app.before_request
+    def do_rpc():
+        if 'rpc' not in g:
+            g.rpc = get_client()
 
     @app.route("/api/status/server")
     def status_server():
-        if rpc_client.online:
-            return jsonify(**rpc_client.get_status())
+        if g.rpc.online:
+            return jsonify(**g.rpc.get_status())
         return json_abort(503, reason="System not ready")
 
     @app.route("/api/status/queue")
     def status_queue():
-        if rpc_client.online:
-            return jsonify(queue=rpc_client.get_queue_status())
+        if g.rpc.online:
+            return jsonify(queue=g.rpc.get_queue_status())
         return json_abort(503, reason="System not ready")
 
     @app.route("/api/status/jobs")
     def status_jobs():
-        if rpc_client.online:
-            data = rpc_client.get_job_status()
+        if g.rpc.online:
+            data = g.rpc.get_job_status()
             for item in data:
                 if item['type'] == "Feature Extraction Job":
                     item['label'] = convert_path_to_url("", item['label'])
@@ -36,21 +44,21 @@ def add_routes(app: Flask, rpc_client: _ClientProxy):
     @app.route("/api/status/scanners")
     @app.route("/api/status/scanners/<status_query>")
     def status_scanners(status_query=None):
-        if rpc_client.online:
+        if g.rpc.online:
             if status_query is None or status_query.lower() == 'all':
-                return jsonify(scanners=rpc_client.get_scanner_status())
+                return jsonify(scanners=g.rpc.get_scanner_status())
             if status_query.lower() == 'free':
                 return jsonify(
                     scanners={
                         s['socket']: s['scanner_name']
-                        for s in rpc_client.get_scanner_status()
+                        for s in g.rpc.get_scanner_status()
                         if 'owner' not in s or not s['owner']
                     },
                 )
             try:
                 return jsonify(
                     scanner=next((
-                        s for s in rpc_client.get_scanner_status()
+                        s for s in g.rpc.get_scanner_status()
                         if status_query in s['scanner_name']
                     )),
                 )

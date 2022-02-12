@@ -59,9 +59,9 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--no-browser",
-        dest="no_browser",
-        default=False,
-        action='store_true',
+        dest="browser",
+        default=True,
+        action='store_false',
         help="Open url to Scan-o-Matic in new tab (default True)",
     )
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         default=False,
         action='store_true',
         help="Run in debug-mode. This makes the app vunerable and insecure" +
-        " and should be used behind firewall"  +
+        " and should be used behind firewall" +
         "and never on a production system that has real data in it.",
     )
 
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.relaunch:
-        _logger.infO("Invoking `--kill --no-launch --no_browser`")
+        _logger.info("Invoking `--kill --no-launch --no_browser`")
         args.kill = True
         args.no_launch = False
-        args.no_browser = True
+        args.browser = False
 
     if args.kill:
         procs = (
@@ -98,7 +98,9 @@ if __name__ == "__main__":
         )
         for proc in procs:
             _logger.info(
-                f"Killing process '{proc.name()}' with pid {proc.pid}",
+                "Killing process '%s' with pid %i",
+                proc.name(),
+                proc.pid
             )
             proc.kill()
 
@@ -114,4 +116,4 @@ if __name__ == "__main__":
         args.host,
         args.port,
         args.debug,
-        open_browser_url=args.no_browser is False)
+        open_browser_url=args.browser)
