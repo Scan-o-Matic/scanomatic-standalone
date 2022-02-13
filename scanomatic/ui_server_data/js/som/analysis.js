@@ -145,6 +145,7 @@ function regriddingSettingsData() {
 export function toggleManualRegridding(chkbox) {
   const isActive = $(chkbox).prop('checked');
   if (isActive) {
+    setFixturePlateListing();
     $('#manual-regridding-settings').show();
   } else {
     $('#manual-regridding-settings').hide();
