@@ -79,7 +79,9 @@ def launch_server(host, port, debug):
     analysis_api.add_routes(app)
     compilation_api.add_routes(app)
     scan_api.add_routes(app)
-    status_api.add_routes(app)
+    app.register_blueprint(
+        status_api.blueprint, url_prefix="/api/status",
+    )
     data_api.add_routes(app, rpc_client, debug)
     app.register_blueprint(
         calibration_api.blueprint, url_prefix="/api/calibration",
