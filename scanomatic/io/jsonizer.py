@@ -246,7 +246,7 @@ class SOMEncoder(json.JSONEncoder):
                 SOMSerializers.MODEL.encoding: name,
                 CONTENT: {k: o[k] for k in o.keys()},
             }
-        elif isinstance(o, Enum):
+        if isinstance(o, Enum):
             if name not in ENUM_CLASSES:
                 msg = f"'{name}' not a recognized serializable enum"
                 _LOGGER.error(msg)
@@ -255,12 +255,12 @@ class SOMEncoder(json.JSONEncoder):
                 SOMSerializers.ENUM.encoding: name,
                 CONTENT: o.name,
             }
-        elif isinstance(o, np.ndarray):
+        if isinstance(o, np.ndarray):
             return {
                 SOMSerializers.ARRAY.encoding: o.dtype.name,
                 CONTENT: o.tolist()
             }
-        elif is_dataclass(o):
+        if is_dataclass(o):
             if name not in DATA_CLASSES:
                 msg = f"'{name}' not a recognized serializable dataclass"
                 _LOGGER.error(msg)
@@ -269,6 +269,8 @@ class SOMEncoder(json.JSONEncoder):
                 SOMSerializers.DATACLASS.encoding: name,
                 CONTENT: asdict(o),
             }
+        if isinstance(o, bytes):
+            return o.decode()
         return super().default(o)
 
 

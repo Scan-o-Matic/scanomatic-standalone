@@ -2,11 +2,11 @@ import os
 import time
 from threading import Thread
 from typing import Union
-from scanomatic.io.jsonizer import dump, loads
 
-import scanomatic.io.rpc_client as rpc_client
+from scanomatic.io import rpc_client
 from scanomatic.io import paths, sane, scanner_manager
 from scanomatic.io.app_config import Config as AppConfig
+from scanomatic.io.jsonizer import dump, loads
 from scanomatic.models.compile_project_model import COMPILE_ACTION, FIXTURE
 from scanomatic.models.factories import compile_project_factory
 from scanomatic.models.rpc_job_models import JOB_TYPE, RPCjobModel
@@ -249,7 +249,9 @@ class ScannerEffector(proc_effector.ProcessEffector):
         self._allowed_calls['setup'] = self.setup
         self._allowed_calls[JOBS_CALL_SET_USB] = self._set_usb_port
 
-        self._scanning_effector_data = ScanningModelEffectorData()
+        self._scanning_effector_data = ScanningModelEffectorData(
+            compile_project_model=None
+        )
         self._rpc_client = rpc_client.get_client()
         self._scanner = None
 
@@ -975,7 +977,7 @@ class ScannerEffector(proc_effector.ProcessEffector):
         )
 
     def _setup_directory(self):
-        os.makedirs(self._project_directory)
+        os.makedirs(self._project_directory, exist_ok=True)
 
     @property
     def _project_directory(self) -> str:

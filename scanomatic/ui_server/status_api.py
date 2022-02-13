@@ -51,8 +51,8 @@ def status_scanners(status_query=None):
             return jsonify(
                 scanners={
                     s['socket']: s['scanner_name']
-                    for s in rpc_client.get_scanner_status()
-                    if 'owner' not in s or not s['owner']
+                    for s in g.rpc.get_scanner_status()
+                    if s.get('owner', {}).get('pid', 0) == 0
                 },
             )
         try:
