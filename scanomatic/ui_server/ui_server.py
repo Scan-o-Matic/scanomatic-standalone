@@ -142,7 +142,7 @@ def add_resource_routes(app):
 
 def launch_webbrowser(delay=0.0) -> None:
     if delay:
-        _LOGGER.info("Will open webbrowser in %f s", delay)
+        _LOGGER.info(f"Will open webbrowser in {delay} s")
         time.sleep(delay)
 
     if _URL:
