@@ -102,12 +102,12 @@ def validate_email(model: ScanningModel) -> ValidationResult:
         return True
 
     if isinstance(model.email, str):
-        email = ",".split(model.email)
+        emails = model.email.replace(" ", "").split(",")
     else:
-        email = model.email
+        emails = model.email
 
     try:
-        for address in email:
+        for address in emails:
             if (
                 not (
                     isinstance(address, str)
