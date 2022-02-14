@@ -98,8 +98,7 @@ class _ClientProxy:
                 ]
             )
             return m
-        else:
-            raise AttributeError(f"Client doesn't support attribute {key}")
+        raise AttributeError(f"Client doesn't support attribute {key}")
 
     def __dir__(self):
         return list(self._allowed_methods())
@@ -128,9 +127,9 @@ class _ClientProxy:
             except xmlrpc.client.Fault:
                 self._logger.critical(
                     "Failed to communicate with {}({}, **{})".format(
-                        f.__name__,
-                        args,
-                        kwargs,
+                    f.__name__,
+                    args,
+                    kwargs,
                     ),
                 )
                 raise
