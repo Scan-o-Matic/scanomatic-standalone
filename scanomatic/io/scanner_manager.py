@@ -147,7 +147,7 @@ class ScannerPowerManager(SingeltonOneInit):
 
     def _match_scanners(self, alive_scanners) -> bool:
         active_usbs, _ = list(zip(*alive_scanners))
-        self._trim_no_longer_active_orphan_uabs(active_usbs)
+        self._trim_no_longer_active_orphan_usbs(active_usbs)
         available_usbs = self._get_non_orphan_usbs(active_usbs)
         unknown_usbs = self._remove_known_usbs(available_usbs)
 
@@ -236,7 +236,7 @@ class ScannerPowerManager(SingeltonOneInit):
         )
         return set(usb for usb in available_usbs if usb not in known_usbs)
 
-    def _trim_no_longer_active_orphan_uabs(self, active_usbs):
+    def _trim_no_longer_active_orphan_usbs(self, active_usbs):
         self._orphan_usbs = self._orphan_usbs.intersection(active_usbs)
 
     def _get_non_orphan_usbs(self, usbs):
