@@ -83,8 +83,9 @@ class _ClientProxy:
             Popen(["scan-o-matic_server"])
         else:
             self._logger.warning(
-                "Can't launch because server is %s",
-                ['not local', 'online'][self.online]
+                "Can't launch because server is {0}".format(
+                    ['not local', 'online'][self.online],
+                )
             )
 
     def __getattr__(self, key):
@@ -108,7 +109,7 @@ class _ClientProxy:
             self._logger.info("No client active")
         else:
             address = "{0}:{1}/".format(self._host, self._port)
-            self._logger.info("Communicates with '%s'", address)
+            self._logger.info("Communicates with '{0}'".format(address))
             self._client = xmlrpc.client.ServerProxy(address)
 
     def user_id_decorator(self, f: Callable):
@@ -125,10 +126,11 @@ class _ClientProxy:
                 return f(*args, **kwargs)
             except xmlrpc.client.Fault:
                 self._logger.critical(
-                    "Failed to communicate with %s(%s, **%s)",
-                    f.__name__,
-                    args,
-                    kwargs,
+                    "Failed to communicate with {}({}, **{})".format(
+                        f.__name__,
+                        args,
+                        kwargs,
+                    ),
                 )
                 raise
 
@@ -150,11 +152,10 @@ class _ClientProxy:
                     and not (self._user_id is None and v in self._admin_methods)
                 )
             except socket.error:
-                self._logger.warning(
-                    "Connection Refused for '%s:%i'",
+                self._logger.warning("Connection Refused for '{0}:{1}'".format(
                     self.host,
                     self.port,
-                )
+                ))
                 return ("launch_local",)
 
         return ret

@@ -100,9 +100,7 @@ if __name__ == "__main__":
         )
         for proc in procs:
             _logger.info(
-                "Killing process '%s' with pid %i",
-                proc.name(),
-                proc.pid
+                f"Killing process '{proc.name()}' with pid {proc.pid}",
             )
             proc.kill()
 

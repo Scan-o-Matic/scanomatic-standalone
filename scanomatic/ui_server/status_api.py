@@ -1,4 +1,4 @@
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, jsonify
 
 from ..io.rpc_client import get_client
 from .general import convert_path_to_url, json_abort
@@ -11,7 +11,7 @@ blueprint = Blueprint('status_api', __name__)
 def status_server():
     rpc_client = get_client()
     if rpc_client.online:
-        return jsonify(**g.rpc.get_status())
+        return jsonify(**rpc_client.get_status())
     return json_abort(503, reason="System not ready")
 
 
@@ -19,7 +19,7 @@ def status_server():
 def status_queue():
     rpc_client = get_client()
     if rpc_client.online:
-        return jsonify(queue=g.rpc.get_queue_status())
+        return jsonify(queue=rpc_client.get_queue_status())
     return json_abort(503, reason="System not ready")
 
 
@@ -27,7 +27,7 @@ def status_queue():
 def status_jobs():
     rpc_client = get_client()
     if rpc_client.online:
-        data = g.rpc.get_job_status()
+        data = rpc_client.get_job_status()
         for item in data:
             if item['type'] == "Feature Extraction Job":
                 item['label'] = convert_path_to_url("", item['label'])
@@ -46,19 +46,19 @@ def status_scanners(status_query=None):
     rpc_client = get_client()
     if rpc_client.online:
         if status_query is None or status_query.lower() == 'all':
-            return jsonify(scanners=g.rpc.get_scanner_status())
+            return jsonify(scanners=rpc_client.get_scanner_status())
         if status_query.lower() == 'free':
             return jsonify(
                 scanners={
                     s['socket']: s['scanner_name']
-                    for s in g.rpc.get_scanner_status()
+                    for s in rpc_client.get_scanner_status()
                     if 'owner' not in s or not s['owner']
                 },
             )
         try:
             return jsonify(
                 scanner=next((
-                    s for s in g.rpc.get_scanner_status()
+                    s for s in rpc_client.get_scanner_status()
                     if status_query in s['scanner_name']
                 )),
             )

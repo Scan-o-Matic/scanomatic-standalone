@@ -54,7 +54,7 @@ def launch_server(host, port, debug):
             rpc_client.launch_local()
     else:
         _LOGGER.error(
-            "Can't reach RPC Server at %s:%i", rpc_client.host, rpc_client.port
+            f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}",
         )
 
     if port is None:
@@ -64,10 +64,9 @@ def launch_server(host, port, debug):
 
     _URL = f"http://{host}:{port}"
     _LOGGER.info(
-        "Requested to launch UI-server at %s being debug=%s",
-        _URL,
-        debug
+        f"Requested to launch UI-server at {_URL} being debug={debug}",
     )
+
 
     add_resource_routes(app)
 
