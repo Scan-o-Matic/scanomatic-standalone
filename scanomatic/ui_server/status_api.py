@@ -10,7 +10,7 @@ blueprint = Blueprint('status_api', __name__)
 @blueprint.before_request
 def get_rpc():
     if 'rpc' not in g:
-        g.rpc = get_client()  # noqa
+        g.rpc = get_client()
 
 
 @blueprint.route("/server")

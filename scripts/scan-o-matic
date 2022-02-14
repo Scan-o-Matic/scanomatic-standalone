@@ -70,9 +70,11 @@ if __name__ == "__main__":
         dest="debug",
         default=False,
         action='store_true',
-        help="Run in debug-mode. This makes the app vunerable and insecure" +
-        " and should be used behind firewall" +
-        "and never on a production system that has real data in it.",
+        help=(
+            "Run in debug-mode. This makes the app vunerable and insecure and "
+            "should be used behind firewall and never on a production system "
+            "that has real data in it."
+        )
     )
 
     parser.add_argument(
