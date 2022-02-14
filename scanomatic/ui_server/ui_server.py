@@ -67,11 +67,8 @@ def launch_server(host, port, debug):
         f"Requested to launch UI-server at {_URL} being debug={debug}",
     )
 
-
     add_resource_routes(app)
-
     ui_pages.add_routes(app)
-
     management_api.add_routes(app, rpc_client)
     tools_api.add_routes(app)
     qc_api.add_routes(app)
