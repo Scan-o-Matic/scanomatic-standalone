@@ -127,9 +127,9 @@ class _ClientProxy:
             except xmlrpc.client.Fault:
                 self._logger.critical(
                     "Failed to communicate with {}({}, **{})".format(
-                    f.__name__,
-                    args,
-                    kwargs,
+                        f.__name__,
+                        args,
+                        kwargs,
                     ),
                 )
                 raise
