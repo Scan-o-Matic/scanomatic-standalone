@@ -40,6 +40,12 @@ class PLATE_STORAGE(Enum):
     Cold = 1
     RoomTemperature = 2
 
+    @classmethod
+    def from_name(cls, raw_string: str) -> "PLATE_STORAGE":
+        for member in PLATE_STORAGE:
+            if member.name.upper() == raw_string.upper():
+                return member
+
 
 class CULTURE_SOURCE(Enum):
     Unknown = -1
@@ -48,6 +54,13 @@ class CULTURE_SOURCE(Enum):
     Fridge = 2
     Shipped = 3
     Novel = 4
+
+    @classmethod
+    def from_name(cls, raw_string: str) -> "CULTURE_SOURCE":
+        for member in CULTURE_SOURCE:
+            if member.name.upper() == raw_string.upper():
+                return member
+        return cls.Unknown
 
 
 class COMPILE_STATE(Enum):
