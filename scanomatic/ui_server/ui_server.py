@@ -46,15 +46,14 @@ def launch_server(host, port, debug):
 
     rpc_client = get_client()
 
-    if not rpc_client.online:
-        if rpc_client.local:
-            _LOGGER.warning(
-                "No local RPC Server detected launching local instance.",
-            )
-            rpc_client.launch_local()
-    else:
+    if rpc_client.local and rpc_client.online is False:
+        _LOGGER.warning(
+            "No local RPC Server detected launching local instance.",
+        )
+        rpc_client.launch_local()
+    elif not rpc_client.online:
         _LOGGER.error(
-            "Can't reach RPC Server at %s:%i", rpc_client.host, rpc_client.port
+            f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}",
         )
 
     if port is None:
@@ -64,12 +63,10 @@ def launch_server(host, port, debug):
 
     _URL = f"http://{host}:{port}"
     _LOGGER.info(
-        "Requested to launch UI-server at %s being debug=%s",
-        _URL,
-        debug
+        f"Requested to launch UI-server at {_URL} being debug={debug}",
     )
 
-    add_resource_routes(app)
+    add_resource_routes(app, rpc_client)
 
     ui_pages.add_routes(app)
 
@@ -79,9 +76,7 @@ def launch_server(host, port, debug):
     analysis_api.add_routes(app)
     compilation_api.add_routes(app)
     scan_api.add_routes(app)
-    app.register_blueprint(
-        status_api.blueprint, url_prefix="/api/status",
-    )
+    status_api.add_routes(app, rpc_client)
     data_api.add_routes(app, rpc_client, debug)
     app.register_blueprint(
         calibration_api.blueprint, url_prefix="/api/calibration",
@@ -113,7 +108,7 @@ def launch_server(host, port, debug):
     return True
 
 
-def add_resource_routes(app):
+def add_resource_routes(app, rpc_client):
     """
 
     :param app: The flask webb app
@@ -143,7 +138,7 @@ def add_resource_routes(app):
 
 def launch_webbrowser(delay=0.0) -> None:
     if delay:
-        _LOGGER.info("Will open webbrowser in %f s", delay)
+        _LOGGER.info(f"Will open webbrowser in {delay} s")
         time.sleep(delay)
 
     if _URL:
