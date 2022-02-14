@@ -4,7 +4,7 @@ services:
   scanomatic:
     privileged: true
     build: .
-    ports: ["5000"]
+    ports: ["10.8.0.4:5000:5000"]
     environment:
       - LOGGING_LEVEL=10
     volumes:
