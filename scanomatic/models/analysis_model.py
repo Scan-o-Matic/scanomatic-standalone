@@ -23,11 +23,23 @@ class IMAGE_ROTATIONS(Enum):
     Portrait = 1
     Unknown = 2
 
+    @classmethod
+    def from_name(cls, raw_string: str) -> "IMAGE_ROTATIONS":
+        for member in IMAGE_ROTATIONS:
+            if member.name.upper() == raw_string.upper():
+                return member
+
 
 class COMPARTMENTS(Enum):
     Total = 0
     Background = 1
     Blob = 2
+
+    @classmethod
+    def from_name(cls, raw_string: str) -> "COMPARTMENTS":
+        for member in COMPARTMENTS:
+            if member.name.upper() == raw_string.upper():
+                return member
 
 
 class MEASURES(Enum):
@@ -40,11 +52,23 @@ class MEASURES(Enum):
     IQR_Mean = 6
     Centroid = 7
 
+    @classmethod
+    def from_name(cls, raw_string: str) -> "MEASURES":
+        for member in MEASURES:
+            if member.name.upper() == raw_string.upper():
+                return member
+
 
 class VALUES(Enum):
     Pixels = 0
     Grayscale_Targets = 1
     Cell_Estimates = 2
+
+    @classmethod
+    def from_name(cls, raw_string: str) -> "VALUES":
+        for member in VALUES:
+            if member.name.upper() == raw_string.upper():
+                return member
 
 
 class AnalysisModelFields(Enum):

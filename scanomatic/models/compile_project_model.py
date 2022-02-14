@@ -11,10 +11,22 @@ class COMPILE_ACTION(Enum):
     InitiateAndSpawnAnalysis = 10
     AppendAndSpawnAnalysis = 11
 
+    @classmethod
+    def from_name(cls, raw_string: str) -> "COMPILE_ACTION":
+        for member in COMPILE_ACTION:
+            if member.name.upper() == raw_string.upper():
+                return member
+
 
 class FIXTURE(Enum):
     Local = 0
     Global = 1
+
+    @classmethod
+    def from_name(cls, raw_string: str) -> "FIXTURE":
+        for member in FIXTURE:
+            if member.name.upper() == raw_string.upper():
+                return member
 
 
 class CompileInstructionsModelFields(Enum):
