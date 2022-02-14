@@ -222,8 +222,7 @@ class InterfaceBuilder(SingeltonOneInit):
             self.logger.error("Scanner manager not connected to scanner")
             return []
         self.logger.debug(
-            "Scanner manager status: %s",
-            _SOM_SERVER.scanner_manager.status
+            f"Scanner manager status: {_SOM_SERVER.scanner_manager.status}"
         )
         return sanitize_communication(sorted(
             [
