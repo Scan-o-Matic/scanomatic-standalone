@@ -249,8 +249,9 @@ class Config(SingeltonOneInit):
         return val
 
     def save_current_settings(self) -> None:
+        """Settings should be validated beforehand."""
         dump(
-            self._settings,
+            self.application_settings,
             self._paths.config_main_app,
             merge=True,
         )
