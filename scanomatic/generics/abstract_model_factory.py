@@ -1,5 +1,4 @@
 import copy
-from enum import Enum, EnumMeta
 import types
 import warnings
 from collections.abc import Callable, Sequence
