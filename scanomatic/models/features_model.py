@@ -7,12 +7,6 @@ class FeatureExtractionData(Enum):
     Default = 0
     State = 1
 
-    @classmethod
-    def from_name(cls, raw_string: str) -> "FeatureExtractionData":
-        for member in FeatureExtractionData:
-            if member.name.upper() == raw_string.upper():
-                return member
-
 
 class FeaturesModelFields(Enum):
     analysis_directory = auto()

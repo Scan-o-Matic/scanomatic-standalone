@@ -242,12 +242,6 @@ class AbstractModelFactory:
                 else:
                     break
 
-        def _get_enum(enum: EnumMeta, name: str) -> Enum:
-            try:
-                return enum.from_name(name)
-            except AttributeError:
-                cls.get_logger().error(f"Failed to get enum {name} from {enum}")
-
         def _enforce_other(dtype, obj):
             if obj is None or obj is False and dtype is not bool:
                 return None
@@ -354,8 +348,6 @@ class AbstractModelFactory:
                         cls._SUB_FACTORIES[dtype],
                         settings[key],
                     )
-                elif isinstance(dtype, EnumMeta):
-                    settings[key] = _get_enum(dtype, settings[key])
                 else:
                     settings[key] = _enforce_other(dtype, settings[key])
             # else it is already correct type
