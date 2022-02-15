@@ -73,12 +73,12 @@ class ScannerPowerManager(SingeltonOneInit):
 
         # Load saved scanner data
         scanner_configs = load(self._paths.config_scanners)
-        for scanner in cast(
-            list[ScannerModel],
-            [] if scanner_configs is None else
-            [scanner_configs] if not isinstance(scanner_configs, list) else
-            scanner_configs,
-        ):
+        if scanner_configs is None:
+            scanner_configs = []
+        elif not isinstance(scanner_configs, list):
+            scanner_configs = [scanner_configs]
+
+        for scanner in cast(list[ScannerModel], scanner_configs):
             if 0 < scanner.socket <= self._conf.number_of_scanners:
                 scanners[scanner.socket] = scanner
 
