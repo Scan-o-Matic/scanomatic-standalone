@@ -52,7 +52,7 @@ def status_scanners(status_query=None):
                 scanners={
                     s['socket']: s['scanner_name']
                     for s in rpc_client.get_scanner_status()
-                    if s.get('owner', {}).get('pid', 0) == 0
+                    if s['owner']['pid'] == 0
                 },
             )
         try:

@@ -356,7 +356,8 @@ class ScannerPowerManager(SingeltonOneInit):
         if scanner.power or scanner.usb:
             self._power_down(scanner)
 
-        scanner.owner = None
+        scanner.owner = {'pid': 0}
+
         self._logger.info(
             "Removed owner for scanner {0}".format(scanner.scanner_name),
         )
