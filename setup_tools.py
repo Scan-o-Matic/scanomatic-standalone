@@ -3,8 +3,6 @@ import os
 import sys
 import glob
 import stat
-import re
-from io import BytesIO
 from hashlib import sha256
 from subprocess import PIPE, call
 from itertools import chain
@@ -32,27 +30,6 @@ class MiniLogger:
 _logger = MiniLogger()
 
 home_dir = os.path.expanduser("~")
-
-defaultPermission = 0o644
-installPath = ".scan-o-matic"
-defaultSourceBase = "data"
-
-data_files = [
-    ('config', {
-        'calibration.polynomials': False,
-        'calibration.data': False,
-        'grayscales.cfg': False,
-        'rpc.config': False,
-        'scanners.sane.json': False,
-        'scan-o-matic.desktop': True,
-    }),
-    (os.path.join('config', 'fixtures'), {}),
-    ('logs', {}),
-    ('locks', {}),
-    ('images', None),
-    ('ui_server', None)
-]
-
 
 _launcher_text = """[Desktop Entry]
 Type=Application
@@ -170,93 +147,6 @@ def _clone_all_files_in(path):
                 yield os.path.join(local_child, grandchild), True
         else:
             yield local_child, True
-
-
-def install_data_files(
-    target_base=None,
-    source_base=None,
-    install_list=None,
-    silent=False,
-):
-    p = re.compile(r'ver=_-_VERSIONTAG_-_')
-
-    cur_dir = os.path.dirname(sys.argv[1])
-    if not cur_dir:
-        cur_dir = os.path.curdir
-
-    replacement = r'ver={0}'.format(".".join(
-        (str(v) for v in source.parse_version(
-            source.get_source_information(
-                True,
-                force_location=cur_dir,
-            )['version']
-        ))))
-
-    _logger.info("Data gets installed as {0}".format(replacement))
-
-    if target_base is None:
-        target_base = os.path.join(home_dir, installPath)
-
-    if source_base is None:
-        source_base = defaultSourceBase
-
-    if install_list is None:
-        install_list = data_files
-
-    if not os.path.isdir(target_base):
-        os.mkdir(target_base)
-        os.chmod(target_base, 0o755)
-
-    for install_instruction in install_list:
-
-        relative_directory, files = install_instruction
-        source_directory = os.path.join(source_base, relative_directory)
-        target_directory = os.path.join(target_base, relative_directory)
-
-        if not os.path.isdir(target_directory):
-            os.makedirs(target_directory, 0o755)
-
-        if files is None:
-            files = dict(_clone_all_files_in(source_directory))
-            print(files)
-
-        for file_name in files:
-
-            source_path = os.path.join(source_directory, file_name)
-            target_path = os.path.join(target_directory, file_name)
-
-            if not os.path.isdir(os.path.dirname(target_path)):
-                os.makedirs(os.path.dirname(target_path), 0o755)
-
-            if not os.path.isfile(target_path) and files[file_name] is None:
-                _logger.info("Creating empty file {0}".format(target_path))
-                fh = open(target_path, 'w')
-                fh.close()
-            elif (
-                not os.path.isfile(target_path)
-                or files[file_name]
-                or silent
-                or 'y' in input("Do you want to overwrite {0} (y/N)".format(
-                    target_path,
-                )).lower()
-            ):
-
-                _logger.info(
-                    "Copying file: {0} => {1}".format(
-                        source_path, target_path))
-
-                b = BytesIO()
-
-                with open(source_path, 'rb') as fh:
-                    buff = fh.read().decode()
-                    b.write(p.sub(replacement, buff).encode())
-
-                b.flush()
-                b.seek(0)
-                with open(target_path, 'wb') as fh:
-                    fh.write(b.read())
-
-                os.chmod(target_path, defaultPermission)
 
 
 def linux_launcher_install():
@@ -447,9 +337,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         action = sys.argv[1].lower()
 
-        if action == 'install-settings':
-            install_data_files()
-        elif action == 'uninstall':
+        if action == 'uninstall':
             uninstall()
         elif action == 'purge':
             purge()
@@ -457,5 +345,5 @@ if __name__ == "__main__":
             install_launcher()
     else:
         _logger.info(
-            "Valid options are 'install-settings', 'install-launcher', 'uninstall', 'purge'",  # noqa: E501
+            "Valid options are 'install-launcher', 'uninstall', 'purge'",  # noqa: E501
         )

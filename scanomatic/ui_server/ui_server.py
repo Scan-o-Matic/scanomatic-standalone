@@ -46,12 +46,13 @@ def launch_server(host, port, debug):
 
     rpc_client = get_client()
 
-    if rpc_client.local and rpc_client.online is False:
-        _LOGGER.warning(
-            "No local RPC Server detected launching local instance.",
-        )
-        rpc_client.launch_local()
-    elif not rpc_client.online:
+    if not rpc_client.online:
+        if rpc_client.local:
+            _LOGGER.warning(
+                "No local RPC Server detected launching local instance.",
+            )
+            rpc_client.launch_local()
+    else:
         _LOGGER.error(
             f"Can't reach RPC Server at {rpc_client.host}:{rpc_client.port}",
         )
@@ -66,17 +67,17 @@ def launch_server(host, port, debug):
         f"Requested to launch UI-server at {_URL} being debug={debug}",
     )
 
-    add_resource_routes(app, rpc_client)
-
+    add_resource_routes(app)
     ui_pages.add_routes(app)
-
     management_api.add_routes(app, rpc_client)
     tools_api.add_routes(app)
     qc_api.add_routes(app)
     analysis_api.add_routes(app)
     compilation_api.add_routes(app)
     scan_api.add_routes(app)
-    status_api.add_routes(app, rpc_client)
+    app.register_blueprint(
+        status_api.blueprint, url_prefix="/api/status",
+    )
     data_api.add_routes(app, rpc_client, debug)
     app.register_blueprint(
         calibration_api.blueprint, url_prefix="/api/calibration",
@@ -108,7 +109,7 @@ def launch_server(host, port, debug):
     return True
 
 
-def add_resource_routes(app, rpc_client):
+def add_resource_routes(app):
     """
 
     :param app: The flask webb app

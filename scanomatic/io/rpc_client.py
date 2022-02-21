@@ -98,8 +98,7 @@ class _ClientProxy:
                 ]
             )
             return m
-        else:
-            raise AttributeError(f"Client doesn't support attribute {key}")
+        raise AttributeError(f"Client doesn't support attribute {key}")
 
     def __dir__(self):
         return list(self._allowed_methods())

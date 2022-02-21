@@ -25,4 +25,4 @@ types-pillow
 types-psutil
 types-python-nmap
 openpyxl
-nmap
+python-nmap

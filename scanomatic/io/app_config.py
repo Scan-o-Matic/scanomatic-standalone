@@ -249,12 +249,12 @@ class Config(SingeltonOneInit):
         return val
 
     def save_current_settings(self) -> None:
-        if self.validate():
-            dump(
-                self._settings,
-                self._paths.config_main_app,
-                merge=True,
-            )
+        """Settings should be validated beforehand."""
+        dump(
+            self.application_settings,
+            self._paths.config_main_app,
+            merge=True,
+        )
 
     def get_scanner_socket(self, scanner: Union[int, str]) -> Optional[int]:
         scanner_name = self.get_scanner_name(scanner)
@@ -272,7 +272,7 @@ class Config(SingeltonOneInit):
             return power_manager.PowerManagerNull(0)
 
         self._logger.info(
-            "Creating scanner PM for socked {0} and settings {1}".format(
+            "Creating scanner PM for socket {0} and settings {1}".format(
                 socket,
                 dict(**self.power_manager),
             ),

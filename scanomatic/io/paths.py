@@ -26,7 +26,6 @@ class Paths(SingeltonOneInit):
         )
 
         Paths._make_directory(self.root)
-
         self.config = os.path.join(self.root, "config")
         Paths._make_directory(self.config)
         self.fixtures = os.path.join(self.config, "fixtures")
@@ -109,10 +108,7 @@ class Paths(SingeltonOneInit):
         self.experiment_scan_image_pattern = "{0}_{1}_{2:.4f}.tiff"
         self.experiment_analysis_relative_path = "analysis"
 
-        self.analysis_grayscales = os.path.join(
-            self.config,
-            "grayscales.cfg",
-        )
+        self.analysis_grayscales = os.path.join(self.config, "grayscales.cfg")
 
         self.ccc_folder = os.path.join(self.config, "ccc")
         Paths._make_directory(self.ccc_folder)

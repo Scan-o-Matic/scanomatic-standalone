@@ -413,7 +413,7 @@ class PowerManagerLan(PowerManagerNull):
             self._logger.debug("LAN PM, Logging in")
             return self._run_url(
                 self._login_out_url,
-                self._pwd_params,
+                self._pwd_params.encode(),
                 timeout=URL_TIMEOUT,
             )
 
@@ -436,7 +436,7 @@ class PowerManagerLan(PowerManagerNull):
                 self._host = None
 
             else:
-                s = u.read()
+                s = u.read().decode()
                 u.close()
 
                 if "EnerGenie" not in s:
@@ -452,13 +452,13 @@ class PowerManagerLan(PowerManagerNull):
         if u is None:
             return False
 
-        if not self._verify_name or self._pm_server_str in u.read():
+        if not self._verify_name or self._pm_server_str in u.read().decode():
             self._logger.info(
-                'USB PM, Turning on socket {0}'.format(self._socket),
+                'LAN PM, Turning on socket {0}'.format(self._socket),
             )
             if self._run_url(
                 self._ctrl_panel_url,
-                self._on_params,
+                self._on_params.encode(),
                 timeout=URL_TIMEOUT
             ) is None:
                 return False
@@ -476,14 +476,14 @@ class PowerManagerLan(PowerManagerNull):
         if u is None:
             return False
 
-        if not self._verify_name or self._pm_server_str in u.read():
+        if not self._verify_name or self._pm_server_str in u.read().decode():
             self._logger.info(
-                'USB PM, Turning off socket {0}'.format(self._socket),
+                'LAN PM, Turning off socket {0}'.format(self._socket),
             )
 
             if self._run_url(
                 self._ctrl_panel_url,
-                self._off_params,
+                self._off_params.encode(),
                 timeout=URL_TIMEOUT,
             ) is None:
                 return False
@@ -501,7 +501,7 @@ class PowerManagerLan(PowerManagerNull):
             self._logger.error('Could not reach LAN-PM')
             return None
 
-        page = u.read()
+        page = u.read().decode()
         if not self._verify_name or self._pm_server_str in page:
 
             states = re.findall(r'sockstates = ([^;]*)', page)[0].strip()

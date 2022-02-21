@@ -5,6 +5,8 @@ services:
     privileged: true
     build: .
     ports: ["5000:5000"]
+    environment:
+      - LOGGING_LEVEL=20
     volumes:
       - ${SOM_SETTINGS:-/tmp/.scan-o-matic}:/root/.scan-o-matic
       - ${SOM_PROJECTS_ROOT:-/tmp/SoM}:/somprojects

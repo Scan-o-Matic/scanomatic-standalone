@@ -30,7 +30,8 @@ COPY setup.py /tmp/setup.py
 COPY setup_tools.py /tmp/setup_tools.py
 COPY get_installed_version.py /tmp/get_installed_version.py
 COPY --from=npmbuilder /src/scanomatic/ui_server_data/js/somlib /tmp/scanomatic/ui_server_data/js/somlib
+COPY setup_config.py /tmp/setup_config.py
 
 RUN cd /tmp && python3.9 setup.py install --default
-CMD scan-o-matic --no-browser
+CMD /tmp/setup_config.py && scan-o-matic --no-browser
 EXPOSE 5000

@@ -1,7 +1,7 @@
 import time
 from enum import Enum
 from threading import Thread
-from typing import Any, Union, cast
+from typing import Any, Optional, Union, cast
 
 import psutil
 
@@ -73,10 +73,12 @@ class ScannerPowerManager(SingeltonOneInit):
 
         # Load saved scanner data
         scanner_configs = load(self._paths.config_scanners)
-        for scanner in cast(
-            list[ScannerModel],
-            [] if scanner_configs is None else scanner_configs,
-        ):
+        if scanner_configs is None:
+            scanner_configs = []
+        elif not isinstance(scanner_configs, list):
+            scanner_configs = [scanner_configs]
+
+        for scanner in cast(list[ScannerModel], scanner_configs):
             if 0 < scanner.socket <= self._conf.number_of_scanners:
                 scanners[scanner.socket] = scanner
 
@@ -89,7 +91,7 @@ class ScannerPowerManager(SingeltonOneInit):
                 )
                 scanners[scanner.socket] = scanner
 
-        self._logger.info("Scanners inited: {0}".format(scanners))
+        self._logger.info("Scanners initiated: {0}".format(scanners))
 
         return scanners
 
@@ -145,7 +147,7 @@ class ScannerPowerManager(SingeltonOneInit):
 
     def _match_scanners(self, alive_scanners) -> bool:
         active_usbs, _ = list(zip(*alive_scanners))
-        self._trim_no_longer_active_orphan_uabs(active_usbs)
+        self._trim_no_longer_active_orphan_usbs(active_usbs)
         available_usbs = self._get_non_orphan_usbs(active_usbs)
         unknown_usbs = self._remove_known_usbs(available_usbs)
 
@@ -170,7 +172,7 @@ class ScannerPowerManager(SingeltonOneInit):
         return self._pm
 
     @property
-    def _claimer(self) -> ScannerModel:
+    def _claimer(self) -> Optional[ScannerModel]:
         for scanner in list(self._scanners.values()):
             if scanner.claiming:
                 return scanner
@@ -234,7 +236,7 @@ class ScannerPowerManager(SingeltonOneInit):
         )
         return set(usb for usb in available_usbs if usb not in known_usbs)
 
-    def _trim_no_longer_active_orphan_uabs(self, active_usbs):
+    def _trim_no_longer_active_orphan_usbs(self, active_usbs):
         self._orphan_usbs = self._orphan_usbs.intersection(active_usbs)
 
     def _get_non_orphan_usbs(self, usbs):
@@ -354,7 +356,8 @@ class ScannerPowerManager(SingeltonOneInit):
         if scanner.power or scanner.usb:
             self._power_down(scanner)
 
-        scanner.owner = None
+        scanner.owner = {'pid': 0}
+
         self._logger.info(
             "Removed owner for scanner {0}".format(scanner.scanner_name),
         )

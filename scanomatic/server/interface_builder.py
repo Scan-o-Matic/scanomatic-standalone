@@ -215,20 +215,22 @@ class InterfaceBuilder(SingeltonOneInit):
         return sanitize_communication(_SOM_SERVER.get_server_status())
 
     def _server_get_scanner_status(self, user_id=None):
-        global _SOM_SERVER
         if _SOM_SERVER is None:
             self.logger.error("Server not fully initialized")
             return []
         if not _SOM_SERVER.scanner_manager.connected_to_scanners:
+            self.logger.error("Scanner manager not connected to scanner")
             return []
-        else:
-            return sanitize_communication(sorted(
-                [
-                    ScannerFactory.to_dict(scanner_model)
-                    for scanner_model in _SOM_SERVER.scanner_manager.status
-                ],
-                key=lambda x: x['socket'],
-            ))
+        self.logger.debug(
+            f"Scanner manager status: {_SOM_SERVER.scanner_manager.status}"
+        )
+        return sanitize_communication(sorted(
+            [
+                ScannerFactory.to_dict(scanner_model)
+                for scanner_model in _SOM_SERVER.scanner_manager.status
+            ],
+            key=lambda x: x['socket'],
+        ))
 
     @_verify_admin
     def _server_get_power_manager_info(self, user_id=None):
@@ -238,18 +240,22 @@ class InterfaceBuilder(SingeltonOneInit):
             return {}
 
         pm = _SOM_SERVER.scanner_manager.power_manager
+        keys = list(pm.keys())
+        if (n_keys := len(keys)) != 1:
+            self.logger.error(f"Found {n_keys} power managers, should be 1")
+            return {}
+        pm = pm[keys[0]]
         host = pm.host
 
         data = {
-                'pm': type(pm),
-                'host': host,
-                'unasigned_usbs': (
-                    _SOM_SERVER.scanner_manager.non_reported_usbs
-                ),
-                'power_status': _SOM_SERVER.scanner_manager.power_statuses,
-                'modes': _SOM_SERVER.scanner_manager.pm_types,
-             }
-
+            'pm': type(pm),
+            'host': host,
+            'unasigned_usbs': (
+                _SOM_SERVER.scanner_manager.non_reported_usbs
+            ),
+            'power_status': _SOM_SERVER.scanner_manager.power_statuses,
+            'modes': _SOM_SERVER.scanner_manager.pm_types,
+        }
         _SOM_SERVER.logger.info(f"PM Status is {data}")
 
         return sanitize_communication(data)

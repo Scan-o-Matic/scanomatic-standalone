@@ -354,7 +354,7 @@ class AbstractModelFactory:
     @classmethod
     def to_dict(cls, model) -> dict:
         model_as_dict = dict(**model)
-        for k in model_as_dict.keys():
+        for k in list(model_as_dict.keys()):
             if k not in cls.STORE_SECTION_SERIALIZERS:
                 del model_as_dict[k]
             elif (

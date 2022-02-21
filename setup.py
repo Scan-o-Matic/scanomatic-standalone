@@ -286,10 +286,6 @@ if len(sys.argv) > 1:
     # POST-INSTALL
     #
 
-    from setup_tools import install_data_files
-
-    _logger.info("Copying data and configuration files")
-    install_data_files(silent=True)
     patch_bashrc_if_not_reachable(silent=silent_install)
     _logger.info("Post Setup Complete")
 
