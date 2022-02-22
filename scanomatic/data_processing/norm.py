@@ -828,8 +828,8 @@ def initial_plate_transform(
 
 
 def ipv_residue(scaling_params, ipv, gt):
-    ip_flex = scaling_params[: scaling_params.size / 2]
-    ip_scale = scaling_params[scaling_params.size / 2:]
+    ip_flex = scaling_params[: scaling_params.size // 2]
+    ip_scale = scaling_params[scaling_params.size // 2:]
     ret = np.array(
         [
             gt[id_p]
