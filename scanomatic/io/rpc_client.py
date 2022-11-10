@@ -140,7 +140,7 @@ class _ClientProxy:
 
         ret: tuple[str, ...] = tuple()
 
-        if not(
+        if not (
             self._client is None
             or hasattr(self._client, "system") is False
         ):

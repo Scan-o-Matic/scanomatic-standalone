@@ -61,7 +61,7 @@ class Model(Mapping):
             return False
 
         for key in self.keys():
-            if key not in other or not(self[key] == other[key]):
+            if key not in other or not (self[key] == other[key]):
                 return False
         return True
 
